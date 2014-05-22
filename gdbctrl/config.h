@@ -6,7 +6,7 @@
 
 
 #define LOG_FILE	"/proc/self/fd/1"
-#define LOG_LEVEL	INFO | WARN | ERROR
+#define LOG_LEVEL	INFO
 
 
 #endif

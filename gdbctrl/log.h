@@ -2,45 +2,60 @@
 #define LOG_H
 
 
-/* macros */
-#define INFO(msg, ...)	log_print(INFO, "[INF][%d] %20s()\t"msg, getpid(), __FUNCTION__, ##__VA_ARGS__)
-#define ERROR(msg, ...)	log_print(ERROR, "[ERR][%d] %20s()\t"msg, getpid(), __FUNCTION__, ##__VA_ARGS__)
-#define WARN(msg, ...)	log_print(WARN, "[WAR][%d] %20s()\t"msg, getpid(), __FUNCTION__, ##__VA_ARGS__)
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
 
 
 /* types */
-typedef enum{
+enum log_level_t{
+	NONE = 0x0,
 	INFO = 0x1,
 	WARN = 0x2,
 	ERROR = 0x4
-} log_level_t;
+};
 
 
-/* protorypes */
-/**
- * \brief	init log system
- *
- * \param	file_name	file name of log file
- * \param	lvl			log level to apply
- *
- * \return	0			success
- * 			-1			error (check errno)
- */
-int log_init(const char* file_name, log_level_t lvl);
+/* macros */
+#define INFO(msg, ...)	log::print(INFO, "[INF][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR, "[ERR][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
+#define WARN(msg, ...)	log::print(WARN, "[WAR][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
 
-/**
- * \brief	safely shut down log system
- */
-void log_cleanup();
 
-/**
- * \brief	write log message to log file
- *
- * \param	lvl			log level of message
- * \param	msg			actual message (printf-like format string)
- * \param	...			arguments as defined in <msg>
- */
-void log_print(log_level_t lvl, const char* msg, ...);
+/* class */
+class log{
+public:
+	/**
+	 * \brief	init log system
+	 *
+	 * \param	file_name	file name of log file
+	 * \param	lvl			log level to apply
+	 *
+	 * \return	0			success
+	 * 			-1			error (check errno)
+	 */
+	static int init(const char* file_name, log_level_t lvl);
+
+	/**
+	 * \brief	safely shut down log system
+	 */
+	static void cleanup();
+
+	/**
+	 * \brief	write log message to log file
+	 *
+	 * \param	lvl			log level of message
+	 * \param	msg			actual message (printf-like format string)
+	 * \param	...			arguments as defined in <msg>
+	 */
+	static void print(log_level_t lvl, const char* msg, ...);
+
+	static char* stime();
+
+private:
+	static FILE* log_file;
+	static log_level_t log_level;
+};
 
 
 #endif

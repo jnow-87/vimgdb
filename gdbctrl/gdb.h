@@ -2,26 +2,31 @@
 #define GDB_H
 
 
+#include "pty.h"
+
+
 /* marcos */
 #define GDB_CMD		"/usr/bin/gdb"
 #define GDB_ARGS	"-q"
 
 
-/* prototypes */
-/**
- * \brief	exec gdb and initialise its controlling terminal
- *
- * \return	0	on success
- * 			-1	on error (check errno)
- */
-int gdb_init();
+/* class */
+class gdb_if{
+public:
+	gdb_if();
+	~gdb_if();
 
-/**
- * \brief	safely shutdown gdb session
- *
- * \param	fd	file descriptor to gdb terminal
- */
-void gdb_cleanup();
+	/**
+	 * \brief	exec gdb and initialise its controlling terminal
+	 *
+	 * \return	0	on success
+	 * 			-1	on error (check errno)
+	 */
+	int init();
+
+private:
+	pty* child_term;	// PTX to gdb child
+};
 
 
 #endif
