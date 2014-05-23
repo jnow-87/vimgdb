@@ -5,15 +5,29 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
+namespace linux{
+	// cover in separate namespace to avoid name collision
+	#include <unistd.h>
+}
+
 #include "log.h"
 #include "pty.h"
 
 
+/* class definition */
+/**
+ * \brief	standard Constructor
+ */
 pty::pty() : pty(0, 0){
 }
 
+/**
+ * \brief	constructor - open pseudo terminal
+ *
+ * \param	termp		terminal parameter applied to the slave side
+ * \param	win_size	window parameter applied to the slave side
+ */
 pty::pty(struct termios* termp, struct winsize* win_size){
 	// open pseudoterminal
 	if(openpty(&fd_master, &fd_slave, termp, win_size) != 0){
@@ -21,9 +35,14 @@ pty::pty(struct termios* termp, struct winsize* win_size){
 		this->fd_slave = 0;
 	}
 
+	this->fd_in = this->fd_master;
+	this->fd_out = this->fd_master;
 	this->forkee_pid = -1;
 }
 
+/**
+ * \brief	standard destructor
+ */
 pty::~pty(){
 	// killing gdb child process
 	if(this->forkee_pid != -1){
@@ -36,24 +55,35 @@ pty::~pty(){
 	}
 
 	// close terminal
-	close(this->fd_master);
-	close(this->fd_slave);
+	linux::close(this->fd_master);
+	linux::close(this->fd_slave);
 }
 
-int pty::forkpty(){
-	this->forkee_pid = fork();
+/**
+ * \brief	fork process, using pseudo terminal as interface
+ *
+ * \param	fd_master	on success this holds the file descriptor to the master side
+ * \param	termp		terminal parameter applied to the slave side
+ * \param	win_size	window parameter applied to the slave side
+ *
+ * \return	0			on child
+ * 			>0			on parent
+ * 			-1			on error
+ */
+int pty::fork(){
+	this->forkee_pid = linux::fork();
 
 	switch(this->forkee_pid){
 	// error
 	case -1:
-		close(this->fd_master);
-		close(this->fd_slave);
+		linux::close(this->fd_master);
+		linux::close(this->fd_slave);
 
 		return -1;
 
 	// child
 	case 0:
-		close(this->fd_master);
+		linux::close(this->fd_master);
 		this->fd_master = 0;
 
 		// make fd_slave controlling terminal
@@ -64,7 +94,7 @@ int pty::forkpty(){
 
 	// parent
 	default:
-		close(this->fd_slave);
+		linux::close(this->fd_slave);
 
 		// register signal handler for SIGCHLD
 		if(signal(SIGCHLD, pty::sig_hdlr_chld) == SIG_ERR){
@@ -77,16 +107,17 @@ int pty::forkpty(){
 	}
 }
 
-int pty::read(char* buf, unsigned int max_size){
-	// TODO
-	return 0;
-}
-
-int pty::write(char* but, unsigned int size){
-	// TODO
-	return 0;
-}
-
+/**
+ * \brief	open new pts, making it the controlling terminal
+ *
+ * \param	fd_master	on success this holds the file descriptor to the master side
+ * \param	fd_slave	on success this holds the file descriptor to the slave side
+ * \param	termp		terminal parameter applied to the slave side
+ * \param	win_size	window parameter applied to the slave side
+ *
+ * \return	0			on success
+ * 			-1			on error
+ */
 int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct winsize* win_size){
 	int fd_master, fd_slave;
 	char name[255];
@@ -130,34 +161,47 @@ int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct 
 	return 0;
 
 err_1:
-	close(fd_slave);
+	linux::close(fd_slave);
 
 err_0:
-	close(fd_master);
+	linux::close(fd_master);
 	return -1;
 }
 
+/**
+ * \brief	make given file descriptor the controlling terminal
+ *
+ * \param	fd			file descriptor
+ *
+ * \return	0			on success
+ * 			-1			on error
+ */
 int pty::login(int fd){
 	// create new session
-	setsid();
+	linux::setsid();
 
 	// set controlling terminal
 	if(ioctl(fd, TIOCSCTTY, 0) == -1)
 		return -1;
 
 	// create standard file descriptors
-	if(dup2(fd, 0) == -1 || dup2(fd, 1) == -1 || dup2(fd, 2) == -1)
+	if(linux::dup2(fd, 0) == -1 || linux::dup2(fd, 1) == -1 || linux::dup2(fd, 2) == -1)
 		return -1;
 
 	if(fd > 2)
-		close(fd);
+		linux::close(fd);
 
 	return 0;
 }
 
+/**
+ * \brief	signal handler
+ *
+ * \param	signal number
+ */
 void pty::sig_hdlr_chld(int signum){
 	INFO("caught child signal %d, initialising cleanup\n", signum);
 
 	// kill self
-	kill(getpid(), SIGTERM);
+	kill(linux::getpid(), SIGTERM);
 }

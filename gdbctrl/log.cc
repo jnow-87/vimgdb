@@ -1,5 +1,4 @@
 #include <stdarg.h>
-#include <stdio.h>
 #include <time.h>
 #include "log.h"
 
@@ -9,7 +8,16 @@ FILE* log::log_file = 0;
 log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
 
 
-/* global functions */
+/* class definition */
+/**
+ * \brief	init log system
+ *
+ * \param	file_name	file name of log file
+ * \param	lvl			log level to apply
+ *
+ * \return	0			success
+ * 			-1			error (check errno)
+ */
 int log::init(const char* file_name, log_level_t lvl){
 	log_level = lvl;
 
@@ -23,12 +31,21 @@ int log::init(const char* file_name, log_level_t lvl){
 	return 0;
 }
 
+/**
+ * \brief	safely shut down log system
+ */
 void log::cleanup(){
-	INFO("closing log file\n");
 	if(log_file != 0)
 		fclose(log_file);
 }
 
+/**
+ * \brief	write log message to log file
+ *
+ * \param	lvl			log level of message
+ * \param	msg			actual message (printf-like format string)
+ * \param	...			arguments as defined in <msg>
+ */
 void log::print(log_level_t lvl, const char* msg, ...){
 	va_list lst;
 
@@ -40,6 +57,12 @@ void log::print(log_level_t lvl, const char* msg, ...){
 	}
 }
 
+/**
+ * \brief	get current time/date as string
+ *
+ * \return	pointer to time/date string - string is allocated statically and
+ * 			hence must not be freed
+ */
 char* log::stime(){
     static char s[80];
     time_t t;

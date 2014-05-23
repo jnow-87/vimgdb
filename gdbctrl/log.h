@@ -3,9 +3,11 @@
 
 
 #include <sys/types.h>
-#include <unistd.h>
 #include <stdio.h>
-
+namespace linux{
+	// cover in separate namespace to avoid name collision
+	#include <unistd.h>
+}
 
 /* types */
 enum log_level_t{
@@ -17,44 +19,27 @@ enum log_level_t{
 
 
 /* macros */
-#define INFO(msg, ...)	log::print(INFO, "[INF][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
-#define ERROR(msg, ...)	log::print(ERROR, "[ERR][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
-#define WARN(msg, ...)	log::print(WARN, "[WAR][%d][%19.19s] %20.20s(): " msg, getpid(), log::stime(), __FUNCTION__, ##__VA_ARGS__)
+#define INFO(msg, ...)	log::print(INFO, "[INF][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR, "[ERR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARN(msg, ...)	log::print(WARN, "[WAR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 
 /* class */
 class log{
 public:
-	/**
-	 * \brief	init log system
-	 *
-	 * \param	file_name	file name of log file
-	 * \param	lvl			log level to apply
-	 *
-	 * \return	0			success
-	 * 			-1			error (check errno)
-	 */
+	/* init and cleanup function */
 	static int init(const char* file_name, log_level_t lvl);
-
-	/**
-	 * \brief	safely shut down log system
-	 */
 	static void cleanup();
 
-	/**
-	 * \brief	write log message to log file
-	 *
-	 * \param	lvl			log level of message
-	 * \param	msg			actual message (printf-like format string)
-	 * \param	...			arguments as defined in <msg>
-	 */
+	/* add entry to log */
 	static void print(log_level_t lvl, const char* msg, ...);
 
+	/* get current time/date */
 	static char* stime();
 
 private:
-	static FILE* log_file;
-	static log_level_t log_level;
+	static FILE* log_file;			// file pointer to log file
+	static log_level_t log_level;	// current log level
 };
 
 

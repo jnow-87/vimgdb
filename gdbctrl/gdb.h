@@ -13,16 +13,16 @@
 /* class */
 class gdb_if{
 public:
+	/* constructor/desctructor */
 	gdb_if();
 	~gdb_if();
 
-	/**
-	 * \brief	exec gdb and initialise its controlling terminal
-	 *
-	 * \return	0	on success
-	 * 			-1	on error (check errno)
-	 */
+	/* init gdb interface */
 	int init();
+
+	/* communication with gdb */
+	int read(void* buf, unsigned int nbytes);
+	int write(void* buf, unsigned int nbytes);
 
 private:
 	pty* child_term;	// PTX to gdb child

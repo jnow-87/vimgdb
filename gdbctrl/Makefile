@@ -12,7 +12,7 @@ target = gdbctrl
 c_main = $(wildcard *.c)
 cc_main = $(wildcard *.cc)
 
-libs = -lpthread
+libs_main = -lpthread
 
 all: $(target)
 
