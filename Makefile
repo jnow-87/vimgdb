@@ -35,6 +35,9 @@ include scripts/Makefile.inc
 # start subdirectory traversal
 $(call dinclude,$(subdir-y))
 
+# include dependency files
+include $(shell find $(bin_tree)/ -name \*.d 2>/dev/null)
+
 
 # main targets
 .PHONY: all
