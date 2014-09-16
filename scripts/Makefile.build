@@ -155,7 +155,7 @@ $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.yacc.c) \
 	$(call gen_rule_basic,cmd_cc_c_l,$(loc_bin_tree)/%.lex.c,$(loc_src_tree)/%.l) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.lex.c) \
-	$(call gen_rule_basic,cmd_cc_lib_o,$(loc_bin_tree)/%.a,$(loc_src_tree)/%.o) \
+	$(call gen_rule_basic,cmd_cc_lib_o,$(loc_bin_tree)/%.a,$(loc_bin_tree)/%.o) \
 	, \
 )
 
