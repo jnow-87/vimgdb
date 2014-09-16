@@ -146,11 +146,12 @@ $(call gen_rule_multi,cmd_cc_bin_o,$(loc_multi_bin),$(loc_bin_tree)/)
 
 # pattern rules for all non-compound targets (obj and lib) and prerequisites
 $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)), \
-	$(call gen_rule_basic,cmd_cc_o_s,$(loc_bin_tree)/%.o,$(loc_src_tree)/%.S) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.S.i,$(loc_src_tree)/%.S) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.S) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.c) \
+	$(call gen_rule_basic,cmd_cc_o_s,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.S.i) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_src_tree)/%.c) \
 	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_bin_tree)/%.o,$(loc_src_tree)/%.cc) \
-	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.c) \
-	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.S) \
 	$(call gen_rule_basic,cmd_cc_c_y,$(loc_bin_tree)/%.yacc.c,$(loc_src_tree)/%.y) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.yacc.c) \
 	$(call gen_rule_basic,cmd_cc_c_l,$(loc_bin_tree)/%.lex.c,$(loc_src_tree)/%.l) \
