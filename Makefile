@@ -20,6 +20,7 @@ hostarchflags := $(HOSTARCHFLAGS) dharch
 yaccflags := $(YACCFLAGS) dyacc
 lexflags := $(LEXFLAGS) dlex
 
+
 # init global variables for list of objects, libraries and executables
 obj :=
 lib :=
