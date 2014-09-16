@@ -5,7 +5,17 @@
 	#########################
 
 QUIET ?= @
+SILENT ?= @
 DEBUG ?= 0
+
+ifdef SILENT
+override QUIET := @
+override SILENT := @
+endif
+
+ifdef QUIET
+override QUIET := @
+endif
 
 supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags
 supported_types := obj lib bin
@@ -36,18 +46,18 @@ HOSTLD ?= ld
 HOSTAR ?= ar
 LEX ?= flex
 YACC ?= bison
-cc := $(CC)
-cxx := $(CXX)
-as := $(AS)
-ld := $(LD)
-ar := $(AR)
-hostcc := $(HOSTCC)
-hostcxx := $(HOSTCXX)
-hostas := $(HOSTAS)
-hostld := $(HOSTLD)
-hostar := $(HOSTAR)
-lex := $(LEX)
-yacc := $(YACC)
+cc := $(SILENT)$(CC)
+cxx := $(SILENT)$(CXX)
+as := $(SILENT)$(AS)
+ld := $(SILENT)$(LD)
+ar := $(SILENT)$(AR)
+hostcc := $(SILENT)$(HOSTCC)
+hostcxx := $(SILENT)$(HOSTCXX)
+hostas := $(SILENT)$(HOSTAS)
+hostld := $(SILENT)$(HOSTLD)
+hostar := $(SILENT)$(HOSTAR)
+lex := $(SILENT)$(LEX)
+yacc := $(SILENT)$(YACC)
 echo := @echo
 printf := @printf
 rm := $(QUIET)rm -rf
