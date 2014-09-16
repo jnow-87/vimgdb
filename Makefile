@@ -10,7 +10,13 @@ cxxflags := $(CXXFLAGS) dcxx
 cppflags := $(CPPFLAGS) dcpp
 ldflags := $(LDFLAGS) dld
 asflags := $(ASFLAGS) das
-archflags := $(ARCHFLAGS) darch
+archflags := $(ARCHFLAGS) dharch
+hostcflags := $(HOSTCFLAGS) dhc
+hostcxxflags := $(HOSTCXXFLAGS) dhcxx
+hostcppflags := $(HOSTCPPFLAGS) dhcpp
+hostldflags := $(HOSTLDFLAGS) dhld
+hostasflags := $(HOSTASFLAGS) dhas
+hostarchflags := $(HOSTARCHFLAGS) dharch
 yaccflags := $(YACCFLAGS) dyacc
 lexflags := $(LEXFLAGS) dlex
 
@@ -61,9 +67,9 @@ help:
 	$(printf) "             - prefixed \"host\" indicates to use host compiler tools\n"
 	$(printf) "\n"
 	$(printf) "      \033[1mflags\033[0m\n"
-	$(printf) "         %20s\t%s\n" "<flags>-y" "specify <flags> to be used for all targets within the current directory"
+	$(printf) "         %20s\t%s\n" "[host]<flags>-y" "specify <flags> to be used for all targets within the current directory"
 	$(printf) "         %20s\t%s\n" "subdir-<flags>" "specify <flags> apply to all sub-directories"
-	$(printf) "         %20s\t%s\n" "<target>-<flags>" "specify <flags> only applied for that <target>"
+	$(printf) "         %20s\t%s\n" "<target>-[host]<flags>" "specify <flags> only applied for that <target>"
 	$(printf) "\n"
 	$(printf) "         %20s\t%s\n" "cflags" "c compiler flags"
 	$(printf) "         %20s\t%s\n" "cxxflags" "c++ compiler flags"
@@ -84,20 +90,20 @@ help:
 	$(printf) "         %20s\t%s\n" "BIN_TREE" "define output directory"
 	$(printf) "         %20s\t%s\n" "SRC_TREE" "define source directory"
 	$(printf) "\n"
-	$(printf) "         %20s\t%s\n" "CC"
-	$(printf) "         %20s\t%s\n" "CXX"
-	$(printf) "         %20s\t%s\n" "AS"
-	$(printf) "         %20s\t%s\n" "LD"
-	$(printf) "         %20s\t%s\n" "AR"
+	$(printf) "         %20s\t%s\n" "[HOST]CC"
+	$(printf) "         %20s\t%s\n" "[HOST]CXX"
+	$(printf) "         %20s\t%s\n" "[HOST]AS"
+	$(printf) "         %20s\t%s\n" "[HOST]LD"
+	$(printf) "         %20s\t%s\n" "[HOST]AR"
 	$(printf) "         %20s\t%s\n" "LEX"
 	$(printf) "         %20s\t%s\n" "YACC"
 	$(printf) "\n"
-	$(printf) "         %20s\t%s\n" "CFLAGS"
-	$(printf) "         %20s\t%s\n" "CXXFLAGS"
-	$(printf) "         %20s\t%s\n" "CPPFLAGS"
-	$(printf) "         %20s\t%s\n" "LDFLAGS"
-	$(printf) "         %20s\t%s\n" "ASFLAGS"
-	$(printf) "         %20s\t%s\n" "ARCHFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]CFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]CXXFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]CPPFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]LDFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]ASFLAGS"
+	$(printf) "         %20s\t%s\n" "[HOST]ARCHFLAGS"
 	$(printf) "         %20s\t%s\n" "YACCFLAGS"
 	$(printf) "         %20s\t%s\n" "LEXFLAGS"
 	$(printf) "\n\n"

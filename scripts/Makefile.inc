@@ -7,7 +7,7 @@
 QUIET ?= @
 DEBUG ?= 0
 
-supported_flags := cflags cxxflags cppflags asflags ldflags archflags yaccflags lexflags
+supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags
 supported_types := obj lib bin
 
 
@@ -29,6 +29,11 @@ CXX ?= g++
 AS ?= as
 LD ?= ld
 AR ?= ar
+HOSTCC ?= gcc
+HOSTCXX ?= g++
+HOSTAS ?= as
+HOSTLD ?= ld
+HOSTAR ?= ar
 LEX ?= flex
 YACC ?= bison
 cc := $(CC)
@@ -36,13 +41,19 @@ cxx := $(CXX)
 as := $(AS)
 ld := $(LD)
 ar := $(AR)
+hostcc := $(HOSTCC)
+hostcxx := $(HOSTCXX)
+hostas := $(HOSTAS)
+hostld := $(HOSTLD)
+hostar := $(HOSTAR)
 lex := $(LEX)
 yacc := $(YACC)
-echo := @echo -e
+echo := @echo
 printf := @printf
 rm := $(QUIET)rm -rf
 mkdir := $(QUIET)mkdir -p
 touch := $(QUIET)touch
+cp := $(QUIET)cp
 
 
 	#################
@@ -188,56 +199,56 @@ endef
 # XXX $(call cmd_*,<host>)
 
 define cmd_cc_o_s
-	$(printf) "[$(1)S-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)S-O]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_o_c
-	$(printf) "[$(1)C-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)C-O]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_o_cxx
-	$(printf) "[$(1)CXX-O] %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cxxflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)CXX-O] %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $(cxxflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 # XXX use ld -r to combine objects
 define cmd_cc_o_o
-	$(printf) "[$(1)O-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)O-O]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_i
-	$(printf) "[$(1)I]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)I]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_c_y
-	$(printf) "[Y-C]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags) | $(yaccflags)" "$^" "$@"
+	$(printf) "[Y-C]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags) | $(yaccflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_c_l
-	$(printf) "[L-C]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags) | $(lexflags)" "$^" "$@"
+	$(printf) "[L-C]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags) | $(lexflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_lib_o
-	$(printf) "[$(1)O-L]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)O-L]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
 define cmd_cc_bin_o
-	$(printf) "[$(1)O-B]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(printf) "[$(1)O-B]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
