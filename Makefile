@@ -35,6 +35,7 @@ fake_all: all
 
 
 # general include
+-include config
 include scripts/Makefile.inc
 
 
