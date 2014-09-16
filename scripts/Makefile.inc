@@ -184,77 +184,60 @@ endef
 	###              ###
 	####################
 
+# XXX naming: cmd_cc_<target type>_<prerequisite type>
 # XXX $(call cmd_*,<host>)
 
-define cmd_cc_c_o 
-	$(printf) "[$(1)C-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
-	$(mkdir) $(@D)
-	$(touch) $@
-endef
-
-# XXX use ld -r to combine objects
-define cmd_cc_o_o 
-	$(printf) "[$(1)O-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
-	$(mkdir) $(@D)
-	$(touch) $@
-endef
-
-define cmd_cc_cxx_o 
-	$(printf) "[$(1)CXX-O] %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cxxflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
-	$(mkdir) $(@D)
-	$(touch) $@
-endef
-
-define cmd_cc_s_o
+define cmd_cc_o_s
 	$(printf) "[$(1)S-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_c_i 
-	$(printf) "[$(1)C-I]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+define cmd_cc_o_c
+	$(printf) "[$(1)C-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_s_i
-	$(printf) "[$(1)S-I]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+define cmd_cc_o_cxx
+	$(printf) "[$(1)CXX-O] %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cxxflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_y_c
+# XXX use ld -r to combine objects
+define cmd_cc_o_o
+	$(printf) "[$(1)O-O]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(mkdir) $(@D)
+	$(touch) $@
+endef
+
+define cmd_cc_i
+	$(printf) "[$(1)I]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
+	$(mkdir) $(@D)
+	$(touch) $@
+endef
+
+define cmd_cc_c_y
 	$(printf) "[Y-C]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags) | $(yaccflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_l_c
+define cmd_cc_c_l
 	$(printf) "[L-C]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags) | $(lexflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_o_lib
+define cmd_cc_lib_o
 	$(printf) "[$(1)O-L]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
 
-define cmd_cc_o_bin
+define cmd_cc_bin_o
 	$(printf) "[$(1)O-B]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
-	$(mkdir) $(@D)
-	$(touch) $@
-endef
-
-define cmd_cc_c_lib
-	$(printf) "[$(1)C-L]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
-	$(mkdir) $(@D)
-	$(touch) $@
-endef
-
-define cmd_cc_c_bin
-	$(printf) "[$(1)C-B]   %60.60s %60.60s   -o %-40.40s\n" "$(cflags) | $(cppflags) | $(ldflags) | $(asflags) | $(archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef
