@@ -164,14 +164,26 @@ define gen_rule_loc_flags
 endef
 
 # generate rules for compound targets
-# 	prerequisite list is appended with given <bin_prefix>
-#	afterwards prerequisite variable is cleared to avoid name collisions
+# 	first $(<target>-y), which is $($(basename $(f))-y) is checked for external prerequisites ($(edep)), i.e. prerequisites that
+# 		origniate from a different path, are extracted
+#
+#	afterwards the rule is generated whereat <bin-prefix> is added to all non-external prerequisites and external prerequisites are
+#		added as they are
+#
+#	finally the prerequisite variable is cleared to avoid name collisions
 #		with files with the same stem but in a different diretory
 #
 #	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>	
 define gen_rule_multi
 		$(foreach f,$(2), \
-			$(call gen_rule_basic,$(1),$(3)$(f),$(addprefix $(3),$($(basename $(f))-y))) \
+			$(eval edep :=) \
+			$(foreach p,$($(basename $(f))-y), \
+				$(if $(subst ./,,$(dir $(p))), \
+					$(eval edep += $(p)) \
+					, \
+				) \
+			) \
+			$(call gen_rule_basic,$(1),$(3)$(f),$(addprefix $(3),$(filter-out $(edep),$($(basename $(f))-y))) $(edep)) \
 			$(eval $(basename $(f))-y :=) \
 		)
 endef
