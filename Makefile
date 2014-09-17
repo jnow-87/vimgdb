@@ -1,8 +1,9 @@
 # init source and binary tree
-BIN_TREE ?= bin
+BUILD_TREE ?= build
 SRC_TREE ?= .
-bin_tree := $(BIN_TREE)
+build_tree := $(BUILD_TREE)
 src_tree := $(SRC_TREE)
+
 
 # init default flags
 cflags := $(CFLAGS) dc
@@ -44,7 +45,7 @@ include scripts/Makefile.inc
 $(call dinclude,$(subdir-y))
 
 # include dependency files
-include $(shell find $(bin_tree)/ -name \*.d 2>/dev/null)
+include $(shell find $(build_tree)/ -name \*.d 2>/dev/null)
 
 
 # main targets
@@ -54,7 +55,7 @@ all: $(obj) $(lib) $(bin)
 
 .PHONY: clean
 clean:
-	$(rm) $(bin_tree)
+	$(rm) $(build_tree)
 
 .PHONY: help
 help:
@@ -90,7 +91,7 @@ help:
 	$(printf) "         %20s\t%s\n" "QUIET" "disable echo of commands, except building commands"
 	$(printf) "         %20s\t%s\n" "SILENT" "disable echo of all commands"
 	$(printf) "         %20s\t%s\n" "DEBUG" "control debug output"
-	$(printf) "         %20s\t%s\n" "BIN_TREE" "define output directory"
+	$(printf) "         %20s\t%s\n" "BUILD_TREE" "define output directory"
 	$(printf) "         %20s\t%s\n" "SRC_TREE" "define source directory"
 	$(printf) "\n"
 	$(printf) "         %20s\t%s\n" "[HOST]CC"
@@ -112,4 +113,4 @@ help:
 	$(printf) "\n\n"
 	$(printf) "   \033[1m\033[4mspecial targets\033[0m\n"
 	$(printf) "\n"
-	$(printf) "         %20s\t%s\n" "$(BIN_TREE)/<target>.i" "build pre-processed target file"
+	$(printf) "         %20s\t%s\n" "$(BUILD_TREE)/<target>.i" "build pre-processed target file"

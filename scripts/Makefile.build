@@ -8,7 +8,7 @@
 
 # init local source and binary tree references
 loc_src_tree := $(src_tree)/$(loc_dir)
-loc_bin_tree := $(bin_tree)/$(loc_dir)
+loc_build_tree := $(build_tree)/$(loc_dir)
 
 # read subdir-*flags
 $(foreach fl,$(supported_flags), \
@@ -16,7 +16,7 @@ $(foreach fl,$(supported_flags), \
 )
 
 # debug message
-$(call pdebug,traverse into: src = $(loc_src_tree) - bin = $(loc_bin_tree))
+$(call pdebug,traverse into: src = $(loc_src_tree) - bin = $(loc_build_tree))
 $(foreach fl,$(supported_flags), \
 	$(call pdebug,    subdir $(fl): $(subdir-$(fl))) \
 )
@@ -102,7 +102,7 @@ $(foreach type,$(supported_types), \
 	$(call pdebug,    single_$(type): $(loc_single_$(type))) \
 	$(call pdebug,    multi_$(type): $(loc_multi_$(type))) \
 	\
-	$(eval $(type) += $(addprefix $(loc_bin_tree)/,$(loc_single_$(type)) $(loc_multi_$(type)))) \
+	$(eval $(type) += $(addprefix $(loc_build_tree)/,$(loc_single_$(type)) $(loc_multi_$(type)))) \
 )
 
 $(call pdebug)
@@ -124,7 +124,7 @@ loc_prereq := $(sort $(loc_prereq))
 # 	this applies to all files (direct targets and prerequisites)
 $(foreach f,$(loc_tgt) $(loc_prereq), \
 	$(foreach fl,$(supported_flags), \
-		$(call gen_rule_tgt_flags,$(f),$(fl),$(loc_bin_tree)/) \
+		$(call gen_rule_tgt_flags,$(f),$(fl),$(loc_build_tree)/) \
 	) \
 )
 
@@ -132,7 +132,7 @@ $(foreach f,$(loc_tgt) $(loc_prereq), \
 # 	this only applies to direct targets only, since their prerequisites inherit the flags anyway
 $(foreach f,$(loc_tgt), \
 	$(foreach fl,$(supported_flags), \
-		$(call gen_rule_loc_flags,$(f),$(fl),$(loc_bin_tree)/) \
+		$(call gen_rule_loc_flags,$(f),$(fl),$(loc_build_tree)/) \
 	) \
 )
 
@@ -140,30 +140,30 @@ $(foreach f,$(loc_tgt), \
 ## build
 
 # compound target rules
-$(call gen_rule_multi,cmd_cc_o_o,$(loc_multi_obj),$(loc_bin_tree)/)
-$(call gen_rule_multi,cmd_cc_lib_o,$(loc_multi_lib),$(loc_bin_tree)/)
-$(call gen_rule_multi,cmd_cc_bin_o,$(loc_multi_bin),$(loc_bin_tree)/)
+$(call gen_rule_multi,cmd_cc_o_o,$(loc_multi_obj),$(loc_build_tree)/)
+$(call gen_rule_multi,cmd_cc_lib_o,$(loc_multi_lib),$(loc_build_tree)/)
+$(call gen_rule_multi,cmd_cc_bin_o,$(loc_multi_bin),$(loc_build_tree)/)
 
 # pattern rules for all non-compound targets (obj and lib) and prerequisites
 $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)), \
-	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.S.i,$(loc_src_tree)/%.S) \
-	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.S) \
-	$(call gen_rule_basic,cmd_cc_i,$(loc_bin_tree)/%.i,$(loc_src_tree)/%.c) \
-	$(call gen_rule_basic,cmd_cc_o_s,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.S.i) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_src_tree)/%.c) \
-	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_bin_tree)/%.o,$(loc_src_tree)/%.cc) \
-	$(call gen_rule_basic,cmd_cc_c_y,$(loc_bin_tree)/%.yacc.c,$(loc_src_tree)/%.y) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.yacc.c) \
-	$(call gen_rule_basic,cmd_cc_c_l,$(loc_bin_tree)/%.lex.c,$(loc_src_tree)/%.l) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_bin_tree)/%.o,$(loc_bin_tree)/%.lex.c) \
-	$(call gen_rule_basic,cmd_cc_lib_o,$(loc_bin_tree)/%.a,$(loc_bin_tree)/%.o) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_build_tree)/%.S.i,$(loc_src_tree)/%.S) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_build_tree)/%.i,$(loc_src_tree)/%.S) \
+	$(call gen_rule_basic,cmd_cc_i,$(loc_build_tree)/%.i,$(loc_src_tree)/%.c) \
+	$(call gen_rule_basic,cmd_cc_o_s,$(loc_build_tree)/%.o,$(loc_build_tree)/%.S.i) \
+	$(call gen_rule_basic,cmd_cc_o_c,$(loc_build_tree)/%.o,$(loc_src_tree)/%.c) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_build_tree)/%.o,$(loc_src_tree)/%.cc) \
+	$(call gen_rule_basic,cmd_cc_c_y,$(loc_build_tree)/%.yacc.c,$(loc_src_tree)/%.y) \
+	$(call gen_rule_basic,cmd_cc_o_c,$(loc_build_tree)/%.o,$(loc_build_tree)/%.yacc.c) \
+	$(call gen_rule_basic,cmd_cc_c_l,$(loc_build_tree)/%.lex.c,$(loc_src_tree)/%.l) \
+	$(call gen_rule_basic,cmd_cc_o_c,$(loc_build_tree)/%.o,$(loc_build_tree)/%.lex.c) \
+	$(call gen_rule_basic,cmd_cc_lib_o,$(loc_build_tree)/%.a,$(loc_build_tree)/%.o) \
 	, \
 )
 
 # special handling of bin targets,
 # 	since the correponding pattern rules (<dir>/%: %) do not work
 $(foreach f,$(loc_single_bin), \
-	$(call gen_rule_basic,cmd_cc_bin_o,$(loc_bin_tree)/$(f),$(loc_bin_tree)/$(f).o) \
+	$(call gen_rule_basic,cmd_cc_bin_o,$(loc_build_tree)/$(f),$(loc_build_tree)/$(f).o) \
 )
 
 	
