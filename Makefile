@@ -1,46 +1,40 @@
+# general include
+-include config
+include scripts/Makefile.inc
+
 # init source and binary tree
 BUILT_TREE ?= built
 SRC_TREE ?= .
 built_tree := $(BUILT_TREE)
 src_tree := $(SRC_TREE)
 
-
 # init default flags
-cflags := $(CFLAGS) dc
-cxxflags := $(CXXFLAGS) dcxx
-cppflags := $(CPPFLAGS) dcpp
-ldflags := $(LDFLAGS) dld
-asflags := $(ASFLAGS) das
-archflags := $(ARCHFLAGS) dharch
-hostcflags := $(HOSTCFLAGS) dhc
-hostcxxflags := $(HOSTCXXFLAGS) dhcxx
-hostcppflags := $(HOSTCPPFLAGS) dhcpp
-hostldflags := $(HOSTLDFLAGS) dhld
-hostasflags := $(HOSTASFLAGS) dhas
-hostarchflags := $(HOSTARCHFLAGS) dharch
-yaccflags := $(YACCFLAGS) dyacc
-lexflags := $(LEXFLAGS) dlex
-gperfflags := $(GPERFFLAGS) dgperf
-
+cflags := $(CFLAGS)
+cxxflags := $(CXXFLAGS)
+cppflags := $(CPPFLAGS)
+ldflags := $(LDFLAGS)
+asflags := $(ASFLAGS)
+archflags := $(ARCHFLAGS)
+hostcflags := $(HOSTCFLAGS)
+hostcxxflags := $(HOSTCXXFLAGS)
+hostcppflags := $(HOSTCPPFLAGS)
+hostldflags := $(HOSTLDFLAGS)
+hostasflags := $(HOSTASFLAGS)
+hostarchflags := $(HOSTARCHFLAGS)
+yaccflags := $(YACCFLAGS)
+lexflags := $(LEXFLAGS)
+gperfflags := $(GPERFFLAGS)
 
 # init global variables for list of objects, libraries and executables
 obj :=
 lib :=
 bin :=
 
-
-# define subdirectories to visit
-subdir-y := example
+subdir-y :=
 
 # fake target as default
 .PHONY: fake_all
 fake_all: all
-
-
-# general include
--include config
-include scripts/Makefile.inc
-
 
 # start subdirectory traversal
 # 	if subdir-y is empty include '.' (within $(src_tree))
@@ -53,11 +47,9 @@ $(if $(subdir-y), \
 # include dependency files
 include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 
-
 # main targets
 .PHONY: all
 all: $(obj) $(lib) $(bin)
-
 
 .PHONY: clean
 clean:
