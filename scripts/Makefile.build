@@ -9,9 +9,9 @@
 # remove trailing '/'
 loc_dir := $(patsubst %/,%,$(loc_dir))
 
-# init local source and binary tree references
-loc_src_tree := $(src_tree)/$(loc_dir)
-loc_built_tree := $(built_tree)/$(loc_dir)
+# init local source and binary tree references, removing trailing '/' (in case $(loc_dir) is empty)
+loc_src_tree := $(patsubst %/,%,$(src_tree)/$(loc_dir))
+loc_built_tree := $(patsubst %/,%,$(built_tree)/$(loc_dir))
 
 # read subdir-*flags
 $(foreach fl,$(supported_flags), \
