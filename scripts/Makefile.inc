@@ -17,7 +17,7 @@ ifdef QUIET
 override QUIET := @
 endif
 
-supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags
+supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
 supported_types := obj lib bin
 
 
@@ -46,6 +46,7 @@ HOSTLD ?= ld
 HOSTAR ?= ar
 LEX ?= flex
 YACC ?= bison
+GPERF ?= gperf
 cc := $(SILENT)$(CC)
 cxx := $(SILENT)$(CXX)
 as := $(SILENT)$(AS)
@@ -58,6 +59,7 @@ hostld := $(SILENT)$(HOSTLD)
 hostar := $(SILENT)$(HOSTAR)
 lex := $(SILENT)$(LEX)
 yacc := $(SILENT)$(YACC)
+gperf := $(SILENT)$(GPERF)
 echo := @echo
 printf := @printf
 rm := $(QUIET)rm -rf
@@ -238,6 +240,12 @@ define cmd_cc_c_l
 	$(touch) $@
 endef
 
+define cmd_cc_c_h
+	$(printf) "[GPERF-C]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags) | $(gperfflags)" "$^" "$@"
+	$(mkdir) $(@D)
+	$(touch) $@
+endef
+
 define cmd_cc_o_s
 	$(printf) "[$(1)S-O]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
@@ -251,7 +259,7 @@ define cmd_cc_o_c
 endef
 
 define cmd_cc_o_cxx
-	$(printf) "[$(1)CXX-O] %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $(cxxflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
+	$(printf) "[$(1)CXX-O]   %60.60s %60.60s   -o %-40.40s\n" "$($(1)cflags) | $(cxxflags) | $($(1)cppflags) | $($(1)ldflags) | $($(1)asflags) | $($(1)archflags)" "$^" "$@"
 	$(mkdir) $(@D)
 	$(touch) $@
 endef

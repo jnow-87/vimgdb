@@ -1,7 +1,7 @@
 # init source and binary tree
-BUILD_TREE ?= build
+BUILT_TREE ?= built
 SRC_TREE ?= .
-build_tree := $(BUILD_TREE)
+built_tree := $(BUILT_TREE)
 src_tree := $(SRC_TREE)
 
 
@@ -20,6 +20,7 @@ hostasflags := $(HOSTASFLAGS) dhas
 hostarchflags := $(HOSTARCHFLAGS) dharch
 yaccflags := $(YACCFLAGS) dyacc
 lexflags := $(LEXFLAGS) dlex
+gperfflags := $(GPERFFLAGS) dgperf
 
 
 # init global variables for list of objects, libraries and executables
@@ -42,10 +43,15 @@ include scripts/Makefile.inc
 
 
 # start subdirectory traversal
-$(call dinclude,$(subdir-y))
+# 	if subdir-y is empty include '.' (within $(src_tree))
+$(if $(subdir-y), \
+	$(call dinclude,$(subdir-y)), \
+	$(eval loc_dir=) \
+	$(eval include $(build)) \
+)
 
 # include dependency files
-include $(shell find $(build_tree)/ -name \*.d 2>/dev/null)
+include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 
 
 # main targets
@@ -55,7 +61,7 @@ all: $(obj) $(lib) $(bin)
 
 .PHONY: clean
 clean:
-	$(rm) $(build_tree)
+	$(rm) $(built_tree)
 
 .PHONY: help
 help:
@@ -82,6 +88,7 @@ help:
 	$(printf) "         %20s\t%s\n" "archflags" "architecture specific flags"
 	$(printf) "         %20s\t%s\n" "yaccflags" "yacc flags"
 	$(printf) "         %20s\t%s\n" "lexflags" "lex flags"
+	$(printf) "         %20s\t%s\n" "gperfflags" "gperf flags"
 	$(printf) "\n"
 	$(printf) "      \033[1msub-directories\033[0m\n"
 	$(printf) "         %20s\t%s\n" "subdir-y" "define sub-directories to include"
@@ -91,7 +98,7 @@ help:
 	$(printf) "         %20s\t%s\n" "QUIET" "disable echo of commands, except building commands"
 	$(printf) "         %20s\t%s\n" "SILENT" "disable echo of all commands"
 	$(printf) "         %20s\t%s\n" "DEBUG" "control debug output"
-	$(printf) "         %20s\t%s\n" "BUILD_TREE" "define output directory"
+	$(printf) "         %20s\t%s\n" "BUILT_TREE" "define output directory"
 	$(printf) "         %20s\t%s\n" "SRC_TREE" "define source directory"
 	$(printf) "\n"
 	$(printf) "         %20s\t%s\n" "[HOST]CC"
@@ -101,6 +108,7 @@ help:
 	$(printf) "         %20s\t%s\n" "[HOST]AR"
 	$(printf) "         %20s\t%s\n" "LEX"
 	$(printf) "         %20s\t%s\n" "YACC"
+	$(printf) "         %20s\t%s\n" "GPERF"
 	$(printf) "\n"
 	$(printf) "         %20s\t%s\n" "[HOST]CFLAGS"
 	$(printf) "         %20s\t%s\n" "[HOST]CXXFLAGS"
@@ -108,9 +116,10 @@ help:
 	$(printf) "         %20s\t%s\n" "[HOST]LDFLAGS"
 	$(printf) "         %20s\t%s\n" "[HOST]ASFLAGS"
 	$(printf) "         %20s\t%s\n" "[HOST]ARCHFLAGS"
-	$(printf) "         %20s\t%s\n" "YACCFLAGS"
 	$(printf) "         %20s\t%s\n" "LEXFLAGS"
+	$(printf) "         %20s\t%s\n" "YACCFLAGS"
+	$(printf) "         %20s\t%s\n" "GPERFFLAGS"
 	$(printf) "\n\n"
 	$(printf) "   \033[1m\033[4mspecial targets\033[0m\n"
 	$(printf) "\n"
-	$(printf) "         %20s\t%s\n" "$(BUILD_TREE)/<target>.i" "build pre-processed target file"
+	$(printf) "         %20s\t%s\n" "$(BUILT_TREE)/<target>.i" "build pre-processed target file"
