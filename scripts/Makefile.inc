@@ -237,7 +237,7 @@ endef
 
 define cmd_cc_c_l
 	$(echo) [LEX] $@
-	$($(1)lex) $($(1)lexflags) $< -o $@
+	$($(1)lex) $($(1)lexflags) -o $@ $<
 endef
 
 define cmd_cc_c_h
