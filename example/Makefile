@@ -49,7 +49,7 @@ include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 
 # main targets
 .PHONY: all
-all: $(obj) $(lib) $(bin)
+all: $(lib) $(bin)
 
 .PHONY: clean
 clean:
