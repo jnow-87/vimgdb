@@ -232,12 +232,12 @@ endef
 
 define cmd_cc_c_y
 	$(echo) [YACC] $@
-	$($(1)yacc) $($(1)yaccflags) $< -o $@
+	$(yacc) $(yaccflags) $< -o $@
 endef
 
 define cmd_cc_c_l
 	$(echo) [LEX] $@
-	$($(1)lex) $($(1)lexflags) -o $@ $<
+	$(lex) $(lexflags) -o $@ $<
 endef
 
 define cmd_cc_c_h
@@ -264,7 +264,7 @@ endef
 
 define cmd_cc_o_o
 	$(echo) [$(1)LD] $@
-	$($(1)ld) $($(1)archflags) -r $^ -o $@ $($(1)ldflags)
+	$($(1)ld) -r $^ -o $@
 endef
 
 define cmd_cc_lib_o
