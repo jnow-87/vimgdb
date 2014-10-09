@@ -85,7 +85,13 @@ $(if $(hostobj-y)$(hostlib-y)$(hostbin-y), \
 	$(eval host :=) \
 )
 
-# filter variables set by included Makefile, i.e. obj-y, lib-y, bin-y (cf. $(supported_types)), and identifying:
+# handle obj-y := <dir>/ syntax
+#	add all directories defined in obj-y to subdir-y
+#	postfix all directories in obj-y with obj.o, i.e. <dir>/ -> <dir>/obj.o
+subdir-y += $(filter %/,$(obj-y))
+obj-y := $(patsubst %/,%/obj.o,$(obj-y))
+
+# filter variables set by included Makefile, i.e. obj-y, lib-y, bin-y (cf. $(supported_types)), and identify:
 # 	single targets - non-compound targets without an associated <target>-y variable
 # 	multi targets - compound targets with associated <target>-y variable
 #
@@ -95,6 +101,8 @@ $(if $(hostobj-y)$(hostlib-y)$(hostbin-y), \
 #
 # 	add single and multi targets to the global lists (i.e. $(obj), $(lib), $(bin), appending
 # 		the appropriate binary tree
+#
+# 	handle multi targets that specify a directory as prerequisite, i.e. <target>-y := <dir>/
 $(foreach type,$(supported_types), \
 	$(eval loc_single_$(type) := $(call filter_single_prereq,$($(type)-y))) \
 	$(eval loc_multi_$(type) := $(filter-out $(loc_single_$(type)), $($(type)-y))) \
@@ -106,6 +114,11 @@ $(foreach type,$(supported_types), \
 	$(call pdebug,    multi_$(type): $(loc_multi_$(type))) \
 	\
 	$(eval $(type) += $(addprefix $(loc_built_tree)/,$(loc_single_$(type)) $(loc_multi_$(type)))) \
+	\
+	$(foreach o,$(loc_multi_$(type)),\
+		$(eval subdir-y += $(filter %/,$($(o)-y))) \
+		$(eval $(o)-y := $(patsubst %/,$(loc_built_tree)/%/obj.o,$($(o)-y))) \
+	) \
 )
 
 $(call pdebug)
@@ -168,6 +181,12 @@ $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)
 	, \
 )
 
+# rule to build $(loc_built_tree)/obj.o if obj-y is not empty
+$(if $(obj-y), \
+	$(call gen_rule_basic,cmd_cc_o_o,$(loc_built_tree)/obj.o,$(addprefix $(loc_built_tree)/,$(obj-y))) \
+	, \
+)
+
 # special handling of bin targets,
 # 	since the correponding pattern rules (<dir>/%: %) do not work
 $(foreach f,$(loc_single_bin), \
@@ -183,7 +202,7 @@ $(foreach f,$(loc_single_bin), \
 
 # handle subdir-*flags
 # 	assign <subdir>-*flags to subdir-<subdir>-*flags to avoid overwriting them by name collisions
-$(foreach d,$(subdir-y), \
+$(foreach d,$(patsubst %/,%,$(subdir-y)), \
 	$(foreach fl,$(supported_flags), \
 		$(eval subdir-$(loc_dir)/$(d)-$(fl) := $($(d)-$(fl)) $(subdir-$(fl))) \
 		$(eval $(d)-$(fl) :=) \
@@ -195,5 +214,4 @@ $(call pdebug)
 $(call pdebug,    subdir: $(subdir-y))
 $(call pdebug)
 
-dirs := $(addprefix $(loc_dir)/,$(subdir-y))
-$(call dinclude,$(dirs))
+$(call dinclude,$(addprefix $(loc_dir)/,$(subdir-y)))
