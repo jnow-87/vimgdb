@@ -145,8 +145,7 @@ $(foreach f,$(loc_tgt) $(loc_prereq), \
 )
 
 # local flags, i.e. *flags-y
-# 	this only applies to direct targets only, since their prerequisites inherit the flags anyway
-$(foreach f,$(loc_tgt), \
+$(foreach f,$(loc_tgt) $(loc_prereq), \
 	$(foreach fl,$(supported_flags), \
 		$(call gen_rule_loc_flags,$(f),$(fl),$(loc_built_tree)/) \
 	) \
