@@ -39,6 +39,7 @@ loc_multi_bin :=
 
 # init variables set by included makefiles
 obj-y :=
+obj-nobuiltin-y :=
 lib-y :=
 bin-y :=
 subdir-y :=
@@ -74,11 +75,12 @@ $(foreach fl,$(supported_flags), \
 
 # check that either normal (obj-y) or host (hostobj-y) targets have been defined
 # if host targets are defined map them to the variables for normal targets and set host := "host"
-$(if $(hostobj-y)$(hostlib-y)$(hostbin-y), \
-	$(if $(obj-y)$(lib-y)$(bin-y), \
+$(if $(hostobj-y)$(hostobj-nobuiltin-y)$(hostlib-y)$(hostbin-y), \
+	$(if $(obj-y)$(obj-nobuiltin-y)$(lib-y)$(bin-y), \
 		$(error host- and target-architecture targets defined within the same Makefile "$(loc_src_tree)/Makefile"), \
 		$(eval host := host) \
 		$(eval obj-y := $(hostobj-y)) \
+		$(eval obj-nobuiltin-y := $(hostobj-nobuiltin-y)) \
 		$(eval lib-y := $(hostlib-y)) \
 		$(eval bin-y := $(hostbin-y)) \
 	),\
@@ -88,8 +90,9 @@ $(if $(hostobj-y)$(hostlib-y)$(hostbin-y), \
 # handle obj-y := <dir>/ syntax
 #	add all directories defined in obj-y to subdir-y
 #	postfix all directories in obj-y with obj.o, i.e. <dir>/ -> <dir>/obj.o
-subdir-y += $(filter %/,$(obj-y))
+subdir-y += $(filter %/,$(obj-y) $(obj-nobuiltin-y))
 obj-y := $(patsubst %/,%/obj.o,$(obj-y))
+obj-nobuiltin-y := $(patsubst %/,%/obj.o,$(obj-nobuiltin-y))
 
 # filter variables set by included Makefile, i.e. obj-y, lib-y, bin-y (cf. $(supported_types)), and identify:
 # 	single targets - non-compound targets without an associated <target>-y variable
@@ -127,6 +130,10 @@ $(call pdebug)
 loc_tgt := $(sort $(loc_tgt))
 loc_prereq := $(sort $(loc_prereq))
 
+$(call pdebug,    loc_tgt: $(loc_tgt))
+$(call pdebug,    loc_prereq: $(loc_prereq))
+$(call pdebug)
+
 
 	###########################
 	###                     ###
@@ -156,6 +163,7 @@ $(foreach f,$(loc_tgt) $(loc_prereq), \
 
 # compound target rules
 $(call gen_rule_multi,cmd_cc_o_o,$(loc_multi_obj),$(loc_built_tree)/)
+$(call gen_rule_multi,cmd_cc_o_o,$(loc_multi_obj-nobuiltin),$(loc_built_tree)/)
 $(call gen_rule_multi,cmd_cc_lib_o,$(loc_multi_lib),$(loc_built_tree)/)
 $(call gen_rule_multi,cmd_cc_bin_o,$(loc_multi_bin),$(loc_built_tree)/)
 

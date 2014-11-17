@@ -18,7 +18,7 @@ override QUIET := @
 endif
 
 supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
-supported_types := obj lib bin
+supported_types := obj obj-nobuiltin lib bin
 
 
 # disable built-in rules
