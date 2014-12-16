@@ -33,7 +33,7 @@ int main(int argc, char** argv){
 
 
 	if((pid = forkpty(&fd_master, 0, 0)) == 0){
-		return execl("./forkee", "forkee", "", 0);
+		return execl(FORKEE_PATH, "forkee", "test arg", 0);
 	}
 	else if(pid > 0){
 		signal(SIGCHLD, sig_hdlr);

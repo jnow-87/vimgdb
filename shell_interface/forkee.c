@@ -22,6 +22,7 @@ int main(int argc, char** argv){
 	arg_t arg;
 
 
+	printf("forkee should be called by the shell_interface binary\n");
 	for(i=0; i<argc; i++)
 		printf("%d: %s\n", i, argv[i]);
 
