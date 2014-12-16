@@ -1,44 +1,29 @@
-cc = gcc
-cpp = g++
-echo = @echo
-rm = @rm -f
+bin-y := test_gdbparser gdbctrl
 
 
-OFLAGS = -c -g -std=c++11
-LDFLAGS = -g
+#
+# gdbctrl
+#
+
+# object files
+gdbctrl-y := main.o gdb.o log.o pty.o tty.o
+
+# libraries
+gdbctrl-ldflags := -lpthread
+gdbctrl-cflags := -std=c++11
 
 
-target = gdbctrl
-c_main = $(wildcard *.c)
-cc_main = $(wildcard *.cc)
+#
+# test_gdbparser
+#
 
-libs_main = -lpthread
+# object files
+test_gdbparser-y := gdbparser.tab.o gdbparser.lex.o
 
-all: $(target)
+# additional dependencies for generated headers
+$(loc_built_tree)/gdbparser.tab.o: $(loc_built_tree)/gdbparser.lex.h
+$(loc_built_tree)/gdbparser.lex.h: $(loc_built_tree)/gdbparser.lex.c
 
-$(target): $(c_main:.c=.o) $(cc_main:.cc=.o)
-	$(cpp) $(LDFLAGS) $(libs_main) $^ -o $@
-
-clean:
-	$(rm) *.o *.d $(target)
-
--include $(c_main:.c=.d)
--include $(cc_main:.cc=.d)
-
-%.o: %.c
-	$(cpp) $(OFLAGS) $< -o $@
-	@$(cpp) -MM $(CFLAGS) $< > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
-
-%.o: %.cc
-	$(cpp) $(OFLAGS) $< -o $@
-	@$(cpp) -MM $(CFLAGS) $< > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
+# flags
+test_gdbparser-cppflags := -I"$(loc_built_tree)" \
+						   -DTEST

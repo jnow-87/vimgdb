@@ -1,35 +1,24 @@
-cc = gcc
-echo = @echo
-rm = @rm -f
+bin-y := shellif forkee
 
 
-OFLAGS = -c -g
-LDFLAGS = -g
+#
+# shell_interface
+#
 
-c_forkee = forkee.c
-c_main = main.c pty.c log.c
+# objects
+shellif-y := main.o pty.o
 
-libs_forkee = -lpthread
-libs_main = -lpthread
+# flags
+shellif-ldflags := -lpthread
+shellif-cppflags := -DFORKEE_PATH="\"$(loc_built_tree)/forkee\""
 
-all: main forkee
 
-main: $(c_main:.c=.o)
-	$(cc) $(LDFLAGS) $(libs_main) $^ -o $@
+#
+# forkee
+#
 
-forkee: $(c_forkee:.c=.o)
-	$(cc) $(LDFLAGS) $(libs_forkee) $^ -o $@
+# objects
+forkee-y := forkee.o
 
-clean:
-	$(rm) *.o *.d main forkee
-
--include $(c_main:.c=.d)
-
-%.o: %.c
-	$(cc) $(OFLAGS) $< -o $@
-	@$(CC) -MM $(CFLAGS) $(OPS) $< > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
+# flags
+forkee-ldflags := -lpthread
