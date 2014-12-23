@@ -1,6 +1,9 @@
 bin-y := test_gdbparser gdbctrl
 
 
+# common flags
+cppflags-y := -I"$(loc_src_tree)"
+
 #
 # gdbctrl
 #
@@ -18,7 +21,8 @@ gdbctrl-cflags := -std=c++11
 #
 
 # object files
-test_gdbparser-y := gdbparser.tab.o gdbparser.lex.o
+test_gdbparser-y := gdbparser.tab.o gdbparser.lex.o gdb_result.o gdb_value.o xmalloc.o
+test_gdbparser-cflags := -std=gnu11
 
 # additional dependencies for generated headers
 $(loc_built_tree)/gdbparser.tab.o: $(loc_built_tree)/gdbparser.lex.h
