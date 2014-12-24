@@ -77,18 +77,15 @@ subdir-y += $(filter %/,$(obj-y) $(obj-nobuiltin-y))
 obj-y := $(patsubst %/,%/obj.o,$(obj-y))
 obj-nobuiltin-y := $(patsubst %/,%/obj.o,$(obj-nobuiltin-y))
 
-# filter variables set by included Makefile, i.e. obj-y, lib-y, bin-y (cf. $(supported_types)), and identify:
-# 	single targets - non-compound targets without an associated <target>-y variable
-# 	multi targets - compound targets with associated <target>-y variable
+
+## filter variables set by included Makefile, i.e. obj-y, lib-y, bin-y (cf. $(supported_types)), and identify:
+
+#  single targets - non-compound targets without an associated <target>-y variable
+#  multi targets - compound targets with associated <target>-y variable
 #
-# 	collect list of
-# 		all targets (single and multi) in $(loc_tgt)
-# 		prerequisites in $(loc_prereq)
-#
-# 	add single and multi targets to the global lists (i.e. $(obj), $(lib), $(bin), appending
-# 		the appropriate binary tree
-#
-# 	handle multi targets that specify a directory as prerequisite, i.e. <target>-y := <dir>/
+#  collect list of
+# 	all targets (single and multi) in $(loc_tgt)
+# 	prerequisites in $(loc_prereq)
 $(foreach type,$(supported_types), \
 	$(eval loc_single_$(type) := $(call filter_single_prereq,$($(type)-y))) \
 	$(eval loc_multi_$(type) := $(filter-out $(loc_single_$(type)), $($(type)-y))) \
@@ -98,12 +95,33 @@ $(foreach type,$(supported_types), \
 	\
 	$(call pdebug,    single_$(type): $(loc_single_$(type))) \
 	$(call pdebug,    multi_$(type): $(loc_multi_$(type))) \
-	\
+)
+
+#  add single and multi targets to the global lists (i.e. $(obj), $(lib), $(bin), appending
+#  the appropriate binary tree
+$(foreach type,$(supported_types), \
 	$(eval $(type) += $(addprefix $(loc_built_tree)/,$(loc_single_$(type)) $(loc_multi_$(type)))) \
-	\
-	$(foreach o,$(loc_multi_$(type)),\
-		$(eval subdir-y += $(filter %/,$($(o)-y))) \
-		$(eval $(o)-y := $(patsubst %/,$(loc_built_tree)/%/obj.o,$($(o)-y))) \
+)
+
+#  handle multi targets that specify a directory as prerequisite, i.e. <target>-y := <dir>/
+#  	filter directories to $(dirs)
+#  		select appropriate prefix by checking if the directory exists within $(loc_src_tree),
+#  		if not assume it exists in $(src_tree)
+dir-y :=
+
+$(foreach type,$(supported_types), \
+	$(foreach o,$(loc_multi_$(type)), \
+		$(eval dirs :=) \
+		$(foreach d,$(filter %/,$($(o)-y)), \
+			$(if $(call exists,$(loc_src_tree)/$(d)), \
+				$(eval subdir-y += $(d)) \
+				$(eval dirs += $(loc_built_tree)/$(d)obj.o) \
+				, \
+				$(eval dir-y += $(d)) \
+				$(eval dirs += $(built_tree)/$(d)obj.o) \
+			) \
+		) \
+		$(eval $(o)-y := $(filter-out %/,$($(o)-y)) $(dirs)) \
 	) \
 )
 
@@ -112,6 +130,7 @@ $(call pdebug)
 # remove duplicates
 loc_tgt := $(sort $(loc_tgt))
 loc_prereq := $(sort $(loc_prereq))
+dir-y := $(sort $(dir-y))
 
 $(call pdebug,    loc_tgt: $(loc_tgt))
 $(call pdebug,    loc_prereq: $(loc_prereq))
@@ -158,12 +177,12 @@ $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)
 	$(call gen_rule_basic,cmd_cc_o_s,$(loc_built_tree)/%.o,$(loc_built_tree)/%.S.i) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.o,$(loc_src_tree)/%.c) \
 	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.o,$(loc_src_tree)/%.cc) \
-	$(call gen_rule_basic,cmd_cc_c_y,$(loc_built_tree)/%.tab.c,$(loc_src_tree)/%.y) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.tab.o,$(loc_built_tree)/%.tab.c) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.o,$(loc_built_tree)/%.tab.c) \
-	$(call gen_rule_basic,cmd_cc_c_l,$(loc_built_tree)/%.lex.c,$(loc_src_tree)/%.l) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.lex.o,$(loc_built_tree)/%.lex.c) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.o,$(loc_built_tree)/%.lex.c) \
+	$(call gen_rule_basic,cmd_cc_c_y,$(loc_built_tree)/%.tab.cc,$(loc_src_tree)/%.y) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.tab.o,$(loc_built_tree)/%.tab.cc) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.o,$(loc_built_tree)/%.tab.cc) \
+	$(call gen_rule_basic,cmd_cc_c_l,$(loc_built_tree)/%.lex.cc,$(loc_src_tree)/%.l) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.lex.o,$(loc_built_tree)/%.lex.cc) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.o,$(loc_built_tree)/%.lex.cc) \
 	$(call gen_rule_basic,cmd_cc_c_h,$(loc_built_tree)/%.hash.c,$(loc_src_tree)/%.gperf) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.hash.o,$(loc_built_tree)/%.hash.c) \
 	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.o,$(loc_built_tree)/%.hash.c) \
@@ -199,9 +218,11 @@ $(foreach d,$(patsubst %/,%,$(subdir-y)), \
 	) \
 )
 
-# include sub-directories listed in $(subdir-y)
+# include sub-directories to $(loc_src_tree) listed in $(subdir-y) and
+# sub-directories to $(src_tree) listed in $(dir-y)
 $(call pdebug)
 $(call pdebug,    subdir: $(subdir-y))
+$(call pdebug,    dir: $(dir-y))
 $(call pdebug)
 
-$(call dinclude,$(addprefix $(loc_dir)/,$(subdir-y)))
+$(call dinclude,$(addprefix $(loc_dir)/,$(subdir-y)) $(dir-y))
