@@ -67,6 +67,10 @@ mkdir := $(QUIET)mkdir -p
 touch := $(QUIET)touch
 cp := $(QUIET)cp
 
+define exists
+$(if $(wildcard $(1)),1,)
+endef
+
 
 	#################
 	###           ###
@@ -94,15 +98,18 @@ endif
 	###############################
 
 build := scripts/Makefile.build
+included :=
 
 
-# recursively include 'Makefile.traverse'	on given directories
+# recursively include 'Makefile.build' on given directories, avoiding
+# dobble-inclusion of the same Makefile
 # directory for current iteration is available through $(loc_dir)
 #
 #	$(call dinclude,<directory list>)
 define dinclude
-	$(foreach d,$(1), \
+	$(foreach d,$(filter-out $(included),$(1)), \
 		$(eval loc_dir=$(d)) \
+		$(eval included += $(d)) \
 		$(eval include $(build)) \
 	)
 endef
@@ -175,7 +182,7 @@ endef
 #	finally the prerequisite variable is cleared to avoid name collisions
 #		with files with the same stem but in a different diretory
 #
-#	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>	
+#	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>
 define gen_rule_multi
 		$(foreach f,$(2), \
 			$(eval edep :=) \
@@ -232,12 +239,12 @@ endef
 
 define cmd_cc_c_y
 	$(echo) [YACC] $@
-	$(yacc) $(yaccflags) $< -o $@
+	$(yacc) $(yaccflags) --defines=$(basename $@).h $< -o $@
 endef
 
 define cmd_cc_c_l
 	$(echo) [LEX] $@
-	$(lex) $(lexflags) -o $@ $<
+	$(lex) $(lexflags) --header-file=$(basename $@).h -o $@ $<
 endef
 
 define cmd_cc_c_h
@@ -257,8 +264,8 @@ define cmd_cc_o_c
 endef
 
 define cmd_cc_o_cxx
-	$(echo) [$(1)CXX]$@
-	$($(1)cxx) $($(1)cxxflags) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $^ -o $@
+	$(echo) [$(1)CXX] $@
+	$($(1)cxx) $($(1)cxxflags) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $< -o $@
 	$($(1)cxx) $($(1)cppflags) $($(1)archflags) -MM -MF $(basename $@).d -MP -MT $@ $<
 endef
 
