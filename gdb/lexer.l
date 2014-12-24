@@ -2,9 +2,9 @@
 %option noyywrap
 
 %{
-	#include <gdb_result.h>
-	#include <gdbparser.tab.h>
-	#include <xmalloc.h>
+	#include <common/xmalloc.h>
+	#include <gdb/result.h>
+	#include <parser.tab.h>
 
 
 	/* define YY_USER_ACTION, executed for every token, before excuting its
@@ -67,7 +67,7 @@ char* alloc_string(char* _s, unsigned int len){
 
 
 printf("[%d] alloc string (\"%s\")\n", tk, _s);
-	s = xmalloc(len + 1);
+	s = (char*)xmalloc(len + 1);
 	if(s != 0)
 		strncpy(s, _s, len + 1);
 printf("\n");

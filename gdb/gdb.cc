@@ -1,7 +1,6 @@
-#include <unistd.h>
-#include "gdb.h"
-#include "log.h"
-#include "pty.h"
+#include <common/log.h>
+#include <common/pty.h>
+#include <gdb/gdb.h>
 
 
 /* class definition */
@@ -41,7 +40,7 @@ int gdb_if::init(){
 		/* child */
 		log::cleanup();
 
-		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
+		return linux::execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
 	else if(pid > 0){
 		/* parent */

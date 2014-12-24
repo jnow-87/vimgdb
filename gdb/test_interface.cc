@@ -1,11 +1,11 @@
+#include <common/log.h>
+#include <common/tty.h>
+#include <gdb/gdb.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
 #include <string.h>
 #include "config.h"
-#include "log.h"
-#include "gdb.h"
-#include "tty.h"
 
 
 /* static variables */
@@ -82,6 +82,9 @@ void* thread(void* arg){
 	while(1){
 		if(gdb->read(&c, 1) == 1){
 			if(c == '\n' || c == '\r'){
+				if(i == 0)
+					continue;
+
 				line[i] = 0;
 				printf("gdb_read: %s\n", line);
 				i = 0;

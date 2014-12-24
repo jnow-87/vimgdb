@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 
-#include "log.h"
+#include <common/log.h>
 
 
 #define LOG_FILE	"/proc/self/fd/1"

@@ -1,3 +1,5 @@
+#include <common/tty.h>
+
 namespace linux{
 	// cover in separate namespace to avoid name collision
 	#include <sys/types.h>
@@ -5,8 +7,6 @@ namespace linux{
 	#include <fcntl.h>
 	#include <unistd.h>
 }
-
-#include "tty.h"
 
 
 /* class definition */

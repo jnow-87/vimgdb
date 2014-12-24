@@ -1,9 +1,9 @@
+#include <common/list.h>
+#include <common/xmalloc.h>
+#include <gdb/value.h>
+#include <gdb/result.h>
 #include <stdio.h>
 #include <string.h>
-#include "list.h"
-#include "xmalloc.h"
-#include "gdb_value.h"
-#include "gdb_result.h"
 
 
 /* external variables */
@@ -18,7 +18,7 @@ value_t* gdb_value_create(value_type_t type, void* value){
 	token++;
 
 printf("[%d] create value (%d, %#x)\n", tk, type, value);
-	v = xmalloc(sizeof(value_t));
+	v = (value_t*)xmalloc(sizeof(value_t));
 	if(v == 0)
 		goto err_0;
 
@@ -58,11 +58,11 @@ printf("[%d] v->value is string \"%s\"\n", tk, v->value);
 			break;
 
 		case VALUE_LIST:
-			v->value = gdb_value_free(v->value);
+			v->value = gdb_value_free((value_t*)v->value);
 			break;
 
 		case RESULT_LIST:
-			v->value = gdb_result_free(v->value);
+			v->value = gdb_result_free((result_t*)v->value);
 			break;
 
 		case EMPTY:
@@ -108,7 +108,7 @@ void gdb_value_print(value_t* list){
 			printf("   %d: ", i);
 
 			rec_depth += 3;
-			gdb_value_print(v->value);
+			gdb_value_print((value_t*)v->value);
 			rec_depth -= 3;
 			break;
 		
@@ -117,7 +117,7 @@ void gdb_value_print(value_t* list){
 			printf("   %d: ", i);
 
 			rec_depth += 3;
-			gdb_result_print(v->value);
+			gdb_result_print((result_t*)v->value);
 			rec_depth -= 3;
 			break;
 

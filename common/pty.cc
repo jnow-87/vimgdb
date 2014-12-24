@@ -1,3 +1,5 @@
+#include <common/log.h>
+#include <common/pty.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -6,13 +8,11 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <signal.h>
+
 namespace linux{
 	// cover in separate namespace to avoid name collision
 	#include <unistd.h>
 }
-
-#include "log.h"
-#include "pty.h"
 
 
 /* class definition */

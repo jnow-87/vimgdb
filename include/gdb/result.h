@@ -2,7 +2,7 @@
 #define GDB_RESULT_H
 
 
-#include "gdb_value.h"
+#include <gdb/value.h>
 
 
 /* types */

@@ -2,7 +2,7 @@
 #define PTY_H
 
 
-#include "tty.h"
+#include <common/tty.h>
 
 
 /* class */

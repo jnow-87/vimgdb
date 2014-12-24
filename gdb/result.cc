@@ -1,8 +1,8 @@
+#include <common/list.h>
+#include <common/xmalloc.h>
+#include <gdb/result.h>
 #include <stdio.h>
 #include <string.h>
-#include "list.h"
-#include "xmalloc.h"
-#include "gdb_result.h"
 
 
 /* external variables */
@@ -21,7 +21,7 @@ result_t* gdb_result_create(char* var_name, value_t* value){
 
 printf("[%d] create result (\"%s\", %#x)\n", tk, var_name, value);
 
-	r = xmalloc(sizeof(result_t));
+	r = (result_t*)xmalloc(sizeof(result_t));
 	if(r == 0)
 		goto err_0;
 
@@ -56,7 +56,7 @@ result_t* gdb_result_free(result_t* list){
 printf("[%d] free result (\"%s\", %#x)\n", tk, r->var_name, r);
 
 		list_rm(&list, r);
-		r->value = gdb_value_free(r->value);
+		r->value = gdb_value_free((value_t*)r->value);
 
 printf("[%d] free result mem\n", tk);
 		xfree(r->var_name);	// string allocated in lexer
@@ -82,6 +82,6 @@ void gdb_result_print(result_t* list){
 	list_for_each(list, r){
 		printf(rec_str, "");
 		printf("result %s = ", r->var_name);
-		gdb_value_print(r->value);
+		gdb_value_print((value_t*)r->value);
 	}
 }

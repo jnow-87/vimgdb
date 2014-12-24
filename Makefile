@@ -15,7 +15,7 @@ src_tree := $(SRC_TREE)
 # init default flags
 cflags := $(CFLAGS)
 cxxflags := $(CXXFLAGS)
-cppflags := $(CPPFLAGS) -g
+cppflags := $(CPPFLAGS) -g -I"include/"
 ldflags := $(LDFLAGS)
 asflags := $(ASFLAGS) -g
 archflags := $(ARCHFLAGS) -g
@@ -28,7 +28,7 @@ obj :=
 lib :=
 bin :=
 
-subdir-y := gdbctrl shell_interface
+subdir-y := gdb
 
 # fake target as default
 .PHONY: fake_all

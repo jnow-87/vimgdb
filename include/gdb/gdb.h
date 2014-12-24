@@ -2,12 +2,14 @@
 #define GDB_H
 
 
-#include "pty.h"
+#include <common/pty.h>
 
 
 /* marcos */
 #define GDB_CMD		"/usr/bin/gdb"
-#define GDB_ARGS	"-q"
+#define GDB_ARGS						/* specified as comma-separated list of strings */ \
+					"--interpreter=mi", /* enable MI interface */ \
+					"-q" 				/* disbale gdb info on start*/
 
 
 /* class */
