@@ -1,6 +1,6 @@
 #include <common/tty.h>
 
-namespace linux{
+namespace libc{
 	// cover in separate namespace to avoid name collision
 	#include <sys/types.h>
 	#include <sys/stat.h>
@@ -25,8 +25,8 @@ tty::tty(){
  * \param	out_file	file to write to
  */
 tty::tty(const char* in_file, const char* out_file){
-	this->fd_in = linux::open(in_file, O_RDONLY);
-	this->fd_out = linux::open(out_file, O_WRONLY);
+	this->fd_in = libc::open(in_file, O_RDONLY);
+	this->fd_out = libc::open(out_file, O_WRONLY);
 }
 
 /**
@@ -34,10 +34,10 @@ tty::tty(const char* in_file, const char* out_file){
  */
 tty::~tty(){
 	if(this->fd_in > 1)
-		linux::close(this->fd_in);
+		libc::close(this->fd_in);
 
 	if(this->fd_out > 1)
-		linux::close(this->fd_out);
+		libc::close(this->fd_out);
 }
 
 /**
@@ -51,7 +51,7 @@ tty::~tty(){
  */
 int tty::read(void* buf, unsigned int nbytes){
 	// TODO
-	return linux::read(fd_in, buf, nbytes);
+	return libc::read(fd_in, buf, nbytes);
 }
 
 /**
@@ -65,5 +65,5 @@ int tty::read(void* buf, unsigned int nbytes){
  */
 int tty::write(void* buf, unsigned int nbytes){
 	// TODO
-	return linux::write(fd_out, buf, nbytes);
+	return libc::write(fd_out, buf, nbytes);
 }

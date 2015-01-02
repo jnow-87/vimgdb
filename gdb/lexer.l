@@ -57,19 +57,11 @@
 
 %%
 
-extern unsigned int token;
-
 char* alloc_string(char* _s, unsigned int len){
 	char* s;
-	unsigned int tk = token;
 
-	token++;
-
-
-printf("[%d] alloc string (\"%s\")\n", tk, _s);
 	s = (char*)xmalloc(len + 1);
 	if(s != 0)
 		strncpy(s, _s, len + 1);
-printf("\n");
 	return s;
 }

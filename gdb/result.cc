@@ -1,12 +1,10 @@
-#include <common/list.h>
 #include <common/xmalloc.h>
+#include <common/list.h>
+#include <common/log.h>
 #include <gdb/result.h>
 #include <stdio.h>
 #include <string.h>
 
-
-/* external variables */
-extern unsigned int token;
 
 /* local variables */
 unsigned int rec_depth = 0;
@@ -15,11 +13,9 @@ unsigned int rec_depth = 0;
 /* global functions */
 result_t* gdb_result_create(char* var_name, value_t* value){
 	result_t* r;
-	unsigned int tk = token;
-	token++;
 
 
-printf("[%d] create result (\"%s\", %#x)\n", tk, var_name, value);
+	DEBUG("create result (\"%s\", %#x)\n", var_name, value);
 
 	r = (result_t*)xmalloc(sizeof(result_t));
 	if(r == 0)
@@ -32,7 +28,7 @@ printf("[%d] create result (\"%s\", %#x)\n", tk, var_name, value);
 	r->value = value;
 	list_init(r);
 
-printf("[%d] end\n\n", tk);
+	DEBUG("end\n\n");
 
 	return r;
 
@@ -41,34 +37,31 @@ err_1:
 
 err_0:
 
-printf("[%d] end (error)\n\n", tk);
+	DEBUG("end (error)\n\n");
 	return 0;
 }
 
 result_t* gdb_result_free(result_t* list){
 	result_t* r;
-	unsigned int tk;
 
 
 	list_for_each(list, r){
-		tk = token;
-		token++;
-printf("[%d] free result (\"%s\", %#x)\n", tk, r->var_name, r);
+		DEBUG("free result (\"%s\", %#x)\n", r->var_name, r);
 
 		list_rm(&list, r);
 		r->value = gdb_value_free((value_t*)r->value);
 
-printf("[%d] free result mem\n", tk);
+		DEBUG("free result mem\n");
 		xfree(r->var_name);	// string allocated in lexer
 		xfree(r);
-printf("[%d] end\n\n", tk);
+		DEBUG("end\n\n");
 	}
 
 	return list;
 }
 
 void gdb_result_add(result_t* list, result_t* result){
-printf("[%d] add result %#x to %#x\n\n", token++, result, list);
+	DEBUG("add result %#x to %#x\n\n", result, list);
 	list_add_tail(list, result);
 }
 

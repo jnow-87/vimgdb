@@ -2,10 +2,10 @@
 %locations
 
 %{
+	#include <common/log.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
 	#include <lexer.lex.h>
-	#include <stdio.h>
 
 
 	int gdberror(const char* s);
@@ -45,12 +45,12 @@
 %%
 
 
-output :	out-of-band-record result-record GDB NEWLINE			{ printf("output\n"); };
+output :	out-of-band-record result-record GDB NEWLINE			{ DEBUG("output\n"); };
 
 /* out-of-band-record */
-out-of-band-record :	%empty										{ printf("oob-empty\n"); }
-				   |	out-of-band-record async-record				{ printf("oob-async\n"); }
-				   |	out-of-band-record stream-record			{ printf("oob-stream\n"); }
+out-of-band-record :	%empty										{ DEBUG("oob-empty\n"); }
+				   |	out-of-band-record async-record				{ DEBUG("oob-async\n"); }
+				   |	out-of-band-record stream-record			{ DEBUG("oob-stream\n"); }
 				   ;
 
 async-record :			token '*' async-output NEWLINE				{}		/* exec-async-output */
@@ -62,9 +62,9 @@ async-output :			ASYNC_CLASS									{  }
 			 |			ASYNC_CLASS ',' result-list					{ gdb_result_print($3); gdb_result_free($3); }
 			 ;
 
-stream-record :			'~' '"' STRING '"' NEWLINE					{ printf("console stream: \"%s\"\n", $3); }		/* console-stream-output */
-			  |			'@' '"' STRING '"' NEWLINE					{ printf("target system stream: \"%s\"\n", $3); }		/* target-system-output */
-			  |			'&' '"' STRING '"' NEWLINE					{ printf("log stream: \"%s\"\n", $3); }	/* log-stream-output */
+stream-record :			'~' '"' STRING '"' NEWLINE					{ DEBUG("console stream: \"%s\"\n", $3); }		/* console-stream-output */
+			  |			'@' '"' STRING '"' NEWLINE					{ DEBUG("target system stream: \"%s\"\n", $3); }		/* target-system-output */
+			  |			'&' '"' STRING '"' NEWLINE					{ DEBUG("log stream: \"%s\"\n", $3); }	/* log-stream-output */
 			  ;
 
 
@@ -110,6 +110,6 @@ token :				%empty											{ $$ = 0; }
 %%
 
 int gdberror(const char* s){
-	printf("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
+	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
 	return 0;
 }

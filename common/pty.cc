@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
-namespace linux{
+namespace libc{
 	// cover in separate namespace to avoid name collision
 	#include <unistd.h>
 }
@@ -55,8 +55,8 @@ pty::~pty(){
 	}
 
 	// close terminal
-	linux::close(this->fd_master);
-	linux::close(this->fd_slave);
+	libc::close(this->fd_master);
+	libc::close(this->fd_slave);
 }
 
 /**
@@ -71,19 +71,19 @@ pty::~pty(){
  * 			-1			on error
  */
 int pty::fork(){
-	this->forkee_pid = linux::fork();
+	this->forkee_pid = libc::fork();
 
 	switch(this->forkee_pid){
 	// error
 	case -1:
-		linux::close(this->fd_master);
-		linux::close(this->fd_slave);
+		libc::close(this->fd_master);
+		libc::close(this->fd_slave);
 
 		return -1;
 
 	// child
 	case 0:
-		linux::close(this->fd_master);
+		libc::close(this->fd_master);
 		this->fd_master = 0;
 
 		// make fd_slave controlling terminal
@@ -94,7 +94,7 @@ int pty::fork(){
 
 	// parent
 	default:
-		linux::close(this->fd_slave);
+		libc::close(this->fd_slave);
 
 		// register signal handler for SIGCHLD
 		if(signal(SIGCHLD, pty::sig_hdlr_chld) == SIG_ERR){
@@ -161,10 +161,10 @@ int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct 
 	return 0;
 
 err_1:
-	linux::close(fd_slave);
+	libc::close(fd_slave);
 
 err_0:
-	linux::close(fd_master);
+	libc::close(fd_master);
 	return -1;
 }
 
@@ -178,18 +178,18 @@ err_0:
  */
 int pty::login(int fd){
 	// create new session
-	linux::setsid();
+	libc::setsid();
 
 	// set controlling terminal
 	if(ioctl(fd, TIOCSCTTY, 0) == -1)
 		return -1;
 
 	// create standard file descriptors
-	if(linux::dup2(fd, 0) == -1 || linux::dup2(fd, 1) == -1 || linux::dup2(fd, 2) == -1)
+	if(libc::dup2(fd, 0) == -1 || libc::dup2(fd, 1) == -1 || libc::dup2(fd, 2) == -1)
 		return -1;
 
 	if(fd > 2)
-		linux::close(fd);
+		libc::close(fd);
 
 	return 0;
 }
@@ -203,5 +203,5 @@ void pty::sig_hdlr_chld(int signum){
 	INFO("caught child signal %d, initialising cleanup\n", signum);
 
 	// kill self
-	kill(linux::getpid(), SIGTERM);
+	kill(libc::getpid(), SIGTERM);
 }

@@ -1,5 +1,6 @@
-#include <common/list.h>
 #include <common/xmalloc.h>
+#include <common/list.h>
+#include <common/log.h>
 #include <gdb/value.h>
 #include <gdb/result.h>
 #include <stdio.h>
@@ -7,17 +8,15 @@
 
 
 /* external variables */
-extern unsigned int token;
 extern unsigned int rec_depth;
 
 
 /* global functions */
 value_t* gdb_value_create(value_type_t type, void* value){
 	value_t* v;
-	unsigned int tk = token;
-	token++;
 
-printf("[%d] create value (%d, %#x)\n", tk, type, value);
+
+	DEBUG("create value (%d, %#x)\n", type, value);
 	v = (value_t*)xmalloc(sizeof(value_t));
 	if(v == 0)
 		goto err_0;
@@ -29,7 +28,7 @@ printf("[%d] create value (%d, %#x)\n", tk, type, value);
 	v->type = type;
 	list_init(v);
 
-printf("[%d] end\n\n", tk);
+	DEBUG("end\n\n");
 
 	return v;
 
@@ -37,23 +36,20 @@ err_1:
 	xfree(v);
 
 err_0:
-printf("[%d] end (error)\n\n", tk);
+	DEBUG("end (error)\n\n");
 	return 0;
 }
 
 value_t* gdb_value_free(value_t* value){
 	value_t* v;
-	unsigned int tk;
 
 
 	list_for_each(value, v){
-		tk = token;
-		token++;
+		DEBUG("free value (%#x)\n", value);
 
-printf("[%d] free value (%#x)\n", tk, value);
 		switch(v->type){
 		case CONST:
-printf("[%d] v->value is string \"%s\"\n", tk, v->value);
+			DEBUG("v->value is string \"%s\"\n", v->value);
 			xfree(v->value);	// free the string allocated in lexer
 			break;
 
@@ -69,20 +65,19 @@ printf("[%d] v->value is string \"%s\"\n", tk, v->value);
 			break;
 		}
 
-printf("[%d] free value mem\n", tk);
+		DEBUG("free value mem\n");
 
 		list_rm(&value, v);
 		xfree(v);
 
-printf("[%d] end\n\n", tk);
+		DEBUG("end\n\n");
 	}
 
 	return value;
 }
 
 void gdb_value_add(value_t* list, value_t* value){
-printf("[%d] add value %#x to %#x\n\n", token++, value, list);
-
+	DEBUG("add value %#x to %#x\n\n", value, list);
 	list_add_tail(list, value);
 }
 

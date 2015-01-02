@@ -1,3 +1,4 @@
+#include <common/log.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +13,7 @@ void* xmalloc(unsigned int nbytes){
 
 
 	p = malloc(nbytes);
-	printf("malloc %#x (%d bytes)\n", p, nbytes);
+	DEBUG("malloc %#x (%d bytes)\n", p, nbytes);
 	pmalloc[idx++] = p;
 	return p;
 }
@@ -21,7 +22,7 @@ void xfree(void* p){
 	unsigned int i, found;
 
 
-	printf("free %#x\n", p);
+	DEBUG("free %#x\n", p);
 
 	for(found=0, i=0; i<100; i++){
 		if(pmalloc[i] == p){
@@ -32,7 +33,7 @@ void xfree(void* p){
 	}
 
 	if(!found)
-		printf("%#x no longer allocated\n", p);
+		DEBUG("%#x no longer allocated\n", p);
 
 	free(p);
 }
@@ -47,6 +48,6 @@ void xmalloc_eval(){
 
 
 	for(i=0; i<100; i++){
-		if(pmalloc[i] != 0)	printf("\033[31m%#x still alloced\033[0m\n", pmalloc[i]);
+		if(pmalloc[i] != 0)	DEBUG("\033[31m%#x still alloced\033[0m\n", pmalloc[i]);
 	}
 }

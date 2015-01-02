@@ -40,7 +40,7 @@ int gdb_if::init(){
 		/* child */
 		log::cleanup();
 
-		return linux::execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
+		return libc::execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
 	else if(pid > 0){
 		/* parent */

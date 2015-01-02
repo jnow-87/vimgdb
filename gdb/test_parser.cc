@@ -1,16 +1,16 @@
 #include <common/xmalloc.h>
 #include <common/list.h>
+#include <common/log.h>
 #include <gdb/value.h>
 #include <gdb/result.h>
 #include <parser.tab.h>
 #include <lexer.lex.h>
 #include <stdio.h>
-
+#include "config.h"
 
 
 /* global variables */
 char* line;
-unsigned int token = 1;
 
 
 /* global functions */
@@ -18,6 +18,11 @@ int main(int argc, char** argv){
 //	char str[] = "^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 //	char str[] = "&\"target gdbctrl\\n\"\n&\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\n\n\"\n^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 	char str[] = "=breakpoint-created,bkpt=[number=[\"1\",\"2\"],type=\"breakpoint\",groups=[\"i1\",\"i2\",\"i3\"]]\n(gdb)\n";
+
+
+	// logging
+	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
+		return 1;
 
 #if 0
 	xmalloc_init();
@@ -86,7 +91,7 @@ int main(int argc, char** argv){
 	else
 		line = argv[1];
 
-	printf("%s\n", str);
+	DEBUG("%s\n", str);
 	gdb_scan_string(line);
 	gdbparse();
 

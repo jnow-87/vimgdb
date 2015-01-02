@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 
-namespace linux{
+namespace libc{
 	// cover in separate namespace to avoid name collision
 	#include <unistd.h>
 }
@@ -15,14 +15,16 @@ enum log_level_t{
 	NONE = 0x0,
 	INFO = 0x1,
 	WARN = 0x2,
-	ERROR = 0x4
+	ERROR = 0x4,
+	DEBUG = 0x8,
 };
 
 
 /* macros */
-#define INFO(msg, ...)	log::print(INFO, "[INF][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define ERROR(msg, ...)	log::print(ERROR, "[ERR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define WARN(msg, ...)	log::print(WARN, "[WAR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, linux::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define INFO(msg, ...)	log::print(INFO, "[INF][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, libc::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR, "[ERR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, libc::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARN(msg, ...)	log::print(WARN, "[WAR][%d][%19.19s] %10.10s:%-5d %20.20s(): " msg, libc::getpid(), log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define DEBUG(msg, ...)	log::print(DEBUG, msg, ##__VA_ARGS__)
 
 
 /* class */
