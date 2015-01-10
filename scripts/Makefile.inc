@@ -56,6 +56,7 @@ rm := $(QUIET)rm -rf
 mkdir := $(QUIET)mkdir -p
 touch := $(QUIET)touch
 cp := $(QUIET)cp
+gperf_header := $(QUIET)scripts/gperf_header.sh
 
 define exists
 $(if $(wildcard $(1)),1,)
@@ -237,9 +238,10 @@ define cmd_cc_c_l
 	$(lex) $(lexflags) --header-file=$(basename $@).h -o $@ $<
 endef
 
-define cmd_cc_c_h
+define cmd_cc_cxx_gperf
 	$(echo) [GPERF] $@
 	$(gperf) $(gperfflags) $< --output-file=$@
+	$(gperf_header) $@ $(basename $@).h
 endef
 
 define cmd_cc_o_s

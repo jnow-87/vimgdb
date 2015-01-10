@@ -185,9 +185,10 @@ $(if $(strip $(loc_single_obj) $(loc_single_lib) $(loc_single_bin) $(loc_prereq)
 	$(call gen_rule_basic, ,$(loc_built_tree)/%.lex.h,$(loc_built_tree)/%.lex.cc) \
 	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.lex.o,$(loc_built_tree)/%.lex.cc) \
 	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.o,$(loc_built_tree)/%.lex.cc) \
-	$(call gen_rule_basic,cmd_cc_c_h,$(loc_built_tree)/%.hash.c,$(loc_src_tree)/%.gperf) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.hash.o,$(loc_built_tree)/%.hash.c) \
-	$(call gen_rule_basic,cmd_cc_o_c,$(loc_built_tree)/%.o,$(loc_built_tree)/%.hash.c) \
+	$(call gen_rule_basic,cmd_cc_cxx_gperf,$(loc_built_tree)/%.hash.cc,$(loc_src_tree)/%.gperf) \
+	$(call gen_rule_basic, ,$(loc_built_tree)/%.hash.h,$(loc_built_tree)/%.hash.cc) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.hash.o,$(loc_built_tree)/%.hash.cc) \
+	$(call gen_rule_basic,cmd_cc_o_cxx,$(loc_built_tree)/%.o,$(loc_built_tree)/%.hash.cc) \
 	$(call gen_rule_basic,cmd_cc_lib_o,$(loc_built_tree)/%.a,$(loc_built_tree)/%.o) \
 	, \
 )
