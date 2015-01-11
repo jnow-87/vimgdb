@@ -25,10 +25,19 @@ macro=$(basename ${header} | tr a-z. A-Z_)
 echo -e "#ifndef "${macro} > ${header}
 echo -e "#define "${macro}"\n\n" >> ${header}
 
+# extract macros
+grep -e '#define' ${cfile} >> ${header}
+echo >> ${header}
+
+# extract wordlist definition
+sed -e '/wordlist\[\]/,/};/!d' ${cfile} >> ${header}
+echo >> ${header}
+
 # extract class
 sed -e '/class/,/}/!d' ${cfile} >> ${header}
+echo >> ${header}
 
 # print footer
-echo -e "\n\n#endif // "${macro} >> ${header}
+echo -e "\n#endif // "${macro} >> ${header}
 
 exit 0

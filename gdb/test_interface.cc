@@ -51,10 +51,8 @@ int main(int argc, char** argv){
 		std_term.read(&c, 1);
 
 		if(c == '\n' || c == '\r'){
-			line[i++] = '\n';
 			line[i] = 0;
-			printf("line: %s", line);
-			gdb->write(line, strlen(line));
+			gdb->exec_user_cmd(line);
 
 			i = 0;
 		}

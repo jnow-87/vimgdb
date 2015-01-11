@@ -26,9 +26,28 @@ public:
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
 
+	/* user command processing */
+	int exec_user_cmd(char* cmdline);
+
+	/* user commands */
+	static int cmd_test(gdb_if* gdb, int argc, char** argv);
+	static int cmd_help(gdb_if* gdb, int argc, char** argv);
+
 private:
-	pty* child_term;	// PTX to gdb child
+	pty* child_term;	// PTY to gdb child
 };
+
+
+/* types */
+struct gdb_user_cmd_t{
+	const char* name;
+
+	int (*callback)(gdb_if* gdb, int argc, char** argv);
+
+	const char* help_msg;
+};
+
+typedef gdb_user_cmd_t gdb_user_cmd_t;
 
 
 #endif
