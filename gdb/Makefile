@@ -15,9 +15,9 @@ test-interface-cflags := -std=c++11
 
 ## test-parser
 # flags
-test-parser-cppflags := -I"$(loc_src_tree)" \
-						-I"$(loc_built_tree)"
+test-parser-cppflags := -I"$(loc_src_tree)"
 
+# object files
 test-parser-y := test_parser.o parser.tab.o lexer.lex.o result.o value.o common/
 
 # additional dependencies for generated headers

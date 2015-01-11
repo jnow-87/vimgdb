@@ -3,8 +3,8 @@
 #include <common/log.h>
 #include <gdb/value.h>
 #include <gdb/result.h>
-#include <parser.tab.h>
-#include <lexer.lex.h>
+#include <gdb/parser.tab.h>
+#include <gdb/lexer.lex.h>
 #include <stdio.h>
 #include "config.h"
 

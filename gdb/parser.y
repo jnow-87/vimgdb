@@ -5,7 +5,7 @@
 	#include <common/log.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
-	#include <lexer.lex.h>
+	#include <gdb/lexer.lex.h>
 
 
 	int gdberror(const char* s);
@@ -40,7 +40,8 @@
 %type <value> tuple
 %type <value> list
 %type <sptr> variable
-%type <num>token
+%type <num> token
+
 
 %%
 
@@ -62,9 +63,9 @@ async-output :			ASYNC_CLASS									{  }
 			 |			ASYNC_CLASS ',' result-list					{ gdb_result_print($3); gdb_result_free($3); }
 			 ;
 
-stream-record :			'~' '"' STRING '"' NEWLINE					{ DEBUG("console stream: \"%s\"\n", $3); }		/* console-stream-output */
-			  |			'@' '"' STRING '"' NEWLINE					{ DEBUG("target system stream: \"%s\"\n", $3); }		/* target-system-output */
-			  |			'&' '"' STRING '"' NEWLINE					{ DEBUG("log stream: \"%s\"\n", $3); }	/* log-stream-output */
+stream-record :			'~' '"' STRING '"' NEWLINE					{ DEBUG("console stream: \"%s\"\n", $3); }			/* console-stream-output */
+			  |			'@' '"' STRING '"' NEWLINE					{ DEBUG("target system stream: \"%s\"\n", $3); }	/* target-system-output */
+			  |			'&' '"' STRING '"' NEWLINE					{ DEBUG("log stream: \"%s\"\n", $3); }				/* log-stream-output */
 			  ;
 
 

@@ -4,7 +4,7 @@
 %{
 	#include <common/xmalloc.h>
 	#include <gdb/result.h>
-	#include <parser.tab.h>
+	#include <gdb/parser.tab.h>
 
 
 	/* define YY_USER_ACTION, executed for every token, before excuting its
