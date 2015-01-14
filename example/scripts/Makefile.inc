@@ -17,8 +17,8 @@ ifdef QUIET
 override QUIET := @
 endif
 
-supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
-supported_types := obj lib bin
+supported_flags := cflags cxxflags cppflags asflags ldflags ldrflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
+supported_types := obj obj-nobuiltin lib bin
 
 
 # disable built-in rules
@@ -67,6 +67,10 @@ mkdir := $(QUIET)mkdir -p
 touch := $(QUIET)touch
 cp := $(QUIET)cp
 
+define exists
+$(if $(wildcard $(1)),1,)
+endef
+
 
 	#################
 	###           ###
@@ -94,15 +98,18 @@ endif
 	###############################
 
 build := scripts/Makefile.build
+included :=
 
 
-# recursively include 'Makefile.traverse'	on given directories
+# recursively include 'Makefile.build' on given directories, avoiding
+# dobble-inclusion of the same Makefile
 # directory for current iteration is available through $(loc_dir)
 #
 #	$(call dinclude,<directory list>)
 define dinclude
-	$(foreach d,$(1), \
+	$(foreach d,$(filter-out $(included),$(1)), \
 		$(eval loc_dir=$(d)) \
+		$(eval included += $(d)) \
 		$(eval include $(build)) \
 	)
 endef
@@ -145,6 +152,9 @@ endef
 	############################
 
 # generate target-specific rule for <target>-*flags
+# 	also generate same rule for $(basename <target>).i since %.i files
+# 		are only built on explicite request and thus do not depent on <target>
+#
 # 	afterwards clear flag variable to avoid name collisions with files
 # 		with the same stem but in a different directory
 #
@@ -152,16 +162,19 @@ endef
 define gen_rule_tgt_flags
 	$(if $($(basename $(1))-$(2)), \
 		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(basename $(1))-$(2)))) \
+		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(basename $(1))-$(2)))) \
 		$(eval $(basename $(1))-$(2) :=), \
 	)
 endef
 
 # generate target-specific rule for local flags, i.e. *flags-y and subdir-*flags
+# 	handling <target> and $(basename <target>).i
 #
 #	$(call gen_rule_flags,<target>,<flag>,<bin_prefix>
 define gen_rule_loc_flags
 	$(if $(strip $($(2)-y) $(subdir-$(2))), \
 		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(2)-y) $(subdir-$(2)))) \
+		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(2)-y) $(subdir-$(2)))) \
 		,)
 endef
 
@@ -175,7 +188,7 @@ endef
 #	finally the prerequisite variable is cleared to avoid name collisions
 #		with files with the same stem but in a different diretory
 #
-#	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>	
+#	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>
 define gen_rule_multi
 		$(foreach f,$(2), \
 			$(eval edep :=) \
@@ -198,6 +211,7 @@ define gen_rule_basic
 		$(call pdebug,    generate rule:)
 		$(call pdebug,        $(2): $(3))
 		$(if $(1), \
+			$(call pdebug,            $(mkdir) $$(@D)) \
 			$(call pdebug,            $$(call $(1),$(host))) \
 		)
 		$(call pdebug)
@@ -205,6 +219,7 @@ define gen_rule_basic
 		$(if $(1),
 			$(eval \
 				$(2): $(3)
+					$(mkdir) $$(@D)
 					$$(call $(1),$(host)) \
 			), \
 			$(eval $(2): $(3)) \
