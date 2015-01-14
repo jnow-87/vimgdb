@@ -17,7 +17,7 @@ ifdef QUIET
 override QUIET := @
 endif
 
-supported_flags := cflags cxxflags cppflags asflags ldflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
+supported_flags := cflags cxxflags cppflags asflags ldflags ldrflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
 supported_types := obj obj-nobuiltin lib bin
 
 
@@ -277,7 +277,7 @@ endef
 
 define cmd_cc_o_o
 	$(echo) [$(1)LD] $@
-	$($(1)ld) -r $^ -o $@
+	$($(1)ld) $($(1)ldrflags) -r $^ -o $@
 endef
 
 define cmd_cc_lib_o

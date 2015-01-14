@@ -83,6 +83,7 @@ help:
 	$(printf) "         %25s\t%s\n" "cppflags" "c pre-processor flags"
 	$(printf) "         %25s\t%s\n" "asflags" "assembler flags"
 	$(printf) "         %25s\t%s\n" "ldflags" "linker flags"
+	$(printf) "         %25s\t%s\n" "ldrflags" "linker flags for creating relocatable output (ld -r)"
 	$(printf) "         %25s\t%s\n" "archflags" "architecture specific flags"
 	$(printf) "         %25s\t%s\n" "yaccflags" "yacc flags"
 	$(printf) "         %25s\t%s\n" "lexflags" "lex flags"
