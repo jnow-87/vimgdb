@@ -234,7 +234,7 @@ endef
 define cmd_cc_i
 	$(echo) [$(1)CC] $@
 	$($(1)cc) $($(1)cppflags) $($(1)archflags) -E $< -o $@
-	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $(basename $@).d -MP -MT $@ $<
+	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
 endef
 
 define cmd_cc_c_y
@@ -260,13 +260,13 @@ endef
 define cmd_cc_o_c
 	$(echo) [$(1)CC] $@
 	$($(1)cc) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $< -o $@
-	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $(basename $@).d -MP -MT $@ $<
+	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
 endef
 
 define cmd_cc_o_cxx
 	$(echo) [$(1)CXX] $@
 	$($(1)cxx) $($(1)cxxflags) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $< -o $@
-	$($(1)cxx) $($(1)cppflags) $($(1)archflags) -MM -MF $(basename $@).d -MP -MT $@ $<
+	$($(1)cxx) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
 endef
 
 define cmd_cc_o_o
