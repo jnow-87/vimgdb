@@ -152,6 +152,9 @@ endef
 	############################
 
 # generate target-specific rule for <target>-*flags
+# 	also generate same rule for $(basename <target>).i since %.i files
+# 		are only built on explicite request and thus do not depent on <target>
+#
 # 	afterwards clear flag variable to avoid name collisions with files
 # 		with the same stem but in a different directory
 #
@@ -159,16 +162,19 @@ endef
 define gen_rule_tgt_flags
 	$(if $($(basename $(1))-$(2)), \
 		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(basename $(1))-$(2)))) \
+		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(basename $(1))-$(2)))) \
 		$(eval $(basename $(1))-$(2) :=), \
 	)
 endef
 
 # generate target-specific rule for local flags, i.e. *flags-y and subdir-*flags
+# 	handling <target> and $(basename <target>).i
 #
 #	$(call gen_rule_flags,<target>,<flag>,<bin_prefix>
 define gen_rule_loc_flags
 	$(if $(strip $($(2)-y) $(subdir-$(2))), \
 		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(2)-y) $(subdir-$(2)))) \
+		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(2)-y) $(subdir-$(2)))) \
 		,)
 endef
 
