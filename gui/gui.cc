@@ -6,6 +6,7 @@ int gui::min_win_width = 30;
 
 int gui::nwin = 4;
 
+
 const char* gui::win_title[] = {
 	"log",
 	"gdb-log",
@@ -45,7 +46,7 @@ void gui::win_log(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(WIN_LOG, fmt, lst);
+	win_vwrite(wins[WIN_LOG], fmt, lst);
 	va_end(lst);
 }
 
@@ -54,8 +55,9 @@ void gui::win_gdb_log(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(WIN_GDB_LOG, fmt, lst);
-	va_end(lst);}
+	win_vwrite(wins[WIN_GDB_LOG], fmt, lst);
+	va_end(lst);
+}
 
 void gui::win_break(){
 }
@@ -65,6 +67,6 @@ void gui::win_cmd(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(WIN_CMD, fmt, lst);
+	win_vwrite(wins[WIN_CMD], fmt, lst);
 	va_end(lst);
 }
