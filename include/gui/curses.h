@@ -11,7 +11,7 @@ using namespace std;
 
 
 struct window_t{
-	WINDOW* win;
+	WINDOW *win, *frame;
 	char* title;
 };
 
@@ -36,5 +36,6 @@ private:
 
 	window_t** windows;
 };
+
 
 #endif // GUI_CURSES_H

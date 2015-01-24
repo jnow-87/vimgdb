@@ -28,6 +28,7 @@ curses::~curses(){
 			continue;
 
 		delwin(windows[i]->win);
+		delwin(windows[i]->frame);
 		free(windows[i]);
 	}
 
@@ -63,11 +64,10 @@ int curses::win_create(const char* title){
 
 	/* allocated curses window */
 	windows[id] = new window_t;
-	windows[id]->win = newwin(2, 2, 0, 0);	// arbitrary width and height, final
-											// values are set in win_resize()
+	windows[id]->win = newwin(2, 2, 0, 0);		// arbitrary width and height, final
+	windows[id]->frame = newwin(2, 2, 0, 0);	// values are set in win_resize()
 	windows[id]->title = (char*)title;
-	scrollok(windows[id]->win, true);		// enable auto-scroll
-	wmove(windows[id]->win, 1, 0);			// move cursor
+	scrollok(windows[id]->win, true);			// enable auto-scroll
 
 	nwin++;
 
@@ -86,6 +86,7 @@ int curses::win_destroy(int win_id){
 
 	/* de-init window and free memory */
 	delwin(windows[win_id]->win);
+	delwin(windows[win_id]->frame);
 	free(windows[win_id]);
 	windows[win_id] = 0;
 	nwin--;
@@ -101,29 +102,17 @@ void curses::win_write(int win_id, const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_write(win_id, fmt, lst);
+	win_vwrite(win_id, fmt, lst);
 	va_end(lst);
 }
 
 void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
-	int x, y;
-
-
-	/* print string */
 	vwprintw(windows[win_id]->win, fmt, lst);
-	
-	/* restore window title that might be overwritten due to scroll */
-	getyx(windows[win_id]->win, y, x);
-	mvwprintw(windows[win_id]->win, 0, 0, "  [ %s ]", windows[win_id]->title);
-	wmove(windows[win_id]->win, y, x);
-
-	/* refresh */
 	wrefresh(windows[win_id]->win);
 }
 
-
 int curses::win_resize(){
-	unsigned int i, line, col, x, y, width, height, ncols, nlines;
+	unsigned int i, line, col, width, height, ncols, nlines;
 
 
 	/* determine number of windows in the same line (ncols)
@@ -154,18 +143,16 @@ int curses::win_resize(){
 		if(windows[i] == 0)
 			continue;
 
-		// save current cursor position
-		getyx(windows[i]->win, y, x);
+		// update window frame
+		wresize(windows[i]->frame, height, width);
+		mvwin(windows[i]->frame, line * height, col * width);
+		box(windows[i]->frame, 0, 0);
+		mvwprintw(windows[i]->frame, 0, 2, "[ %s ]", windows[i]->title);
+		wrefresh(windows[i]->frame);
 
-		// resize and move window
-		wresize(windows[i]->win, height - 1, width);
-		mvwin(windows[i]->win, line * height, col * width);
-		mvwprintw(windows[i]->win, 0, 0, "  [ %s ]", windows[i]->title);
-
-		// restore cursor position
-		wmove(windows[i]->win, y, x);
-
-		// make changes take effect
+		// update window text area
+		wresize(windows[i]->win, height - 2, width - 2);
+		mvwin(windows[i]->win, line * height + 1, col * width + 1);
 		wrefresh(windows[i]->win);
 
 		// increment position
