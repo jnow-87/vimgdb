@@ -28,7 +28,7 @@ obj :=
 lib :=
 bin :=
 
-subdir-y := gdb
+subdir-y := gdb gui
 
 # fake target as default
 .PHONY: fake_all
