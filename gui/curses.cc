@@ -38,7 +38,16 @@ curses::~curses(){
 	endwin();
 }
 
-int curses::win_create(const char* title){
+/**
+ * \brief	create new curses window
+ *
+ * \param	title		window title
+ * \param	oneline		if true, the window width is maximised
+ *
+ * \return	>0			window id
+ * 			<0			error
+ */
+int curses::win_create(const char* title, bool oneline){
 	int i, id;
 
 
@@ -67,6 +76,7 @@ int curses::win_create(const char* title){
 	windows[id]->win = newwin(2, 2, 0, 0);		// arbitrary width and height, final
 	windows[id]->frame = newwin(2, 2, 0, 0);	// values are set in win_resize()
 	windows[id]->title = (char*)title;
+	windows[id]->oneline = oneline;
 	scrollok(windows[id]->win, true);			// enable auto-scroll
 
 	nwin++;
@@ -77,10 +87,12 @@ int curses::win_create(const char* title){
 		return -1;
 	}
 
-	return id;
+	return id + 1;
 }
 
 int curses::win_destroy(int win_id){
+	win_id--;
+
 	if(win_id >= max_win || windows[win_id] == 0)
 		return -1;
 
@@ -107,58 +119,111 @@ void curses::win_write(int win_id, const char* fmt, ...){
 }
 
 void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
+	win_id--;
+
 	vwprintw(windows[win_id]->win, fmt, lst);
 	wrefresh(windows[win_id]->win);
 }
 
+/**
+ * \brief	resize and rearange windows
+ *
+ * \return	0	success
+ *			<0	error
+ */
 int curses::win_resize(){
-	unsigned int i, line, col, width, height, ncols, nlines;
+	unsigned int i, j, width, height, win;
+	unsigned int ncols[nwin + 1], split[nwin + 1], nsplit, nlines, max_cols;
 
 
-	/* determine number of windows in the same line (ncols)
-	 * and the resulting number of lines
+	if(nwin == 0)
+		return 0;
+
+	memset(split, 0x0, sizeof(unsigned int) * (nwin + 1));
+	memset(ncols, 0x0, sizeof(unsigned int) * (nwin + 1));
+
+	/* split windows in lines with normal windows and
+	 * horizontally maximised windows
+	 *
+	 * 	split	number of windows before the next 'oneline' window
+	 * 	nsplit	entries in split
 	 */
-	ncols = COLS / min_win_width;
-	if(nwin < ncols)
-		ncols = nwin;
-
-	nlines = nwin / ncols + ((nwin % ncols) ? 1 : 0);
-
-	/* determine width and height */
-	width = COLS / ncols;
-	height = LINES / nlines;
-
-	/* check if sufficient space available */
-	if(width < min_win_width || height < min_win_height)
-		return -1;
-
-	/* clear screen */
-	erase();
-	refresh();
-
-	/* place windows */
-	line = 0;
-	col = 0;
+	nsplit = 0;
 	for(i=0; i<max_win; i++){
 		if(windows[i] == 0)
 			continue;
 
-		// update window frame
-		wresize(windows[i]->frame, height, width);
-		mvwin(windows[i]->frame, line * height, col * width);
-		box(windows[i]->frame, 0, 0);
-		mvwprintw(windows[i]->frame, 0, 2, "[ %s ]", windows[i]->title);
-		wrefresh(windows[i]->frame);
+		/* check if window is horizontally maximised */
+		if(windows[i]->oneline){
+			if(split[nsplit] != 0)
+				nsplit++;
+			split[nsplit++] = 1;
+		}
+		else
+			split[nsplit]++;
+	}
 
-		// update window text area
-		wresize(windows[i]->win, height - 2, width - 2);
-		mvwin(windows[i]->win, line * height + 1, col * width + 1);
-		wrefresh(windows[i]->win);
+	if(split[nsplit] > 0)
+		nsplit++;
 
-		// increment position
-		if(++col >= ncols){
-			col = 0;
-			line++;
+	/* identify number of windows per line
+	 *
+	 * 	ncols[i]	number of windows for line i
+	 * 	nlines		entries in ncols
+	 */
+	max_cols = COLS / min_win_width;
+
+	nlines = 0;
+	for(i=0; i<nsplit; i++){
+		if(split[i] <= max_cols){
+			ncols[nlines++] = split[i];
+		}
+		else{
+			for(j=0; j<split[i] / max_cols; j++)
+				ncols[nlines++] = max_cols;
+
+			if(split[i] % max_cols)
+				ncols[nlines++] = split[i] % max_cols;
+		}
+	}
+
+	if(ncols[nlines] > 0)
+		nlines++;
+
+	/* update windows */
+	height = LINES / nlines;
+	if(height < min_win_height)
+		return -1;
+
+	// clear screen
+	erase();
+	refresh();
+
+	win = 0;
+	for(i=0; i<nlines; i++){
+		width = COLS / ncols[i];
+		if(width < min_win_width)
+			return -1;
+
+		for(j=0; j<ncols[i]; j++){
+			for(;win<max_win; win++){
+				if(windows[win] != 0)
+					break;
+			}
+
+			// update window frame
+			wresize(windows[win]->frame, height, width);
+			mvwin(windows[win]->frame, i * height, j * width);
+			box(windows[win]->frame, 0, 0);
+			mvwprintw(windows[win]->frame, 0, 2, "[ %s ]", windows[win]->title);
+			wrefresh(windows[win]->frame);
+
+			// update window text area
+			wresize(windows[win]->win, height - 2, width - 2);
+			mvwin(windows[win]->win, i * height + 1, j * width + 1);
+			wrefresh(windows[win]->win);
+
+			win++;
 		}
 	}
 

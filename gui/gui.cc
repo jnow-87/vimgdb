@@ -1,29 +1,31 @@
 #include <gui/gui.h>
 
 
+/* static members */
 int gui::min_win_height = 3;
 int gui::min_win_width = 30;
 
-int gui::nwin = 4;
-
-
-const char* gui::win_title[] = {
-	"log",
-	"gdb-log",
-	"cmd",
-	"breakpoints",
+win_cfg_t gui::wins[] = {
+	WIN_INIT("breakpoints", false),
+	WIN_INIT("dummy", false),
+	WIN_INIT("gdb-log", true),
+	WIN_INIT("log", true),
+	WIN_INIT("command-line", true),
+	{ .id = -1 }	/* dummy entry, marking the end */
 };
 
+
+/* member functions */
 int gui::init(){
 	unsigned int i;
 
 
-	wins = new int[nwin];
-
-	for(i=0; i<4; i++){
-		wins[i] = win_create(win_title[i]);
-		if(wins[i] < 0)
+	i = 0;
+	while(wins[i].id != -1){
+		wins[i].id = win_create(wins[i].title, wins[i].oneline);
+		if(wins[i].id <= 0)
 			return -1;
+		i++;
 	}
 
 	return 0;
@@ -33,12 +35,12 @@ void gui::destroy(){
 	unsigned int i;
 
 
-	for(i=0; i<4; i++){
-		if(wins[i] > 0)
-			win_destroy(wins[i]);
+	i = 0;
+	while(wins[i].id != -1){
+		if(wins[i].id > 0)
+			win_destroy(wins[i].id);
+		i++;
 	}
-
-	delete wins;
 }
 
 void gui::win_log(const char* fmt, ...){
@@ -46,7 +48,7 @@ void gui::win_log(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(wins[WIN_LOG], fmt, lst);
+	win_vwrite(wins[WIN_LOG].id, fmt, lst);
 	va_end(lst);
 }
 
@@ -55,7 +57,7 @@ void gui::win_gdb_log(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(wins[WIN_GDB_LOG], fmt, lst);
+	win_vwrite(wins[WIN_GDB_LOG].id, fmt, lst);
 	va_end(lst);
 }
 
@@ -67,6 +69,6 @@ void gui::win_cmd(const char* fmt, ...){
 
 
 	va_start(lst, fmt);
-	win_vwrite(wins[WIN_CMD], fmt, lst);
+	win_vwrite(wins[WIN_CMD].id, fmt, lst);
 	va_end(lst);
 }

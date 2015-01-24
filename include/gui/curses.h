@@ -13,6 +13,7 @@ using namespace std;
 struct window_t{
 	WINDOW *win, *frame;
 	char* title;
+	bool oneline;
 };
 
 
@@ -23,11 +24,10 @@ public:
 
 
 private:
-	int win_create(const char* title = "");
+	int win_create(const char* title = "", bool oneline = false);
 	int win_destroy(int win_id);
 	void win_write(int win_id, const char* fmt, ...);
 	void win_vwrite(int win_id, const char* fmt, va_list lst);
-
 
 	int win_resize();
 
