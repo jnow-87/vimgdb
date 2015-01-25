@@ -2,8 +2,10 @@
 #define LOG_H
 
 
+#include <gui/gui.h>
 #include <sys/types.h>
 #include <stdio.h>
+
 
 namespace libc{
 	// cover in separate namespace to avoid name collision
@@ -31,7 +33,7 @@ enum log_level_t{
 class log{
 public:
 	/* init and cleanup function */
-	static int init(const char* file_name, log_level_t lvl);
+	static int init(const char* file_name, log_level_t lvl, gui* ui = 0);
 	static void cleanup();
 
 	/* add entry to log */
@@ -43,6 +45,7 @@ public:
 private:
 	static FILE* log_file;			// file pointer to log file
 	static log_level_t log_level;	// current log level
+	static gui* ui;
 };
 
 

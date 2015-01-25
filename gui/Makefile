@@ -1,3 +1,5 @@
+obj-y := gui.o curses.o
+
 bin-y := test-curses
 
 

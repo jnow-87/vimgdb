@@ -169,12 +169,12 @@ int gdb_if::cmd_test(gdb_if* gdb, int argc, char** argv){
 	unsigned int i;
 
 
-	printf("command: %s\n", argv[0]);
-	printf("arguments:");
+	DEBUG("command: %s\n", argv[0]);
+	DEBUG("arguments:");
 
 	for(i=1; i<argc; i++)
-		printf(" (%d, \"%s\")", i, argv[i]);
-	printf("\n");
+		DEBUG(" (%d, \"%s\")", i, argv[i]);
+	DEBUG("\n");
 }
 
 /**
@@ -184,9 +184,9 @@ int gdb_if::cmd_help(gdb_if* gdb, int argc, char** argv){
 	unsigned int i;
 
 
-	printf("user commands:\n");
+	DEBUG("user commands:\n");
 
 	for(i=MIN_HASH_VALUE; i<=MAX_HASH_VALUE; i++)
-		printf("    %7.7s   %s\n", wordlist[i].name, wordlist[i].help_msg);
+		DEBUG("    %7.7s   %s\n", wordlist[i].name, wordlist[i].help_msg);
 	return 0;
 }

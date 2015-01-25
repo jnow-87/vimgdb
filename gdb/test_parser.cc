@@ -21,7 +21,7 @@ int main(int argc, char** argv){
 
 
 	// logging
-	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
+	if(log::init("/proc/self/fd/1", LOG_LEVEL) != 0)
 		return 1;
 
 #if 0

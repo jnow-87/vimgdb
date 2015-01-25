@@ -6,6 +6,7 @@
 /* static variables */
 FILE* log::log_file = 0;
 log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
+gui* log::ui = 0;
 
 
 /* class definition */
@@ -18,7 +19,7 @@ log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
  * \return	0			success
  * 			-1			error (check errno)
  */
-int log::init(const char* file_name, log_level_t lvl){
+int log::init(const char* file_name, log_level_t lvl, gui* ui){
 	log_level = lvl;
 
 	if(log_level != NONE && log_file == 0){
@@ -27,6 +28,8 @@ int log::init(const char* file_name, log_level_t lvl){
 		if(log_file == 0)
 			return -1;
 	}
+
+	log::ui = ui;
 
 	return 0;
 }
@@ -50,10 +53,19 @@ void log::print(log_level_t lvl, const char* msg, ...){
 	va_list lst;
 
 
-	if(lvl & log_level && log_file != 0){
-		va_start(lst, msg);
-		vfprintf(log_file, msg, lst);
-		va_end(lst);
+	if(lvl & log_level){
+		if(log_file != 0){
+			va_start(lst, msg);
+			vfprintf(log_file, msg, lst);
+			fflush(log_file);
+			va_end(lst);
+		}
+
+		if(log::ui){
+			va_start(lst, msg);
+			ui->log_vprint(msg, lst);
+			va_end(lst);
+		}
 	}
 }
 
@@ -64,8 +76,8 @@ void log::print(log_level_t lvl, const char* msg, ...){
  * 			hence must not be freed
  */
 char* log::stime(){
-    static char s[80];
-    time_t t;
+	static char s[80];
+	time_t t;
 	tm* ts;
 
 
@@ -73,5 +85,5 @@ char* log::stime(){
 	ts = localtime(&t);
 	strftime(s, 80, "%d.%m.%Y %H:%M:%S", ts);
 
-    return s;
+	return s;
 }

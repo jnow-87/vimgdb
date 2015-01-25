@@ -1,6 +1,8 @@
 #include <common/log.h>
 #include <common/tty.h>
 #include <gdb/gdb.h>
+#include <gui/gui.h>
+#include <gui/curses.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
@@ -11,6 +13,7 @@
 /* static variables */
 gdb_if* gdb;
 tty std_term;
+gui* ui;
 
 
 /* static prototypes */
@@ -27,8 +30,12 @@ int main(int argc, char** argv){
 	signal(SIGTERM, cleanup);
 	signal(SIGINT, cleanup);
 
+	// user interface
+	ui = new curses();
+	ui->init();
+
 	// logging
-	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
+	if(log::init(LOG_FILE, LOG_LEVEL, ui) != 0)
 		return 1;
 
 	INFO("initialise gdbctrl\n");
@@ -47,27 +54,45 @@ int main(int argc, char** argv){
 	char c, line[1024];
 	unsigned int i = 0;
 
+	ui->cmd_print(CMD_PROMPT);
+
 	while(1){
 		std_term.read(&c, 1);
 
 		if(c == '\n' || c == '\r'){
 			line[i] = 0;
 			gdb->exec_user_cmd(line);
+			ui->cmd_print("\n" CMD_PROMPT);
 
 			i = 0;
 		}
-		else
+		else if(c == 127){
+			if(i <= 0)
+				continue;
+
+			line[--i] = 0;
+			ui->cmd_clrline();
+			ui->cmd_print(CMD_PROMPT "%s", line);
+		}
+		else{
+			ui->cmd_print("%c", c);
 			line[i++] = c;
+		}
 	}
 }
 
 
 /* static functions */
 void cleanup(int signum){
-	INFO("received signal %d\n", signum);
+	char c;
+
+
+	std_term.read(&c, 1);
 
 	delete gdb;
 	log::cleanup();
+	ui->destroy();
+	delete (curses*)ui;
 
 	exit(1);
 }
@@ -84,7 +109,7 @@ void* thread(void* arg){
 					continue;
 
 				line[i] = 0;
-				printf("gdb_read: %s\n", line);
+				ui->gdblog_print("gdb_read: %s\n", line);
 				i = 0;
 			}
 			else

@@ -89,18 +89,18 @@ void gdb_value_print(value_t* list){
 
 	snprintf(rec_str, 10, "%%%ds", rec_depth);
 	
-	printf("list %#x{\n\n", list);
+	DEBUG("list %#x{\n\n", list);
 	i = 0;
 	list_for_each(list, v){
 		switch(v->type){
 		case CONST:
-			printf(rec_str, "");
-			printf("   %d: %s\n", i, v->value);
+			DEBUG(rec_str, "");
+			DEBUG("   %d: %s\n", i, v->value);
 			break;
 
 		case VALUE_LIST:
-			printf(rec_str, "");
-			printf("   %d: ", i);
+			DEBUG(rec_str, "");
+			DEBUG("   %d: ", i);
 
 			rec_depth += 3;
 			gdb_value_print((value_t*)v->value);
@@ -108,8 +108,8 @@ void gdb_value_print(value_t* list){
 			break;
 		
 		case RESULT_LIST:
-			printf(rec_str, "");
-			printf("   %d: ", i);
+			DEBUG(rec_str, "");
+			DEBUG("   %d: ", i);
 
 			rec_depth += 3;
 			gdb_result_print((result_t*)v->value);
@@ -123,7 +123,7 @@ void gdb_value_print(value_t* list){
 		i++;
 	}
 
-	printf("\n");
-	printf(rec_str, "");
-	printf("} // list %#x\n\n", list);
+	DEBUG("\n");
+	DEBUG(rec_str, "");
+	DEBUG("} // list %#x\n\n", list);
 }

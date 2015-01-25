@@ -73,8 +73,8 @@ void gdb_result_print(result_t* list){
 	snprintf(rec_str, 10, "%%%ds", rec_depth);
 	
 	list_for_each(list, r){
-		printf(rec_str, "");
-		printf("result %s = ", r->var_name);
+		DEBUG(rec_str, "");
+		DEBUG("result %s = ", r->var_name);
 		gdb_value_print((value_t*)r->value);
 	}
 }
