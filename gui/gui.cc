@@ -43,7 +43,7 @@ void gui::destroy(){
 	}
 }
 
-void gui::win_log(const char* fmt, ...){
+void gui::log_print(const char* fmt, ...){
 	va_list lst;
 
 
@@ -52,7 +52,11 @@ void gui::win_log(const char* fmt, ...){
 	va_end(lst);
 }
 
-void gui::win_gdb_log(const char* fmt, ...){
+void gui::log_vprint(const char* fmt, va_list lst){
+	win_vwrite(wins[WIN_LOG].id, fmt, lst);
+}
+
+void gui::gdblog_print(const char* fmt, ...){
 	va_list lst;
 
 
@@ -61,10 +65,10 @@ void gui::win_gdb_log(const char* fmt, ...){
 	va_end(lst);
 }
 
-void gui::win_break(){
+void gui::break_print(){
 }
 
-void gui::win_cmd(const char* fmt, ...){
+void gui::cmd_print(const char* fmt, ...){
 	va_list lst;
 
 
@@ -73,6 +77,6 @@ void gui::win_cmd(const char* fmt, ...){
 	va_end(lst);
 }
 
-void gui::win_cmd_clrline(){
+void gui::cmd_clrline(){
 	win_clrline(wins[WIN_CMD].id);
 }

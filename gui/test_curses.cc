@@ -17,8 +17,8 @@ int main(int argc, char** argv){
 	ui = new curses();
 	ui->init();
 
-	ui->win_log("enter \"quit\" to exit\n");
-	ui->win_cmd("insert commands here\n" PROMPT);
+	ui->log_print("enter \"quit\" to exit\n");
+	ui->cmd_print("insert commands here\n" PROMPT);
 
 	i = 0;
 	while(1){
@@ -30,11 +30,11 @@ int main(int argc, char** argv){
 			line[i] = 0;
 			i = 0;
 
-			ui->win_log("exec: \"%s\"\n", line);
-			ui->win_cmd("\n" PROMPT);
+			ui->log_print("exec: \"%s\"\n", line);
+			ui->cmd_print("\n" PROMPT);
 
 			if(strcmp(line, "quit") == 0 || strcmp(line, "q") == 0){
-				ui->win_log("exit\n");
+				ui->log_print("exit\n");
 				sleep(1);
 				goto end;
 			}
@@ -42,15 +42,18 @@ int main(int argc, char** argv){
 			break;
 
 		case 127:
+			if(i <= 0)
+				break;
+
 			line[--i] = 0;
 
-			ui->win_cmd_clrline();
-			ui->win_cmd(PROMPT "%s", line);
+			ui->cmd_clrline();
+			ui->cmd_print(PROMPT "%s", line);
 			break;
 		
 		default:
-			ui->win_gdb_log("%c %d\n", c, (int)c);
-			ui->win_cmd("%c", c);
+			ui->gdblog_print("%c %d\n", c, (int)c);
+			ui->cmd_print("%c", c);
 			line[i++] = c;
 			break;
 		};

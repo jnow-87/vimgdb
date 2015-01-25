@@ -26,11 +26,12 @@ public:
 	int init();
 	void destroy();
 
-	void win_log(const char* fmt, ...);
-	void win_gdb_log(const char* fmt, ...);
-	void win_break();
-	void win_cmd(const char* fmt, ...);
-	void win_cmd_clrline();
+	void log_print(const char* fmt, ...);
+	void log_vprint(const char* fmt, va_list lst);
+	void gdblog_print(const char* fmt, ...);
+	void break_print();
+	void cmd_print(const char* fmt, ...);
+	void cmd_clrline();
 
 
 protected:
