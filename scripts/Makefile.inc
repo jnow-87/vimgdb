@@ -98,9 +98,11 @@ included :=
 #
 #	$(call dinclude,<directory list>)
 define dinclude
-	$(foreach d,$(filter-out $(included),$(1)), \
+	$(eval traverse := $(filter-out $(included),$(patsubst %/,%,$(1)))) \
+	$(eval included += $(traverse)) \
+	\
+	$(foreach d,$(traverse), \
 		$(eval loc_dir=$(d)) \
-		$(eval included += $(d)) \
 		$(eval include $(build)) \
 	)
 endef
