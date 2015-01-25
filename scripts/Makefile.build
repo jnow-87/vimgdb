@@ -160,6 +160,13 @@ $(foreach f,$(loc_tgt) $(loc_prereq), \
 	) \
 )
 
+# local flags for ./obj.o
+$(if $(obj-y), \
+	$(foreach fl,$(supported_flags), \
+		$(call gen_rule_loc_flags,obj.o,$(fl),$(loc_built_tree)/) \
+	) \
+)
+
 
 ## build
 
