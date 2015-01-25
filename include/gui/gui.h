@@ -7,8 +7,8 @@
 
 
 /* macros */
-#define WIN_INIT(_title, _oneline) \
-	{ .id = 0, .title = _title, .oneline = _oneline }
+#define WIN_INIT(_title, _oneline, _height) \
+	{ .id = 0, .title = _title, .oneline = _oneline , .height = _height }
 
 
 /* types */
@@ -16,6 +16,7 @@ struct win_cfg_t{
 	int id;
 	const char* title;
 	bool oneline;
+	unsigned int height;
 };
 
 
@@ -36,7 +37,7 @@ protected:
 			   min_win_width;
 
 private:
-	virtual int win_create(const char* title = "", bool oneline = false) = 0;
+	virtual int win_create(const char* title = "", bool oneline = false, unsigned int height = 0) = 0;
 	virtual int win_destroy(int win_id) = 0;
 	virtual void win_write(int win_id, const char* fmt, ...) = 0;
 	virtual void win_vwrite(int win_id, const char* fmt, va_list lst) = 0;

@@ -42,8 +42,8 @@ int main(int argc, char** argv){
 			break;
 		
 		default:
-			ui->win_cmd("%c", c);
 			ui->win_gdb_log("%c %d\n", c, (int)c);
+			ui->win_cmd("%c", c);
 			line[i++] = c;
 			break;
 		};

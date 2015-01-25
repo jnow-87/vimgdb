@@ -47,7 +47,7 @@ curses::~curses(){
  * \return	>0			window id
  * 			<0			error
  */
-int curses::win_create(const char* title, bool oneline){
+int curses::win_create(const char* title, bool oneline, unsigned int height){
 	int i, id;
 
 
@@ -76,7 +76,8 @@ int curses::win_create(const char* title, bool oneline){
 	windows[id]->win = newwin(2, 2, 0, 0);		// arbitrary width and height, final
 	windows[id]->frame = newwin(2, 2, 0, 0);	// values are set in win_resize()
 	windows[id]->title = (char*)title;
-	windows[id]->oneline = oneline;
+	windows[id]->oneline = (height > 0) ? true : oneline;
+	windows[id]->height = height;
 	scrollok(windows[id]->win, true);			// enable auto-scroll
 
 	nwin++;
@@ -132,8 +133,7 @@ void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
  *			<0	error
  */
 int curses::win_resize(){
-	unsigned int i, j, width, height, win;
-	unsigned int ncols[nwin + 1], split[nwin + 1], nsplit, nlines, max_cols;
+	unsigned int i, j, width, height, fixed_height, nfixed_height, win, line, ncols[nwin + 1], split[nwin + 1], nsplit, nlines, max_cols;
 
 
 	if(nwin == 0)
@@ -149,11 +149,13 @@ int curses::win_resize(){
 	 * 	nsplit	entries in split
 	 */
 	nsplit = 0;
+	fixed_height = 0;
+	nfixed_height = 0;
 	for(i=0; i<max_win; i++){
 		if(windows[i] == 0)
 			continue;
 
-		/* check if window is horizontally maximised */
+		// check if window is horizontally maximised
 		if(windows[i]->oneline){
 			if(split[nsplit] != 0)
 				nsplit++;
@@ -161,6 +163,13 @@ int curses::win_resize(){
 		}
 		else
 			split[nsplit]++;
+
+		// accumulate height for windows that specify it
+		// (default is 0)
+		if(windows[i]->height > 0){
+			fixed_height += windows[i]->height;
+			nfixed_height++;
+		}
 	}
 
 	if(split[nsplit] > 0)
@@ -191,8 +200,15 @@ int curses::win_resize(){
 		nlines++;
 
 	/* update windows */
-	height = LINES / nlines;
-	if(height < min_win_height)
+	height = 0;
+	if(nlines - nfixed_height > 0){
+		height = (LINES - fixed_height) / (nlines - nfixed_height);
+
+		if(height < min_win_height)
+			return -1;
+	}
+
+	if((LINES - fixed_height) < 0)
 		return -1;
 
 	// clear screen
@@ -200,6 +216,7 @@ int curses::win_resize(){
 	refresh();
 
 	win = 0;
+	line = 0;
 	for(i=0; i<nlines; i++){
 		width = COLS / ncols[i];
 		if(width < min_win_width)
@@ -212,19 +229,21 @@ int curses::win_resize(){
 			}
 
 			// update window frame
-			wresize(windows[win]->frame, height, width);
-			mvwin(windows[win]->frame, i * height, j * width);
+			wresize(windows[win]->frame, (windows[win]->height > 0) ? windows[win]->height : height, width);
+			mvwin(windows[win]->frame, line, j * width);
 			box(windows[win]->frame, 0, 0);
 			mvwprintw(windows[win]->frame, 0, 2, "[ %s ]", windows[win]->title);
 			wrefresh(windows[win]->frame);
 
 			// update window text area
-			wresize(windows[win]->win, height - 2, width - 2);
-			mvwin(windows[win]->win, i * height + 1, j * width + 1);
+			wresize(windows[win]->win, ((windows[win]->height > 0) ? windows[win]->height : height) - 2, width - 2);
+			mvwin(windows[win]->win, line + 1, j * width + 1);
 			wrefresh(windows[win]->win);
 
 			win++;
 		}
+
+		line += (windows[win - 1]->height > 0) ? windows[win - 1]->height : height;
 	}
 
 	return 0;

@@ -6,11 +6,11 @@ int gui::min_win_height = 3;
 int gui::min_win_width = 30;
 
 win_cfg_t gui::wins[] = {
-	WIN_INIT("breakpoints", false),
-	WIN_INIT("dummy", false),
-	WIN_INIT("gdb-log", true),
-	WIN_INIT("log", true),
-	WIN_INIT("command-line", true),
+	WIN_INIT("breakpoints", false, 0),
+	WIN_INIT("dummy", false, 0),
+	WIN_INIT("gdb-log", true, 0),
+	WIN_INIT("log", true, 0),
+	WIN_INIT("command-line", true, 3),
 	{ .id = -1 }	/* dummy entry, marking the end */
 };
 
@@ -22,7 +22,7 @@ int gui::init(){
 
 	i = 0;
 	while(wins[i].id != -1){
-		wins[i].id = win_create(wins[i].title, wins[i].oneline);
+		wins[i].id = win_create(wins[i].title, wins[i].oneline, wins[i].height);
 		if(wins[i].id <= 0)
 			return -1;
 		i++;
