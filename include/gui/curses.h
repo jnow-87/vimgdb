@@ -4,6 +4,7 @@
 
 #include <gui/gui.h>
 #include <curses.h>
+#include <pthread.h>
 #include <list>
 
 
@@ -35,6 +36,7 @@ private:
 
 	int max_win,
 		nwin;
+	pthread_mutex_t mutex;
 
 	window_t** windows;
 };

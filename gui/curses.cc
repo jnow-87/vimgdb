@@ -16,6 +16,7 @@ curses::curses(){
 	max_win = 2;
 	windows = (window_t**)malloc(sizeof(window_t*) * max_win);
 	memset(windows, 0x0, sizeof(window_t*) * max_win);
+	pthread_mutex_init(&mutex, 0);
 }
 
 curses::~curses(){
@@ -118,17 +119,27 @@ void curses::win_write(int win_id, const char* fmt, ...){
 }
 
 void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
+	pthread_mutex_lock(&mutex);
+
 	vwprintw(windows[win_id]->win, fmt, lst);
 	wrefresh(windows[win_id]->win);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 void curses::win_clrline(int win_id){
 	int x, y;
 
+
+
+	pthread_mutex_lock(&mutex);
+
 	getyx(windows[win_id]->win, y, x);
 	wmove(windows[win_id]->win, y, 0);
 	wclrtoeol(windows[win_id]->win);
 	wrefresh(windows[win_id]->win);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 /**
