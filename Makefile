@@ -56,6 +56,15 @@ all: $(lib) $(bin)
 clean:
 	$(rm) $(built_tree)
 
+.PHONY: debug
+debug: cflags += -g
+debug: cxxflags += -g
+debug: asflags += -g
+debug: hostcflags += -g
+debug: hostcxxflags += -g
+debug: hostasflags += -g
+debug: all
+
 .PHONY: help
 help:
 	$(printf) "   \033[1m\033[4msub-directory Makefile syntax - available identifiers\033[0m\n"
