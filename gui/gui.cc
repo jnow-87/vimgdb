@@ -72,3 +72,7 @@ void gui::win_cmd(const char* fmt, ...){
 	win_vwrite(wins[WIN_CMD].id, fmt, lst);
 	va_end(lst);
 }
+
+void gui::win_cmd_clrline(){
+	win_clrline(wins[WIN_CMD].id);
+}

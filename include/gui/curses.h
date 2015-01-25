@@ -29,6 +29,7 @@ private:
 	int win_destroy(int win_id);
 	void win_write(int win_id, const char* fmt, ...);
 	void win_vwrite(int win_id, const char* fmt, va_list lst);
+	void win_clrline(int win_id);
 
 	int win_resize();
 

@@ -40,6 +40,13 @@ int main(int argc, char** argv){
 			}
 
 			break;
+
+		case 127:
+			line[--i] = 0;
+
+			ui->win_cmd_clrline();
+			ui->win_cmd(PROMPT "%s", line);
+			break;
 		
 		default:
 			ui->win_gdb_log("%c %d\n", c, (int)c);

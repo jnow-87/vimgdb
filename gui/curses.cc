@@ -126,6 +126,16 @@ void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
 	wrefresh(windows[win_id]->win);
 }
 
+void curses::win_clrline(int win_id){
+	int x, y;
+
+	win_id--;
+	getyx(windows[win_id]->win, y, x);
+	wmove(windows[win_id]->win, y, 0);
+	wclrtoeol(windows[win_id]->win);
+	wrefresh(windows[win_id]->win);
+}
+
 /**
  * \brief	resize and rearange windows
  *
