@@ -23,7 +23,7 @@ int gui::init(){
 	i = 0;
 	while(wins[i].id != -1){
 		wins[i].id = win_create(wins[i].title, wins[i].oneline, wins[i].height);
-		if(wins[i].id <= 0)
+		if(wins[i].id < 0)
 			return -1;
 		i++;
 	}
@@ -37,7 +37,7 @@ void gui::destroy(){
 
 	i = 0;
 	while(wins[i].id != -1){
-		if(wins[i].id > 0)
+		if(wins[i].id >= 0)
 			win_destroy(wins[i].id);
 		i++;
 	}

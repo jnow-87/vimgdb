@@ -44,7 +44,7 @@ curses::~curses(){
  * \param	title		window title
  * \param	oneline		if true, the window width is maximised
  *
- * \return	>0			window id
+ * \return	>=0			window id
  * 			<0			error
  */
 int curses::win_create(const char* title, bool oneline, unsigned int height){
@@ -88,12 +88,10 @@ int curses::win_create(const char* title, bool oneline, unsigned int height){
 		return -1;
 	}
 
-	return id + 1;
+	return id;
 }
 
 int curses::win_destroy(int win_id){
-	win_id--;
-
 	if(win_id >= max_win || windows[win_id] == 0)
 		return -1;
 
@@ -120,8 +118,6 @@ void curses::win_write(int win_id, const char* fmt, ...){
 }
 
 void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
-	win_id--;
-
 	vwprintw(windows[win_id]->win, fmt, lst);
 	wrefresh(windows[win_id]->win);
 }
@@ -129,7 +125,6 @@ void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
 void curses::win_clrline(int win_id){
 	int x, y;
 
-	win_id--;
 	getyx(windows[win_id]->win, y, x);
 	wmove(windows[win_id]->win, y, 0);
 	wclrtoeol(windows[win_id]->win);
