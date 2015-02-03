@@ -186,7 +186,7 @@ int gdb_if::cmd_help(gdb_if* gdb, int argc, char** argv){
 
 	DEBUG("user commands:\n");
 
-	for(i=MIN_HASH_VALUE; i<=MAX_HASH_VALUE; i++)
-		DEBUG("    %7.7s   %s\n", wordlist[i].name, wordlist[i].help_msg);
+	for(i=gdb_user_cmd::MIN_HASH_VALUE; i<=gdb_user_cmd::MAX_HASH_VALUE; i++)
+		DEBUG("    %7.7s   %s\n", gdb_user_cmd::wordlist[i].name, gdb_user_cmd::wordlist[i].help_msg);
 	return 0;
 }
