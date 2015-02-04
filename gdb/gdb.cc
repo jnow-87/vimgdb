@@ -3,6 +3,7 @@
 #include <gdb/gdb.h>
 #include <gdb/user_cmd.hash.h>
 #include <string.h>
+#include <math.h>
 
 
 /* class definition */
@@ -11,6 +12,9 @@
  */
 gdb_if::gdb_if(){
 	this->child_term = 0;
+	this->token = 1;
+
+	pthread_mutex_init(&resp_mutex, 0);
 }
 
 /**
@@ -150,6 +154,35 @@ int gdb_if::exec_user_cmd(char* cmdline){
 	return r;
 }
 
+int gdb_if::resp_enqueue(unsigned int token, response_hdlr hdlr){
+	pthread_mutex_lock(&resp_mutex);
+
+	if(resp_map.find(token) == resp_map.end())
+		return -1;
+
+	resp_map[token] = hdlr;
+
+	pthread_mutex_unlock(&resp_mutex);
+
+	return 0;
+}
+
+int gdb_if::resp_dequeue(unsigned int token){
+	map<unsigned int, response_hdlr>::iterator it;
+
+
+	pthread_mutex_lock(&resp_mutex);
+
+	it = resp_map.find(token);
+	if(it == resp_map.end())
+		return -1;
+
+	resp_map.erase(it);
+
+	pthread_mutex_unlock(&resp_mutex);
+
+	return 0;
+}
 
 /**
  * \brief	user commands
@@ -189,4 +222,65 @@ int gdb_if::cmd_help(gdb_if* gdb, int argc, char** argv){
 	for(i=gdb_user_cmd::MIN_HASH_VALUE; i<=gdb_user_cmd::MAX_HASH_VALUE; i++)
 		DEBUG("    %7.7s   %s\n", gdb_user_cmd::wordlist[i].name, gdb_user_cmd::wordlist[i].help_msg);
 	return 0;
+}
+
+int gdb_if::mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr resp_hdlr){
+	static char* cmd_str = 0;
+	static unsigned int cmd_str_len = 0;
+	static unsigned int token_len = 1;
+	unsigned int i, len;
+
+
+	DEBUG("cmd: \"%s\"\n", cmd);
+
+	/* compute length of cmd_str */
+	len = strlen(cmd) + token_len + 5;	// +5 = "-" " --" "\n"
+
+	for(i=0; i<noption; i++)
+		len += strlen(options[i]) + 1;	// +1 = " "
+
+	for(i=0; i<nparameter; i++)
+		len += strlen(parameter[i]) + 1;	// +1 = " "
+
+	if(len > cmd_str_len){
+		delete cmd_str;
+		cmd_str = new char[len];
+
+		if(cmd_str == 0){
+			cmd_str_len = 0;
+			return -1;
+		}
+
+		cmd_str_len = len;
+	}
+
+	/* assemble cmd_str */
+	len = sprintf(cmd_str, "%d-%s", token, cmd);
+
+	for(i=0; i<noption; i++)
+		len += sprintf(cmd_str + len, " %s", options[i]);
+
+	if(noption > 0)
+		len += sprintf(cmd_str + len, " --");
+
+	for(i=0; i<nparameter; i++)
+		len += sprintf(cmd_str + len, " %s", parameter[i]);
+
+	len += sprintf(cmd_str + len, "\n");
+
+
+	/* enqueue response handler */
+	resp_enqueue(token, resp_hdlr);
+
+	/* increment token */
+	if(++token >= (unsigned int)pow(10, token_len))
+		token_len++;
+
+	/* issue cmd */
+	if(this->write(cmd_str, len) < 0){
+		resp_dequeue(token - 1);
+		return -1;
+	}
+
+	return token - 1;
 }
