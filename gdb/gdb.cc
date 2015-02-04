@@ -2,6 +2,7 @@
 #include <common/pty.h>
 #include <gdb/gdb.h>
 #include <gdb/user_cmd.hash.h>
+#include <gdb/user_subcmd.hash.h>
 #include <string.h>
 #include <math.h>
 
@@ -181,6 +182,48 @@ int gdb_if::resp_dequeue(unsigned int token){
 
 	pthread_mutex_unlock(&resp_mutex);
 
+	return 0;
+}
+
+int gdb_if::cmd_file(gdb_if* gdb, int argc, char** argv){
+	unsigned int i;
+	const char* cmd_str;
+	const gdb_user_subcmd_t* subcmd;
+
+
+	if(argc < 2){
+		WARN("too few arguments to command \"%s\"\n", argv[0]);
+		return -1;
+	}
+
+	if(argc > 3){
+		WARN("too many arguments to command \"%s\", at most 2 expected\n", argv[0]);
+		return -1;
+	}
+
+	cmd_str = "file-exec-and-symbols";
+
+	for(i=1; i<argc-1; i++){
+		subcmd = gdb_user_subcmd::lookup(argv[i], strlen(argv[i]));
+		if(subcmd == 0){
+			WARN("invalid sub command \"%s\" to \"%s\"\n", argv[i], argv[0]);
+			return -1;
+		}
+
+		switch(subcmd->id){
+		case BIN:
+			cmd_str = "file-exec-file";
+			break;
+
+		case SYM:
+			cmd_str = "file-symbol-file";
+			break;
+		};
+	}
+
+	// TODO add response handler
+	if(gdb->mi_cmd_issue((char*)cmd_str, 0, 0, argv + i, 1, 0) < 0)
+		return -1;
 	return 0;
 }
 

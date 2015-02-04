@@ -13,7 +13,7 @@
 %define slot-name name
 %define hash-function-name hash
 %define lookup-function-name lookup
-%define class-name gdb_user_cmd
+%define class-name gdb_user_subcmd
 
 
 /* c-code */
@@ -22,10 +22,9 @@
 %}
 
 /* struct-type definition */
-struct gdb_user_cmd_t;
+struct gdb_user_subcmd_t;
 
 %%
-# command	callback function		help text
-test,		gdb_if::cmd_test,		"test command echoing all given arguments"
-help,		gdb_if::cmd_help,		"print this help message"
-file,		gdb_if::cmd_file,		"control gdb input files (binary and symbols)"
+# command	id
+bin,		BIN
+sym,		SYM

@@ -43,6 +43,7 @@ public:
 	int resp_dequeue(unsigned int token);
 
 	/* user commands */
+	static int cmd_file(gdb_if* gdb, int argc, char** argv);
 	static int cmd_test(gdb_if* gdb, int argc, char** argv);
 	static int cmd_help(gdb_if* gdb, int argc, char** argv);
 
@@ -71,6 +72,18 @@ struct gdb_user_cmd_t{
 };
 
 typedef gdb_user_cmd_t gdb_user_cmd_t;
+
+typedef enum{
+	BIN = 1,
+	SYM,
+} gdb_user_subcmd_id_t;
+
+struct gdb_user_subcmd_t{
+	const char* name;
+	gdb_user_subcmd_id_t id;
+};
+
+typedef gdb_user_subcmd_t gdb_user_subcmd_t;
 
 
 #endif
