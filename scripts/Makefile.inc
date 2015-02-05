@@ -238,7 +238,7 @@ endef
 
 define cmd_cc_c_y
 	$(echo) [YACC] $@
-	$(yacc) $(yaccflags) --defines=$(basename $@).h $< -o $@
+	$(yacc) $(yaccflags) -v --report-file=$(basename $@).log --defines=$(basename $@).h $< -o $@
 endef
 
 define cmd_cc_c_l
