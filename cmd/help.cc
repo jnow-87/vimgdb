@@ -11,11 +11,11 @@ int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
 
 
 	if(argc == 1){
-		DEBUG("user commands:\n");
+		USER("user commands:\n");
 
 		for(i=cmd::MIN_HASH_VALUE; i<=cmd::MAX_HASH_VALUE; i++)
-			DEBUG("    %7.7s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
-		DEBUG("\n");
+			USER("    %7.7s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
+		USER("\n");
 	}
 	else{
 		for(i=1; i<argc; i++){
@@ -25,13 +25,13 @@ int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
 			c = cmd::lookup(argv[i], strlen(argv[i]));
 
 			if(c == 0){
-				DEBUG("invalid command \"%s\"\n", argv[i]);
+				USER("invalid command \"%s\"\n", argv[i]);
 				continue;
 			}
 
 			if(c->help != 0)	c->help(argv[i]);
-			else				DEBUG("no further help available for command \"%s\"\n", argv[i]);
-			DEBUG("\n");
+			else				USER("no further help available for command \"%s\"\n", argv[i]);
+			USER("\n");
 		}
 	}
 

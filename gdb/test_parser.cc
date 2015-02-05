@@ -95,7 +95,7 @@ int main(int argc, char** argv){
 	else
 		line = argv[1];
 
-	DEBUG("%s\n", str);
+	USER("%s\n", str);
 	gdb_scan_string(line);
 	printf("parser result: %d\n", gdbparse(gdb));
 

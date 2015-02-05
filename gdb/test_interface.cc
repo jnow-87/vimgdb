@@ -120,7 +120,7 @@ void* thread(void* arg){
 			  ){
 				line[i] = 0;
 				ui->gdblog_print("gdb_read: %s", line);
-				DEBUG("parser return value: %d\n", gdb->mi_parse(line));
+				TEST("parser return value: %d\n", gdb->mi_parse(line));
 
 				i = 0;
 			}

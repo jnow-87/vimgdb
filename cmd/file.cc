@@ -52,8 +52,8 @@ int cmd_file_resp(result_class_t rclass, result_t* result){
 }
 
 void cmd_file_help(char* cmd){
-	DEBUG("usage: %s [sub-command] <file>\n", cmd);
-	DEBUG("   sub-commands:\n");
-	DEBUG("      bin   load only code from <file>\n");
-	DEBUG("      sym   load debug symbols from <file>\n");
+	USER("usage: %s [sub-command] <file>\n", cmd);
+	USER("   sub-commands:\n");
+	USER("      bin   load only code from <file>\n");
+	USER("      sym   load debug symbols from <file>\n");
 }

@@ -54,13 +54,13 @@
 %%
 
 
-output :	out-of-band-record result-record GDB NEWLINE			{ DEBUG("output\n"); };
+output :	out-of-band-record result-record GDB NEWLINE			{ TEST("output\n"); };
 
 
 /* out-of-band-record */
-out-of-band-record :	%empty										{ DEBUG("oob-empty\n"); }
-				   |	out-of-band-record async-record				{ DEBUG("oob-async\n"); }
-				   |	out-of-band-record stream-record			{ DEBUG("oob-stream\n"); }
+out-of-band-record :	%empty										{ TEST("oob-empty\n"); }
+				   |	out-of-band-record async-record				{ TEST("oob-async\n"); }
+				   |	out-of-band-record stream-record			{ TEST("oob-stream\n"); }
 				   ;
 
 async-record :			token '*' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* exec-async-output */
@@ -79,7 +79,7 @@ stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOL
 
 
 /* result-record */
-result-record :		%empty											{}
+result-record :		%empty											{ TEST("result empty\n"); }
 			  |		token '^' RESULT_CLASS NEWLINE					{ gdb->mi_proc_result($3, $1, 0); }
 			  |		token '^' RESULT_CLASS ',' result-list NEWLINE	{ gdb->mi_proc_result($3, $1, $5); }
 			  ;

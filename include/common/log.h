@@ -12,6 +12,8 @@ enum log_level_t{
 	WARN = 0x2,
 	ERROR = 0x4,
 	DEBUG = 0x8,
+	USER = 0x10,
+	TEST = 0x20,
 };
 
 
@@ -20,6 +22,8 @@ enum log_level_t{
 #define ERROR(msg, ...)	log::print(ERROR, "[ERR][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define WARN(msg, ...)	log::print(WARN, "[WAR][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define DEBUG(msg, ...)	log::print(DEBUG, msg, ##__VA_ARGS__)
+#define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
+#define TEST(msg, ...)	log::print(TEST, msg, ##__VA_ARGS__)
 
 
 /* class */

@@ -146,7 +146,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 	unsigned int i, len;
 
 
-	DEBUG("cmd: \"%s\"\n", cmd);
+	TEST("cmd: \"%s\"\n", cmd);
 
 	/* compute length of cmd_str */
 	len = strlen(cmd) + token_len + 5;	// +5 = "-" " --" "\n"
@@ -201,7 +201,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 }
 
 int gdb_if::mi_parse(char* s){
-	DEBUG("parse gdb string \"%s\"\n", s);
+	TEST("parse gdb string \"%5.5s...\"\n", s);
 
 	gdb_scan_string(s);
 
@@ -209,12 +209,12 @@ int gdb_if::mi_parse(char* s){
 }
 
 int gdb_if::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
-	DEBUG("parsed result-record\n");
+	TEST("parsed result-record\n");
 	return 0;
 }
 
 int gdb_if::mi_proc_async(async_class_t aclass, unsigned int token, result_t* result){
-	DEBUG("parsed async-record\n");
+	TEST("parsed async-record\n");
 	return 0;
 }
 
@@ -223,15 +223,15 @@ int gdb_if::mi_proc_stream(stream_class_t sclass, char* stream){
 
 	switch(sclass){
 	case SC_CONSOLE:
-		DEBUG("console stream: \"%s\"\n", stream);
+		TEST("console stream: \"%s\"\n", stream);
 		break;
 
 	case SC_TARGET:
-		DEBUG("target system stream: \"%s\"\n", stream);
+		TEST("target system stream: \"%s\"\n", stream);
 		break;
 
 	case SC_LOG:
-		DEBUG("log stream: \"%s\"\n", stream);
+		TEST("log stream: \"%s\"\n", stream);
 		break;
 	};
 
