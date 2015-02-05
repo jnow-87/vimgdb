@@ -6,6 +6,26 @@
 
 
 /* types */
+typedef enum{
+	RC_DONE = 1,
+	RC_RUNNING,
+	RC_CONNECTED,
+	RC_ERROR,
+	RC_EXIT,
+} result_class_t;
+
+typedef enum{
+	AC_STOPPED = 1,
+	AC_BREAK_CREATED,
+	AC_THREAD_GRP_ADDED,
+} async_class_t;
+
+typedef enum{
+	SC_CONSOLE = 1,
+	SC_TARGET,
+	SC_LOG,
+} stream_class_t;
+
 typedef struct _result_t{
 	char* var_name;
 	value_t* value;

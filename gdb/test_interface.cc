@@ -100,21 +100,30 @@ void cleanup(int signum){
 
 void* thread(void* arg){
 	char c, line[1024];
-	unsigned int i = 0;
+	unsigned int i;
 
 
+	i = 0;
 	while(1){
 		if(gdb->read(&c, 1) == 1){
-			if(c == '\n' || c == '\r'){
-				if(i == 0)
-					continue;
+			// ignore CR to avoid issues when printing the string
+			if(c == '\r')
+				continue;
 
+			line[i++] = c;
+
+			// check for end of gdb line, a simple newline as separator
+			// doesn't work, since the parse would try to parse the line,
+			// detecting a syntax error
+			if(strcmp(line + i - 6, "(gdb)\n") == 0 ||
+			   strcmp(line + i - 7, "(gdb) \n") == 0
+			  ){
 				line[i] = 0;
-				ui->gdblog_print("gdb_read: %s\n", line);
+				ui->gdblog_print("gdb_read: %s", line);
+				DEBUG("parser return value: %d\n", gdb->mi_parse(line));
+
 				i = 0;
 			}
-			else
-				line[i++] = c;
 		}
 		else{
 			INFO("gdb read shutdown\n");

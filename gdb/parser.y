@@ -3,12 +3,13 @@
 
 %{
 	#include <common/log.h>
+	#include <gdb/gdb.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
 	#include <gdb/lexer.lex.h>
 
 
-	int gdberror(const char* s);
+	int gdberror(gdb_if* gdb, const char* s);
 %}
 
 %union{
@@ -17,21 +18,28 @@
 
 	result_t* result;
 	value_t* value;
+	async_class_t aclass;
+	result_class_t rclass;
+
+	struct{
+		async_class_t aclass;
+		result_t* result;
+	} async_out;
 }
+
+
+%parse-param { gdb_if* gdb }
 
 /* terminals */
 %token NEWLINE
 %token GDB
-%token ASYNC_CLASS
-%token RESULT_CLASS
+%token <aclass> ASYNC_CLASS
+%token <rclass> RESULT_CLASS
 %token <sptr> STRING
 %token <num> NUMBER
 
 /* non-terminals */
-%type <result> async-record
-%type <result> async-output
-%type <sptr> stream-record
-%type <result> result-record
+%type <async_out> async-output
 %type <result> result
 %type <result> result-list
 %type <value> value
@@ -48,31 +56,32 @@
 
 output :	out-of-band-record result-record GDB NEWLINE			{ DEBUG("output\n"); };
 
+
 /* out-of-band-record */
 out-of-band-record :	%empty										{ DEBUG("oob-empty\n"); }
 				   |	out-of-band-record async-record				{ DEBUG("oob-async\n"); }
 				   |	out-of-band-record stream-record			{ DEBUG("oob-stream\n"); }
 				   ;
 
-async-record :			token '*' async-output NEWLINE				{}		/* exec-async-output */
-			 |			token '+' async-output NEWLINE				{}		/* status-async-output */
-			 |			token '=' async-output NEWLINE				{}		/* notify-async-output */
+async-record :			token '*' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* exec-async-output */
+			 |			token '+' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* status-async-output */
+			 |			token '=' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* notify-async-output */
 			 ;
 
-async-output :			ASYNC_CLASS									{  }
-			 |			ASYNC_CLASS ',' result-list					{ gdb_result_print($3); gdb_result_free($3); }
+async-output :			ASYNC_CLASS									{ $$.aclass = $1; $$.result = 0; }
+			 |			ASYNC_CLASS ',' result-list					{ $$.aclass = $1; $$.result = $3; }
 			 ;
 
-stream-record :			'~' '"' STRING '"' NEWLINE					{ DEBUG("console stream: \"%s\"\n", $3); }			/* console-stream-output */
-			  |			'@' '"' STRING '"' NEWLINE					{ DEBUG("target system stream: \"%s\"\n", $3); }	/* target-system-output */
-			  |			'&' '"' STRING '"' NEWLINE					{ DEBUG("log stream: \"%s\"\n", $3); }				/* log-stream-output */
+stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* console-stream-output */
+			  |			'@' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* target-system-output */
+			  |			'&' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* log-stream-output */
 			  ;
 
 
 /* result-record */
 result-record :		%empty											{}
-			  |		token '^' RESULT_CLASS NEWLINE					{}
-			  |		token '^' RESULT_CLASS ',' result-list NEWLINE	{}
+			  |		token '^' RESULT_CLASS NEWLINE					{ gdb->mi_proc_result($3, $1, 0); }
+			  |		token '^' RESULT_CLASS ',' result-list NEWLINE	{ gdb->mi_proc_result($3, $1, $5); }
 			  ;
 
 
@@ -110,7 +119,7 @@ token :				%empty											{ $$ = 0; }
 
 %%
 
-int gdberror(const char* s){
+int gdberror(gdb_if* gdb, const char* s){
 	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
 	return 0;
 }

@@ -1,6 +1,8 @@
 #include <common/log.h>
 #include <common/pty.h>
 #include <gdb/gdb.h>
+#include <gdb/lexer.lex.h>
+#include <gdb/parser.tab.h>
 #include <cmd/cmd.hash.h>
 #include <cmd/subcmd.hash.h>
 #include <string.h>
@@ -47,7 +49,7 @@ int gdb_if::init(){
 		/* child */
 		log::cleanup();
 
-		return libc::execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
+		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
 	else if(pid > 0){
 		/* parent */
@@ -137,7 +139,7 @@ int gdb_if::resp_dequeue(unsigned int token){
  * \return	>0			token used for the command
  * 			-1			error
  */
-int gdb_if::mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr){
+int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;
@@ -196,4 +198,42 @@ int gdb_if::mi_cmd_issue(char* cmd, char** options, unsigned int noption, char**
 	}
 
 	return token - 1;
+}
+
+int gdb_if::mi_parse(char* s){
+	DEBUG("parse gdb string \"%s\"\n", s);
+
+	gdb_scan_string(s);
+
+	return (gdbparse(this) == 0 ? 0 : -1);
+}
+
+int gdb_if::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
+	DEBUG("parsed result-record\n");
+	return 0;
+}
+
+int gdb_if::mi_proc_async(async_class_t aclass, unsigned int token, result_t* result){
+	DEBUG("parsed async-record\n");
+	return 0;
+}
+
+int gdb_if::mi_proc_stream(stream_class_t sclass, char* stream){
+	/* TODO implement proper integration with log system */
+
+	switch(sclass){
+	case SC_CONSOLE:
+		DEBUG("console stream: \"%s\"\n", stream);
+		break;
+
+	case SC_TARGET:
+		DEBUG("target system stream: \"%s\"\n", stream);
+		break;
+
+	case SC_LOG:
+		DEBUG("log stream: \"%s\"\n", stream);
+		break;
+	};
+
+	return 0;
 }

@@ -42,12 +42,12 @@ int cmd_file_exec(gdb_if* gdb, int argc, char** argv){
 	}
 
 	// TODO add response handler
-	if(gdb->mi_cmd_issue((char*)cmd_str, 0, 0, argv + i, 1, 0) < 0)
+	if(gdb->mi_issue_cmd((char*)cmd_str, 0, 0, argv + i, 1, 0) < 0)
 		return -1;
 	return 0;
 }
 
-int cmd_file_resp(int result_class, result_t* result){
+int cmd_file_resp(result_class_t rclass, result_t* result){
 	return 0;
 }
 

@@ -3,8 +3,10 @@
 
 %{
 	#include <common/xmalloc.h>
+	#include <gdb/gdb.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
+	#include <common/log.h>
 
 
 	/* define YY_USER_ACTION, executed for every token, before excuting its
@@ -34,27 +36,35 @@
 	static unsigned int gdb_col = 0;
 %}
 
-"done" |
-"running" |
-"connected" |
-"error" |
-"exit"						{ return RESULT_CLASS; }
+	/* gdb result classes */
+"done"						{ gdblval.num = RC_DONE; return RESULT_CLASS; }
+"running"					{ gdblval.num = RC_RUNNING; return RESULT_CLASS; }
+"connected"					{ gdblval.num = RC_CONNECTED; return RESULT_CLASS; }
+"error"						{ gdblval.num = RC_ERROR; return RESULT_CLASS; }
+"exit"						{ gdblval.num = RC_EXIT; return RESULT_CLASS; }
 
-"stopped" |
-"breakpoint-created"		{ return ASYNC_CLASS; }
+	/* gdb async output classes */
+"stopped"					{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
+"breakpoint-created"		{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
+"thread-group-added"		{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
 
-"(gdb)"						{ return GDB; }
+	/* gdb EOL string */
+"(gdb)"\ ?					{ return GDB; }
 
-\n\r?						{ gdb_col = 0; return NEWLINE; }
+	/* general patterns */
+\r?\n						{ gdb_col = 0; return NEWLINE; }
 [0-9]*						{ gdblval.num = atoi(gdbtext); return NUMBER; }
-[a-zA-Z][a-zA-Z0-9_\-]*		{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
+[a-zA-Z][a-zA-Z0-9_\-.]*	{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
 
+	/* quoted string */
 \"							{ BEGIN QSTRING; return gdbtext[0]; }
 <QSTRING>\"					{ BEGIN INITIAL; return gdbtext[0]; }
 <QSTRING>([^\"]|(\\\"))*	{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
 
+	/* MI command */
 ^[0-9]*-.*\n				{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
 
+	/* default */
 .							{ return gdbtext[0]; }
 
 %%

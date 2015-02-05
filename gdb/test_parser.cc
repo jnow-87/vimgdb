@@ -1,6 +1,7 @@
 #include <common/xmalloc.h>
 #include <common/list.h>
 #include <common/log.h>
+#include <gdb/gdb.h>
 #include <gdb/value.h>
 #include <gdb/result.h>
 #include <gdb/parser.tab.h>
@@ -15,6 +16,7 @@ char* line;
 
 /* global functions */
 int main(int argc, char** argv){
+	gdb_if* gdb;
 //	char str[] = "^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 //	char str[] = "&\"target gdbctrl\\n\"\n&\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\n\n\"\n^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 	char str[] = "=breakpoint-created,bkpt=[number=[\"1\",\"2\"],type=\"breakpoint\",groups=[\"i1\",\"i2\",\"i3\"]]\n(gdb)\n";
@@ -86,6 +88,8 @@ int main(int argc, char** argv){
 
 	xmalloc_init();
 
+	gdb = new gdb_if;
+
 	if(argc < 2)
 		line = str;
 	else
@@ -93,7 +97,9 @@ int main(int argc, char** argv){
 
 	DEBUG("%s\n", str);
 	gdb_scan_string(line);
-	gdbparse();
+	printf("parser result: %d\n", gdbparse(gdb));
+
+	delete gdb;
 
 	xmalloc_eval();
 	return 0;
