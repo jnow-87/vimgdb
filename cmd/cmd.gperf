@@ -1,0 +1,105 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name cmd
+
+
+/* c-code */
+%{
+	#include <common/log.h>
+	#include <gdb/gdb.h>
+	#include <cmd/cmd.h>
+	#include <string.h>
+%}
+
+/* struct-type definition */
+struct cmd_t;
+
+%%
+# command	exec callback		help text
+test,		cmd_test_exec,		"test command echoing all given arguments"
+help,		cmd_help_exec,		"print this help message"
+file,		cmd_file_exec,		"control gdb input files (binary and symbols)"
+%%
+
+/**
+ * \brief	execute user command
+ *
+ * \param	cmdline		user command and arguments
+ *
+ * \return	0			sucess
+ * 			-1			error
+ */
+int cmd_exec(char* cmdline, gdb_if* gdb){
+	unsigned int nspace, i, len;
+	int r;
+	char** argv;
+
+
+	len = strlen(cmdline);
+
+	/* count number of spaces within cmdline */
+	i = 0;
+	nspace = 0;
+	while(i < len){
+		if(cmdline[i] == ' ')	nspace++;
+		if(cmdline[i] == '"')	while(++i < len && cmdline[i] != '"');
+
+		i++;
+	}
+
+	/* assign argv to space-separated strings in cmdline */
+	argv = new char*[nspace + 1];
+	argv[0] = cmdline;
+	i = 0;
+	nspace = 0;
+	while(i < len){
+		if(cmdline[i] == ' '){
+			nspace++;
+			argv[nspace] = cmdline + i + 1;
+			cmdline[i] = 0;
+		}
+
+		if(cmdline[i] == '"'){
+			argv[nspace]++;
+			while(++i < len && cmdline[i] != '"');
+			cmdline[i] = 0;
+		}
+
+		i++;
+	}
+
+	/* execute command */
+	if(cmd::lookup(argv[0], strlen(argv[0])) <= 0){
+		WARN("invalid user command \"%s\", trying direct execution by gdb\n", argv[0]);
+
+		/* send unknown command to gdb */
+		// reset all '\0' to ' '
+		for(i=0; i<len; i++){
+			if(cmdline[i] == 0) cmdline[i] = ' ';
+		}
+
+		// send cmdline to gdb
+		gdb->write(cmdline, len);
+		gdb->write((void*)"\n", 1);
+
+		r = -1;
+	}
+	else
+		r = cmd::lookup(argv[0], strlen(argv[0]))->exec(gdb, nspace + 1, argv);
+
+	delete [] argv;
+	return r;
+}

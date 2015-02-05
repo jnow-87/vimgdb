@@ -1,6 +1,7 @@
 #include <common/log.h>
 #include <common/tty.h>
 #include <gdb/gdb.h>
+#include <cmd/cmd.h>
 #include <gui/gui.h>
 #include <gui/curses.h>
 #include <stdlib.h>
@@ -61,7 +62,7 @@ int main(int argc, char** argv){
 
 		if(c == '\n' || c == '\r'){
 			line[i] = 0;
-			gdb->exec_user_cmd(line);
+			cmd_exec(line, gdb);
 			ui->cmd_print("\n" CMD_PROMPT);
 
 			i = 0;

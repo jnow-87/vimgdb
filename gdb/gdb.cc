@@ -1,8 +1,8 @@
 #include <common/log.h>
 #include <common/pty.h>
 #include <gdb/gdb.h>
-#include <gdb/user_cmd.hash.h>
-#include <gdb/user_subcmd.hash.h>
+#include <cmd/cmd.hash.h>
+#include <cmd/subcmd.hash.h>
 #include <string.h>
 #include <math.h>
 
@@ -86,76 +86,15 @@ int gdb_if::write(void* buf, unsigned int nbytes){
 }
 
 /**
- * \brief	execute user command
+ * \brief	thread-safe enqueue, dequeue functions for issues gdb commands
  *
- * \param	cmdline		user command and arguments
+ * \param	token	token used for gdb MI command
+ * \param	hdlr	response handler to associate with token
  *
- * \return	0			sucess
- * 			-1			error
+ * \return	0		success
+ * 			-1		error
  */
-int gdb_if::exec_user_cmd(char* cmdline){
-	unsigned int nspace, i, len;
-	int r;
-	char** argv;
-
-
-	len = strlen(cmdline);
-
-	/* count number of spaces within cmdline */
-	i = 0;
-	nspace = 0;
-	while(i < len){
-		if(cmdline[i] == ' ')	nspace++;
-		if(cmdline[i] == '"')	while(++i < len && cmdline[i] != '"');
-
-		i++;
-	}
-
-	/* assign argv to space-separated strings in cmdline */
-	argv = new char*[nspace + 1];
-	argv[0] = cmdline;
-	i = 0;
-	nspace = 0;
-	while(i < len){
-		if(cmdline[i] == ' '){
-			nspace++;
-			argv[nspace] = cmdline + i + 1;
-			cmdline[i] = 0;
-		}
-
-		if(cmdline[i] == '"'){
-			argv[nspace]++;
-			while(++i < len && cmdline[i] != '"');
-			cmdline[i] = 0;
-		}
-
-		i++;
-	}
-
-	/* execute command */
-	if(gdb_user_cmd::lookup(argv[0], strlen(argv[0])) <= 0){
-		WARN("invalid user command \"%s\", trying direct execution by gdb\n", argv[0]);
-
-		/* send unknown command to gdb */
-		// reset all '\0' to ' '
-		for(i=0; i<len; i++){
-			if(cmdline[i] == 0) cmdline[i] = ' ';
-		}
-
-		// send cmdline to gdb
-		this->write(cmdline, len);
-		this->write((void*)"\n", 1);
-
-		r = -1;
-	}
-	else
-		r = gdb_user_cmd::lookup(argv[0], strlen(argv[0]))->callback(this, nspace + 1, argv);
-
-	delete [] argv;
-	return r;
-}
-
-int gdb_if::resp_enqueue(unsigned int token, response_hdlr hdlr){
+int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr){
 	pthread_mutex_lock(&resp_mutex);
 
 	if(resp_map.find(token) == resp_map.end())
@@ -169,7 +108,7 @@ int gdb_if::resp_enqueue(unsigned int token, response_hdlr hdlr){
 }
 
 int gdb_if::resp_dequeue(unsigned int token){
-	map<unsigned int, response_hdlr>::iterator it;
+	map<unsigned int, response_hdlr_t>::iterator it;
 
 
 	pthread_mutex_lock(&resp_mutex);
@@ -185,89 +124,20 @@ int gdb_if::resp_dequeue(unsigned int token){
 	return 0;
 }
 
-int gdb_if::cmd_file(gdb_if* gdb, int argc, char** argv){
-	unsigned int i;
-	const char* cmd_str;
-	const gdb_user_subcmd_t* subcmd;
-
-
-	if(argc < 2){
-		WARN("too few arguments to command \"%s\"\n", argv[0]);
-		return -1;
-	}
-
-	if(argc > 3){
-		WARN("too many arguments to command \"%s\", at most 2 expected\n", argv[0]);
-		return -1;
-	}
-
-	cmd_str = "file-exec-and-symbols";
-
-	for(i=1; i<argc-1; i++){
-		subcmd = gdb_user_subcmd::lookup(argv[i], strlen(argv[i]));
-		if(subcmd == 0){
-			WARN("invalid sub command \"%s\" to \"%s\"\n", argv[i], argv[0]);
-			return -1;
-		}
-
-		switch(subcmd->id){
-		case BIN:
-			cmd_str = "file-exec-file";
-			break;
-
-		case SYM:
-			cmd_str = "file-symbol-file";
-			break;
-		};
-	}
-
-	// TODO add response handler
-	if(gdb->mi_cmd_issue((char*)cmd_str, 0, 0, argv + i, 1, 0) < 0)
-		return -1;
-	return 0;
-}
-
 /**
- * \brief	user commands
+ * \brief	create gdb machine interface (MI) command
  *
- * \param	gdb		pointer to gdb_if instance
- * \param	argc	number of entries in argv
- * \param	argv	arguments
+ * \param	cmd			target command
+ * \param	options		options to cmd
+ * \param	noption		number of entries in options
+ * \param	parameter	parameters to cmd
+ * \param	nparameter	number of entries in parameter
+ * \param	resp_hdlr	function to call upon gdb response
  *
- * \return	0		success
- * 			<0		error
+ * \return	>0			token used for the command
+ * 			-1			error
  */
-
-/**
- * \brief	testing command
- */
-int gdb_if::cmd_test(gdb_if* gdb, int argc, char** argv){
-	unsigned int i;
-
-
-	DEBUG("command: %s\n", argv[0]);
-	DEBUG("arguments:");
-
-	for(i=1; i<argc; i++)
-		DEBUG(" (%d, \"%s\")", i, argv[i]);
-	DEBUG("\n");
-}
-
-/**
- * \brief	help message
- */
-int gdb_if::cmd_help(gdb_if* gdb, int argc, char** argv){
-	unsigned int i;
-
-
-	DEBUG("user commands:\n");
-
-	for(i=gdb_user_cmd::MIN_HASH_VALUE; i<=gdb_user_cmd::MAX_HASH_VALUE; i++)
-		DEBUG("    %7.7s   %s\n", gdb_user_cmd::wordlist[i].name, gdb_user_cmd::wordlist[i].help_msg);
-	return 0;
-}
-
-int gdb_if::mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr resp_hdlr){
+int gdb_if::mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;

@@ -6,13 +6,13 @@ bin-y := test-interface test-parser
 test-interface-cppflags := -I"$(loc_src_tree)"
 
 # object files
-test-interface-y := test_interface.o gdb.o user_cmd.o user_subcmd.o common/ gui/
+test-interface-y := test_interface.o gdb.o common/ gui/ cmd/
 
 # libraries
 test-interface-ldflags := -lpthread -lcurses
 
 # additional dependencies
-$(loc_built_tree)/gdb.o: $(loc_built_tree)/user_cmd.hash.h $(loc_built_tree)/user_subcmd.hash.h
+$(loc_built_tree)/gdb.o: $(built_tree)/cmd/cmd.hash.h $(built_tree)/cmd/subcmd.hash.h
 
 
 ## test-parser

@@ -13,16 +13,16 @@
 %define slot-name name
 %define hash-function-name hash
 %define lookup-function-name lookup
-%define class-name gdb_user_subcmd
+%define class-name subcmd
 
 
 /* c-code */
 %{
-	#include <gdb/gdb.h>
+	#include <cmd/subcmd.h>
 %}
 
 /* struct-type definition */
-struct gdb_user_subcmd_t;
+struct subcmd_t;
 
 %%
 # command	id

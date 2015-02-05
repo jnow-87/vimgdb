@@ -19,7 +19,7 @@ using namespace std;
 
 
 /* types */
-typedef int (*response_hdlr)(int result_class, result_t* result);
+typedef int (*response_hdlr_t)(int result_class, result_t* result);
 
 
 /* class */
@@ -32,20 +32,16 @@ public:
 	/* init gdb interface */
 	int init();
 
+	/* gdb machine interface (MI) */
+	int mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr);
+
 	/* communication with gdb */
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
 
 	/* user command processing */
-	int exec_user_cmd(char* cmdline);
-
-	int resp_enqueue(unsigned int token, response_hdlr hdlr);
+	int resp_enqueue(unsigned int token, response_hdlr_t hdlr);
 	int resp_dequeue(unsigned int token);
-
-	/* user commands */
-	static int cmd_file(gdb_if* gdb, int argc, char** argv);
-	static int cmd_test(gdb_if* gdb, int argc, char** argv);
-	static int cmd_help(gdb_if* gdb, int argc, char** argv);
 
 private:
 	/* variables */
@@ -56,34 +52,9 @@ private:
 	unsigned int token;
 
 	// response hash map
-	map<unsigned int, response_hdlr> resp_map;
+	map<unsigned int, response_hdlr_t> resp_map;
 	pthread_mutex_t resp_mutex;
-
-	/* gdb machine interface (MI) */
-	int mi_cmd_issue(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr resp_hdlr);
 };
-
-
-/* types */
-struct gdb_user_cmd_t{
-	const char* name;
-	int (*callback)(gdb_if* gdb, int argc, char** argv);
-	const char* help_msg;
-};
-
-typedef gdb_user_cmd_t gdb_user_cmd_t;
-
-typedef enum{
-	BIN = 1,
-	SYM,
-} gdb_user_subcmd_id_t;
-
-struct gdb_user_subcmd_t{
-	const char* name;
-	gdb_user_subcmd_id_t id;
-};
-
-typedef gdb_user_subcmd_t gdb_user_subcmd_t;
 
 
 #endif
