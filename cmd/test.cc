@@ -17,3 +17,8 @@ int cmd_test_exec(gdb_if* gdb, int argc, char** argv){
 
 	return 0;
 }
+
+void cmd_test_help(char* cmd){
+	DEBUG("usage: %s [<arg>...]\n", cmd);
+	DEBUG("   test prints all arguments to demonstrate the cmd interface functionality\n");
+}

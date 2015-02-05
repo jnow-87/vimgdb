@@ -8,7 +8,7 @@
 int cmd_file_exec(gdb_if* gdb, int argc, char** argv){
 	unsigned int i;
 	const char* cmd_str;
-	const subcmd_t* scmd;
+	const struct subcmd_t* scmd;
 
 
 	if(argc < 2){
@@ -49,4 +49,11 @@ int cmd_file_exec(gdb_if* gdb, int argc, char** argv){
 
 int cmd_file_resp(int result_class, result_t* result){
 	return 0;
+}
+
+void cmd_file_help(char* cmd){
+	DEBUG("usage: %s [sub-command] <file>\n", cmd);
+	DEBUG("   sub-commands:\n");
+	DEBUG("      bin   load only code from <file>\n");
+	DEBUG("      sym   load debug symbols from <file>\n");
 }

@@ -28,10 +28,10 @@
 struct cmd_t;
 
 %%
-# command	exec callback		help text
-test,		cmd_test_exec,		"test command echoing all given arguments"
-help,		cmd_help_exec,		"print this help message"
-file,		cmd_file_exec,		"control gdb input files (binary and symbols)"
+# command	exec callback		help callback		help text
+test,		cmd_test_exec,		cmd_test_help,		"test command echoing all given arguments"
+help,		cmd_help_exec,		0,					"print this help message"
+file,		cmd_file_exec,		cmd_file_help,		"control gdb input files (binary and symbols)"
 %%
 
 /**
