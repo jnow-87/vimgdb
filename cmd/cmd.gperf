@@ -54,8 +54,13 @@ int cmd_exec(char* cmdline, gdb_if* gdb){
 	i = 0;
 	nspace = 0;
 	while(i < len){
-		if(cmdline[i] == ' ')	nspace++;
-		if(cmdline[i] == '"')	while(++i < len && cmdline[i] != '"');
+		if(cmdline[i] == ' '){
+			while(++i < len && cmdline[i] == ' ');
+			nspace++;
+		}
+
+		if(cmdline[i] == '"')
+			while(++i < len && cmdline[i] != '"');
 
 		i++;
 	}
@@ -67,9 +72,15 @@ int cmd_exec(char* cmdline, gdb_if* gdb){
 	nspace = 0;
 	while(i < len){
 		if(cmdline[i] == ' '){
-			nspace++;
-			argv[nspace] = cmdline + i + 1;
 			cmdline[i] = 0;
+
+			while(++i < len && cmdline[i] == ' ');
+
+			if(i == len)
+				break;
+
+			i--;
+			argv[++nspace] = cmdline + i + 1;
 		}
 
 		if(cmdline[i] == '"'){
