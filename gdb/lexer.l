@@ -53,6 +53,8 @@
 <QSTRING>\"					{ BEGIN INITIAL; return gdbtext[0]; }
 <QSTRING>([^\"]|(\\\"))*	{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
 
+^[0-9]*-.*\n				{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
+
 .							{ return gdbtext[0]; }
 
 %%
