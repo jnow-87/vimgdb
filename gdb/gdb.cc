@@ -99,8 +99,10 @@ int gdb_if::write(void* buf, unsigned int nbytes){
 int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr){
 	pthread_mutex_lock(&resp_mutex);
 
-	if(resp_map.find(token) == resp_map.end())
+	if(resp_map.find(token) != resp_map.end()){
+		pthread_mutex_unlock(&resp_mutex);
 		return -1;
+	}
 
 	resp_map[token] = hdlr;
 
@@ -116,8 +118,10 @@ int gdb_if::resp_dequeue(unsigned int token){
 	pthread_mutex_lock(&resp_mutex);
 
 	it = resp_map.find(token);
-	if(it == resp_map.end())
+	if(it == resp_map.end()){
+		pthread_mutex_unlock(&resp_mutex);
 		return -1;
+	}
 
 	resp_map.erase(it);
 
