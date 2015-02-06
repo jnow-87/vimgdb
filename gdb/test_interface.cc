@@ -115,8 +115,8 @@ void* thread(void* arg){
 			// check for end of gdb line, a simple newline as separator
 			// doesn't work, since the parse would try to parse the line,
 			// detecting a syntax error
-			if(strcmp(line + i - 6, "(gdb)\n") == 0 ||
-			   strcmp(line + i - 7, "(gdb) \n") == 0
+			if(strncmp(line + i - 6, "(gdb)\n", 6) == 0 ||
+			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
 			  ){
 				line[i] = 0;
 				ui->gdblog_print("gdb_read: %s", line);
