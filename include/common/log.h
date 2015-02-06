@@ -14,6 +14,7 @@ enum log_level_t{
 	DEBUG = 0x8,
 	USER = 0x10,
 	TEST = 0x20,
+	TODO = 0x40,
 };
 
 
@@ -21,6 +22,7 @@ enum log_level_t{
 #define INFO(msg, ...)	log::print(INFO, "[INF][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define ERROR(msg, ...)	log::print(ERROR, "[ERR][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define WARN(msg, ...)	log::print(WARN, "[WAR][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TODO(msg, ...)	log::print(TODO, "[TODO][%19.19s] %10.10s:%-5d %20.20s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define DEBUG(msg, ...)	log::print(DEBUG, msg, ##__VA_ARGS__)
 #define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
 #define TEST(msg, ...)	log::print(TEST, msg, ##__VA_ARGS__)
