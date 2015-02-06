@@ -19,7 +19,12 @@ using namespace std;
 
 
 /* types */
-typedef int (*response_hdlr_t)(result_class_t rclass, result_t* result);
+typedef int (*response_hdlr_t)(result_class_t rclass, result_t* result, char* cmdline);
+
+typedef struct{
+	char* cmdline;
+	response_hdlr_t resp_hdlr;
+} mi_cmd_t;
 
 
 /* class */
@@ -44,8 +49,9 @@ public:
 	int write(void* buf, unsigned int nbytes);
 
 	/* user command processing */
-	int resp_enqueue(unsigned int token, response_hdlr_t hdlr);
+	int resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline);
 	int resp_dequeue(unsigned int token);
+	mi_cmd_t* resp_query(unsigned int token);
 
 private:
 	/* variables */
@@ -56,7 +62,7 @@ private:
 	unsigned int token;
 
 	// response hash map
-	map<unsigned int, response_hdlr_t> resp_map;
+	map<unsigned int, mi_cmd_t*> resp_map;
 	pthread_mutex_t resp_mutex;
 };
 

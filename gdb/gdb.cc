@@ -96,7 +96,10 @@ int gdb_if::write(void* buf, unsigned int nbytes){
  * \return	0		success
  * 			-1		error
  */
-int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr){
+int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline){
+	mi_cmd_t* cmd;
+
+
 	pthread_mutex_lock(&resp_mutex);
 
 	if(resp_map.find(token) != resp_map.end()){
@@ -104,7 +107,13 @@ int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr){
 		return -1;
 	}
 
-	resp_map[token] = hdlr;
+	cmd = new mi_cmd_t;
+	cmd->cmdline = new char[strlen(cmdline)];
+
+	cmd->resp_hdlr = hdlr;
+	strcpy(cmd->cmdline, cmdline);
+
+	resp_map[token] = cmd;
 
 	pthread_mutex_unlock(&resp_mutex);
 
@@ -112,7 +121,7 @@ int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr){
 }
 
 int gdb_if::resp_dequeue(unsigned int token){
-	map<unsigned int, response_hdlr_t>::iterator it;
+	map<unsigned int, mi_cmd_t*>::iterator it;
 
 
 	pthread_mutex_lock(&resp_mutex);
@@ -123,12 +132,30 @@ int gdb_if::resp_dequeue(unsigned int token){
 		return -1;
 	}
 
+	delete it->second->cmdline;
+	delete it->second;
 	resp_map.erase(it);
 
 	pthread_mutex_unlock(&resp_mutex);
 
 	return 0;
 }
+
+mi_cmd_t* gdb_if::resp_query(unsigned int token){
+	map<unsigned int, mi_cmd_t*>::iterator it;
+
+
+	pthread_mutex_lock(&resp_mutex);
+
+	it = resp_map.find(token);
+
+	pthread_mutex_unlock(&resp_mutex);
+
+	if(it == resp_map.end())
+		return 0;
+	return it->second;
+}
+
 
 /**
  * \brief	create gdb machine interface (MI) command
@@ -153,7 +180,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 	TEST("cmd: \"%s\"\n", cmd);
 
 	/* compute length of cmd_str */
-	len = strlen(cmd) + token_len + 5;	// +5 = "-" " --" "\n"
+	len = strlen(cmd) + token_len + 4;	// +4 = "-" " --"
 
 	for(i=0; i<noption; i++)
 		len += strlen(options[i]) + 1;	// +1 = " "
@@ -185,18 +212,15 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 	for(i=0; i<nparameter; i++)
 		len += sprintf(cmd_str + len, " %s", parameter[i]);
 
-	len += sprintf(cmd_str + len, "\n");
-
-
 	/* enqueue response handler */
-	resp_enqueue(token, resp_hdlr);
+	resp_enqueue(token, resp_hdlr, cmd_str);
 
 	/* increment token */
 	if(++token >= (unsigned int)pow(10, token_len))
 		token_len++;
 
 	/* issue cmd */
-	if(this->write(cmd_str, len) < 0){
+	if(this->write(cmd_str, len) < 0 || this->write((void*)"\n", 1) < 0){
 		resp_dequeue(token - 1);
 		return -1;
 	}
@@ -205,7 +229,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 }
 
 int gdb_if::mi_parse(char* s){
-	TEST("parse gdb string \"%5.5s...\"\n", s);
+	DEBUG("parse gdb string \"%5.5s...\"\n", s);
 
 	gdb_scan_string(s);
 
@@ -213,17 +237,52 @@ int gdb_if::mi_parse(char* s){
 }
 
 int gdb_if::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
-	TEST("parsed result-record\n");
-	return 0;
+	mi_cmd_t* cmd;
+	int r;
+
+
+	r = -1;
+
+	/* check if outstanding command exists for token */
+	cmd = resp_query(token);
+	if(cmd == 0){
+		WARN("no outstanding command found for token %u\n", token);
+		goto exit_0;
+	}
+
+	/* check if response handler is defined */
+	if(cmd->resp_hdlr == 0){
+		WARN("no response handler registered for command \"%s\"\n", cmd->cmdline);
+		goto exit_1;
+	}
+
+	/* call response handler */
+	if(cmd->resp_hdlr(rclass, result, cmd->cmdline) < 0)
+		WARN("error processing result for command \"%s\"\n", cmd->cmdline);
+
+	r = 0;
+
+exit_1:
+	/* remove outstanding command */
+	resp_dequeue(token);
+
+exit_0:
+	/* free memory */
+	gdb_result_free(result);
+
+	return r;
 }
 
 int gdb_if::mi_proc_async(async_class_t aclass, unsigned int token, result_t* result){
-	TEST("parsed async-record\n");
+	/* TODO implement */
+	TODO("not yet implemented\n");
+	resp_dequeue(token);
 	return 0;
 }
 
 int gdb_if::mi_proc_stream(stream_class_t sclass, char* stream){
 	/* TODO implement proper integration with log system */
+	TODO("implement proper integration with log system\n");
 
 	switch(sclass){
 	case SC_CONSOLE:

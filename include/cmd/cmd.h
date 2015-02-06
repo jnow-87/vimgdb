@@ -22,7 +22,7 @@ int cmd_exec(char* cmdline, gdb_if* gdb);
 
 // commands
 int cmd_file_exec(gdb_if* gdb, int argc, char** argv);
-int cmd_file_resp(int result_class, result_t* result);
+int cmd_file_resp(result_class_t result_class, result_t* result, char* cmdline);
 void cmd_file_help(char* cmd);
 
 int cmd_help_exec(gdb_if* gdb, int argc, char** argv);

@@ -41,13 +41,29 @@ int cmd_file_exec(gdb_if* gdb, int argc, char** argv){
 		};
 	}
 
-	// TODO add response handler
-	if(gdb->mi_issue_cmd((char*)cmd_str, 0, 0, argv + i, 1, 0) < 0)
+	if(gdb->mi_issue_cmd((char*)cmd_str, 0, 0, argv + i, 1, cmd_file_resp) < 0){
+		WARN("error sending mi command\n");
 		return -1;
+	}
+
 	return 0;
 }
 
-int cmd_file_resp(result_class_t rclass, result_t* result){
+int cmd_file_resp(result_class_t rclass, result_t* result, char* cmdline){
+	switch(rclass){
+	case RC_DONE:
+		USER("exec of command \"%s\" done\n", cmdline);
+		break;
+
+	case RC_ERROR:
+		USER("gdb reported error for command \"%s\"\n\t%s\n", cmdline, result->value->value);
+		break;
+
+	default:
+		WARN("unhandled result class %d\n", rclass);
+		break;
+	};
+
 	return 0;
 }
 
