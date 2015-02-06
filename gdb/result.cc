@@ -11,7 +11,7 @@ unsigned int rec_depth = 0;
 
 
 /* global functions */
-result_t* gdb_result_create(char* var_name, value_t* value){
+result_t* gdb_result_create(char* var_name, variable_id_t var_id, value_t* value){
 	result_t* r;
 
 
@@ -25,6 +25,7 @@ result_t* gdb_result_create(char* var_name, value_t* value){
 	// string will stay available
 	// in case of the lexer this is true
 	r->var_name = var_name;
+	r->var_id = var_id;
 	r->value = value;
 	list_init(r);
 
@@ -74,7 +75,7 @@ void gdb_result_print(result_t* list){
 	
 	list_for_each(list, r){
 		DEBUG(rec_str, "");
-		DEBUG("result %s = ", r->var_name);
+		DEBUG("result %s (%d) = ", r->var_name, r->var_id);
 		gdb_value_print((value_t*)r->value);
 	}
 }

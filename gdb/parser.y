@@ -25,6 +25,11 @@
 		async_class_t aclass;
 		result_t* result;
 	} async_out;
+
+	struct{
+		char* name;
+		variable_id_t id;
+	} variable;
 }
 
 
@@ -37,6 +42,7 @@
 %token <rclass> RESULT_CLASS
 %token <sptr> STRING
 %token <num> NUMBER
+%token <variable> VARIABLE
 
 /* non-terminals */
 %type <async_out> async-output
@@ -47,7 +53,6 @@
 %type <value> const
 %type <value> tuple
 %type <value> list
-%type <sptr> variable
 %type <num> token
 
 
@@ -86,7 +91,7 @@ result-record :		%empty											{ TEST("result empty\n"); }
 
 
 /* common */
-result :			variable '=' value								{ $$ = gdb_result_create($1, $3); };
+result :			VARIABLE '=' value								{ $$ = gdb_result_create($1.name, $1.id, $3); };
 result-list :		result											{ $$ = $1; }
 		    |		result-list ',' result							{ gdb_result_add($1, $3); $$ = $1; }
 	   		;
@@ -110,14 +115,13 @@ list :				'[' ']'											{ $$ = gdb_value_create(EMPTY, 0); }
 	 |				'[' value-list ']'								{ $$ = gdb_value_create(VALUE_LIST, $2); }
 	 ;
 
-variable :			STRING											{ $$ = $1; };
-
 token :				%empty											{ $$ = 0; }
 	  |				NUMBER											{ $$ = $1; }
 	  ;
 
 
 %%
+
 
 int gdberror(gdb_if* gdb, const char* s){
 	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);

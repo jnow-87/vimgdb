@@ -31,6 +31,7 @@
 
 %%
 
+
 %{
 	/* code that goes to the beginning of yylex() */
 	static unsigned int gdb_col = 0;
@@ -47,6 +48,10 @@
 "stopped"					{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
 "breakpoint-created"		{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
 "thread-group-added"		{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
+
+	/* gdb variable */
+"id"						{ gdblval.variable.name = alloc_string(gdbtext, gdbleng); gdblval.variable.id = V_ID; return VARIABLE; }
+"msg"						{ gdblval.variable.name = alloc_string(gdbtext, gdbleng); gdblval.variable.id = V_MSG; return VARIABLE; }
 
 	/* gdb EOL string */
 "(gdb)"\ ?					{ return GDB; }
@@ -67,7 +72,9 @@
 	/* default */
 .							{ return gdbtext[0]; }
 
+
 %%
+
 
 char* alloc_string(char* _s, unsigned int len){
 	char* s;
