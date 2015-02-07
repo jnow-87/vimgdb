@@ -13,8 +13,10 @@ int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
 	if(argc == 1){
 		USER("user commands:\n");
 
-		for(i=cmd::MIN_HASH_VALUE; i<=cmd::MAX_HASH_VALUE; i++)
-			USER("    %7.7s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
+		for(i=cmd::MIN_HASH_VALUE; i<=cmd::MAX_HASH_VALUE; i++){
+			if(cmd::wordlist[i].name[0] != 0)
+				USER("    %7.7s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
+		}
 		USER("\n");
 	}
 	else{
