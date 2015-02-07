@@ -31,13 +31,13 @@ pty::pty() : pty(0, 0){
 pty::pty(struct termios* termp, struct winsize* win_size){
 	// open pseudoterminal
 	if(openpty(&fd_master, &fd_slave, termp, win_size) != 0){
-		this->fd_master = 0;
-		this->fd_slave = 0;
+		fd_master = 0;
+		fd_slave = 0;
 	}
 
-	this->fd_in = this->fd_master;
-	this->fd_out = this->fd_master;
-	this->forkee_pid = -1;
+	fd_in = fd_master;
+	fd_out =fd_master;
+	forkee_pid = -1;
 }
 
 /**
@@ -45,18 +45,18 @@ pty::pty(struct termios* termp, struct winsize* win_size){
  */
 pty::~pty(){
 	// killing gdb child process
-	if(this->forkee_pid != -1){
+	if(forkee_pid != -1){
 		// prevent SIGCLD from being triggered
 		signal(SIGCHLD, 0);
 
-		kill(this->forkee_pid, SIGTERM);
-		waitpid(this->forkee_pid, 0, 0);
-		this->forkee_pid = -1;
+		kill(forkee_pid, SIGTERM);
+		waitpid(forkee_pid, 0, 0);
+		forkee_pid = -1;
 	}
 
 	// close terminal
-	libc::close(this->fd_master);
-	libc::close(this->fd_slave);
+	libc::close(fd_master);
+	libc::close(fd_slave);
 }
 
 /**
@@ -71,30 +71,30 @@ pty::~pty(){
  * 			-1			on error
  */
 int pty::fork(){
-	this->forkee_pid = libc::fork();
+	forkee_pid = libc::fork();
 
-	switch(this->forkee_pid){
+	switch(forkee_pid){
 	// error
 	case -1:
-		libc::close(this->fd_master);
-		libc::close(this->fd_slave);
+		libc::close(fd_master);
+		libc::close(fd_slave);
 
 		return -1;
 
 	// child
 	case 0:
-		libc::close(this->fd_master);
-		this->fd_master = 0;
+		libc::close(fd_master);
+		fd_master = 0;
 
 		// make fd_slave controlling terminal
-		if(login(this->fd_slave) < 0)
+		if(login(fd_slave) < 0)
 			exit(1);
 
 		return 0;
 
 	// parent
 	default:
-		libc::close(this->fd_slave);
+		libc::close(fd_slave);
 
 		// register signal handler for SIGCHLD
 		if(signal(SIGCHLD, pty::sig_hdlr_chld) == SIG_ERR){
@@ -105,6 +105,11 @@ int pty::fork(){
 
 		return forkee_pid;
 	}
+}
+
+
+char* pty::get_name(){
+	return name;
 }
 
 /**
@@ -120,7 +125,6 @@ int pty::fork(){
  */
 int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct winsize* win_size){
 	int fd_master, fd_slave;
-	char name[255];
 
 
 	// open new pseudo terminal (pts)

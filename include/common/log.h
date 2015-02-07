@@ -2,7 +2,7 @@
 #define LOG_H
 
 
-#include <gui/gui.h>
+#include <stdio.h>
 
 
 /* types */
@@ -32,7 +32,7 @@ enum log_level_t{
 class log{
 public:
 	/* init and cleanup function */
-	static int init(const char* file_name, log_level_t lvl, gui* ui = 0);
+	static int init(const char* file_name, log_level_t lvl);
 	static void cleanup();
 
 	/* add entry to log */
@@ -44,7 +44,6 @@ public:
 private:
 	static FILE* log_file;			// file pointer to log file
 	static log_level_t log_level;	// current log level
-	static gui* ui;
 };
 
 

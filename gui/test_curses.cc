@@ -10,7 +10,6 @@
 int main(int argc, char** argv){
 	char c, line[255];
 	unsigned int i;
-	gui* ui;
 	tty std_term;
 
 

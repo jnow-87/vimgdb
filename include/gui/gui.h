@@ -28,11 +28,15 @@ public:
 
 	void log_print(const char* fmt, ...);
 	void log_vprint(const char* fmt, va_list lst);
+
 	void gdblog_print(const char* fmt, ...);
+
 	void break_print();
+
 	void cmd_print(const char* fmt, ...);
 	void cmd_clrline();
 
+	void inferior_print(const char* fmt, ...);
 
 protected:
 	static int min_win_height,
@@ -52,12 +56,16 @@ private:
 	// in wins[]
 	enum win_id_t{
 		WIN_BRK = 0,
-		WIN_DUMMY,
+		WIN_INFERIOR,
 		WIN_GDB_LOG,
 		WIN_LOG,
 		WIN_CMD,
 	};
 };
+
+
+/* global variables */
+extern gui* ui;
 
 
 #endif // GUI_H

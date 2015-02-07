@@ -14,7 +14,6 @@
 /* static variables */
 gdb_if* gdb;
 tty std_term;
-gui* ui;
 
 
 /* static prototypes */
@@ -36,7 +35,7 @@ int main(int argc, char** argv){
 	ui->init();
 
 	// logging
-	if(log::init(LOG_FILE, LOG_LEVEL, ui) != 0)
+	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
 		return 1;
 
 	INFO("initialise gdbctrl\n");

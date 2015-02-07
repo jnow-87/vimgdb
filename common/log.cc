@@ -1,4 +1,5 @@
 #include <common/log.h>
+#include <gui/gui.h>
 #include <stdarg.h>
 #include <time.h>
 
@@ -6,7 +7,6 @@
 /* static variables */
 FILE* log::log_file = 0;
 log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
-gui* log::ui = 0;
 
 
 /* class definition */
@@ -19,7 +19,7 @@ gui* log::ui = 0;
  * \return	0			success
  * 			-1			error (check errno)
  */
-int log::init(const char* file_name, log_level_t lvl, gui* ui){
+int log::init(const char* file_name, log_level_t lvl){
 	log_level = lvl;
 
 	if(log_level != NONE && log_file == 0){
@@ -28,8 +28,6 @@ int log::init(const char* file_name, log_level_t lvl, gui* ui){
 		if(log_file == 0)
 			return -1;
 	}
-
-	log::ui = ui;
 
 	return 0;
 }
@@ -61,7 +59,7 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			va_end(lst);
 		}
 
-		if(log::ui){
+		if(ui){
 			va_start(lst, msg);
 			ui->log_vprint(msg, lst);
 			va_end(lst);
