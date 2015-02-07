@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 	ui = new curses();
 	ui->init();
 
-	ui->log_print("enter \"quit\" to exit\n");
+	ui->applog_print("enter \"quit\" to exit\n");
 	ui->cmd_print("insert commands here\n" PROMPT);
 
 	i = 0;
@@ -29,11 +29,11 @@ int main(int argc, char** argv){
 			line[i] = 0;
 			i = 0;
 
-			ui->log_print("exec: \"%s\"\n", line);
+			ui->applog_print("exec: \"%s\"\n", line);
 			ui->cmd_print("\n" PROMPT);
 
 			if(strcmp(line, "quit") == 0 || strcmp(line, "q") == 0){
-				ui->log_print("exit\n");
+				ui->applog_print("exit\n");
 				sleep(1);
 				goto end;
 			}

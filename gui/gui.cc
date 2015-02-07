@@ -12,7 +12,8 @@ win_cfg_t gui::wins[] = {
 	WIN_INIT("breakpoints", false, 0),
 	WIN_INIT("inferior", false, 0),
 	WIN_INIT("gdb-log", true, 0),
-	WIN_INIT("log", true, 0),
+	WIN_INIT("app-log", true, 0),
+	WIN_INIT("user-log", true, 0),
 	WIN_INIT("command-line", true, 3),
 	{ .id = -1 }	/* dummy entry, marking the end */
 };
@@ -46,17 +47,30 @@ void gui::destroy(){
 	}
 }
 
-void gui::log_print(const char* fmt, ...){
+void gui::applog_print(const char* fmt, ...){
 	va_list lst;
 
 
 	va_start(lst, fmt);
-	win_vwrite(wins[WIN_LOG].id, fmt, lst);
+	win_vwrite(wins[WIN_APPLOG].id, fmt, lst);
 	va_end(lst);
 }
 
-void gui::log_vprint(const char* fmt, va_list lst){
-	win_vwrite(wins[WIN_LOG].id, fmt, lst);
+void gui::applog_vprint(const char* fmt, va_list lst){
+	win_vwrite(wins[WIN_APPLOG].id, fmt, lst);
+}
+
+void gui::userlog_print(const char* fmt, ...){
+	va_list lst;
+
+
+	va_start(lst, fmt);
+	win_vwrite(wins[WIN_USERLOG].id, fmt, lst);
+	va_end(lst);
+}
+
+void gui::userlog_vprint(const char* fmt, va_list lst){
+	win_vwrite(wins[WIN_USERLOG].id, fmt, lst);
 }
 
 void gui::gdblog_print(const char* fmt, ...){

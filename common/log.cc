@@ -61,7 +61,12 @@ void log::print(log_level_t lvl, const char* msg, ...){
 
 		if(ui){
 			va_start(lst, msg);
-			ui->log_vprint(msg, lst);
+
+			if(lvl & (USER | TEST))
+				ui->userlog_vprint(msg, lst);
+			else
+				ui->applog_vprint(msg, lst);
+
 			va_end(lst);
 		}
 	}

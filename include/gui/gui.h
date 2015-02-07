@@ -26,8 +26,11 @@ public:
 	int init();
 	void destroy();
 
-	void log_print(const char* fmt, ...);
-	void log_vprint(const char* fmt, va_list lst);
+	void applog_print(const char* fmt, ...);
+	void applog_vprint(const char* fmt, va_list lst);
+
+	void userlog_print(const char* fmt, ...);
+	void userlog_vprint(const char* fmt, va_list lst);
 
 	void gdblog_print(const char* fmt, ...);
 
@@ -58,7 +61,8 @@ private:
 		WIN_BRK = 0,
 		WIN_INFERIOR,
 		WIN_GDB_LOG,
-		WIN_LOG,
+		WIN_APPLOG,
+		WIN_USERLOG,
 		WIN_CMD,
 	};
 };
