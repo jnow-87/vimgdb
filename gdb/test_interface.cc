@@ -54,7 +54,7 @@ int main(int argc, char** argv){
 	char c, line[1024];
 	unsigned int i = 0;
 
-	ui->cmd_print(CMD_PROMPT);
+	ui->print(WIN_CMD, CMD_PROMPT);
 
 	while(1){
 		std_term.read(&c, 1);
@@ -62,7 +62,7 @@ int main(int argc, char** argv){
 		if(c == '\n' || c == '\r'){
 			line[i] = 0;
 			cmd_exec(line, gdb);
-			ui->cmd_print("\n" CMD_PROMPT);
+			ui->print(WIN_CMD, "\n" CMD_PROMPT);
 
 			i = 0;
 		}
@@ -71,11 +71,11 @@ int main(int argc, char** argv){
 				continue;
 
 			line[--i] = 0;
-			ui->cmd_clrline();
-			ui->cmd_print(CMD_PROMPT "%s", line);
+			ui->clearline(WIN_CMD);
+			ui->print(WIN_CMD, CMD_PROMPT "%s", line);
 		}
 		else{
-			ui->cmd_print("%c", c);
+			ui->print(WIN_CMD, "%c", c);
 			line[i++] = c;
 		}
 	}
@@ -118,7 +118,7 @@ void* thread(void* arg){
 			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
 			  ){
 				line[i] = 0;
-				ui->gdblog_print("gdb_read: %s", line);
+				ui->print(WIN_GDBLOG, "gdb_read: %s", line);
 
 				TEST("parse gdb string \"%.10s...\"\n", line);
 				TEST("parser return value: %d\n", gdb->mi_parse(line));

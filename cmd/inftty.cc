@@ -118,7 +118,7 @@ void* thread_inferior_output(void* arg){
 
 			if(c == '\n'){
 				line[i] = 0;
-				ui->inferior_print(line);
+				ui->print(WIN_INFERIOR, line);
 				i = 0;
 			}
 

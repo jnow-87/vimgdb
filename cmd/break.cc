@@ -245,18 +245,18 @@ void breakpt_print(){
 	breakpt_t* bkpt;
 
 
-	ui->break_clear();
+	ui->clear(WIN_BREAK);
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
 		bkpt = it->second;
 
 		if(bkpt->enabled){
-			if(bkpt->filename != 0)	ui->break_print("   %s:%d\n", bkpt->filename, bkpt->line);
-			else					ui->break_print("   %s\n", bkpt->at);
+			if(bkpt->filename != 0)	ui->print(WIN_BREAK, "   %s:%d\n", bkpt->filename, bkpt->line);
+			else					ui->print(WIN_BREAK, "   %s\n", bkpt->at);
 		}
 		else{
-			if(bkpt->filename != 0)	ui->break_print("   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
-			else					ui->break_print("   %s [disabled]\n", bkpt->at);
+			if(bkpt->filename != 0)	ui->print(WIN_BREAK, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
+			else					ui->print(WIN_BREAK, "   %s [disabled]\n", bkpt->at);
 		}
 	}
 }

@@ -19,6 +19,18 @@ struct win_cfg_t{
 	unsigned int height;
 };
 
+// XXX the order of those ids has
+// to match the order of the entries
+// in wins[]
+enum win_id_t{
+	WIN_BREAK = 0,
+	WIN_INFERIOR,
+	WIN_GDBLOG,
+	WIN_APPLOG,
+	WIN_USERLOG,
+	WIN_CMD,
+};
+
 
 /* class */
 class gui{
@@ -26,21 +38,10 @@ public:
 	int init();
 	void destroy();
 
-	void applog_print(const char* fmt, ...);
-	void applog_vprint(const char* fmt, va_list lst);
-
-	void userlog_print(const char* fmt, ...);
-	void userlog_vprint(const char* fmt, va_list lst);
-
-	void gdblog_print(const char* fmt, ...);
-
-	void break_print(const char* fmt, ...);
-	void break_clear();
-
-	void cmd_print(const char* fmt, ...);
-	void cmd_clrline();
-
-	void inferior_print(const char* fmt, ...);
+	void print(win_id_t win, const char* fmt, ...);
+	void vprint(win_id_t win, const char* fmt, va_list lst);
+	void clear(win_id_t win);
+	void clearline(win_id_t win);
 
 protected:
 	static int min_win_height,
@@ -55,18 +56,6 @@ private:
 	virtual void win_clrline(int win_id) = 0;
 
 	static win_cfg_t wins[];
-
-	// XXX the order of those ids has
-	// to match the order of the entries
-	// in wins[]
-	enum win_id_t{
-		WIN_BRK = 0,
-		WIN_INFERIOR,
-		WIN_GDB_LOG,
-		WIN_APPLOG,
-		WIN_USERLOG,
-		WIN_CMD,
-	};
 };
 
 

@@ -63,9 +63,9 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			va_start(lst, msg);
 
 			if(lvl & (USER | TEST))
-				ui->userlog_vprint(msg, lst);
+				ui->vprint(WIN_USERLOG, msg, lst);
 			else
-				ui->applog_vprint(msg, lst);
+				ui->vprint(WIN_APPLOG, msg, lst);
 
 			va_end(lst);
 		}

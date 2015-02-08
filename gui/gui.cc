@@ -47,72 +47,23 @@ void gui::destroy(){
 	}
 }
 
-void gui::applog_print(const char* fmt, ...){
+void gui::print(win_id_t win, const char* fmt, ...){
 	va_list lst;
 
 
 	va_start(lst, fmt);
-	win_vwrite(wins[WIN_APPLOG].id, fmt, lst);
+	win_vwrite(wins[win].id, fmt, lst);
 	va_end(lst);
 }
 
-void gui::applog_vprint(const char* fmt, va_list lst){
-	win_vwrite(wins[WIN_APPLOG].id, fmt, lst);
+void gui::vprint(win_id_t win, const char* fmt, va_list lst){
+	win_vwrite(wins[win].id, fmt, lst);
 }
 
-void gui::userlog_print(const char* fmt, ...){
-	va_list lst;
-
-
-	va_start(lst, fmt);
-	win_vwrite(wins[WIN_USERLOG].id, fmt, lst);
-	va_end(lst);
+void gui::clear(win_id_t win){
+	win_clrline(wins[win].id);
 }
 
-void gui::userlog_vprint(const char* fmt, va_list lst){
-	win_vwrite(wins[WIN_USERLOG].id, fmt, lst);
-}
-
-void gui::gdblog_print(const char* fmt, ...){
-	va_list lst;
-
-
-	va_start(lst, fmt);
-	win_vwrite(wins[WIN_GDB_LOG].id, fmt, lst);
-	va_end(lst);
-}
-
-void gui::break_print(const char* fmt, ...){
-	va_list lst;
-
-
-	va_start(lst, fmt);
-	win_vwrite(wins[WIN_BRK].id, fmt, lst);
-	va_end(lst);
-}
-
-void gui::break_clear(){
-	win_clear(wins[WIN_BRK].id);
-}
-
-void gui::cmd_print(const char* fmt, ...){
-	va_list lst;
-
-
-	va_start(lst, fmt);
-	win_vwrite(wins[WIN_CMD].id, fmt, lst);
-	va_end(lst);
-}
-
-void gui::cmd_clrline(){
-	win_clrline(wins[WIN_CMD].id);
-}
-
-void gui::inferior_print(const char* fmt, ...){
-	va_list lst;
-
-
-	va_start(lst, fmt);
-	win_vwrite(wins[WIN_INFERIOR].id, fmt, lst);
-	va_end(lst);
+void gui::clearline(win_id_t win){
+	win_clear(wins[win].id);
 }
