@@ -64,14 +64,14 @@ int cmd_break_exec(gdb_if* gdb, int argc, char** argv){
 
 
 	if(argc < 3){
-		USER("invalid number of arguments to commands \"%s\"\n", argv[0]);
-		cmd_break_help(argv[0]);
+		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
+		cmd_break_help(1, argv);
 		return -1;
 	}
 
 	scmd = subcmd::lookup(argv[1], strlen(argv[1]));
 	if(scmd == 0){
-		USER("invalid sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
+		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
 		return -1;
 	}
 
@@ -177,24 +177,63 @@ int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void*
 	return 0;
 }
 
-void cmd_break_help(char* cmd){
-	USER("usage %s <sub-command> <arg>\n", cmd);
-	USER("   sub-commands:\n");
-	USER("       add <location>\n");
-	USER("          add new breakpoint, with location being any of\n");
-	USER("             - function\n");
-	USER("             - filename:linenum\n");
-	USER("             - filename:function\n");
-	USER("             - *address\n");
-	USER("\n");
-	USER("       delete <location>\n");
-	USER("          delete breakpoint at <location> as specified in breakpoint window\n");
-	USER("\n");
-	USER("       enable <location>\n");
-	USER("          enable breakpoint at <location> as specified in breakpoint window\n");
-	USER("\n");
-	USER("       disable <location>\n");
-	USER("          disable breakpoint at <location> as specified in breakpoint window\n");
+void cmd_break_help(int argc, char** argv){
+	unsigned int i;
+	const struct subcmd_t* scmd;
+
+
+	if(argc == 1){
+		USER("usage %s <sub-command> <arg>\n", argv[0]);
+		USER("   sub-commands:\n");
+		USER("       add <location>       add breakpoint\n");
+		USER("       delete <location>    delete breakpoint\n");
+		USER("       enable <location>    enable breakpoint\n");
+		USER("       disable <location>   disable breakpoint\n");
+		USER("\n");
+	}
+	else{
+		for(i=1; i<argc; i++){
+			scmd = subcmd::lookup(argv[i], strlen(argv[i]));
+
+			if(scmd == 0){
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+				continue;
+			}
+
+			switch(scmd->id){
+			case ADD:
+				USER("usage %s %s <location>\n", argv[0], argv[i]);
+				USER("   add new breakpoint, with location being any of\n");
+				USER("      - function\n");
+				USER("      - filename:linenum\n");
+				USER("      - filename:function\n");
+				USER("      - *address\n");
+				USER("\n");
+				break;
+
+			case DELETE:
+				USER("usage %s %s <location>\n", argv[0], argv[i]);
+				USER("          delete breakpoint at <location> as specified in breakpoint window\n");
+				USER("\n");
+				break;
+
+			case ENABLE:
+				USER("usage %s %s <location>\n", argv[0], argv[i]);
+				USER("          enable breakpoint at <location> as specified in breakpoint window\n");
+				USER("\n");
+				break;
+
+			case DISABLE:
+				USER("usage %s %s <location>\n", argv[0], argv[i]);
+				USER("          disable breakpoint at <location> as specified in breakpoint window\n");
+				USER("\n");
+				break;
+
+			default:
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+			};
+		}
+	}
 }
 
 

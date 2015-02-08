@@ -20,21 +20,18 @@ int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
 		USER("\n");
 	}
 	else{
-		for(i=1; i<argc; i++){
-			if(strlen(argv[i]) == 0)
-				continue;
+		if(strlen(argv[1]) == 0)
+			return -1;
 
-			c = cmd::lookup(argv[i], strlen(argv[i]));
+		c = cmd::lookup(argv[1], strlen(argv[1]));
 
-			if(c == 0){
-				USER("invalid command \"%s\"\n", argv[i]);
-				continue;
-			}
-
-			if(c->help != 0)	c->help(argv[i]);
-			else				USER("no further help available for command \"%s\"\n", argv[i]);
-			USER("\n");
+		if(c == 0){
+			USER("invalid command \"%s\"\n", argv[1]);
+			return -1;
 		}
+
+		if(c->help != 0)	c->help(argc - 1, argv + 1);
+		else				USER("no further help available for command \"%s\"\n", argv[1]);
 	}
 
 	return 0;
