@@ -56,3 +56,5 @@ times,									V_TIMES
 installed,								V_INSTALLED
 what,									V_WHAT
 thread-groups,							V_THREAD_GROUPS
+param,									V_PARAM
+value,									V_VALUE

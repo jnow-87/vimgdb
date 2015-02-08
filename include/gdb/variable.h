@@ -33,6 +33,9 @@ typedef enum{
 	V_INSTALLED,
 	V_WHAT,
 	V_THREAD_GROUPS,
+	V_PARAM,
+	V_VALUE,
+
 } variable_id_t;
 
 struct variable_t{

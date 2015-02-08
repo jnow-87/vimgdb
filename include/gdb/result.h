@@ -19,6 +19,7 @@ typedef enum{
 	AC_STOPPED = 1,
 	AC_BREAK_CREATED,
 	AC_THREAD_GRP_ADDED,
+	AC_PARAM_CHANGED,
 } async_class_t;
 
 typedef enum{

@@ -6,6 +6,7 @@
 typedef enum{
 	BIN = 1,
 	SYM,
+	ARGS,
 	ADD,
 	DELETE,
 	ENABLE,

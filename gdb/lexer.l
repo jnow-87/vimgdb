@@ -48,6 +48,7 @@
 "stopped"								{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
 "breakpoint-created"					{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
 "thread-group-added"					{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
+"cmd-param-changed"						{ gdblval.num = AC_PARAM_CHANGED; return ASYNC_CLASS; }
 
 	/* gdb EOL string */
 "(gdb)"\ ?								{ return GDB; }
