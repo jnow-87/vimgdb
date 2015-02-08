@@ -15,7 +15,7 @@ int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
 
 		for(i=cmd::MIN_HASH_VALUE; i<=cmd::MAX_HASH_VALUE; i++){
 			if(cmd::wordlist[i].name[0] != 0)
-				USER("    %7.7s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
+				USER("    %15.15s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
 		}
 		USER("\n");
 	}

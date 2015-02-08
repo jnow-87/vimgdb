@@ -29,6 +29,7 @@ struct subcmd_t;
 bin,		BIN
 sym,		SYM
 args,		ARGS
+tty,		TTY
 add,		ADD
 delete,		DELETE
 enable,		ENABLE
