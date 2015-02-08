@@ -2,7 +2,6 @@
 %option noyywrap
 
 %{
-	#include <common/xmalloc.h>
 	#include <gdb/gdb.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
@@ -88,7 +87,7 @@
 char* alloc_string(char* _s, unsigned int len){
 	char* s;
 
-	s = (char*)xmalloc(len + 1);
+	s = (char*)malloc(len + 1);
 	if(s != 0)
 		strncpy(s, _s, len + 1);
 	return s;

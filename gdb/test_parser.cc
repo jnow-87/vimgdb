@@ -1,4 +1,3 @@
-#include <common/xmalloc.h>
 #include <common/list.h>
 #include <common/log.h>
 #include <gdb/gdb.h>
@@ -27,8 +26,6 @@ int main(int argc, char** argv){
 		return 1;
 
 #if 0
-	xmalloc_init();
-
 	result_t *res;
 	value_t *val;
 	char* s;
@@ -81,12 +78,9 @@ int main(int argc, char** argv){
 
 	gdb_result_print(res);
 	gdb_result_free(res);
-	xmalloc_eval();
 
 	return 0;
 #else // 0
-
-	xmalloc_init();
 
 	gdb = new gdb_if;
 
@@ -101,7 +95,6 @@ int main(int argc, char** argv){
 
 	delete gdb;
 
-	xmalloc_eval();
 	return 0;
 #endif // 0
 }

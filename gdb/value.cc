@@ -1,10 +1,10 @@
-#include <common/xmalloc.h>
 #include <common/list.h>
 #include <common/log.h>
 #include <gdb/value.h>
 #include <gdb/result.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 /* external variables */
@@ -17,7 +17,7 @@ value_t* gdb_value_create(value_type_t type, void* value){
 
 
 	DEBUG("create value (%d, %#x)\n", type, value);
-	v = (value_t*)xmalloc(sizeof(value_t));
+	v = (value_t*)malloc(sizeof(value_t));
 	if(v == 0)
 		goto err_0;
 
@@ -33,7 +33,7 @@ value_t* gdb_value_create(value_type_t type, void* value){
 	return v;
 
 err_1:
-	xfree(v);
+	free(v);
 
 err_0:
 	DEBUG("end (error)\n\n");
@@ -50,7 +50,7 @@ value_t* gdb_value_free(value_t* value){
 		switch(v->type){
 		case CONST:
 			DEBUG("v->value is string \"%s\"\n", v->value);
-			xfree(v->value);	// free the string allocated in lexer
+			free(v->value);	// free the string allocated in lexer
 			break;
 
 		case VALUE_LIST:
@@ -68,7 +68,7 @@ value_t* gdb_value_free(value_t* value){
 		DEBUG("free value mem\n");
 
 		list_rm(&value, v);
-		xfree(v);
+		free(v);
 
 		DEBUG("end\n\n");
 	}

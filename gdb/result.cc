@@ -1,9 +1,9 @@
-#include <common/xmalloc.h>
 #include <common/list.h>
 #include <common/log.h>
 #include <gdb/result.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 /* local variables */
@@ -17,7 +17,7 @@ result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t*
 
 	DEBUG("create result (\"%s\", %#x)\n", var_name, value);
 
-	r = (result_t*)xmalloc(sizeof(result_t));
+	r = (result_t*)malloc(sizeof(result_t));
 	if(r == 0)
 		goto err_0;
 
@@ -34,7 +34,7 @@ result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t*
 	return r;
 
 err_1:
-	xfree(r);
+	free(r);
 
 err_0:
 
@@ -53,7 +53,7 @@ result_t* gdb_result_free(result_t* list){
 		r->value = gdb_value_free((value_t*)r->value);
 
 		DEBUG("free result mem\n");
-		xfree(r);
+		free(r);
 		DEBUG("end\n\n");
 	}
 
