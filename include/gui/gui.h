@@ -34,7 +34,8 @@ public:
 
 	void gdblog_print(const char* fmt, ...);
 
-	void break_print();
+	void break_print(const char* fmt, ...);
+	void break_clear();
 
 	void cmd_print(const char* fmt, ...);
 	void cmd_clrline();
@@ -50,6 +51,7 @@ private:
 	virtual int win_destroy(int win_id) = 0;
 	virtual void win_write(int win_id, const char* fmt, ...) = 0;
 	virtual void win_vwrite(int win_id, const char* fmt, va_list lst) = 0;
+	virtual void win_clear(int win_id) = 0;
 	virtual void win_clrline(int win_id) = 0;
 
 	static win_cfg_t wins[];

@@ -31,6 +31,11 @@ int cmd_inftty_exec(gdb_if* gdb, int argc, char** argv);
 int cmd_inftty_resp(result_class_t rclass, result_t* result, char* cmdline, void* data);
 void cmd_inftty_help(char* cmd);
 
+// break
+int cmd_break_exec(gdb_if* gdb, int argc, char** argv);
+int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void* data);
+void cmd_break_help(char* cmd);
+
 // help
 int cmd_help_exec(gdb_if* gdb, int argc, char** argv);
 

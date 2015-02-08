@@ -82,7 +82,17 @@ void gui::gdblog_print(const char* fmt, ...){
 	va_end(lst);
 }
 
-void gui::break_print(){
+void gui::break_print(const char* fmt, ...){
+	va_list lst;
+
+
+	va_start(lst, fmt);
+	win_vwrite(wins[WIN_BRK].id, fmt, lst);
+	va_end(lst);
+}
+
+void gui::break_clear(){
+	win_clear(wins[WIN_BRK].id);
 }
 
 void gui::cmd_print(const char* fmt, ...){

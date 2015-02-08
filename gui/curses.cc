@@ -127,6 +127,14 @@ void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
 	pthread_mutex_unlock(&mutex);
 }
 
+void curses::win_clear(int win_id){
+	pthread_mutex_lock(&mutex);
+
+	wclear(windows[win_id]->win);
+
+	pthread_mutex_unlock(&mutex);
+}
+
 void curses::win_clrline(int win_id){
 	int x, y;
 

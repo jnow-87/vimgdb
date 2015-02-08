@@ -28,3 +28,7 @@ struct subcmd_t;
 # command	id
 bin,		BIN
 sym,		SYM
+add,		ADD
+delete,		DELETE
+enable,		ENABLE
+disable,	DISABLE

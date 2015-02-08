@@ -6,6 +6,10 @@
 typedef enum{
 	BIN = 1,
 	SYM,
+	ADD,
+	DELETE,
+	ENABLE,
+	DISABLE,
 } subcmd_id_t;
 
 struct subcmd_t{
