@@ -119,6 +119,8 @@ void* thread(void* arg){
 			  ){
 				line[i] = 0;
 				ui->gdblog_print("gdb_read: %s", line);
+
+				TEST("parse gdb string \"%.10s...\"\n", line);
 				TEST("parser return value: %d\n", gdb->mi_parse(line));
 
 				i = 0;

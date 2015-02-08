@@ -79,7 +79,7 @@ int cmd_inftty_exec(gdb_if* gdb, int argc, char** argv){
 	return 0;
 }
 
-int cmd_inftty_resp(result_class_t rclass, result_t* result, char* cmdline){
+int cmd_inftty_resp(result_class_t rclass, result_t* result, char* cmdline, void* data){
 	switch(rclass){
 	case RC_DONE:
 		USER("done: exec \"%s\"\n", cmdline);

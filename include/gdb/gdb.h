@@ -19,10 +19,11 @@ using namespace std;
 
 
 /* types */
-typedef int (*response_hdlr_t)(result_class_t rclass, result_t* result, char* cmdline);
+typedef int (*response_hdlr_t)(result_class_t rclass, result_t* result, char* cmdline, void* data);
 
 typedef struct{
 	char* cmdline;
+	void* data;
 	response_hdlr_t resp_hdlr;
 } mi_cmd_t;
 
@@ -38,7 +39,7 @@ public:
 	int init();
 
 	/* gdb machine interface (MI) */
-	int mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr);
+	int mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data = 0);
 	int mi_parse(char* s);
 	int mi_proc_result(result_class_t rclass, unsigned int token, result_t* result);
 	int mi_proc_async(async_class_t aclass, unsigned int token, result_t* result);
@@ -48,12 +49,13 @@ public:
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
 
+private:
 	/* user command processing */
-	int resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline);
+	int resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline, void* data);
 	int resp_dequeue(unsigned int token);
 	mi_cmd_t* resp_query(unsigned int token);
 
-private:
+
 	/* variables */
 	// PTY to gdb child
 	pty* child_term;

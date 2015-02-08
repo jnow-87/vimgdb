@@ -96,7 +96,7 @@ int gdb_if::write(void* buf, unsigned int nbytes){
  * \return	0		success
  * 			-1		error
  */
-int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline){
+int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline, void* data){
 	mi_cmd_t* cmd;
 
 
@@ -111,6 +111,7 @@ int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline
 	cmd->cmdline = new char[strlen(cmdline)];
 
 	cmd->resp_hdlr = hdlr;
+	cmd->data = data;
 	strcpy(cmd->cmdline, cmdline);
 
 	resp_map[token] = cmd;
@@ -170,14 +171,12 @@ mi_cmd_t* gdb_if::resp_query(unsigned int token){
  * \return	>0			token used for the command
  * 			-1			error
  */
-int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr){
+int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;
 	unsigned int i, len;
 
-
-	TEST("cmd: \"%s\"\n", cmd);
 
 	/* compute length of cmd_str */
 	len = strlen(cmd) + token_len + 4;	// +4 = "-" " --"
@@ -213,7 +212,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 		len += sprintf(cmd_str + len, " %s", parameter[i]);
 
 	/* enqueue response handler */
-	resp_enqueue(token, resp_hdlr, cmd_str);
+	resp_enqueue(token, resp_hdlr, cmd_str, data);
 
 	/* increment token */
 	if(++token >= (unsigned int)pow(10, token_len))
@@ -229,8 +228,6 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 }
 
 int gdb_if::mi_parse(char* s){
-	DEBUG("parse gdb string \"%5.5s...\"\n", s);
-
 	gdb_scan_string(s);
 
 	return (gdbparse(this) == 0 ? 0 : -1);
@@ -257,7 +254,7 @@ int gdb_if::mi_proc_result(result_class_t rclass, unsigned int token, result_t* 
 	}
 
 	/* call response handler */
-	if(cmd->resp_hdlr(rclass, result, cmd->cmdline) < 0)
+	if(cmd->resp_hdlr(rclass, result, cmd->cmdline, cmd->data) < 0)
 		WARN("error processing result for command \"%s\"\n", cmd->cmdline);
 
 	r = 0;

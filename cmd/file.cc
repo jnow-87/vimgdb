@@ -45,7 +45,7 @@ int cmd_file_exec(gdb_if* gdb, int argc, char** argv){
 	return 0;
 }
 
-int cmd_file_resp(result_class_t rclass, result_t* result, char* cmdline){
+int cmd_file_resp(result_class_t rclass, result_t* result, char* cmdline, void* data){
 	switch(rclass){
 	case RC_DONE:
 		USER("done: exec \"%s\"\n", cmdline);
