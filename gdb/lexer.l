@@ -6,6 +6,7 @@
 	#include <gdb/gdb.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
+	#include <gdb/variable.hash.h>
 	#include <common/log.h>
 
 
@@ -38,39 +39,47 @@
 %}
 
 	/* gdb result classes */
-"done"						{ gdblval.num = RC_DONE; return RESULT_CLASS; }
-"running"					{ gdblval.num = RC_RUNNING; return RESULT_CLASS; }
-"connected"					{ gdblval.num = RC_CONNECTED; return RESULT_CLASS; }
-"error"						{ gdblval.num = RC_ERROR; return RESULT_CLASS; }
-"exit"						{ gdblval.num = RC_EXIT; return RESULT_CLASS; }
+"done"									{ gdblval.num = RC_DONE; return RESULT_CLASS; }
+"running"								{ gdblval.num = RC_RUNNING; return RESULT_CLASS; }
+"connected"								{ gdblval.num = RC_CONNECTED; return RESULT_CLASS; }
+"error"									{ gdblval.num = RC_ERROR; return RESULT_CLASS; }
+"exit"									{ gdblval.num = RC_EXIT; return RESULT_CLASS; }
 
 	/* gdb async output classes */
-"stopped"					{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
-"breakpoint-created"		{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
-"thread-group-added"		{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
-
-	/* gdb variable */
-"id"						{ gdblval.variable.name = alloc_string(gdbtext, gdbleng); gdblval.variable.id = V_ID; return VARIABLE; }
-"msg"						{ gdblval.variable.name = alloc_string(gdbtext, gdbleng); gdblval.variable.id = V_MSG; return VARIABLE; }
+"stopped"								{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
+"breakpoint-created"					{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
+"thread-group-added"					{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
 
 	/* gdb EOL string */
-"(gdb)"\ ?					{ return GDB; }
+"(gdb)"\ ?								{ return GDB; }
 
 	/* general patterns */
-\r?\n						{ gdb_col = 0; return NEWLINE; }
-[0-9]*						{ gdblval.num = atoi(gdbtext); return NUMBER; }
-[a-zA-Z][a-zA-Z0-9_\-.]*	{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
+\r?\n									{ gdb_col = 0; return NEWLINE; }
+[0-9]*									{ gdblval.num = atoi(gdbtext); return NUMBER; }
+
+	/* gdb variable and unquoted string */
+[a-zA-Z][a-zA-Z0-9_\-.]*				{
+											/* check if string is a known gdb variable */
+											if(variable::lookup(gdbtext, gdbleng) != 0){
+												gdblval.variable = *variable::lookup(gdbtext, gdbleng);
+												return VARIABLE;
+											}
+											else{
+												gdblval.sptr = alloc_string(gdbtext, gdbleng);
+												return STRING;
+											}
+										}
 
 	/* quoted string */
-\"							{ BEGIN QSTRING; return gdbtext[0]; }
-<QSTRING>\"					{ BEGIN INITIAL; return gdbtext[0]; }
-<QSTRING>([^\"]|(\\\"))*	{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
+\"										{ BEGIN QSTRING; return gdbtext[0]; }
+<QSTRING>\"								{ BEGIN INITIAL; return gdbtext[0]; }
+<QSTRING>([^\"]|(\\\"))*				{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
 
 	/* MI command */
-^[0-9]*-.*\n				{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
+^[0-9]*-.*\n							{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
 
 	/* default */
-.							{ return gdbtext[0]; }
+.										{ return gdbtext[0]; }
 
 
 %%

@@ -1,0 +1,58 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name variable
+
+
+/* c-code */
+%{
+	#include <gdb/variable.h>
+%}
+
+/* struct-type definition */
+struct variable_t;
+
+%%
+# variable string						id
+id,										V_ID
+msg,									V_MSG
+bkpt,									V_BREAKPT
+number,									V_NUMBER
+type,									V_TYPE
+catch-type,								V_CATCH_TYPE
+disp,									V_DISPOSITION
+enabled,								V_ENABLED
+addr,									V_ADDR
+func,									V_FUNCTION
+file,									V_FILE
+fullname,								V_FULLNAME
+line,									V_LINE
+at,										V_AT
+pending,								V_PENDING
+evaluated-by,							V_EVAL_BY
+thread,									V_THREAD
+task,									V_TASK
+cond,									V_CONDITION
+ignore,									V_IGNORE
+enable,									V_ENABLE
+traceframe-usage,						V_TRACEFRAME
+static-tracepoint-marker-string-id,		V_TRACEMARKER
+mask,									V_MASK
+pass,									V_PASS
+original-location,						V_ORIG_LOCATION
+times,									V_TIMES
+installed,								V_INSTALLED
+what,									V_WHAT
+thread-groups,							V_THREAD_GROUPS

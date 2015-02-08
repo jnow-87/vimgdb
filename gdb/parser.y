@@ -6,6 +6,7 @@
 	#include <gdb/gdb.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
+	#include <gdb/variable.h>
 	#include <gdb/lexer.lex.h>
 
 
@@ -20,16 +21,12 @@
 	value_t* value;
 	async_class_t aclass;
 	result_class_t rclass;
+	variable_t variable;
 
 	struct{
 		async_class_t aclass;
 		result_t* result;
 	} async_out;
-
-	struct{
-		char* name;
-		variable_id_t id;
-	} variable;
 }
 
 
@@ -59,13 +56,13 @@
 %%
 
 
-output :	out-of-band-record result-record GDB NEWLINE			{ TEST("output\n"); };
+output :	out-of-band-record result-record GDB NEWLINE			{ DEBUG("gdb parser: reduced to output\n"); };
 
 
 /* out-of-band-record */
-out-of-band-record :	%empty										{ TEST("oob-empty\n"); }
-				   |	out-of-band-record async-record				{ TEST("oob-async\n"); }
-				   |	out-of-band-record stream-record			{ TEST("oob-stream\n"); }
+out-of-band-record :	%empty										{ DEBUG("gdb parser: reduced to empty out-of-band-record\n"); }
+				   |	out-of-band-record async-record				{ DEBUG("gdb parser: reduced to out-of-band-record with async-record\n"); }
+				   |	out-of-band-record stream-record			{ DEBUG("gdb parser: reduced to out-of-band-record with stream-record\n"); }
 				   ;
 
 async-record :			token '*' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* exec-async-output */
@@ -84,7 +81,7 @@ stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOL
 
 
 /* result-record */
-result-record :		%empty											{ TEST("result empty\n"); }
+result-record :		%empty											{ DEBUG("gdb parser: reduced to empty result-record\n"); }
 			  |		token '^' RESULT_CLASS NEWLINE					{ gdb->mi_proc_result($3, $1, 0); }
 			  |		token '^' RESULT_CLASS ',' result-list NEWLINE	{ gdb->mi_proc_result($3, $1, $5); }
 			  ;

@@ -11,7 +11,7 @@ unsigned int rec_depth = 0;
 
 
 /* global functions */
-result_t* gdb_result_create(char* var_name, variable_id_t var_id, value_t* value){
+result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t* value){
 	result_t* r;
 
 
@@ -53,7 +53,6 @@ result_t* gdb_result_free(result_t* list){
 		r->value = gdb_value_free((value_t*)r->value);
 
 		DEBUG("free result mem\n");
-		xfree(r->var_name);	// string allocated in lexer
 		xfree(r);
 		DEBUG("end\n\n");
 	}

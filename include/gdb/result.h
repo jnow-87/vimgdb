@@ -3,6 +3,7 @@
 
 
 #include <gdb/value.h>
+#include <gdb/variable.h>
 
 
 /* types */
@@ -26,13 +27,8 @@ typedef enum{
 	SC_LOG,
 } stream_class_t;
 
-typedef enum{
-	V_ID = 1,
-	V_MSG,
-} variable_id_t;
-
 typedef struct _result_t{
-	char* var_name;
+	const char* var_name;
 	variable_id_t var_id;
 
 	value_t* value;
@@ -42,7 +38,7 @@ typedef struct _result_t{
 
 
 /* prototypes */
-result_t* gdb_result_create(char* var_name, variable_id_t var_id, value_t* value);
+result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t* value);
 result_t* gdb_result_free(result_t* list);
 void gdb_result_add(result_t* list, result_t* result);
 void gdb_result_print(result_t* list);
