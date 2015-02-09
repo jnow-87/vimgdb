@@ -14,7 +14,7 @@
 /**
  * \brief	standard constructor
  */
-gdb_if::gdb_if(){
+gdbif::gdbif(){
 	this->child_term = 0;
 	this->token = 1;
 
@@ -24,7 +24,7 @@ gdb_if::gdb_if(){
 /**
  * \brief	standard desctructor
  */
-gdb_if::~gdb_if(){
+gdbif::~gdbif(){
 	// close gdb terminal
 	delete this->child_term;
 	this->child_term = 0;
@@ -36,7 +36,7 @@ gdb_if::~gdb_if(){
  * \return	0	on success
  * 			-1	on error (check errno)
  */
-int gdb_if::init(){
+int gdbif::init(){
 	// initialise pseudo terminal
 	this->child_term = new pty();
 
@@ -59,7 +59,7 @@ int gdb_if::init(){
 	}
 }
 
-int gdb_if::sigsend(int sig){
+int gdbif::sigsend(int sig){
 	sigval v;
 
 	return sigqueue(child_pid, sig, v);
@@ -74,7 +74,7 @@ int gdb_if::sigsend(int sig){
  * \return	number of read bytes on success
  * 			-1 on error
  */
-int gdb_if::read(void* buf, unsigned int nbytes){
+int gdbif::read(void* buf, unsigned int nbytes){
 	return child_term->read(buf, nbytes);
 }
 
@@ -87,7 +87,7 @@ int gdb_if::read(void* buf, unsigned int nbytes){
  * \return	number of written bytes on success
  * 			-1 on error
  */
-int gdb_if::write(void* buf, unsigned int nbytes){
+int gdbif::write(void* buf, unsigned int nbytes){
 	return child_term->write(buf, nbytes);
 }
 
@@ -100,7 +100,7 @@ int gdb_if::write(void* buf, unsigned int nbytes){
  * \return	0		success
  * 			-1		error
  */
-int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline, void* data){
+int gdbif::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline, void* data){
 	mi_cmd_t* cmd;
 
 
@@ -125,7 +125,7 @@ int gdb_if::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline
 	return 0;
 }
 
-int gdb_if::resp_dequeue(unsigned int token){
+int gdbif::resp_dequeue(unsigned int token){
 	map<unsigned int, mi_cmd_t*>::iterator it;
 
 
@@ -146,7 +146,7 @@ int gdb_if::resp_dequeue(unsigned int token){
 	return 0;
 }
 
-mi_cmd_t* gdb_if::resp_query(unsigned int token){
+mi_cmd_t* gdbif::resp_query(unsigned int token){
 	map<unsigned int, mi_cmd_t*>::iterator it;
 
 
@@ -175,7 +175,7 @@ mi_cmd_t* gdb_if::resp_query(unsigned int token){
  * \return	>0			token used for the command
  * 			-1			error
  */
-int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data){
+int gdbif::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;
@@ -231,13 +231,13 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 	return token - 1;
 }
 
-int gdb_if::mi_parse(char* s){
+int gdbif::mi_parse(char* s){
 	gdb_scan_string(s);
 
 	return (gdbparse(this) == 0 ? 0 : -1);
 }
 
-int gdb_if::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
+int gdbif::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
 	mi_cmd_t* cmd;
 	int r;
 
@@ -274,14 +274,15 @@ exit_0:
 	return r;
 }
 
-int gdb_if::mi_proc_async(result_class_t rclass, unsigned int token, result_t* result){
+int gdbif::mi_proc_async(result_class_t rclass, unsigned int token, result_t* result){
 	/* TODO implement */
 	TODO("not yet implemented\n");
 	resp_dequeue(token);
+	gdb_result_free(result);
 	return 0;
 }
 
-int gdb_if::mi_proc_stream(stream_class_t sclass, char* stream){
+int gdbif::mi_proc_stream(stream_class_t sclass, char* stream){
 	/* TODO implement proper integration with log system */
 	TODO("implement proper integration with log system\n");
 

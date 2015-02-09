@@ -44,7 +44,7 @@ exec,		cmd_exec_exec,		cmd_exec_help,		"run control"
  * \return	0			sucess
  * 			-1			error
  */
-int cmd_exec(char* cmdline, gdb_if* gdb){
+int cmd_exec(char* cmdline, gdbif* gdb){
 	unsigned int nspace, i, len;
 	int r;
 	char** argv;

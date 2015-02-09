@@ -12,7 +12,7 @@
 
 
 /* static variables */
-gdb_if* gdb;
+gdbif* gdb;
 tty std_term;
 pthread_t tid_gdb_output,
 		  tid_main;
@@ -43,7 +43,7 @@ int main(int argc, char** argv){
 
 	INFO("initialise gdbctrl\n");
 
-	gdb = new gdb_if;
+	gdb = new gdbif;
 
 	// gdb
 	INFO("initialising gdb interface\n");

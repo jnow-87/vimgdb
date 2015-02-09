@@ -30,11 +30,11 @@ typedef struct{
 
 
 /* class */
-class gdb_if{
+class gdbif{
 public:
 	/* constructor/desctructor */
-	gdb_if();
-	~gdb_if();
+	gdbif();
+	~gdbif();
 
 	/* init gdb interface */
 	int init();

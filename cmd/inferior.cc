@@ -20,7 +20,7 @@ static void* thread_inferior_output(void* arg);
 
 
 /* global functions */
-int cmd_inferior_exec(gdb_if* gdb, int argc, char** argv){
+int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	const char* cmd_str;
 	const struct subcmd_t* scmd;
 	char** argp;

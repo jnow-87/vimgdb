@@ -8,7 +8,7 @@
 
 
 /* global functions */
-int cmd_exec_exec(gdb_if* gdb, int argc, char** argv){
+int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 	const char* cmd_str;
 	const struct subcmd_t* scmd;
 

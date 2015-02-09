@@ -57,7 +57,7 @@ void breakpt_print();
 
 
 /* global functions */
-int cmd_break_exec(gdb_if* gdb, int argc, char** argv){
+int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	const struct subcmd_t* scmd;
 	data_t* data;
 	map<string, breakpt_t*>::iterator it;

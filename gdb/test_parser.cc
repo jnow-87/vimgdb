@@ -15,7 +15,7 @@ char* line;
 
 /* global functions */
 int main(int argc, char** argv){
-	gdb_if* gdb;
+	gdbif* gdb;
 //	char str[] = "^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 //	char str[] = "&\"target gdbctrl\\n\"\n&\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\n\n\"\n^error,msg=\"Undefined target command: \\\"gdbctrl\\\".  Try \\\"help target\\\".\"\n(gdb)\n";
 	char str[] = "=breakpoint-created,bkpt=[number=[\"1\",\"2\"],type=\"breakpoint\",thread-groups=[\"i1\",\"i2\",\"i3\"]]\n(gdb)\n";
@@ -82,7 +82,7 @@ int main(int argc, char** argv){
 	return 0;
 #else // 0
 
-	gdb = new gdb_if;
+	gdb = new gdbif;
 
 	if(argc < 2)
 		line = str;

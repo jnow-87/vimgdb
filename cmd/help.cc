@@ -5,7 +5,7 @@
 #include <cmd/cmd.hash.h>
 
 
-int cmd_help_exec(gdb_if* gdb, int argc, char** argv){
+int cmd_help_exec(gdbif* gdb, int argc, char** argv){
 	unsigned int i;
 	const struct cmd_t* c;
 
