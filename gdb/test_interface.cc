@@ -14,15 +14,18 @@
 /* static variables */
 gdb_if* gdb;
 tty std_term;
+pthread_t tid_gdb_output,
+		  tid_main;
 
 
 /* static prototypes */
 void cleanup(int signum);
-void* thread(void*);
+void* thread_gdb_output(void*);
 
 
 int main(int argc, char** argv){
-	pthread_t tid;
+	char c, *line;
+	unsigned int i, len;
 
 
 	/* initialise */
@@ -47,12 +50,18 @@ int main(int argc, char** argv){
 	if(gdb->init() != 0)
 		return 2;
 
-	pthread_create(&tid, 0, thread, 0);
+	tid_main = pthread_self();
+	pthread_create(&tid_gdb_output, 0, thread_gdb_output, 0);
 
 	/* main loop */
 	// TODO
-	char c, line[1024];
-	unsigned int i = 0;
+	i = 0;
+
+	len = 255;
+	line = (char*)malloc(len * sizeof(char));
+
+	if(line == 0)
+		goto err;
 
 	ui->print(WIN_CMD, CMD_PROMPT);
 
@@ -77,8 +86,20 @@ int main(int argc, char** argv){
 		else{
 			ui->print(WIN_CMD, "%c", c);
 			line[i++] = c;
+
+			if(i >= len){
+				len *= 2;
+				line = (char*)realloc(line, len);
+
+				if(line == 0)
+					goto err;
+			}
 		}
 	}
+
+err:
+	pthread_cancel(tid_gdb_output);
+	cleanup(SIGTERM);
 }
 
 
@@ -87,9 +108,12 @@ void cleanup(int signum){
 	char c;
 
 
+	pthread_join(tid_gdb_output, 0);
+
 	std_term.read(&c, 1);
 
 	delete gdb;
+
 	log::cleanup();
 	ui->destroy();
 	delete (curses*)ui;
@@ -97,12 +121,20 @@ void cleanup(int signum){
 	exit(1);
 }
 
-void* thread(void* arg){
-	char c, line[1024];
-	unsigned int i;
+void* thread_gdb_output(void* arg){
+	char c, *line;
+	unsigned int i, len;
+	sigval v;
 
 
 	i = 0;
+
+	len = 255;
+	line = (char*)malloc(len * sizeof(char));
+
+	if(line == 0)
+		goto err;
+
 	while(1){
 		if(gdb->read(&c, 1) == 1){
 			// ignore CR to avoid issues when printing the string
@@ -110,6 +142,14 @@ void* thread(void* arg){
 				continue;
 
 			line[i++] = c;
+
+			if(i >= len){
+				len *= 2;
+				line = (char*)realloc(line, len);
+
+				if(line == 0)
+					goto err;
+			}
 
 			// check for end of gdb line, a simple newline as separator
 			// doesn't work, since the parse would try to parse the line,
@@ -128,7 +168,11 @@ void* thread(void* arg){
 		}
 		else{
 			INFO("gdb read shutdown\n");
-			return 0;
+			pthread_exit(0);
 		}
 	}
+
+err:
+	pthread_sigqueue(tid_main, SIGTERM, v);
+	pthread_exit(0);
 }
