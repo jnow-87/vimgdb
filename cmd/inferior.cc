@@ -50,6 +50,7 @@ int cmd_inferior_exec(gdb_if* gdb, int argc, char** argv){
 			break;
 
 		case ARGS:
+			TODO("implement arguments with spaces\n");
 			cmd_str = "exec-arguments";
 			argp = argv + 2;
 			argc -= 2;

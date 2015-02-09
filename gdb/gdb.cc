@@ -185,7 +185,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 		len += strlen(options[i]) + 1;	// +1 = " "
 
 	for(i=0; i<nparameter; i++)
-		len += strlen(parameter[i]) + 3;	// +1 = " " """ """
+		len += strlen(parameter[i]) + 1;	// +1 = " "
 
 	if(len > cmd_str_len){
 		delete cmd_str;
@@ -209,7 +209,7 @@ int gdb_if::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char**
 		len += sprintf(cmd_str + len, " --");
 
 	for(i=0; i<nparameter; i++)
-		len += sprintf(cmd_str + len, " \"%s\"", parameter[i]);
+		len += sprintf(cmd_str + len, " %s", parameter[i]);
 
 	/* enqueue response handler */
 	resp_enqueue(token, resp_hdlr, cmd_str, data);
