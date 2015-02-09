@@ -31,6 +31,11 @@ int cmd_break_exec(gdb_if* gdb, int argc, char** argv);
 int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void* data);
 void cmd_break_help(int argc, char** argv);
 
+// exec
+int cmd_exec_exec(gdb_if* gdb, int argc, char** argv);
+int cmd_exec_resp(result_class_t rclass, result_t* result, char* cmdline, void* data);
+void cmd_exec_help(int argc, char** argv);
+
 // help
 int cmd_help_exec(gdb_if* gdb, int argc, char** argv);
 

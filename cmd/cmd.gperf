@@ -33,6 +33,7 @@ test,		cmd_test_exec,		cmd_test_help,		"test command echoing all given arguments
 help,		cmd_help_exec,		0,					"print this help message"
 inferior,	cmd_inferior_exec,	cmd_inferior_help,	"control inferior and its parameters"
 break,		cmd_break_exec,		cmd_break_help,		"manage breakpoints"
+exec,		cmd_exec_exec,		cmd_exec_help,		"run control"
 %%
 
 /**

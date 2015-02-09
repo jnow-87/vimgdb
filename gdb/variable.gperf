@@ -58,3 +58,6 @@ what,									V_WHAT
 thread-groups,							V_THREAD_GROUPS
 param,									V_PARAM
 value,									V_VALUE
+thread-id,								V_THREAD_ID
+group-id,								V_GROUP_ID
+pid,									V_PROC_ID

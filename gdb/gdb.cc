@@ -6,6 +6,7 @@
 #include <cmd/cmd.hash.h>
 #include <cmd/subcmd.hash.h>
 #include <string.h>
+#include <signal.h>
 #include <math.h>
 
 
@@ -36,22 +37,19 @@ gdb_if::~gdb_if(){
  * 			-1	on error (check errno)
  */
 int gdb_if::init(){
-	int pid;
-
-
 	// initialise pseudo terminal
 	this->child_term = new pty();
 
 	// fork child process
-	pid = child_term->fork();
+	child_pid = child_term->fork();
 
-	if(pid == 0){
+	if(child_pid == 0){
 		/* child */
 		log::cleanup();
 
 		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
-	else if(pid > 0){
+	else if(child_pid > 0){
 		/* parent */
 		return 0;
 	}
@@ -59,6 +57,12 @@ int gdb_if::init(){
 		/* error */
 		return -1;
 	}
+}
+
+int gdb_if::sigsend(int sig){
+	sigval v;
+
+	return sigqueue(child_pid, sig, v);
 }
 
 /**

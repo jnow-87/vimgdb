@@ -34,3 +34,11 @@ add,		ADD
 delete,		DELETE
 enable,		ENABLE
 disable,	DISABLE
+run,		RUN
+continue,	CONTINUE
+next,		NEXT
+step,		STEP
+return,		RETURN
+break,		BREAK
+jump,		JUMP
+goto,		GOTO

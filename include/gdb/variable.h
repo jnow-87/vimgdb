@@ -35,7 +35,9 @@ typedef enum{
 	V_THREAD_GROUPS,
 	V_PARAM,
 	V_VALUE,
-
+	V_THREAD_ID,
+	V_GROUP_ID,
+	V_PROC_ID,
 } variable_id_t;
 
 struct variable_t{

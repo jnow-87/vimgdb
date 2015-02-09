@@ -5,6 +5,7 @@
 #include <common/pty.h>
 #include <gdb/result.h>
 #include <pthread.h>
+#include <signal.h>
 #include <map>
 
 
@@ -46,6 +47,7 @@ public:
 	int mi_proc_stream(stream_class_t sclass, char* stream);
 
 	/* communication with gdb */
+	int sigsend(int sig);
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
 
@@ -57,8 +59,9 @@ private:
 
 
 	/* variables */
-	// PTY to gdb child
+	// gdb child data
 	pty* child_term;
+	pid_t child_pid;
 
 	// token used for gdb commands
 	unsigned int token;

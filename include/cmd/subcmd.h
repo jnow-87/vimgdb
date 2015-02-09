@@ -12,6 +12,14 @@ typedef enum{
 	DELETE,
 	ENABLE,
 	DISABLE,
+	RUN,
+	CONTINUE,
+	NEXT,
+	STEP,
+	RETURN,
+	BREAK,
+	JUMP,
+	GOTO,
 } subcmd_id_t;
 
 struct subcmd_t{
