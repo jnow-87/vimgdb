@@ -274,7 +274,7 @@ exit_0:
 	return r;
 }
 
-int gdb_if::mi_proc_async(async_class_t aclass, unsigned int token, result_t* result){
+int gdb_if::mi_proc_async(result_class_t rclass, unsigned int token, result_t* result){
 	/* TODO implement */
 	TODO("not yet implemented\n");
 	resp_dequeue(token);

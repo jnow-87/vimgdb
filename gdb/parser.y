@@ -19,30 +19,33 @@
 
 	result_t* result;
 	value_t* value;
-	async_class_t aclass;
 	result_class_t rclass;
 	variable_t variable;
 
 	struct{
-		async_class_t aclass;
+		result_class_t rclass;
 		result_t* result;
-	} async_out;
+	} record;
 }
 
 
 %parse-param { gdb_if* gdb }
 
+%initial-action
+{
+	xxxx:;
+}
+
 /* terminals */
 %token NEWLINE
 %token GDB
-%token <aclass> ASYNC_CLASS
 %token <rclass> RESULT_CLASS
 %token <sptr> STRING
 %token <num> NUMBER
 %token <variable> VARIABLE
 
 /* non-terminals */
-%type <async_out> async-output
+%type <record> record
 %type <result> result
 %type <result> result-list
 %type <value> value
@@ -56,7 +59,7 @@
 %%
 
 
-output :	out-of-band-record result-record GDB NEWLINE			{ DEBUG("gdb parser: reduced to output\n"); };
+output :	out-of-band-record GDB NEWLINE			{ DEBUG("gdb parser: reduced to output\n"); };
 
 
 /* out-of-band-record */
@@ -65,27 +68,20 @@ out-of-band-record :	%empty										{ DEBUG("gdb parser: reduced to empty out-o
 				   |	out-of-band-record stream-record			{ DEBUG("gdb parser: reduced to out-of-band-record with stream-record\n"); }
 				   ;
 
-async-record :			token '*' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* exec-async-output */
-			 |			token '+' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* status-async-output */
-			 |			token '=' async-output NEWLINE				{ gdb->mi_proc_async($3.aclass, $1, $3.result); }		/* notify-async-output */
+async-record :			token '*' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* exec-async-output */
+			 |			token '+' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* status-async-output */
+			 |			token '=' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* notify-async-output */
+			 |			token '^' record NEWLINE					{ gdb->mi_proc_result($3.rclass, $1, $3.result); }		/* result-record */
 			 ;
 
-async-output :			ASYNC_CLASS									{ $$.aclass = $1; $$.result = 0; }
-			 |			ASYNC_CLASS ',' result-list					{ $$.aclass = $1; $$.result = $3; }
-			 ;
+record :				RESULT_CLASS								{ $$.rclass = $1, $$.result = 0; }
+	   |				RESULT_CLASS ',' result-list				{ $$.rclass = $1, $$.result = $3; }
+	   ;
 
 stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* console-stream-output */
 			  |			'@' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* target-system-output */
 			  |			'&' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOLE, $3); }	/* log-stream-output */
 			  ;
-
-
-/* result-record */
-result-record :		%empty											{ DEBUG("gdb parser: reduced to empty result-record\n"); }
-			  |		token '^' RESULT_CLASS NEWLINE					{ gdb->mi_proc_result($3, $1, 0); }
-			  |		token '^' RESULT_CLASS ',' result-list NEWLINE	{ gdb->mi_proc_result($3, $1, $5); }
-			  ;
-
 
 /* common */
 result :			VARIABLE '=' value								{ $$ = gdb_result_create($1.name, $1.id, $3); };

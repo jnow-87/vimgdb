@@ -13,14 +13,13 @@ typedef enum{
 	RC_CONNECTED,
 	RC_ERROR,
 	RC_EXIT,
+	RC_STOPPED,
+	RC_BREAK_CREATED,
+	RC_THREAD_CREATED,
+	RC_THREAD_GRP_ADDED,
+	RC_THREAD_GRP_STARTED,
+	RC_PARAM_CHANGED,
 } result_class_t;
-
-typedef enum{
-	AC_STOPPED = 1,
-	AC_BREAK_CREATED,
-	AC_THREAD_GRP_ADDED,
-	AC_PARAM_CHANGED,
-} async_class_t;
 
 typedef enum{
 	SC_CONSOLE = 1,

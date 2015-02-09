@@ -43,12 +43,12 @@
 "connected"								{ gdblval.num = RC_CONNECTED; return RESULT_CLASS; }
 "error"									{ gdblval.num = RC_ERROR; return RESULT_CLASS; }
 "exit"									{ gdblval.num = RC_EXIT; return RESULT_CLASS; }
-
-	/* gdb async output classes */
-"stopped"								{ gdblval.num = AC_STOPPED; return ASYNC_CLASS; }
-"breakpoint-created"					{ gdblval.num = AC_BREAK_CREATED; return ASYNC_CLASS; }
-"thread-group-added"					{ gdblval.num = AC_THREAD_GRP_ADDED; return ASYNC_CLASS; }
-"cmd-param-changed"						{ gdblval.num = AC_PARAM_CHANGED; return ASYNC_CLASS; }
+"stopped"								{ gdblval.num = RC_STOPPED; return RESULT_CLASS; }
+"breakpoint-created"					{ gdblval.num = RC_BREAK_CREATED; return RESULT_CLASS; }
+"thread-created"						{ gdblval.num = RC_THREAD_CREATED; return RESULT_CLASS; }
+"thread-group-added"					{ gdblval.num = RC_THREAD_GRP_ADDED; return RESULT_CLASS; }
+"thread-group-started"					{ gdblval.num = RC_THREAD_GRP_STARTED; return RESULT_CLASS; }
+"cmd-param-changed"						{ gdblval.num = RC_PARAM_CHANGED; return RESULT_CLASS; }
 
 	/* gdb EOL string */
 "(gdb)"\ ?								{ return GDB; }

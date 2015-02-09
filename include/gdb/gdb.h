@@ -43,7 +43,7 @@ public:
 	int mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data = 0);
 	int mi_parse(char* s);
 	int mi_proc_result(result_class_t rclass, unsigned int token, result_t* result);
-	int mi_proc_async(async_class_t aclass, unsigned int token, result_t* result);
+	int mi_proc_async(result_class_t rclass, unsigned int token, result_t* result);
 	int mi_proc_stream(stream_class_t sclass, char* stream);
 
 	/* communication with gdb */
