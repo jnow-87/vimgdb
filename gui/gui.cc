@@ -61,9 +61,9 @@ void gui::vprint(win_id_t win, const char* fmt, va_list lst){
 }
 
 void gui::clear(win_id_t win){
-	win_clrline(wins[win].id);
+	win_clear(wins[win].id);
 }
 
 void gui::clearline(win_id_t win){
-	win_clear(wins[win].id);
+	win_clrline(wins[win].id);
 }

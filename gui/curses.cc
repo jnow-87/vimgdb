@@ -131,6 +131,7 @@ void curses::win_clear(int win_id){
 	pthread_mutex_lock(&mutex);
 
 	wclear(windows[win_id]->win);
+	wrefresh(windows[win_id]->win);
 
 	pthread_mutex_unlock(&mutex);
 }
