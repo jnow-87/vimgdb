@@ -22,38 +22,43 @@ static void* thread_inferior_output(void* arg);
 /* global functions */
 int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	const char* cmd_str;
-	const struct subcmd_t* scmd;
-	char** argp;
-	char* pty_name;
 	int fd;
+	unsigned int i;
+	const struct subcmd_t* scmd;
+	arglist_t* param;
 
 
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_inferior_help(1, argv);
-		return -1;
+		return 0;
 	}
 
+	param = 0;
 	scmd = subcmd::lookup(argv[1], strlen(argv[1]));
+
 	if(scmd != 0){
 		switch(scmd->id){
 		case BIN:
 			cmd_str = "file-exec-file";
-			argp = argv + 2;
-			argc -= 2;
+
+			for(i=2; i<argc; i++)
+				arg_add_string(param, argv[i], true);
 			break;
 
 		case SYM:
 			cmd_str = "file-symbol-file";
-			argp = argv + 2;
-			argc -= 2;
+
+			for(i=2; i<argc; i++)
+				arg_add_string(param, argv[i], true);
 			break;
 
 		case ARGS:
 			TODO("implement arguments with spaces\n");
 			cmd_str = "exec-arguments";
-			argp = argv + 2;
-			argc -= 2;
+
+			for(i=2; i<argc; i++)
+				arg_add_string(param, argv[i], true);
 			break;
 
 		case TTY:
@@ -71,8 +76,6 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 					return -1;
 				}
 
-				pty_name = inferior_term->get_name();
-
 				// start thread to read from the pty
 				if(pthread_create(&tid, 0, thread_inferior_output, 0) != 0){
 					WARN("unable to create thread\n");
@@ -82,42 +85,42 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 
 					return -1;
 				}
+
+				arg_add_string(param, inferior_term->get_name(), false);
 			}
 			else{
 				/* use specified pty for output */
 				fd = open(argv[2], O_RDONLY);
 				if(fd == -1){
 					USER("unable to open pts \"%s\"\n", argv[2]);
-					return -1;
+					return 0;
 				}
 
 				close(fd);
 
-				pty_name = argv[2];
+				arg_add_string(param, argv[2], false);
 			}
 
 			cmd_str = "inferior-tty-set";
-			argp = &pty_name;
-			argc = 1;
-
 			break;
 
 		default:
 			USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-			return -1;
+			return 0;
 		};
 	}
 	else{
 		cmd_str = "file-exec-and-symbols";
-		argp = argv + 1;
-		argc = 1;
+		arg_add_string(param, argv[1], false);
 	}
 
-	if(gdb->mi_issue_cmd((char*)cmd_str, 0, 0, argp, argc, cmd_inferior_resp) < 0){
+	if(gdb->mi_issue_cmd((char*)cmd_str, 0, param, cmd_inferior_resp) < 0){
 		WARN("error sending mi command\n");
+		arg_clear(param);
 		return -1;
 	}
 
+	arg_clear(param);
 	return 0;
 }
 

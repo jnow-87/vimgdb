@@ -23,7 +23,7 @@ typedef enum{
 } action_t;
 
 typedef struct{
-	char* num;
+	unsigned int num;
 
 	unsigned int line;
 	char *filename,
@@ -58,36 +58,44 @@ void breakpt_print();
 
 /* global functions */
 int cmd_break_exec(gdbif* gdb, int argc, char** argv){
+	unsigned int i;
+	int retval;
 	const struct subcmd_t* scmd;
 	data_t* data;
 	map<string, breakpt_t*>::iterator it;
+	arglist_t* param;
 
 
-	if(argc < 3){
+	if(argc != 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_break_help(1, argv);
-		return -1;
+		return 0;
 	}
 
 	scmd = subcmd::lookup(argv[1], strlen(argv[1]));
+
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return -1;
+		return 0;
 	}
 
 	data = new data_t;
+	param = 0;
 
 	switch(scmd->id){
 	case ADD:
 		data->action = A_ADD;
+		arg_add_string(param, argv[2], false);
 		break;
 
 	case DELETE:
 	case ENABLE:
 	case DISABLE:
 		it = breakpt_lst.find(argv[2]);
+
 		if(it == breakpt_lst.end()){
 			USER("error: no breakpoint found for \"%s\"\n", argv[2]);
+			retval = 0;
 			goto err;
 		}
 
@@ -98,24 +106,28 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		data->it = it;
 		data->bkpt = it->second;
 
-		argv[2] = it->second->num;
+		arg_add_int(param, it->second->num, false);
 		break;
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
+		retval = 0;
 		goto err;
 	};
 
-	if(gdb->mi_issue_cmd((char*)cmd_str[data->action], 0, 0, argv + 2, 1, cmd_break_resp, (void*)data) < 0){
+	if(gdb->mi_issue_cmd((char*)cmd_str[data->action], 0, param, cmd_break_resp, (void*)data) < 0){
 		WARN("error sending mi command\n");
+		retval = -1;
 		goto err;
 	}
 
+	arg_clear(param);
 	return 0;
 
 err:
+	arg_clear(param);
 	delete data;
-	return -1;
+	return retval;
 }
 
 int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void* _data){
@@ -245,8 +257,7 @@ void breakpt_read(result_t* result, breakpt_t* bkpt){
 	list_for_each(result, r){
 		switch(r->var_id){
 		case V_NUMBER:
-			bkpt->num = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->num, (const char*)r->value->value);
+			bkpt->num = atoi((char*)r->value->value);
 			break;
 
 		case V_LINE:

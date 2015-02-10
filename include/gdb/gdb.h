@@ -4,6 +4,7 @@
 
 #include <common/pty.h>
 #include <gdb/result.h>
+#include <gdb/arglist.h>
 #include <pthread.h>
 #include <signal.h>
 #include <map>
@@ -40,7 +41,7 @@ public:
 	int init();
 
 	/* gdb machine interface (MI) */
-	int mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data = 0);
+	int mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, response_hdlr_t resp_hdlr, void* data = 0);
 	int mi_parse(char* s);
 	int mi_proc_result(result_class_t rclass, unsigned int token, result_t* result);
 	int mi_proc_async(result_class_t rclass, unsigned int token, result_t* result);

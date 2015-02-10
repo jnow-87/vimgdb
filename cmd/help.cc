@@ -21,13 +21,13 @@ int cmd_help_exec(gdbif* gdb, int argc, char** argv){
 	}
 	else{
 		if(strlen(argv[1]) == 0)
-			return -1;
+			return 0;
 
 		c = cmd::lookup(argv[1], strlen(argv[1]));
 
 		if(c == 0){
 			USER("invalid command \"%s\"\n", argv[1]);
-			return -1;
+			return 0;
 		}
 
 		if(c->help != 0)	c->help(argc - 1, argv + 1);

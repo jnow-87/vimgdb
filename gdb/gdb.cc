@@ -1,5 +1,6 @@
 #include <common/log.h>
 #include <common/pty.h>
+#include <common/string.h>
 #include <gdb/gdb.h>
 #include <gdb/lexer.lex.h>
 #include <gdb/parser.tab.h>
@@ -175,21 +176,30 @@ mi_cmd_t* gdbif::resp_query(unsigned int token){
  * \return	>0			token used for the command
  * 			-1			error
  */
-int gdbif::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** parameter, unsigned int nparameter, response_hdlr_t resp_hdlr, void* data){
+int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, response_hdlr_t resp_hdlr, void* data){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;
 	unsigned int i, len;
+	arglist_t* el;
 
 
 	/* compute length of cmd_str */
 	len = strlen(cmd) + token_len + 4;	// +4 = "-" " --"
 
-	for(i=0; i<noption; i++)
-		len += strlen(options[i]) + 1;	// +1 = " "
+	list_for_each(options, el){
+		if(el->type == T_STRING)	len += strlen(el->value.sptr);
+		else if(el->type == T_INT)	len += strlen(el->value.i, 10);
 
-	for(i=0; i<nparameter; i++)
-		len += strlen(parameter[i]) + 1;	// +1 = " "
+		len += 1 + (el->quoted ? 2 : 0);	// +1 = " "
+	}
+
+	list_for_each(parameter, el){
+		if(el->type == T_STRING)	len += strlen(el->value.sptr);
+		else if(el->type == T_INT)	len += strlen(el->value.i, 10);
+
+		len += 1 + (el->quoted ? 2 : 0);	// +1 = " "
+	}
 
 	if(len > cmd_str_len){
 		delete cmd_str;
@@ -206,14 +216,18 @@ int gdbif::mi_issue_cmd(char* cmd, char** options, unsigned int noption, char** 
 	/* assemble cmd_str */
 	len = sprintf(cmd_str, "%d-%s", token, cmd);
 
-	for(i=0; i<noption; i++)
-		len += sprintf(cmd_str + len, " %s", options[i]);
+	list_for_each(options, el){
+		if(el->type == T_STRING)	len += sprintf(cmd_str + len, " %s%s%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
+		else if(el->type == T_INT)	len += sprintf(cmd_str + len, " %s%d%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
+	}
 
-	if(noption > 0)
+	if(options != 0)
 		len += sprintf(cmd_str + len, " --");
 
-	for(i=0; i<nparameter; i++)
-		len += sprintf(cmd_str + len, " %s", parameter[i]);
+	list_for_each(parameter, el){
+		if(el->type == T_STRING)	len += sprintf(cmd_str + len, " %s%s%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
+		else if(el->type == T_INT)	len += sprintf(cmd_str + len, " %s%d%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
+	}
 
 	/* enqueue response handler */
 	resp_enqueue(token, resp_hdlr, cmd_str, data);
