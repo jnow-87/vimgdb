@@ -185,7 +185,7 @@ int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, res
 
 
 	/* compute length of cmd_str */
-	len = strlen(cmd) + token_len + 4;	// +4 = "-" " --"
+	len = strlen(cmd) + token_len + 5;	// +5 = "-" " --" \0
 
 	list_for_each(options, el){
 		if(el->type == T_STRING)	len += strlen(el->value.sptr);
