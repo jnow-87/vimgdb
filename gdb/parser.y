@@ -31,10 +31,6 @@
 
 %parse-param { gdbif* gdb }
 
-%initial-action
-{
-	xxxx:;
-}
 
 /* terminals */
 %token NEWLINE
