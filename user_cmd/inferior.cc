@@ -3,8 +3,8 @@
 #include <gdb/gdb.h>
 #include <gdb/result.h>
 #include <gui/gui.h>
-#include <cmd/cmd.h>
-#include <cmd/subcmd.hash.h>
+#include <user_cmd/cmd.h>
+#include <user_cmd/subcmd.hash.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -24,7 +24,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	const char* cmd_str;
 	int fd;
 	unsigned int i;
-	const struct subcmd_t* scmd;
+	const struct user_subcmd_t* scmd;
 	arglist_t* param;
 
 
@@ -35,7 +35,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	}
 
 	param = 0;
-	scmd = subcmd::lookup(argv[1], strlen(argv[1]));
+	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd != 0){
 		switch(scmd->id){
@@ -144,7 +144,7 @@ int cmd_inferior_resp(result_class_t rclass, result_t* result, char* cmdline, vo
 
 void cmd_inferior_help(int argc, char** argv){
 	unsigned int i;
-	const struct subcmd_t* scmd;
+	const struct user_subcmd_t* scmd;
 
 
 	if(argc == 1){
@@ -159,7 +159,7 @@ void cmd_inferior_help(int argc, char** argv){
 	}
 	else{
 		for(i=1; i<argc; i++){
-			scmd = subcmd::lookup(argv[i], strlen(argv[i]));
+			scmd = user_subcmd::lookup(argv[i], strlen(argv[i]));
 
 			if(scmd == 0){
 				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);

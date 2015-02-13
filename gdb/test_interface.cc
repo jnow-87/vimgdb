@@ -1,7 +1,7 @@
 #include <common/log.h>
 #include <common/tty.h>
 #include <gdb/gdb.h>
-#include <cmd/cmd.h>
+#include <user_cmd/cmd.h>
 #include <gui/gui.h>
 #include <gui/cursesui.h>
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 #include <common/log.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
-#include <cmd/cmd.h>
+#include <user_cmd/cmd.h>
 
 
 int cmd_test_exec(gdbif* gdb, int argc, char** argv){
@@ -20,6 +20,6 @@ int cmd_test_exec(gdbif* gdb, int argc, char** argv){
 
 void cmd_test_help(int argc, char** argv){
 	USER("usage: %s [<arg>...]\n", argv[0]);
-	USER("   test prints all arguments to demonstrate the cmd interface functionality\n");
+	USER("   test prints all arguments to demonstrate the user_cmd interface functionality\n");
 	USER("\n");
 }

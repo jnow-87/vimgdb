@@ -13,19 +13,19 @@
 %define slot-name name
 %define hash-function-name hash
 %define lookup-function-name lookup
-%define class-name cmd
+%define class-name user_cmd
 
 
 /* c-code */
 %{
 	#include <common/log.h>
 	#include <gdb/gdb.h>
-	#include <cmd/cmd.h>
+	#include <user_cmd/cmd.h>
 	#include <string.h>
 %}
 
 /* struct-type definition */
-struct cmd_t;
+struct user_cmd_t;
 
 %%
 # command	exec callback		help callback		help text
@@ -95,7 +95,7 @@ int cmd_exec(char* cmdline, gdbif* gdb){
 	}
 
 	/* execute command */
-	if(cmd::lookup(argv[0], strlen(argv[0])) <= 0){
+	if(user_cmd::lookup(argv[0], strlen(argv[0])) <= 0){
 		WARN("invalid user command \"%s\", trying direct execution by gdb\n", argv[0]);
 
 		/* send unknown command to gdb */
@@ -111,7 +111,7 @@ int cmd_exec(char* cmdline, gdbif* gdb){
 		r = -1;
 	}
 	else
-		r = cmd::lookup(argv[0], strlen(argv[0]))->exec(gdb, nspace + 1, argv);
+		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(gdb, nspace + 1, argv);
 
 	delete [] argv;
 	return r;

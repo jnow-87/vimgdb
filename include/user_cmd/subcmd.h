@@ -20,14 +20,14 @@ typedef enum{
 	BREAK,
 	JUMP,
 	GOTO,
-} subcmd_id_t;
+} user_subcmd_id_t;
 
-struct subcmd_t{
+struct user_subcmd_t{
 	const char* name;
-	subcmd_id_t id;
+	user_subcmd_id_t id;
 };
 
-typedef subcmd_t subcmd_t;
+typedef user_subcmd_t user_subcmd_t;
 
 
 #endif // SUBCMD_H

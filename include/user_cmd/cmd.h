@@ -6,14 +6,14 @@
 
 
 /* types */
-struct cmd_t{
+struct user_cmd_t{
 	const char* name;
 	int (*exec)(gdbif* gdb, int argc, char** argv);
 	void (*help)(int argc, char** argv);
 	const char* help_msg;
 };
 
-typedef cmd_t cmd_t;
+typedef user_cmd_t user_cmd_t;
 
 
 /* prototypes */

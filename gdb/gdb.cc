@@ -4,8 +4,8 @@
 #include <gdb/gdb.h>
 #include <gdb/lexer.lex.h>
 #include <gdb/parser.tab.h>
-#include <cmd/cmd.hash.h>
-#include <cmd/subcmd.hash.h>
+#include <user_cmd/cmd.hash.h>
+#include <user_cmd/subcmd.hash.h>
 #include <string.h>
 #include <signal.h>
 #include <math.h>
@@ -102,7 +102,7 @@ int gdbif::write(void* buf, unsigned int nbytes){
  * 			-1		error
  */
 int gdbif::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline, void* data){
-	mi_cmd_t* cmd;
+	mi_cmd_t* user_cmd;
 
 
 	pthread_mutex_lock(&resp_mutex);
@@ -112,14 +112,14 @@ int gdbif::resp_enqueue(unsigned int token, response_hdlr_t hdlr, char* cmdline,
 		return -1;
 	}
 
-	cmd = new mi_cmd_t;
-	cmd->cmdline = new char[strlen(cmdline)];
+	user_cmd = new mi_cmd_t;
+	user_cmd->cmdline = new char[strlen(cmdline)];
 
-	cmd->resp_hdlr = hdlr;
-	cmd->data = data;
-	strcpy(cmd->cmdline, cmdline);
+	user_cmd->resp_hdlr = hdlr;
+	user_cmd->data = data;
+	strcpy(user_cmd->cmdline, cmdline);
 
-	resp_map[token] = cmd;
+	resp_map[token] = user_cmd;
 
 	pthread_mutex_unlock(&resp_mutex);
 
@@ -166,17 +166,17 @@ mi_cmd_t* gdbif::resp_query(unsigned int token){
 /**
  * \brief	create gdb machine interface (MI) command
  *
- * \param	cmd			target command
- * \param	options		options to cmd
+ * \param	user_cmd			target command
+ * \param	options		options to user_cmd
  * \param	noption		number of entries in options
- * \param	parameter	parameters to cmd
+ * \param	parameter	parameters to user_cmd
  * \param	nparameter	number of entries in parameter
  * \param	resp_hdlr	function to call upon gdb response
  *
  * \return	>0			token used for the command
  * 			-1			error
  */
-int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, response_hdlr_t resp_hdlr, void* data){
+int gdbif::mi_issue_cmd(char* user_cmd, arglist_t* options, arglist_t* parameter, response_hdlr_t resp_hdlr, void* data){
 	static char* cmd_str = 0;
 	static unsigned int cmd_str_len = 0;
 	static unsigned int token_len = 1;
@@ -185,7 +185,7 @@ int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, res
 
 
 	/* compute length of cmd_str */
-	len = strlen(cmd) + token_len + 5;	// +5 = "-" " --" \0
+	len = strlen(user_cmd) + token_len + 5;	// +5 = "-" " --" \0
 
 	list_for_each(options, el){
 		if(el->type == T_STRING)	len += strlen(el->value.sptr);
@@ -214,7 +214,7 @@ int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, res
 	}
 
 	/* assemble cmd_str */
-	len = sprintf(cmd_str, "%d-%s", token, cmd);
+	len = sprintf(cmd_str, "%d-%s", token, user_cmd);
 
 	list_for_each(options, el){
 		if(el->type == T_STRING)	len += sprintf(cmd_str + len, " %s%s%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
@@ -236,7 +236,7 @@ int gdbif::mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter, res
 	if(++token >= (unsigned int)pow(10, token_len))
 		token_len++;
 
-	/* issue cmd */
+	/* issue user_cmd */
 	if(this->write(cmd_str, len) < 0 || this->write((void*)"\n", 1) < 0){
 		resp_dequeue(token - 1);
 		return -1;
@@ -252,28 +252,28 @@ int gdbif::mi_parse(char* s){
 }
 
 int gdbif::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
-	mi_cmd_t* cmd;
+	mi_cmd_t* user_cmd;
 	int r;
 
 
 	r = -1;
 
 	/* check if outstanding command exists for token */
-	cmd = resp_query(token);
-	if(cmd == 0){
+	user_cmd = resp_query(token);
+	if(user_cmd == 0){
 		WARN("no outstanding command found for token %u\n", token);
 		goto exit_0;
 	}
 
 	/* check if response handler is defined */
-	if(cmd->resp_hdlr == 0){
-		WARN("no response handler registered for command \"%s\"\n", cmd->cmdline);
+	if(user_cmd->resp_hdlr == 0){
+		WARN("no response handler registered for command \"%s\"\n", user_cmd->cmdline);
 		goto exit_1;
 	}
 
 	/* call response handler */
-	if(cmd->resp_hdlr(rclass, result, cmd->cmdline, cmd->data) < 0)
-		WARN("error processing result for command \"%s\"\n", cmd->cmdline);
+	if(user_cmd->resp_hdlr(rclass, result, user_cmd->cmdline, user_cmd->data) < 0)
+		WARN("error processing result for command \"%s\"\n", user_cmd->cmdline);
 
 	r = 0;
 

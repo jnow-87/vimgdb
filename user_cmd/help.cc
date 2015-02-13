@@ -1,21 +1,21 @@
 #include <common/log.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
-#include <cmd/cmd.h>
-#include <cmd/cmd.hash.h>
+#include <user_cmd/cmd.h>
+#include <user_cmd/cmd.hash.h>
 
 
 int cmd_help_exec(gdbif* gdb, int argc, char** argv){
 	unsigned int i;
-	const struct cmd_t* c;
+	const struct user_cmd_t* c;
 
 
 	if(argc == 1){
 		USER("user commands:\n");
 
-		for(i=cmd::MIN_HASH_VALUE; i<=cmd::MAX_HASH_VALUE; i++){
-			if(cmd::wordlist[i].name[0] != 0)
-				USER("    %15.15s   %s\n", cmd::wordlist[i].name, cmd::wordlist[i].help_msg);
+		for(i=user_cmd::MIN_HASH_VALUE; i<=user_cmd::MAX_HASH_VALUE; i++){
+			if(user_cmd::wordlist[i].name[0] != 0)
+				USER("    %15.15s   %s\n", user_cmd::wordlist[i].name, user_cmd::wordlist[i].help_msg);
 		}
 		USER("\n");
 	}
@@ -23,7 +23,7 @@ int cmd_help_exec(gdbif* gdb, int argc, char** argv){
 		if(strlen(argv[1]) == 0)
 			return 0;
 
-		c = cmd::lookup(argv[1], strlen(argv[1]));
+		c = user_cmd::lookup(argv[1], strlen(argv[1]));
 
 		if(c == 0){
 			USER("invalid command \"%s\"\n", argv[1]);
