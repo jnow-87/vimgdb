@@ -3,7 +3,7 @@
 #include <gdb/gdb.h>
 #include <cmd/cmd.h>
 #include <gui/gui.h>
-#include <gui/curses.h>
+#include <gui/cursesui.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 	signal(SIGINT, cleanup);
 
 	// user interface
-	ui = new curses();
+	ui = new cursesui();
 	ui->init();
 
 	// logging
@@ -116,7 +116,7 @@ void cleanup(int signum){
 
 	log::cleanup();
 	ui->destroy();
-	delete (curses*)ui;
+	delete (cursesui*)ui;
 
 	exit(1);
 }

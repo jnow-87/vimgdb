@@ -1,4 +1,4 @@
-#include <gui/curses.h>
+#include <gui/cursesui.h>
 #include <common/tty.h>
 #include <string.h>
 #include <unistd.h>
@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	tty std_term;
 
 
-	ui = new curses();
+	ui = new cursesui();
 	ui->init();
 
 	ui->print(WIN_APPLOG, "enter \"quit\" to exit\n");
@@ -60,7 +60,7 @@ int main(int argc, char** argv){
 
 end:
 	ui->destroy();
-	delete (curses*)ui;
+	delete (cursesui*)ui;
 
 	return 0;
 }

@@ -19,10 +19,10 @@ struct window_t{
 };
 
 
-class curses : public gui{
+class cursesui : public gui{
 public:
-	curses();
-	~curses();
+	cursesui();
+	~cursesui();
 
 
 private:

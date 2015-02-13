@@ -1,7 +1,7 @@
-obj-y := gui.o curses.o
+obj-y := gui.o cursesui.o
 
-bin-y := test-curses
+bin-y := test-cursesui
 
 
-test-curses-y := test_curses.o curses.o gui.o common/
-test-curses-ldflags := -lncurses -lpthread
+test-cursesui-y := test_cursesui.o cursesui.o gui.o common/
+test-cursesui-ldflags := -lncurses -lpthread

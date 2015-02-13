@@ -1,10 +1,10 @@
-#include <gui/curses.h>
+#include <gui/cursesui.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-curses::curses(){
+cursesui::cursesui(){
 	/* init ncurses */
 	setlocale(LC_ALL, "");
 
@@ -19,7 +19,7 @@ curses::curses(){
 	pthread_mutex_init(&mutex, 0);
 }
 
-curses::~curses(){
+cursesui::~cursesui(){
 	unsigned int i;
 
 
@@ -40,7 +40,7 @@ curses::~curses(){
 }
 
 /**
- * \brief	create new curses window
+ * \brief	create new cursesui window
  *
  * \param	title		window title
  * \param	oneline		if true, the window width is maximised
@@ -48,7 +48,7 @@ curses::~curses(){
  * \return	>=0			window id
  * 			<0			error
  */
-int curses::win_create(const char* title, bool oneline, unsigned int height){
+int cursesui::win_create(const char* title, bool oneline, unsigned int height){
 	int i, id;
 
 
@@ -72,7 +72,7 @@ int curses::win_create(const char* title, bool oneline, unsigned int height){
 	if(id == -1)
 		return -1;
 
-	/* allocated curses window */
+	/* allocated cursesui window */
 	windows[id] = new window_t;
 	windows[id]->win = newwin(2, 2, 0, 0);		// arbitrary width and height, final
 	windows[id]->frame = newwin(2, 2, 0, 0);	// values are set in win_resize()
@@ -92,7 +92,7 @@ int curses::win_create(const char* title, bool oneline, unsigned int height){
 	return id;
 }
 
-int curses::win_destroy(int win_id){
+int cursesui::win_destroy(int win_id){
 	if(win_id >= max_win || windows[win_id] == 0)
 		return -1;
 
@@ -109,7 +109,7 @@ int curses::win_destroy(int win_id){
 	return 0;
 }
 
-void curses::win_write(int win_id, const char* fmt, ...){
+void cursesui::win_write(int win_id, const char* fmt, ...){
 	va_list lst;
 
 
@@ -118,7 +118,7 @@ void curses::win_write(int win_id, const char* fmt, ...){
 	va_end(lst);
 }
 
-void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
+void cursesui::win_vwrite(int win_id, const char* fmt, va_list lst){
 	pthread_mutex_lock(&mutex);
 
 	vwprintw(windows[win_id]->win, fmt, lst);
@@ -127,7 +127,7 @@ void curses::win_vwrite(int win_id, const char* fmt, va_list lst){
 	pthread_mutex_unlock(&mutex);
 }
 
-void curses::win_clear(int win_id){
+void cursesui::win_clear(int win_id){
 	pthread_mutex_lock(&mutex);
 
 	wclear(windows[win_id]->win);
@@ -136,7 +136,7 @@ void curses::win_clear(int win_id){
 	pthread_mutex_unlock(&mutex);
 }
 
-void curses::win_clrline(int win_id){
+void cursesui::win_clrline(int win_id){
 	int x, y;
 
 
@@ -157,7 +157,7 @@ void curses::win_clrline(int win_id){
  * \return	0	success
  *			<0	error
  */
-int curses::win_resize(){
+int cursesui::win_resize(){
 	unsigned int i, j, width, height, fixed_height, nfixed_height, win, line, ncols[nwin + 1], split[nwin + 1], nsplit, nlines, max_cols;
 
 
