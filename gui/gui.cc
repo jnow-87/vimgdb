@@ -7,6 +7,7 @@ gui* ui = 0;
 /* static members */
 int gui::min_win_height = 3;
 int gui::min_win_width = 30;
+bool gui::constructor_ok = false;
 
 win_cfg_t gui::wins[] = {
 	WIN_INIT("breakpoints", false, 0),
@@ -23,6 +24,9 @@ win_cfg_t gui::wins[] = {
 int gui::init(){
 	unsigned int i;
 
+
+	if(!constructor_ok)
+		return -1;
 
 	i = 0;
 	while(wins[i].id != -1){

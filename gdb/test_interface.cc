@@ -38,7 +38,8 @@ int main(int argc, char** argv){
 	#error "invalid gui defined"
 #endif
 
-	ui->init();
+	if(ui->init() != 0)
+		return 1;
 
 	// logging
 	if(log::init(LOG_FILE, LOG_LEVEL) != 0)

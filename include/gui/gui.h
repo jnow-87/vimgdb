@@ -49,6 +49,8 @@ protected:
 	static int min_win_height,
 			   min_win_width;
 
+	static bool constructor_ok;
+
 private:
 	virtual int win_create(const char* title = "", bool oneline = false, unsigned int height = 0) = 0;
 	virtual int win_destroy(int win_id) = 0;

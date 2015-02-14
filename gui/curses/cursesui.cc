@@ -18,13 +18,37 @@ cursesui::cursesui(){
 	nwin = 0;
 	max_win = 2;
 	windows = (window_t**)malloc(sizeof(window_t*) * max_win);
+
+	if(windows == 0)
+		goto err_0;
+
 	memset(windows, 0x0, sizeof(window_t*) * max_win);
 
 	pthread_mutex_init(&mutex, 0);
 
 	line_len = 255;
 	line = (char*)malloc(line_len * sizeof(char));
+
+	if(line == 0)
+		goto err_1;
+		return;
+
 	term = new tty;
+
+	if(term == 0)
+		goto err_2;
+
+	constructor_ok = true;
+	return;
+
+err_2:
+	free(line);
+
+err_1:
+	free(windows);
+
+err_0:
+	constructor_ok = false;
 }
 
 cursesui::~cursesui(){
