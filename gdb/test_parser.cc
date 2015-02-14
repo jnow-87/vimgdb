@@ -6,7 +6,6 @@
 #include <gdb/parser.tab.h>
 #include <gdb/lexer.lex.h>
 #include <stdio.h>
-#include "config.h"
 
 
 /* global variables */

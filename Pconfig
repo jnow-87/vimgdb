@@ -1,0 +1,44 @@
+mainmenu "vimgdb configuration"
+
+comment "user interface"
+choice
+	prompt "gui implementation"
+
+	config GUI_CURSES
+		bool "ncurses"
+
+	config GUI_VIM
+		bool "vim netbeans"
+endchoice
+
+config VIM_NB_PORT
+	int "netbeans port"
+	depends on GUI_VIM
+	range 1 65535
+
+
+comment "log system"
+config LOG_FILE
+	string "log file"
+	default "/tmp/vimgdb.log"
+
+config LOG_INFO
+	bool "log 'info' messages"
+
+config LOG_WARN
+	bool "log 'warning' messages"
+
+config LOG_ERROR
+	bool "log 'error' messages"
+
+config LOG_DEBUG
+	bool "log 'debug' messages"
+
+config LOG_USER
+	bool "log 'user' messages"
+
+config LOG_TEST
+	bool "log 'application testing' messages"
+
+config LOG_TODO
+	bool "log 'todo' messages"

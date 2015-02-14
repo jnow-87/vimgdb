@@ -4,6 +4,7 @@ CC := gcc
 CXX := g++
 
 # general include
+include config
 include scripts/Makefile.inc
 
 # init source and binary tree
@@ -23,12 +24,27 @@ yaccflags := $(YACCFLAGS)
 lexflags := $(LEXFLAGS)
 gperfflags := $(GPERFFLAGS)
 
+# log level
+cppflags += -DLOG_FILE=\"$(CONFIG_LOG_FILE)\"
+cppflags += -DLOG_LEVEL="(log_level_t)(LOG_INFO | LOG_WARN | LOG_ERROR | LOG_DEBUG | LOG_USER | LOG_TEST | LOG_TODO)"
+$(call loglevel,INFO)
+$(call loglevel,WARN)
+$(call loglevel,ERROR)
+$(call loglevel,DEBUG)
+$(call loglevel,USER)
+$(call loglevel,TEST)
+$(call loglevel,TODO)
+
+# gui
+$(if $(CONFIG_GUI_CURSES), $(eval cppflags += -DGUI_CURSES),)
+$(if $(CONFIG_GUI_VIM), $(eval cppflags += -DGUI_VIM),)
+
 # init global variables for list of objects, libraries and executables
 obj :=
 lib :=
 bin :=
 
-subdir-y := gdb/ gui/ user_cmd/ common/
+subdir-y := scripts/mconf/ gdb/ gui/ user_cmd/ common/
 
 # fake target as default
 .PHONY: fake_all
@@ -52,6 +68,11 @@ all: $(lib) $(bin)
 .PHONY: clean
 clean:
 	$(rm) $(built_tree)
+
+.PHONY: menuconfig
+menuconfig: $(built_tree)/scripts/mconf/mconfig
+	$< Pconfig
+	$(MAKE) clean
 
 .PHONY: help
 help:

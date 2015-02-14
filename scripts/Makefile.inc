@@ -62,6 +62,13 @@ define exists
 $(if $(wildcard $(1)),1,)
 endef
 
+define loglevel
+$(if $(CONFIG_LOG_$(1)), \
+  $(eval cppflags += -DLOG_$(1)=$(1)), \
+  $(eval cppflags += -DLOG_$(1)=0) \
+)
+endef
+
 
 	#################
 	###           ###
@@ -244,6 +251,11 @@ endef
 define cmd_cc_c_l
 	$(echo) [LEX] $@
 	$(lex) $(lexflags) --header-file=$(basename $@).h -o $@ $<
+endef
+
+define cmd_cc_c_gperf
+	$(echo) [GPERF] $@
+	$(gperf) $(gperfflags) $< --output-file=$@
 endef
 
 define cmd_cc_cxx_gperf

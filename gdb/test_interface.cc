@@ -3,12 +3,10 @@
 #include <gdb/gdb.h>
 #include <user_cmd/cmd.h>
 #include <gui/gui.h>
-#include <gui/cursesui.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
 #include <string.h>
-#include "config.h"
 
 
 /* static variables */
@@ -32,7 +30,14 @@ int main(int argc, char** argv){
 	signal(SIGINT, cleanup);
 
 	// user interface
+#ifdef GUI_CURSES
 	ui = new cursesui();
+#elif GUI_VIM
+	ui = new vimui();
+#else
+	#error "invalid gui defined"
+#endif
+
 	ui->init();
 
 	// logging
@@ -80,7 +85,14 @@ void cleanup(int signum){
 
 	log::cleanup();
 	ui->destroy();
+
+#ifdef GUI_CURSES
 	delete (cursesui*)ui;
+#elif GUI_VIM
+	delete (vimui*)ui;
+#else
+	#error "invalid gui defined"
+#endif
 
 	exit(1);
 }

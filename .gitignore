@@ -1,5 +1,7 @@
 *.d
 *.o
 *.elf
+config
+config.old
 built/
 pyclewn/

@@ -65,4 +65,14 @@ private:
 extern gui* ui;
 
 
+/* gui implementation header */
+#ifdef GUI_CURSES
+	#include <gui/cursesui.h>
+#elif GUI_VIM
+	#include <gui/vim.h>
+#else
+	#error "invalid gui defined"
+#endif
+
+
 #endif // GUI_H
