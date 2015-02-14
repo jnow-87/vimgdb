@@ -2,13 +2,11 @@
 #define GUI_CURSES_H
 
 
+#include <common/tty.h>
 #include <gui/gui.h>
 #include <curses.h>
 #include <pthread.h>
 #include <list>
-
-
-using namespace std;
 
 
 struct window_t{
@@ -24,6 +22,7 @@ public:
 	cursesui();
 	~cursesui();
 
+	char* readline();
 
 private:
 	int win_create(const char* title = "", bool oneline = false, unsigned int height = 0);
@@ -35,11 +34,19 @@ private:
 
 	int win_resize();
 
+	/* window information */
 	int max_win,
 		nwin;
-	pthread_mutex_t mutex;
 
 	window_t** windows;
+
+	/* user input */
+	char* line;
+	unsigned int line_len;
+	tty* term;
+
+	/* threading */
+	pthread_mutex_t mutex;
 };
 
 

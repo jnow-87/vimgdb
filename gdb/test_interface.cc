@@ -13,7 +13,6 @@
 
 /* static variables */
 gdbif* gdb;
-tty std_term;
 pthread_t tid_gdb_output,
 		  tid_main;
 
@@ -24,8 +23,7 @@ void* thread_gdb_output(void*);
 
 
 int main(int argc, char** argv){
-	char c, *line;
-	unsigned int i, len;
+	char* line;
 
 
 	/* initialise */
@@ -54,47 +52,15 @@ int main(int argc, char** argv){
 	pthread_create(&tid_gdb_output, 0, thread_gdb_output, 0);
 
 	/* main loop */
-	// TODO
-	i = 0;
-
-	len = 255;
-	line = (char*)malloc(len * sizeof(char));
-
-	if(line == 0)
-		goto err;
-
-	ui->print(WIN_CMD, CMD_PROMPT);
-
 	while(1){
-		std_term.read(&c, 1);
+		line = ui->readline();
 
-		if(c == '\n' || c == '\r'){
-			line[i] = 0;
-			cmd_exec(line, gdb);
-			ui->print(WIN_CMD, "\n" CMD_PROMPT);
-
-			i = 0;
+		if(line == 0){
+			ERROR("error reading user input\n");
+			goto err;
 		}
-		else if(c == 127){
-			if(i <= 0)
-				continue;
 
-			line[--i] = 0;
-			ui->clearline(WIN_CMD);
-			ui->print(WIN_CMD, CMD_PROMPT "%s", line);
-		}
-		else{
-			ui->print(WIN_CMD, "%c", c);
-			line[i++] = c;
-
-			if(i >= len){
-				len *= 2;
-				line = (char*)realloc(line, len);
-
-				if(line == 0)
-					goto err;
-			}
-		}
+		cmd_exec(line, gdb);
 	}
 
 err:
@@ -109,8 +75,6 @@ void cleanup(int signum){
 
 
 	pthread_join(tid_gdb_output, 0);
-
-	std_term.read(&c, 1);
 
 	delete gdb;
 

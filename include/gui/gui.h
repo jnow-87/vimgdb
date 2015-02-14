@@ -43,6 +43,8 @@ public:
 	void clear(win_id_t win);
 	void clearline(win_id_t win);
 
+	virtual char* readline() = 0;
+
 protected:
 	static int min_win_height,
 			   min_win_width;

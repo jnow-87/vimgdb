@@ -4,6 +4,9 @@
 #include <string.h>
 
 
+#define CMD_PROMPT	"cmd: "
+
+
 cursesui::cursesui(){
 	/* init ncurses */
 	setlocale(LC_ALL, "");
@@ -16,7 +19,12 @@ cursesui::cursesui(){
 	max_win = 2;
 	windows = (window_t**)malloc(sizeof(window_t*) * max_win);
 	memset(windows, 0x0, sizeof(window_t*) * max_win);
+
 	pthread_mutex_init(&mutex, 0);
+
+	line_len = 255;
+	line = (char*)malloc(line_len * sizeof(char));
+	term = new tty;
 }
 
 cursesui::~cursesui(){
@@ -37,6 +45,55 @@ cursesui::~cursesui(){
 
 	/* stop ncurses */
 	endwin();
+}
+
+/**
+ * \brief	read user input from gui
+ *
+ * \return	!= 0	pointer to line
+ * 			0		error
+ */
+char* cursesui::readline(){
+	char c;
+	unsigned int i;
+
+
+	if(line == 0 || term == 0)
+		return 0;
+
+	i = 0;
+	print(WIN_CMD, CMD_PROMPT);
+
+	while(1){
+		term->read(&c, 1);
+
+		if(c == '\n' || c == '\r'){
+			line[i] = 0;
+
+			print(WIN_CMD, "\n");
+			return line;
+		}
+		else if(c == 127){
+			if(i <= 0)
+				continue;
+
+			line[--i] = 0;
+			clearline(WIN_CMD);
+			print(WIN_CMD, CMD_PROMPT "%s", line);
+		}
+		else{
+			print(WIN_CMD, "%c", c);
+			line[i++] = c;
+
+			if(i >= line_len){
+				line_len *= 2;
+				line = (char*)realloc(line, line_len);
+
+				if(line == 0)
+					return 0;
+			}
+		}
+	}
 }
 
 /**
