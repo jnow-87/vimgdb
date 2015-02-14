@@ -14,6 +14,7 @@ endchoice
 config VIM_NB_PORT
 	int "netbeans port"
 	depends on GUI_VIM
+	default 1235
 	range 1 65535
 
 
