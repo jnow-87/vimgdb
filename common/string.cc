@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 
 int strlen(int val, int base){
@@ -198,4 +199,26 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	*_argc = argc;
 
 	return 0;
+}
+
+char* itoa(int v){
+	static char* s = 0;
+	static unsigned int len = 0;
+	int x;
+	
+	
+	x = strlen(v, 10) + 1;
+
+	if(len < x){
+		len += x;
+		delete s;
+		s = new char[len];
+	}
+
+	if(s == 0)
+		return 0;
+
+
+	sprintf(s, "%d", v);
+	return s;
 }
