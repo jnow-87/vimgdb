@@ -4,7 +4,7 @@ CC := gcc
 CXX := g++
 
 # general include
-include config
+-include config
 include scripts/Makefile.inc
 
 # init source and binary tree
