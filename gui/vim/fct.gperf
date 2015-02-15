@@ -1,0 +1,34 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+%compare-strncmp
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name vim_fct
+
+
+/* c-code */
+%{
+	#include <fct.h>
+%}
+
+/* struct-type definition */
+struct vim_fct_t;
+
+
+%%
+# function name		id
+getCursor,			F_GETCURSOR
+getLength,			F_GETLENGTH
+insert,				F_INSERT
+remove,				F_REMOVE

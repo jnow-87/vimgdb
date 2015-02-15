@@ -1,0 +1,44 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+%compare-strncmp
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name vim_event
+
+
+/* c-code */
+%{
+	#include <event.h>
+%}
+
+/* struct-type definition */
+struct vim_event_t;
+
+
+%%
+# event name		id
+disconnect,			E_DISCONNECT
+startupDone,		E_STARTUPDONE
+killed,				E_KILLED
+fileOpened,			E_FILEOPENED
+insert,				E_INSERT
+remove,				E_REMOVE
+keyCommand,			E_KEYCOMMAND
+keyAtPos,			E_KEYATPOS
+version,			E_VERSION
+newDotAndMark,		E_NEWDOTANDMARK
+DISCONNECT,			E_DISCONNECT
+ACCEPT,				E_ACCEPT
+"AUTH",				E_AUTH
+DETACH,				E_DETACH

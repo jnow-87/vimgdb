@@ -1,0 +1,51 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+%compare-strncmp
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name vim_cmd
+
+
+/* c-code */
+%{
+	#include <cmd.h>
+%}
+
+/* struct-type definition */
+struct vim_cmd_t;
+
+%%
+# command name							id
+create,									C_CREATE
+close,									C_CLOSE
+save,									C_SAVE
+editFile,								C_EDITFILE
+putBufferNumber,						C_PUTBUFFERNUMBER
+setBufferNumber,						C_SETBUFFERNUMBER
+setDot,									C_SETDOT
+setModified,							C_SETMODIFIED
+setReadOnly,							C_SETREADONLY
+setTitle,								C_SETTITLE
+setFullName,							C_SETFULLNAME
+setVisible,								C_SETVISIBLE
+startDocumentListen,					C_STARTDOCUMENTLISTEN
+stopDocumentListen,						C_STOPDOCUMENTLISTEN
+initDone,								C_INITDONE
+insertDone,								C_INSERTDONE
+saveDone,								C_SAVEDONE
+addAnno,								C_ADDANNO
+defineAnnoType,							C_DEFINEANNOTYPE
+removeAnno,								C_REMOVEANNO
+guard,									C_GUARD
+unguard,								C_UNGUARD
