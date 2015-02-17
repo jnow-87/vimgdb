@@ -295,3 +295,9 @@ define cmd_cc_bin_o
 	$(echo) [$(1)CXX] $@
 	$($(1)cxx) $($(1)archflags) $^ -o $@ $($(1)ldflags)
 endef
+
+define cmd_defconfig
+	$(echo) [CP] $< '->' config
+	$(cp) $< config
+	$(MAKE) clean
+endef

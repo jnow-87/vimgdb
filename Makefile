@@ -3,8 +3,10 @@ LEX := flex
 CC := gcc
 CXX := g++
 
+config := ./config
+
 # general include
--include config
+-include $(config)
 include scripts/Makefile.inc
 
 # init source and binary tree
@@ -63,7 +65,7 @@ include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 
 # main targets
 .PHONY: all
-all: $(lib) $(bin)
+all: check_config $(lib) $(bin)
 
 .PHONY: clean
 clean:
@@ -73,6 +75,19 @@ clean:
 menuconfig: $(built_tree)/scripts/mconf/mconfig
 	$< Pconfig
 	$(MAKE) clean
+
+.PHONY: check_config
+check_config:
+ifneq ($(shell test -e $(config) && echo $(config)),$(config))
+	$(call error,$(config) does not exist, please run $$make menuconfig or $$make defconfig_<target> first)
+endif
+
+# default config targets
+cfg_tree = scripts/config
+cfg = $(notdir $(wildcard $(cfg_tree)/*))
+$(foreach c, $(cfg), \
+	$(call gen_rule_basic,cmd_defconfig,defconfig_$(c),$(cfg_tree)/$(c)) \
+)
 
 .PHONY: help
 help:
