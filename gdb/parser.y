@@ -20,7 +20,7 @@
 	result_t* result;
 	value_t* value;
 	result_class_t rclass;
-	variable_t variable;
+	const variable_t* variable;
 
 	struct{
 		result_class_t rclass;
@@ -80,7 +80,7 @@ stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOL
 			  ;
 
 /* common */
-result :			VARIABLE '=' value								{ $$ = gdb_result_create($1.name, $1.id, $3); };
+result :			VARIABLE '=' value								{ $$ = gdb_result_create($1->name, $1->id, $3); };
 result-list :		result											{ $$ = $1; }
 		    |		result-list ',' result							{ gdb_result_add($1, $3); $$ = $1; }
 	   		;

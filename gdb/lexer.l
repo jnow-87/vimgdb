@@ -61,7 +61,7 @@
 [a-zA-Z][a-zA-Z0-9_\-.]*				{
 											/* check if string is a known gdb variable */
 											if(variable::lookup(gdbtext, gdbleng) != 0){
-												gdblval.variable = *variable::lookup(gdbtext, gdbleng);
+												gdblval.variable = variable::lookup(gdbtext, gdbleng);
 												return VARIABLE;
 											}
 											else{
