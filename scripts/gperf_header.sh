@@ -24,7 +24,7 @@ macro=$(basename ${header} | tr a-z. A-Z_)
 
 # print header
 printf "#ifndef %s\n" "${macro}" > ${header}
-printf "#define %s\n\n" "${macro}" >> ${header}
+printf "#define %s\n\n\n" "${macro}" >> ${header}
 
 # extract included header files
 grep -e '#include' ${cfile} >> ${header}
