@@ -21,6 +21,9 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	char** argv;
 
 
+	if(line == 0)
+		return -1;
+
 	len = strlen(line);
 
 	/* identify number of arguments within cmdline */
@@ -201,12 +204,70 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	return 0;
 }
 
+char* strescape(char* _s){
+	static char* s = 0;
+	static unsigned int len = 0;
+	unsigned int i, o;
+	int x;
+	
+
+	if(_s == 0)
+		return 0;
+
+	x = strlen(_s) * 2 + 1;	// at most every char is an escape char
+
+	if(len < x){
+		len += x;
+		delete s;
+		s = new char[len];
+	}
+
+	if(s == 0)
+		return 0;
+
+	for(i=0, o=0; i<x/2; i++, o++){
+		switch(_s[i]){
+		case '\t':
+			s[o] = '\\';
+			s[++o] = 't';
+			break;
+
+		case '\n':
+			s[o] = '\\';
+			s[++o] = 'n';
+			break;
+
+		case '\r':
+			s[o] = '\\';
+			s[++o] = 'r';
+			break;
+
+		case '\"':
+			s[o] = '\\';
+			s[++o] = '\"';
+			break;
+
+		case '\\':
+			s[o] = '\\';
+			s[++o] = '\\';
+			break;
+
+		default:
+			s[o] = _s[i];
+		};
+	}
+
+	s[o] = 0;
+
+	return s;
+}
+
 char* itoa(int v){
 	static char* s = 0;
 	static unsigned int len = 0;
 	int x;
 	
-	
+
 	x = strlen(v, 10) + 1;
 
 	if(len < x){
