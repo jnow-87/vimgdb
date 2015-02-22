@@ -171,6 +171,13 @@ int socket::send(void* data, int size){
 	return sendto(fd_sock, data, size, 0, (sockaddr*)saddr, sizeof(sockaddr_in));
 }
 
+int socket::send(char* s){
+	if(s == 0)
+		return 0;
+
+	return send(s, strlen(s));
+}
+
 /**
  * \brief	set timeout for all socket-related functions
  *

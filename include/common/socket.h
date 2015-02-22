@@ -21,6 +21,7 @@ public:
 
 	int recv(void* data, int size);
 	int send(void* data, int size);
+	int send(char* s);
 
 	int set_timeout(int sec);
 	int set_bcast(int value);
