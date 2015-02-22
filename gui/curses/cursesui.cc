@@ -31,7 +31,6 @@ cursesui::cursesui(){
 
 	if(line == 0)
 		goto err_1;
-		return;
 
 	term = new tty;
 
