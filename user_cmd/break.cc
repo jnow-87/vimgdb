@@ -15,13 +15,6 @@ using namespace std;
 
 
 /* types */
-typedef enum{
-	A_ADD = 0,
-	A_DELETE,
-	A_ENABLE,
-	A_DISABLE,
-} action_t;
-
 typedef struct{
 	unsigned int num;
 
@@ -32,12 +25,6 @@ typedef struct{
 
 	bool enabled;
 } breakpt_t;
-
-typedef struct{
-	action_t action;
-	breakpt_t* bkpt;
-	map<string, breakpt_t*>::iterator it;
-} data_t;
 
 
 /* static variables */
@@ -58,12 +45,12 @@ void breakpt_print();
 
 /* global functions */
 int cmd_break_exec(gdbif* gdb, int argc, char** argv){
-	unsigned int i;
-	int retval;
+	char key[255];
 	const struct user_subcmd_t* scmd;
-	data_t* data;
 	map<string, breakpt_t*>::iterator it;
 	arglist_t* param;
+	response_t* resp;
+	breakpt_t* bkpt;
 
 
 	if(argc != 3){
@@ -79,75 +66,54 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	data = new data_t;
 	param = 0;
 
 	switch(scmd->id){
 	case ADD:
-		data->action = A_ADD;
 		arg_add_string(param, argv[2], false);
+		resp = gdb->mi_issue_cmd((char*)"break-insert", 0, param);
 		break;
 
 	case DELETE:
 	case ENABLE:
 	case DISABLE:
 		it = breakpt_lst.find(argv[2]);
+		bkpt = it->second;
 
 		if(it == breakpt_lst.end()){
 			USER("error: no breakpoint found for \"%s\"\n", argv[2]);
-			retval = 0;
-			goto err;
+			return 0;
 		}
 
-		if(scmd->id == DELETE)			data->action = A_DELETE;
-		else if(scmd->id == ENABLE)		data->action = A_ENABLE;
-		else if(scmd->id == DISABLE)	data->action = A_DISABLE;
-
-		data->it = it;
-		data->bkpt = it->second;
-
 		arg_add_int(param, it->second->num, false);
+
+		if(scmd->id == DELETE)			resp = gdb->mi_issue_cmd((char*)"break-delete", 0, param);
+		else if(scmd->id == ENABLE)		resp = gdb->mi_issue_cmd((char*)"break-enable", 0, param);
+		else if(scmd->id == DISABLE)	resp = gdb->mi_issue_cmd((char*)"break-disable", 0, param);
 		break;
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
-		retval = 0;
-		goto err;
+		arg_clear(param);
+		return 0;
 	};
-
-	if(gdb->mi_issue_cmd((char*)cmd_str[data->action], 0, param, cmd_break_resp, (void*)data) < 0){
-		WARN("error sending mi command\n");
-		retval = -1;
-		goto err;
+	
+	if(resp == 0){
+		WARN("error issuing mi command\n");
+		arg_clear(param);
+		return -1;
 	}
 
-	arg_clear(param);
-	return 0;
-
-err:
-	arg_clear(param);
-	delete data;
-	return retval;
-}
-
-int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void* _data){
-	breakpt_t* bkpt;
-	data_t* data;
-	char key[255];
-
-
-	data = (data_t*)_data;
-
-	switch(rclass){
+	switch(resp->rclass){
 	case RC_DONE:
-		USER("done: exec \"%s\"\n", cmdline);
+		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
 
-		switch(data->action){
-		case A_ADD:
+		switch(scmd->id){
+		case ADD:
 			bkpt = new breakpt_t;
 			memset(bkpt, 0x0, sizeof(breakpt_t));
 
-			breakpt_read(result, bkpt);
+			breakpt_read(resp->result, bkpt);
 
 			if(bkpt->filename != 0)	snprintf(key, 255, "%s:%d", bkpt->filename, bkpt->line);
 			else					snprintf(key, 255, "%s", bkpt->at);
@@ -157,18 +123,19 @@ int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void*
 			breakpt_print();
 			break;
 
-		case A_DELETE:
-			breakpt_lst.erase(data->it);
+		case DELETE:
+			delete it->second;
+			breakpt_lst.erase(it);
 			breakpt_print();
 			break;
 
-		case A_ENABLE:
-			data->bkpt->enabled = true;
+		case ENABLE:
+			bkpt->enabled = true;
 			breakpt_print();
 			break;
 
-		case A_DISABLE:
-			data->bkpt->enabled = false;
+		case DISABLE:
+			bkpt->enabled = false;
 			breakpt_print();
 			break;
 		};
@@ -176,15 +143,16 @@ int cmd_break_resp(result_class_t rclass, result_t* result, char* cmdline, void*
 		break;
 
 	case RC_ERROR:
-		USER("gdb reported error for command \"%s\"\n\t%s\n", cmdline, result->value->value);
+		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
 		break;
 
 	default:
-		WARN("unhandled result class %d\n", rclass);
+		WARN("unhandled result class %d for \"%s %s\"\n", resp->rclass, argv[0], argv[1]);
 		break;
 	};
 
-	delete data;
+	gdb_result_free(resp->result);
+	arg_clear(param);
 
 	return 0;
 }

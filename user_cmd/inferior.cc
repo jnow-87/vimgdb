@@ -21,11 +21,11 @@ static void* thread_inferior_output(void* arg);
 
 /* global functions */
 int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
-	const char* cmd_str;
 	int fd;
 	unsigned int i;
 	const struct user_subcmd_t* scmd;
 	arglist_t* param;
+	response_t* resp;
 
 
 	if(argc < 2){
@@ -40,25 +40,25 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	if(scmd != 0){
 		switch(scmd->id){
 		case BIN:
-			cmd_str = "file-exec-file";
-
 			for(i=2; i<argc; i++)
 				arg_add_string(param, argv[i], true);
+
+			resp = gdb->mi_issue_cmd((char*)"file-exec-file", 0, param);
 			break;
 
 		case SYM:
-			cmd_str = "file-symbol-file";
-
 			for(i=2; i<argc; i++)
 				arg_add_string(param, argv[i], true);
+
+			resp = gdb->mi_issue_cmd((char*)"file-symbol-file", 0, param);
 			break;
 
 		case ARGS:
 			TODO("implement arguments with spaces\n");
-			cmd_str = "exec-arguments";
-
 			for(i=2; i<argc; i++)
 				arg_add_string(param, argv[i], true);
+
+			resp = gdb->mi_issue_cmd((char*)"exec-arguments", 0, param);
 			break;
 
 		case TTY:
@@ -101,7 +101,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 				arg_add_string(param, argv[2], false);
 			}
 
-			cmd_str = "inferior-tty-set";
+			resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", 0, param);
 			break;
 
 		default:
@@ -110,35 +110,32 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 		};
 	}
 	else{
-		cmd_str = "file-exec-and-symbols";
 		arg_add_string(param, argv[1], false);
+		resp = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", 0, param);
 	}
 
-	if(gdb->mi_issue_cmd((char*)cmd_str, 0, param, cmd_inferior_resp) < 0){
-		WARN("error sending mi command\n");
+	if(resp == 0){
+		WARN("error issuing mi command\n");
 		arg_clear(param);
 		return -1;
 	}
 
-	arg_clear(param);
-	return 0;
-}
-
-int cmd_inferior_resp(result_class_t rclass, result_t* result, char* cmdline, void* data){
-	switch(rclass){
+	switch(resp->rclass){
 	case RC_DONE:
-		USER("done: exec \"%s\"\n", cmdline);
+		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
 		break;
 
 	case RC_ERROR:
-		USER("gdb reported error for command \"%s\"\n\t%s\n", cmdline, result->value->value);
+		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
 		break;
 
 	default:
-		WARN("unhandled result class %d\n", rclass);
+		WARN("unhandled result class %d\n", resp->rclass);
 		break;
 	};
 
+	gdb_result_free(resp->result);
+	arg_clear(param);
 	return 0;
 }
 

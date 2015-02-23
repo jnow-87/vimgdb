@@ -11,6 +11,7 @@
 int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 	const char* cmd_str;
 	const struct user_subcmd_t* scmd;
+	response_t* resp;
 	arglist_t* param, *el;
 
 
@@ -28,68 +29,46 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	switch(scmd->id){
-	case RUN:
-		cmd_str = "exec-run";
-		break;
-
-	case CONTINUE:
-		cmd_str = "exec-continue";
-		break;
-
-	case NEXT:
-		cmd_str = "exec-next";
-		break;
-
-	case STEP:
-		cmd_str = "exec-step";
-		break;
-
-	case RETURN:
-		cmd_str = "exec-finish";
-		break;
-
-	case BREAK:
+	if(scmd->id == RUN)				resp = gdb->mi_issue_cmd((char*)"exec-run", 0, param);
+	else if(scmd->id == CONTINUE)	resp = gdb->mi_issue_cmd((char*)"exec-continue", 0, param);
+	else if(scmd->id == NEXT)		resp = gdb->mi_issue_cmd((char*)"exec-next", 0, param);
+	else if(scmd->id == STEP)		resp = gdb->mi_issue_cmd((char*)"exec-step", 0, param);
+	else if(scmd->id == RETURN)		resp = gdb->mi_issue_cmd((char*)"exec-finish", 0, param);
+	else if(scmd->id == JUMP){
+		arg_add_string(param, argv[2], false);
+		resp = gdb->mi_issue_cmd((char*)"exec-jump", 0, param);
+	}
+	else if(scmd->id == GOTO){
+		arg_add_string(param, argv[2], false);
+		resp = gdb->mi_issue_cmd((char*)"exec-until", 0, param);
+	}
+	else if(scmd->id == BREAK){
 		return gdb->sigsend(SIGINT);
-		break;
+	}
 
-	case JUMP:
-		cmd_str = "exec-jump";
-		arg_add_string(param, argv[2], false);
-		break;
-
-	case GOTO:
-		cmd_str = "exec-until";
-		arg_add_string(param, argv[2], false);
-		break;
-	};
-
-	if(gdb->mi_issue_cmd((char*)cmd_str, 0, param, cmd_exec_resp) < 0){
-		WARN("error sending mi command\n");
+	if(resp == 0){
+		WARN("error issuing mi command\n");
 		arg_clear(param);
 		return -1;
 	}
 
-	arg_clear(param);
-	return 0;
-}
-
-int cmd_exec_resp(result_class_t rclass, result_t* result, char* cmdline, void* data){
-	switch(rclass){
+	switch(resp->rclass){
 	case RC_DONE:
 	case RC_RUNNING:
-		USER("done: exec \"%s\"\n", cmdline);
+		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
 		break;
 
 	case RC_ERROR:
-		USER("gdb reported error for command \"%s\"\n\t%s\n", cmdline, result->value->value);
+		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
 		break;
 
 	default:
-		WARN("unhandled result class %d\n", rclass);
+		WARN("unhandled result class %d for \"%s %s\"\n", resp->rclass, argv[0], argv[1]);
 		break;
 	};
 
+	gdb_result_free(resp->result);
+	arg_clear(param);
 	return 0;
 }
 
