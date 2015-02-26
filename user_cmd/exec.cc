@@ -1,7 +1,6 @@
 #include <common/log.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
-#include <gdb/arglist.h>
 #include <gui/gui.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
@@ -9,10 +8,8 @@
 
 /* global functions */
 int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
-	const char* cmd_str;
 	const struct user_subcmd_t* scmd;
 	response_t* resp;
-	arglist_t* param, *el;
 
 
 	if(argc < 2){
@@ -21,7 +18,6 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	param = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
@@ -29,26 +25,17 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	if(scmd->id == RUN)				resp = gdb->mi_issue_cmd((char*)"exec-run", 0, param);
-	else if(scmd->id == CONTINUE)	resp = gdb->mi_issue_cmd((char*)"exec-continue", 0, param);
-	else if(scmd->id == NEXT)		resp = gdb->mi_issue_cmd((char*)"exec-next", 0, param);
-	else if(scmd->id == STEP)		resp = gdb->mi_issue_cmd((char*)"exec-step", 0, param);
-	else if(scmd->id == RETURN)		resp = gdb->mi_issue_cmd((char*)"exec-finish", 0, param);
-	else if(scmd->id == JUMP){
-		arg_add_string(param, argv[2], false);
-		resp = gdb->mi_issue_cmd((char*)"exec-jump", 0, param);
-	}
-	else if(scmd->id == GOTO){
-		arg_add_string(param, argv[2], false);
-		resp = gdb->mi_issue_cmd((char*)"exec-until", 0, param);
-	}
-	else if(scmd->id == BREAK){
-		return gdb->sigsend(SIGINT);
-	}
+	if(scmd->id == RUN)				resp = gdb->mi_issue_cmd((char*)"exec-run", "");
+	else if(scmd->id == CONTINUE)	resp = gdb->mi_issue_cmd((char*)"exec-continue", "");
+	else if(scmd->id == NEXT)		resp = gdb->mi_issue_cmd((char*)"exec-next", "");
+	else if(scmd->id == STEP)		resp = gdb->mi_issue_cmd((char*)"exec-step", "");
+	else if(scmd->id == RETURN)		resp = gdb->mi_issue_cmd((char*)"exec-finish", "");
+	else if(scmd->id == JUMP)		resp = gdb->mi_issue_cmd((char*)"exec-jump", "%ss %d", argv + 2, argc - 2);
+	else if(scmd->id == GOTO)		resp = gdb->mi_issue_cmd((char*)"exec-until", "%ss %d", argv + 2, argc - 2);
+	else if(scmd->id == BREAK)		return gdb->sigsend(SIGINT);
 
 	if(resp == 0){
 		WARN("error issuing mi command\n");
-		arg_clear(param);
 		return -1;
 	}
 
@@ -68,7 +55,6 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 	};
 
 	gdb_result_free(resp->result);
-	arg_clear(param);
 	return 0;
 }
 

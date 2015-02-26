@@ -1,4 +1,5 @@
 #include <common/tty.h>
+#include <string.h>
 
 namespace libc{
 	// cover in separate namespace to avoid name collision
@@ -66,4 +67,8 @@ int tty::read(void* buf, unsigned int nbytes){
 int tty::write(void* buf, unsigned int nbytes){
 	// TODO
 	return libc::write(fd_out, buf, nbytes);
+}
+
+int tty::write(char* s){
+	return libc::write(fd_out, s, strlen(s));
 }

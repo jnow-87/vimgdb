@@ -22,9 +22,7 @@ static void* thread_inferior_output(void* arg);
 /* global functions */
 int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	int fd;
-	unsigned int i;
 	const struct user_subcmd_t* scmd;
-	arglist_t* param;
 	response_t* resp;
 
 
@@ -34,34 +32,16 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	param = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd != 0){
-		switch(scmd->id){
-		case BIN:
-			for(i=2; i<argc; i++)
-				arg_add_string(param, argv[i], true);
-
-			resp = gdb->mi_issue_cmd((char*)"file-exec-file", 0, param);
-			break;
-
-		case SYM:
-			for(i=2; i<argc; i++)
-				arg_add_string(param, argv[i], true);
-
-			resp = gdb->mi_issue_cmd((char*)"file-symbol-file", 0, param);
-			break;
-
-		case ARGS:
+		if(scmd->id == BIN)			resp = gdb->mi_issue_cmd((char*)"file-exec-file", "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id == SYM)	resp = gdb->mi_issue_cmd((char*)"file-symbol-file", "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id ==  ARGS){
 			TODO("implement arguments with spaces\n");
-			for(i=2; i<argc; i++)
-				arg_add_string(param, argv[i], true);
-
-			resp = gdb->mi_issue_cmd((char*)"exec-arguments", 0, param);
-			break;
-
-		case TTY:
+			resp = gdb->mi_issue_cmd((char*)"exec-arguments", "%ss %d", argv + 2, argc - 2);
+		}
+		else if(scmd->id == TTY){
 			/* setup pty */
 			if(strcmp(argv[2], "internal") == 0){
 				/* setup pty for output redirection */
@@ -86,7 +66,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 					return -1;
 				}
 
-				arg_add_string(param, inferior_term->get_name(), false);
+				resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", "%s", inferior_term->get_name());
 			}
 			else{
 				/* use specified pty for output */
@@ -98,25 +78,20 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 
 				close(fd);
 
-				arg_add_string(param, argv[2], false);
+				resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", "%ss %d", argv + 2, argc - 2);
 			}
-
-			resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", 0, param);
-			break;
-
-		default:
+		}
+		else{
 			USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
 			return 0;
-		};
+		}
 	}
 	else{
-		arg_add_string(param, argv[1], false);
-		resp = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", 0, param);
+		resp = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", "%ss %d", argv + 1, argc - 1);
 	}
 
 	if(resp == 0){
 		WARN("error issuing mi command\n");
-		arg_clear(param);
 		return -1;
 	}
 
@@ -135,7 +110,6 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	};
 
 	gdb_result_free(resp->result);
-	arg_clear(param);
 	return 0;
 }
 

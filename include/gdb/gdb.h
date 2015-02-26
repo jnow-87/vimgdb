@@ -4,9 +4,9 @@
 
 #include <common/pty.h>
 #include <gdb/result.h>
-#include <gdb/arglist.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <map>
 
 
@@ -38,7 +38,7 @@ public:
 	int init();
 
 	/* gdb machine interface (MI) */
-	response_t* mi_issue_cmd(char* cmd, arglist_t* options, arglist_t* parameter);
+	response_t* mi_issue_cmd(char* cmd, const char* param_fmt, ...);
 	int mi_parse(char* s);
 	int mi_proc_result(result_class_t rclass, unsigned int token, result_t* result);
 	int mi_proc_async(result_class_t rclass, unsigned int token, result_t* result);
@@ -52,8 +52,8 @@ public:
 private:
 	/* variables */
 	// gdb child data
-	pty* child_term;
-	pid_t child_pid;
+	pty* gdb;
+	pid_t pid;
 
 	// token used for gdb commands
 	unsigned int token;

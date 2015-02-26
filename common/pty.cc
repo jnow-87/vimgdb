@@ -36,7 +36,7 @@ pty::pty(struct termios* termp, struct winsize* win_size){
 	}
 
 	fd_in = fd_master;
-	fd_out =fd_master;
+	fd_out = fd_master;
 	forkee_pid = -1;
 }
 

@@ -16,7 +16,7 @@
  * \brief	standard constructor
  */
 gdbif::gdbif(){
-	child_term = 0;
+	gdb = 0;
 	token = 1;
 
 	pthread_mutex_init(&resp_mtx, 0);
@@ -28,8 +28,8 @@ gdbif::gdbif(){
  */
 gdbif::~gdbif(){
 	// close gdb terminal
-	delete this->child_term;
-	this->child_term = 0;
+	delete this->gdb;
+	this->gdb = 0;
 
 	pthread_cond_destroy(&resp_avail);
 	pthread_mutex_destroy(&resp_mtx);
@@ -43,18 +43,18 @@ gdbif::~gdbif(){
  */
 int gdbif::init(){
 	// initialise pseudo terminal
-	this->child_term = new pty();
+	this->gdb = new pty();
 
 	// fork child process
-	child_pid = child_term->fork();
+	pid = gdb->fork();
 
-	if(child_pid == 0){
+	if(pid == 0){
 		/* child */
 		log::cleanup();
 
 		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
-	else if(child_pid > 0){
+	else if(pid > 0){
 		/* parent */
 		return 0;
 	}
@@ -67,7 +67,7 @@ int gdbif::init(){
 int gdbif::sigsend(int sig){
 	sigval v;
 
-	return sigqueue(child_pid, sig, v);
+	return sigqueue(pid, sig, v);
 }
 
 /**
@@ -80,7 +80,7 @@ int gdbif::sigsend(int sig){
  * 			-1 on error
  */
 int gdbif::read(void* buf, unsigned int nbytes){
-	return child_term->read(buf, nbytes);
+	return gdb->read(buf, nbytes);
 }
 
 /**
@@ -93,77 +93,80 @@ int gdbif::read(void* buf, unsigned int nbytes){
  * 			-1 on error
  */
 int gdbif::write(void* buf, unsigned int nbytes){
-	return child_term->write(buf, nbytes);
+	return gdb->write(buf, nbytes);
 }
 
 /**
  * \brief	create gdb machine interface (MI) command
  *
- * \param	user_cmd			target command
- * \param	options		options to user_cmd
- * \param	noption		number of entries in options
- * \param	parameter	parameters to user_cmd
- * \param	nparameter	number of entries in parameter
- * \param	resp_hdlr	function to call upon gdb response
+ * \param	user_cmd	target command
+ * \param	fmt			printf-like format string, describing the following parameters
+ * 						supported identifiers:
+ * 							'%d'		integer
+ * 							'%s'		string
+ * 							'%ss %d'	array of strings, length is defined by the
+ * 										following integer
+ * 							'--'		separator between options and parameters
+ * 							.			everything else except blanks is printed literaly
+ *
+ * \param	...			parameters according to param_fmt
  *
  * \return	>0			token used for the command
  * 			-1			error
  */
-response_t* gdbif::mi_issue_cmd(char* user_cmd, arglist_t* options, arglist_t* parameter){
-	static char* cmd_str = 0;
-	static unsigned int cmd_str_len = 0;
-	unsigned int i, len;
-	arglist_t* el;
+response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
+	unsigned int i, j, argc;
+	char** argv;
+	va_list lst;
 
 
-	/* compute length of cmd_str */
-	len = strlen(user_cmd) + strlen(token, 10) + 5;	// +5 = "-" " --" \0
+	va_start(lst, fmt);
 
-	list_for_each(options, el){
-		if(el->type == T_STRING)	len += strlen(el->value.sptr);
-		else if(el->type == T_INT)	len += strlen(el->value.i, 10);
+	gdb->write(itoa(token));
+	gdb->write((char*)"-");
+	gdb->write(user_cmd);
 
-		len += 1 + (el->quoted ? 2 : 0);	// +1 = " "
+	for(i=0; i<strlen(fmt); i++){
+		gdb->write((char*)" ");
+
+		switch(fmt[i]){
+		case '%':
+			switch(fmt[i + 1]){
+			case 'd':
+				gdb->write(itoa(va_arg(lst, int)));
+				i++;
+				break;
+
+			case 's':
+				if(strncmp(fmt + i + 2, "s %d", 4) == 0){
+					argv = va_arg(lst, char**);
+					argc = va_arg(lst, int);
+
+					for(j=0; j<argc; j++)
+						gdb->write(argv[j]);
+
+					i += 4;
+				}
+				else
+					gdb->write(va_arg(lst, char*));
+
+				i++;
+				break;
+
+			default:
+				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
+				return 0;
+			};
+
+			break;
+
+		default:
+			gdb->write((void*)(fmt + i), 1);
+			break;
+		};
 	}
 
-	list_for_each(parameter, el){
-		if(el->type == T_STRING)	len += strlen(el->value.sptr);
-		else if(el->type == T_INT)	len += strlen(el->value.i, 10);
-
-		len += 1 + (el->quoted ? 2 : 0);	// +1 = " "
-	}
-
-	if(len > cmd_str_len){
-		delete cmd_str;
-		cmd_str = new char[len];
-
-		if(cmd_str == 0){
-			cmd_str_len = 0;
-			return -1;
-		}
-
-		cmd_str_len = len;
-	}
-
-	/* assemble cmd_str */
-	len = sprintf(cmd_str, "%d-%s", token, user_cmd);
-
-	list_for_each(options, el){
-		if(el->type == T_STRING)	len += sprintf(cmd_str + len, " %s%s%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
-		else if(el->type == T_INT)	len += sprintf(cmd_str + len, " %s%d%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
-	}
-
-	if(options != 0)
-		len += sprintf(cmd_str + len, " --");
-
-	list_for_each(parameter, el){
-		if(el->type == T_STRING)	len += sprintf(cmd_str + len, " %s%s%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
-		else if(el->type == T_INT)	len += sprintf(cmd_str + len, " %s%d%s", (el->quoted ? "\"" : ""), el->value, (el->quoted ? "\"" : ""));
-	}
-
-	/* issue user_cmd */
-	if(this->write(cmd_str, len) < 0 || this->write((void*)"\n", 1) < 0)
-		return 0;
+	gdb->write((char*)"\n");
 
 	/* wait for gdb response */
 	memset((void*)&resp, 0x0, sizeof(response_t));

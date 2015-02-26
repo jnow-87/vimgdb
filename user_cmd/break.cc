@@ -48,7 +48,6 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	char key[255];
 	const struct user_subcmd_t* scmd;
 	map<string, breakpt_t*>::iterator it;
-	arglist_t* param;
 	response_t* resp;
 	breakpt_t* bkpt;
 
@@ -66,12 +65,9 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	param = 0;
-
 	switch(scmd->id){
 	case ADD:
-		arg_add_string(param, argv[2], false);
-		resp = gdb->mi_issue_cmd((char*)"break-insert", 0, param);
+		resp = gdb->mi_issue_cmd((char*)"break-insert", "%s", argv[2]);
 		break;
 
 	case DELETE:
@@ -85,22 +81,18 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 			return 0;
 		}
 
-		arg_add_int(param, it->second->num, false);
-
-		if(scmd->id == DELETE)			resp = gdb->mi_issue_cmd((char*)"break-delete", 0, param);
-		else if(scmd->id == ENABLE)		resp = gdb->mi_issue_cmd((char*)"break-enable", 0, param);
-		else if(scmd->id == DISABLE)	resp = gdb->mi_issue_cmd((char*)"break-disable", 0, param);
+		if(scmd->id == DELETE)			resp = gdb->mi_issue_cmd((char*)"break-delete", "%d", it->second->num);
+		else if(scmd->id == ENABLE)		resp = gdb->mi_issue_cmd((char*)"break-enable", "%d", it->second->num);
+		else if(scmd->id == DISABLE)	resp = gdb->mi_issue_cmd((char*)"break-disable", "%d", it->second->num);
 		break;
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
-		arg_clear(param);
 		return 0;
 	};
 	
 	if(resp == 0){
 		WARN("error issuing mi command\n");
-		arg_clear(param);
 		return -1;
 	}
 
@@ -152,7 +144,6 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	};
 
 	gdb_result_free(resp->result);
-	arg_clear(param);
 
 	return 0;
 }
