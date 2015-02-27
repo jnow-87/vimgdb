@@ -83,6 +83,10 @@ $(if $(hostobj-y)$(hostobj-nobuiltin-y)$(hostlib-y)$(hostbin-y), \
 		$(eval obj-nobuiltin-y := $(hostobj-nobuiltin-y)) \
 		$(eval lib-y := $(hostlib-y)) \
 		$(eval bin-y := $(hostbin-y)) \
+		$(foreach f,$(supported_flags), \
+			$(eval host$(f)-y += $($(f)-y)) \
+			$(eval subdir-host$(f) += $(subdir-$(f))) \
+		) \
 	),\
 	$(eval host :=) \
 )
