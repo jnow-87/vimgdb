@@ -19,21 +19,27 @@ struct window_t{
 
 class cursesui : public gui{
 public:
+	/* init/destroy */
 	cursesui();
 	~cursesui();
 
 	int init();
 	void destroy();
+
+	/* user input */
 	char* readline();
 
-private:
-	int win_create(const char* title = "", bool oneline = false, unsigned int height = 0);
+	/* window functions */
+	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
+	int win_getid(const char* name);
 	int win_destroy(int win_id);
-	void win_write(int win_id, const char* fmt, ...);
-	void win_vwrite(int win_id, const char* fmt, va_list lst);
+
+	void win_print(int win_id, const char* fmt, ...);
+	void win_vprint(int win_id, const char* fmt, va_list lst);
 	void win_clear(int win_id);
 	void win_clrline(int win_id);
 
+private:
 	int win_resize();
 
 	/* window information */

@@ -9,6 +9,12 @@
 #include <pthread.h>
 #include <string.h>
 
+#ifdef GUI_CURSES
+	#include <gui/curses/cursesui.h>
+#elif GUI_VIM
+	#include <gui/vim/vimui.h>
+#endif
+
 
 /* static variables */
 gdbif* gdb;
@@ -104,6 +110,7 @@ void cleanup(int signum){
 
 void* thread_gdb_output(void* arg){
 	char c, *line;
+	int win_id_gdb;
 	unsigned int i, len;
 	sigval v;
 
@@ -114,7 +121,12 @@ void* thread_gdb_output(void* arg){
 	line = (char*)malloc(len * sizeof(char));
 
 	if(line == 0)
-		goto err;
+		goto err_0;
+
+	win_id_gdb = ui->win_create("gdb-log", true, 0);
+
+	if(win_id_gdb < 0)
+		goto err_1;
 
 	while(1){
 		if(gdb->read(&c, 1) == 1){
@@ -129,7 +141,7 @@ void* thread_gdb_output(void* arg){
 				line = (char*)realloc(line, len);
 
 				if(line == 0)
-					goto err;
+					goto err_0;
 			}
 
 			// check for end of gdb line, a simple newline as separator
@@ -139,7 +151,7 @@ void* thread_gdb_output(void* arg){
 			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
 			  ){
 				line[i] = 0;
-				ui->print(WIN_GDBLOG, "gdb_read: %s", line);
+				ui->win_print(win_id_gdb, "gdb_read: %s", line);
 
 				TEST("parse gdb string \"%.10s...\"\n", line);
 				TEST("parser return value: %d\n", gdb->mi_parse(line));
@@ -149,11 +161,17 @@ void* thread_gdb_output(void* arg){
 		}
 		else{
 			INFO("gdb read shutdown\n");
-			pthread_exit(0);
+			goto err_2;
 		}
 	}
 
-err:
+err_2:
+	ui->win_destroy(win_id_gdb);
+
+err_1:
+	free(line);
+
+err_0:
 	pthread_sigqueue(tid_main, SIGTERM, v);
 	pthread_exit(0);
 }

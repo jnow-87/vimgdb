@@ -1,12 +1,16 @@
 #include <common/log.h>
 #include <gui/gui.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <time.h>
 
 
 /* static variables */
 FILE* log::log_file = 0;
+int log::win_id_debug = 0;
+int log::win_id_user = 0;
 log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
+pid_t log::creator = 0;
 
 
 /* class definition */
@@ -22,6 +26,8 @@ log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
 int log::init(const char* file_name, log_level_t lvl){
 	log_level = lvl;
 
+	creator = getpid();
+
 	if(log_level != NONE && log_file == 0){
 		log_file = fopen(file_name, "w");
 		
@@ -29,7 +35,30 @@ int log::init(const char* file_name, log_level_t lvl){
 			return -1;
 	}
 
+	if(ui){
+		win_id_user = ui->win_create("user-log", true, 0);
+
+		if(win_id_user < 0)
+			goto err_1;
+
+#ifdef GUI_CURSES
+		win_id_debug = ui->win_create("debug-log", true, 0);
+
+		if(win_id_debug < 0)
+			goto err_2;
+#endif // GUI_CURSES
+	}
+
 	return 0;
+
+err_2:
+	ui->win_destroy(win_id_user);
+
+err_1:
+	fclose(log_file);
+
+err_0:
+	return -1;
 }
 
 /**
@@ -38,6 +67,15 @@ int log::init(const char* file_name, log_level_t lvl){
 void log::cleanup(){
 	if(log_file != 0)
 		fclose(log_file);
+
+	log_file = 0;
+
+	// ensure that only creating process is closing the windows
+	// otherwise any forked process would destroy them
+	if(ui && creator == getpid()){
+		ui->win_destroy(win_id_user);
+		ui->win_destroy(win_id_debug);
+	}
 }
 
 /**
@@ -52,7 +90,7 @@ void log::print(log_level_t lvl, const char* msg, ...){
 
 
 	if(lvl & log_level){
-		if(log_file != 0){
+		if(log_file){
 			va_start(lst, msg);
 			vfprintf(log_file, msg, lst);
 			fflush(log_file);
@@ -63,10 +101,10 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			va_start(lst, msg);
 
 #ifdef GUI_CURSES
-			if(lvl & (USER | TEST))	ui->vprint(WIN_USERLOG, msg, lst);
-			else					ui->vprint(WIN_DEBUGLOG, msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
+			else					ui->win_vprint(win_id_debug, msg, lst);
 #else
-			if(lvl & (USER | TEST))	ui->vprint(WIN_USERLOG, msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
 			else					vprintf(msg, lst);
 #endif
 

@@ -4,7 +4,9 @@
 #include <string.h>
 
 
-#define CMD_PROMPT	"cmd: "
+#define CMD_PROMPT		"cmd: "
+#define MIN_WIN_HEIGHT	3
+#define MIN_WIN_WIDTH	30
 
 
 cursesui::cursesui(){
@@ -47,18 +49,12 @@ int cursesui::init(){
 	if(term == 0)
 		goto err_2;
 
-	if(base_init() != 0)
-		goto err_3;
-
 	user_win_id = win_create("command-line", true, 3);
 
 	if(user_win_id < 0)
-		goto err_4;
+		goto err_3;
 
 	return 0;
-
-err_4:
-	base_destroy();
 
 err_3:
 	delete term;
@@ -76,8 +72,6 @@ err_0:
 void cursesui::destroy(){
 	unsigned int i;
 
-
-	base_destroy();
 
 	win_destroy(user_win_id);
 
@@ -112,7 +106,7 @@ char* cursesui::readline(){
 		return 0;
 
 	i = 0;
-	win_write(user_win_id, CMD_PROMPT);
+	win_print(user_win_id, CMD_PROMPT);
 
 	while(1){
 		term->read(&c, 1);
@@ -120,7 +114,7 @@ char* cursesui::readline(){
 		if(c == '\n' || c == '\r'){
 			line[i] = 0;
 
-			win_write(user_win_id, "\n");
+			win_print(user_win_id, "\n");
 			return line;
 		}
 		else if(c == 127){
@@ -129,10 +123,10 @@ char* cursesui::readline(){
 
 			line[--i] = 0;
 			win_clrline(user_win_id);
-			win_write(user_win_id, CMD_PROMPT "%s", line);
+			win_print(user_win_id, CMD_PROMPT "%s", line);
 		}
 		else{
-			win_write(user_win_id, "%c", c);
+			win_print(user_win_id, "%c", c);
 			line[i++] = c;
 
 			if(i >= line_len){
@@ -149,13 +143,13 @@ char* cursesui::readline(){
 /**
  * \brief	create new cursesui window
  *
- * \param	title		window title
+ * \param	name		window title
  * \param	oneline		if true, the window width is maximised
  *
  * \return	>=0			window id
  * 			<0			error
  */
-int cursesui::win_create(const char* title, bool oneline, unsigned int height){
+int cursesui::win_create(const char* name, bool oneline, unsigned int height){
 	int i, id;
 
 
@@ -170,10 +164,10 @@ int cursesui::win_create(const char* title, bool oneline, unsigned int height){
 	/* search free id */
 	id = -1;
 	for(i=0; i<max_win; i++){
-		if(windows[i] == 0){
+		if(windows[i] == 0)
 			id = i;
-			break;
-		}
+		else if(strcmp(windows[i]->title, name) == 0)
+			return i;
 	}
 
 	if(id == -1)
@@ -183,15 +177,18 @@ int cursesui::win_create(const char* title, bool oneline, unsigned int height){
 	windows[id] = new window_t;
 	windows[id]->win = newwin(2, 2, 0, 0);		// arbitrary width and height, final
 	windows[id]->frame = newwin(2, 2, 0, 0);	// values are set in win_resize()
-	windows[id]->title = (char*)title;
+	windows[id]->title = (char*)name;
 	windows[id]->oneline = (height > 0) ? true : oneline;
 	windows[id]->height = height;
 	scrollok(windows[id]->win, true);			// enable auto-scroll
 
 	nwin++;
 
-	/* update size of all windows */
-	if(win_resize() < 0){
+	/* update size of all windows
+	 * 	it seems to be necessary for call it twice
+	 * 	to retain the content of existing windows
+	 */
+	if(win_resize() < 0 || win_resize() < 0){
 		win_destroy(id);
 		return -1;
 	}
@@ -216,16 +213,20 @@ int cursesui::win_destroy(int win_id){
 	return 0;
 }
 
-void cursesui::win_write(int win_id, const char* fmt, ...){
+int cursesui::win_getid(const char* name){
+	return win_create(name);
+}
+
+void cursesui::win_print(int win_id, const char* fmt, ...){
 	va_list lst;
 
 
 	va_start(lst, fmt);
-	win_vwrite(win_id, fmt, lst);
+	win_vprint(win_id, fmt, lst);
 	va_end(lst);
 }
 
-void cursesui::win_vwrite(int win_id, const char* fmt, va_list lst){
+void cursesui::win_vprint(int win_id, const char* fmt, va_list lst){
 	pthread_mutex_lock(&mutex);
 
 	vwprintw(windows[win_id]->win, fmt, lst);
@@ -245,7 +246,6 @@ void cursesui::win_clear(int win_id){
 
 void cursesui::win_clrline(int win_id){
 	int x, y;
-
 
 
 	pthread_mutex_lock(&mutex);
@@ -312,7 +312,7 @@ int cursesui::win_resize(){
 	 * 	ncols[i]	number of windows for line i
 	 * 	nlines		entries in ncols
 	 */
-	max_cols = COLS / min_win_width;
+	max_cols = COLS / MIN_WIN_WIDTH;
 
 	nlines = 0;
 	for(i=0; i<nsplit; i++){
@@ -336,7 +336,7 @@ int cursesui::win_resize(){
 	if(nlines - nfixed_height > 0){
 		height = (LINES - fixed_height) / (nlines - nfixed_height);
 
-		if(height < min_win_height)
+		if(height < MIN_WIN_HEIGHT)
 			return -1;
 	}
 
@@ -351,7 +351,7 @@ int cursesui::win_resize(){
 	line = 0;
 	for(i=0; i<nlines; i++){
 		width = COLS / ncols[i];
-		if(width < min_win_width)
+		if(width < MIN_WIN_WIDTH)
 			return -1;
 
 		for(j=0; j<ncols[i]; j++){

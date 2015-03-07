@@ -74,12 +74,13 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	case ENABLE:
 	case DISABLE:
 		it = breakpt_lst.find(argv[2]);
-		bkpt = it->second;
 
 		if(it == breakpt_lst.end()){
 			USER("error: no breakpoint found for \"%s\"\n", argv[2]);
 			return 0;
 		}
+
+		bkpt = it->second;
 
 		if(scmd->id == DELETE)			resp = gdb->mi_issue_cmd((char*)"break-delete", "%d", it->second->num);
 		else if(scmd->id == ENABLE)		resp = gdb->mi_issue_cmd((char*)"break-enable", "%d", it->second->num);
@@ -250,22 +251,28 @@ void breakpt_read(gdb_result_t* result, breakpt_t* bkpt){
 }
 
 void breakpt_print(){
+	int win_id_break;
 	map<string, breakpt_t*>::iterator it;
 	breakpt_t* bkpt;
 
 
-	ui->clear(WIN_BREAK);
+	win_id_break = ui->win_getid("breakpoints");
+
+	if(win_id_break < 0)
+		return;
+
+	ui->win_clear(win_id_break);
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
 		bkpt = it->second;
 
 		if(bkpt->enabled){
-			if(bkpt->filename != 0)	ui->print(WIN_BREAK, "   %s:%d\n", bkpt->filename, bkpt->line);
-			else					ui->print(WIN_BREAK, "   %s\n", bkpt->at);
+			if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d\n", bkpt->filename, bkpt->line);
+			else					ui->win_print(win_id_break, "   %s\n", bkpt->at);
 		}
 		else{
-			if(bkpt->filename != 0)	ui->print(WIN_BREAK, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
-			else					ui->print(WIN_BREAK, "   %s [disabled]\n", bkpt->at);
+			if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
+			else					ui->win_print(win_id_break, "   %s [disabled]\n", bkpt->at);
 		}
 	}
 }

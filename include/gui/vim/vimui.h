@@ -8,6 +8,11 @@
 #include <gui/vim/result.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include <string>
+#include <map>
+
+
+using namespace std;
 
 
 typedef struct{
@@ -21,15 +26,27 @@ typedef struct{
 
 class vimui : public gui{
 public:
+	/* init/destroy */
 	vimui();
 	~vimui();
 
 	int init();
 	void destroy();
 
+	/* user input */
 	char* readline();
 	int readline_thread();
 
+	/* window functions */
+	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
+	int win_getid(const char* name);
+	int win_destroy(int win_id);
+
+	void win_print(int win_id, const char* fmt, ...);
+	void win_vprint(int win_id, const char* fmt, va_list lst);
+	void win_clear(int win_id);
+
+	/* netbeans message handling */
 	int reply(int seq_num, vim_result_t* rlst);
 	int event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* rlst);
 
@@ -40,20 +57,12 @@ private:
 		CMD,
 	} action_t;
 
-	/* protoypes */
-	int win_create(const char* title = "", bool oneline = false, unsigned int height = 0);
-	int win_destroy(int win_id);
-	void win_write(int win_id, const char* fmt, ...);
-	void win_vwrite(int win_id, const char* fmt, va_list lst);
-	void win_clear(int win_id);
-
+	/* netbeans protocol */
 	int action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...);
 
 	/* vim data */
-	int max_buf,
-		nbuf;
-
-	bool* buf_ids;
+	int bufid;
+	map<string, int> bufid_map;
 	volatile int seq_num;
 	char* cwd;
 
