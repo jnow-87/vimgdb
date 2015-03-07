@@ -7,6 +7,7 @@
 	#include <gdb/parser.tab.h>
 	#include <gdb/variable.hash.h>
 	#include <common/log.h>
+	#include <common/string.h>
 
 
 	/* define YY_USER_ACTION, executed for every token, before excuting its
@@ -20,9 +21,6 @@
 			gdblloc.last_column = gdb_col + gdbleng; \
 			gdb_col += gdbleng; \
 		}
-
-	/* prototypes */
-	char* alloc_string(char* s, unsigned int len);
 %}
 
 /* start states */
@@ -65,7 +63,7 @@
 												return VARIABLE;
 											}
 											else{
-												gdblval.sptr = alloc_string(gdbtext, gdbleng);
+												gdblval.sptr = stralloc(gdbtext, gdbleng);
 												return STRING;
 											}
 										}
@@ -73,23 +71,10 @@
 	/* quoted string */
 \"										{ BEGIN QSTRING; return gdbtext[0]; }
 <QSTRING>\"								{ BEGIN INITIAL; return gdbtext[0]; }
-<QSTRING>([^\"]|(\\\"))*				{ gdblval.sptr = alloc_string(gdbtext, gdbleng); return STRING; }
+<QSTRING>([^\"]|(\\\"))*				{ gdblval.sptr = stralloc(gdbtext, gdbleng); return STRING; }
 
 	/* MI command */
 ^[0-9]*-.*\n							{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
 
 	/* default */
 .										{ return gdbtext[0]; }
-
-
-%%
-
-
-char* alloc_string(char* _s, unsigned int len){
-	char* s;
-
-	s = (char*)malloc(len + 1);
-	if(s != 0)
-		strncpy(s, _s, len + 1);
-	return s;
-}

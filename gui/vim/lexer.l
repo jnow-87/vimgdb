@@ -3,6 +3,7 @@
 
 %{
 	#include <common/log.h>
+	#include <common/string.h>
 	#include <event.hash.h>
 	#include <parser.tab.h>
 
@@ -21,9 +22,6 @@
 			vimlloc.last_column = vim_col + vimleng; \
 			vim_col += vimleng; \
 		}
-
-	/* prototypes */
-	char* alloc_string(char* s, unsigned int len);
 %}
 
 /* start states */
@@ -50,7 +48,7 @@
 												return EVENT;
 											}
 											else{
-												vimlval.sptr = alloc_string(vimtext, vimleng);
+												vimlval.sptr = stralloc(vimtext, vimleng);
 												return STRING;
 											}
 										}
@@ -59,20 +57,7 @@
 \"										{ BEGIN QSTRING; return vimtext[0]; }
 \"\"									{ vimlval.sptr = 0; return STRING; }
 <QSTRING>\"								{ BEGIN INITIAL; return vimtext[0]; }
-<QSTRING>([^\"]|(\\\"))*				{ vimlval.sptr = alloc_string(vimtext, vimleng); return STRING; }
+<QSTRING>([^\"]|(\\\"))*				{ vimlval.sptr = stralloc(vimtext, vimleng); return STRING; }
 
 	/* default */
 .										{ return vimtext[0]; }
-
-
-%%
-
-
-char* alloc_string(char* _s, unsigned int len){
-	char* s;
-
-	s = (char*)malloc(len + 1);
-	if(s != 0)
-		strncpy(s, _s, len + 1);
-	return s;
-}

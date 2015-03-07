@@ -6,6 +6,8 @@ int strlen(int val, int base);
 int strsplit(char* line, int* argc, char*** argv);
 char* strescape(char* s);
 char* itoa(int v);
+char* stralloc(char* s, unsigned int len);
+
 
 
 #endif // STRING_H

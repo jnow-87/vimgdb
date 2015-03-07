@@ -1,6 +1,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 int strlen(int val, int base){
@@ -281,5 +282,14 @@ char* itoa(int v){
 
 
 	sprintf(s, "%d", v);
+	return s;
+}
+
+char* stralloc(char* _s, unsigned int len){
+	char* s;
+
+	s = (char*)malloc(len + 1);
+	if(s != 0)
+		strncpy(s, _s, len + 1);
 	return s;
 }
