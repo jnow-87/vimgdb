@@ -62,10 +62,13 @@ void log::print(log_level_t lvl, const char* msg, ...){
 		if(ui){
 			va_start(lst, msg);
 
-			if(lvl & (USER | TEST))
-				ui->vprint(WIN_USERLOG, msg, lst);
-			else
-				ui->vprint(WIN_APPLOG, msg, lst);
+#ifdef GUI_CURSES
+			if(lvl & (USER | TEST))	ui->vprint(WIN_USERLOG, msg, lst);
+			else					ui->vprint(WIN_DEBUGLOG, msg, lst);
+#else
+			if(lvl & (USER | TEST))	ui->vprint(WIN_USERLOG, msg, lst);
+			else					vprintf(msg, lst);
+#endif
 
 			va_end(lst);
 		}
