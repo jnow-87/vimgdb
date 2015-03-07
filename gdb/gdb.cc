@@ -166,12 +166,14 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 		};
 	}
 
-	gdb->write((char*)"\n");
-
 	/* wait for gdb response */
 	pthread_mutex_lock(&resp_mtx);
 
 	memset((void*)&resp, 0x0, sizeof(gdb_response_t));
+
+	gdb->write((char*)"\n");	// ensure that response cannot arrive
+								// before it is expected
+
 	pthread_cond_wait(&resp_avail, &resp_mtx);
 
 	pthread_mutex_unlock(&resp_mtx);
