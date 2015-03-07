@@ -4,6 +4,7 @@
 
 #include <common/socket.h>
 #include <gui/gui.h>
+#include <gui/vim/event.h>
 #include <stdarg.h>
 
 

@@ -69,9 +69,9 @@ extern gui* ui;
 
 /* gui implementation header */
 #ifdef GUI_CURSES
-	#include <gui/cursesui.h>
+	#include <gui/curses/cursesui.h>
 #elif GUI_VIM
-	#include <gui/vim.h>
+	#include <gui/vim/vimui.h>
 #else
 	#error "invalid gui defined"
 #endif

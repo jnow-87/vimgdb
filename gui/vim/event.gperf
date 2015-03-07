@@ -19,7 +19,7 @@
 
 /* c-code */
 %{
-	#include <event.h>
+	#include <gui/vim/event.h>
 %}
 
 /* struct-type definition */

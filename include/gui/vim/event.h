@@ -3,7 +3,8 @@
 
 
 typedef enum{
-	E_DISCONNECT = 1,
+	E_NONE = 0,
+	E_DISCONNECT,
 	E_STARTUPDONE,
 	E_KILLED,
 	E_FILEOPENED,

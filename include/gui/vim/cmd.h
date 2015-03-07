@@ -2,6 +2,9 @@
 #define VIM_CMD_H
 
 
+#include <gui/vim/event.h>
+
+
 typedef enum{
 	C_CREATE = 1,
 	C_CLOSE,
@@ -25,11 +28,14 @@ typedef enum{
 	C_REMOVEANNO,
 	C_GUARD,
 	C_UNGUARD,
+	C_ATOMICSTART,
+	C_ATOMICEND,
 } vim_cmd_id_t;
 
 struct vim_cmd_t{
 	const char* name;
 	vim_cmd_id_t id;
+	vim_event_id_t evt_id;
 };
 
 typedef vim_cmd_t vim_cmd_t;

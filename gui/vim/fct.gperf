@@ -19,7 +19,7 @@
 
 /* c-code */
 %{
-	#include <fct.h>
+	#include <gui/vim/fct.h>
 %}
 
 /* struct-type definition */

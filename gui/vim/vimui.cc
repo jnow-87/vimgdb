@@ -1,5 +1,5 @@
 #include <common/string.h>
-#include <gui/vim.h>
+#include <gui/vim/vimui.h>
 #include <stdlib.h>
 #include <string.h>
 

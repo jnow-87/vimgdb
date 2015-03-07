@@ -3,7 +3,8 @@
 
 %{
 	#include <common/log.h>
-	#include <event.h>
+	#include <gui/vim/vimui.h>
+	#include <gui/vim/event.h>
 	#include <lexer.lex.h>
 
 

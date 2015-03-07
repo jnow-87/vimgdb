@@ -1,4 +1,4 @@
-#include <gui/cursesui.h>
+#include <gui/curses/cursesui.h>
 #include <common/tty.h>
 #include <string.h>
 #include <unistd.h>

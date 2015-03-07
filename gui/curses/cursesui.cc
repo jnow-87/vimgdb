@@ -1,4 +1,4 @@
-#include <gui/cursesui.h>
+#include <gui/curses/cursesui.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>

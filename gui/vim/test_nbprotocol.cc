@@ -1,12 +1,12 @@
 #include <common/socket.h>
 #include <common/log.h>
 #include <common/string.h>
+#include <gui/vim/event.h>
 #include <cmd.hash.h>
 #include <fct.hash.h>
-#include <event.h>
+#include <event.hash.h>
 #include <lexer.lex.h>
 #include <parser.tab.h>
-#include <event.hash.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>

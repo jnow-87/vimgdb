@@ -22,6 +22,8 @@ public:
 	cursesui();
 	~cursesui();
 
+	int init();
+	void destroy();
 	char* readline();
 
 private:
@@ -43,6 +45,7 @@ private:
 	/* user input */
 	char* line;
 	unsigned int line_len;
+	int user_win_id;
 	tty* term;
 
 	/* threading */

@@ -19,7 +19,7 @@
 
 /* c-code */
 %{
-	#include <cmd.h>
+	#include <gui/vim/cmd.h>
 %}
 
 /* struct-type definition */

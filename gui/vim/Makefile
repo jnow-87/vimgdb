@@ -1,4 +1,4 @@
-obj-y := vim.o
+obj-y := vimui.o
 bin-y := test-nbprotocol
 
 

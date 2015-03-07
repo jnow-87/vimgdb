@@ -4,6 +4,7 @@
 %{
 	#include <common/log.h>
 	#include <common/string.h>
+	#include <gui/vim/vimui.h>
 	#include <event.hash.h>
 	#include <parser.tab.h>
 
