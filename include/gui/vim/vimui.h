@@ -13,6 +13,9 @@ public:
 	vimui();
 	~vimui();
 
+	int init();
+	void destroy();
+
 	char* readline();
 
 private:
@@ -23,7 +26,6 @@ private:
 	} vim_action_t;
 
 	/* protoypes */
-	int init();
 	int win_create(const char* title = "", bool oneline = false, unsigned int height = 0);
 	int win_destroy(int win_id);
 	void win_write(int win_id, const char* fmt, ...);

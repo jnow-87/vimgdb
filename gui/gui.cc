@@ -7,7 +7,6 @@ gui* ui = 0;
 /* static members */
 int gui::min_win_height = 3;
 int gui::min_win_width = 30;
-bool gui::constructor_ok = false;
 
 win_cfg_t gui::wins[] = {
 	WIN_INIT("breakpoints", false, 0),
@@ -22,36 +21,6 @@ win_cfg_t gui::wins[] = {
 
 
 /* member functions */
-int gui::init(){
-	unsigned int i;
-
-
-	if(!constructor_ok)
-		return -1;
-
-	i = 0;
-	while(wins[i].id != -1){
-		wins[i].id = win_create(wins[i].title, wins[i].oneline, wins[i].height);
-		if(wins[i].id < 0)
-			return -1;
-		i++;
-	}
-
-	return 0;
-}
-
-void gui::destroy(){
-	unsigned int i;
-
-
-	i = 0;
-	while(wins[i].id != -1){
-		if(wins[i].id >= 0)
-			win_destroy(wins[i].id);
-		i++;
-	}
-}
-
 void gui::print(win_id_t win, const char* fmt, ...){
 	va_list lst;
 
@@ -72,3 +41,32 @@ void gui::clear(win_id_t win){
 void gui::clearline(win_id_t win){
 	win_clrline(wins[win].id);
 }
+
+int gui::base_init(){
+	unsigned int i;
+
+
+	i = 0;
+	while(wins[i].id != -1){
+		wins[i].id = win_create(wins[i].title, wins[i].oneline, wins[i].height);
+		if(wins[i].id < 0)
+			return -1;
+		i++;
+	}
+
+	return 0;
+}
+
+void gui::base_destroy(){
+	unsigned int i;
+
+
+	i = 0;
+	while(wins[i].id != -1){
+		if(wins[i].id >= 0)
+			win_destroy(wins[i].id);
+		i++;
+	}
+}
+
+

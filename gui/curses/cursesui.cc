@@ -17,14 +17,24 @@ cursesui::cursesui(){
 	/* init class members */
 	nwin = 0;
 	max_win = 2;
+
+	pthread_mutex_init(&mutex, 0);
+}
+
+cursesui::~cursesui(){
+	pthread_mutex_destroy(&mutex);
+
+	/* stop ncurses */
+	endwin();
+}
+
+int cursesui::init(){
 	windows = (window_t**)malloc(sizeof(window_t*) * max_win);
 
 	if(windows == 0)
 		goto err_0;
 
 	memset(windows, 0x0, sizeof(window_t*) * max_win);
-
-	pthread_mutex_init(&mutex, 0);
 
 	line_len = 255;
 	line = (char*)malloc(line_len * sizeof(char));
@@ -37,14 +47,18 @@ cursesui::cursesui(){
 	if(term == 0)
 		goto err_2;
 
+	if(base_init() != 0)
+		goto err_3;
+
 	user_win_id = win_create("command-line", true, 3);
 
 	if(user_win_id < 0)
-		goto err_3;
+		goto err_4;
 
+	return 0;
 
-	constructor_ok = true;
-	return;
+err_4:
+	base_destroy();
 
 err_3:
 	delete term;
@@ -56,12 +70,16 @@ err_1:
 	free(windows);
 
 err_0:
-	constructor_ok = false;
+	return -1;
 }
 
-cursesui::~cursesui(){
+void cursesui::destroy(){
 	unsigned int i;
 
+
+	base_destroy();
+
+	win_destroy(user_win_id);
 
 	/* free allocated windows */
 	for(i=0; i<max_win; i++){
@@ -74,9 +92,9 @@ cursesui::~cursesui(){
 	}
 
 	free(windows);
+	free(line);
 
-	/* stop ncurses */
-	endwin();
+	delete term;
 }
 
 /**

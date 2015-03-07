@@ -15,6 +15,14 @@ vimui::~vimui(){
 	delete nbserver;
 }
 
+int vimui::init(){
+	return base_init();
+}
+
+void vimui::destroy(){
+	base_destroy();
+}
+
 char* vimui::readline(){
 	return 0;
 }

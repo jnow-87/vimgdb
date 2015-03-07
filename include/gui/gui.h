@@ -36,21 +36,21 @@ enum win_id_t{
 /* class */
 class gui{
 public:
-	int init();
-	void destroy();
-
 	void print(win_id_t win, const char* fmt, ...);
 	void vprint(win_id_t win, const char* fmt, va_list lst);
 	void clear(win_id_t win);
 	void clearline(win_id_t win);
 
+	virtual int init() = 0;
+	virtual void destroy() = 0;
 	virtual char* readline() = 0;
 
 protected:
+	int base_init();
+	void base_destroy();
+
 	static int min_win_height,
 			   min_win_width;
-
-	static bool constructor_ok;
 
 private:
 	virtual int win_create(const char* title = "", bool oneline = false, unsigned int height = 0) = 0;
