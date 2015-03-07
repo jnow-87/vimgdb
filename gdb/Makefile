@@ -14,10 +14,10 @@ test-interface-ldflags := -lpthread -lcurses
 ## test-parser
 # flags
 test-parser-cppflags := -I"$(loc_src_tree)"
+test-parser-ldflags := -lpthread -lcurses
 
 # object files
 test-parser-y := test_parser.o parser.tab.o lexer.lex.o result.o value.o variable.o gdb.o common/ gui/
-test-parser-ldflags := -lcurses
 
 
 ## additional dependencies for generated headers

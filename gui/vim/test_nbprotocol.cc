@@ -2,11 +2,10 @@
 #include <common/log.h>
 #include <common/string.h>
 #include <gui/vim/event.h>
+#include <gui/vim/result.h>
 #include <cmd.hash.h>
 #include <fct.hash.h>
 #include <event.hash.h>
-#include <lexer.lex.h>
-#include <parser.tab.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -154,12 +153,10 @@ void* thread_server(void* arg){
 					if(c == '\n'){
 
 						line[i] = 0;
-						USER("parse: \"%s\"\n", line);
+						USER("recv: \"%s\"\n", line);
 
 						line[i++] = '\n';
 						line[i] = 0;
-						vim_scan_string(line);
-						USER("parser return value %d\n", vimparse());
 
 						i = 0;
 					}
@@ -209,5 +206,6 @@ int vim_action(vim_action_t action, int argc, char** argv){
 	}
 
 	client->send((void*)"\n", 1);
+	seq_num++;
 	return 0;
 }

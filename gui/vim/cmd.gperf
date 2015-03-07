@@ -26,26 +26,28 @@
 struct vim_cmd_t;
 
 %%
-# command name							id
-create,									C_CREATE
-close,									C_CLOSE
-save,									C_SAVE
-editFile,								C_EDITFILE
-putBufferNumber,						C_PUTBUFFERNUMBER
-setBufferNumber,						C_SETBUFFERNUMBER
-setDot,									C_SETDOT
-setModified,							C_SETMODIFIED
-setReadOnly,							C_SETREADONLY
-setTitle,								C_SETTITLE
-setFullName,							C_SETFULLNAME
-setVisible,								C_SETVISIBLE
-startDocumentListen,					C_STARTDOCUMENTLISTEN
-stopDocumentListen,						C_STOPDOCUMENTLISTEN
-initDone,								C_INITDONE
-insertDone,								C_INSERTDONE
-saveDone,								C_SAVEDONE
-addAnno,								C_ADDANNO
-defineAnnoType,							C_DEFINEANNOTYPE
-removeAnno,								C_REMOVEANNO
-guard,									C_GUARD
-unguard,								C_UNGUARD
+# command name							id							event-id
+create,									C_CREATE,					E_NONE
+close,									C_CLOSE,					E_KILLED
+save,									C_SAVE,						E_NONE
+editFile,								C_EDITFILE,					E_NONE
+putBufferNumber,						C_PUTBUFFERNUMBER,			E_NONE
+setBufferNumber,						C_SETBUFFERNUMBER,			E_NONE
+setDot,									C_SETDOT,					E_NONE
+setModified,							C_SETMODIFIED,				E_NONE
+setReadOnly,							C_SETREADONLY,				E_NONE
+setTitle,								C_SETTITLE,					E_NONE
+setFullName,							C_SETFULLNAME,				E_FILEOPENED
+setVisible,								C_SETVISIBLE,				E_NONE
+startDocumentListen,					C_STARTDOCUMENTLISTEN,		E_NONE
+stopDocumentListen,						C_STOPDOCUMENTLISTEN,		E_NONE
+initDone,								C_INITDONE,					E_NONE
+insertDone,								C_INSERTDONE,				E_NONE
+saveDone,								C_SAVEDONE,					E_NONE
+addAnno,								C_ADDANNO,					E_NONE
+defineAnnoType,							C_DEFINEANNOTYPE,			E_NONE
+removeAnno,								C_REMOVEANNO,				E_NONE
+guard,									C_GUARD,					E_NONE
+unguard,								C_UNGUARD,					E_NONE
+startAtomic,							C_ATOMICSTART,				E_NONE
+endAtomic,								C_ATOMICEND,				E_NONE

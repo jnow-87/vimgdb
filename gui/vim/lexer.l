@@ -5,6 +5,7 @@
 	#include <common/log.h>
 	#include <common/string.h>
 	#include <gui/vim/vimui.h>
+	#include <gui/vim/result.h>
 	#include <event.hash.h>
 	#include <parser.tab.h>
 
@@ -39,13 +40,13 @@
 
 	/* general patterns */
 \r?\n									{ vim_col = 0; return NEWLINE; }
-[0-9]*									{ vimlval.num = atoi(vimtext); return NUMBER; }
+-?[0-9]*								{ vimlval.num = atoi(vimtext); return NUMBER; }
 
 	/* unquoted string */
 [a-zA-Z][a-zA-Z0-9_\-.]*				{
 											/* check if string is a known vim variable */
 											if(vim_event::lookup(vimtext, vimleng) != 0){
-												vimlval.event = *vim_event::lookup(vimtext, vimleng);
+												vimlval.event = vim_event::lookup(vimtext, vimleng);
 												return EVENT;
 											}
 											else{
