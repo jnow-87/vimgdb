@@ -1,5 +1,6 @@
 #include <common/log.h>
 #include <common/tty.h>
+#include <common/opt.h>
 #include <gdb/gdb.h>
 #include <user_cmd/cmd.h>
 #include <gui/gui.h>
@@ -25,6 +26,9 @@ int main(int argc, char** argv){
 
 
 	/* initialise */
+	if(opt_parse(argc, argv) != 0)
+		return 1;
+
 	// signals
 	signal(SIGTERM, cleanup);
 	signal(SIGINT, cleanup);
