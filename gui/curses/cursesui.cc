@@ -37,8 +37,17 @@ cursesui::cursesui(){
 	if(term == 0)
 		goto err_2;
 
+	user_win_id = win_create("command-line", true, 3);
+
+	if(user_win_id < 0)
+		goto err_3;
+
+
 	constructor_ok = true;
 	return;
+
+err_3:
+	delete term;
 
 err_2:
 	free(line);
@@ -85,7 +94,7 @@ char* cursesui::readline(){
 		return 0;
 
 	i = 0;
-	print(WIN_CMD, CMD_PROMPT);
+	win_write(user_win_id, CMD_PROMPT);
 
 	while(1){
 		term->read(&c, 1);
@@ -93,7 +102,7 @@ char* cursesui::readline(){
 		if(c == '\n' || c == '\r'){
 			line[i] = 0;
 
-			print(WIN_CMD, "\n");
+			win_write(user_win_id, "\n");
 			return line;
 		}
 		else if(c == 127){
@@ -101,11 +110,11 @@ char* cursesui::readline(){
 				continue;
 
 			line[--i] = 0;
-			clearline(WIN_CMD);
-			print(WIN_CMD, CMD_PROMPT "%s", line);
+			win_clrline(user_win_id);
+			win_write(user_win_id, CMD_PROMPT "%s", line);
 		}
 		else{
-			print(WIN_CMD, "%c", c);
+			win_write(user_win_id, "%c", c);
 			line[i++] = c;
 
 			if(i >= line_len){

@@ -13,9 +13,10 @@ win_cfg_t gui::wins[] = {
 	WIN_INIT("breakpoints", false, 0),
 	WIN_INIT("inferior", false, 0),
 	WIN_INIT("gdb-log", true, 0),
-	WIN_INIT("app-log", true, 0),
 	WIN_INIT("user-log", true, 0),
-	WIN_INIT("command-line", true, 3),
+#ifdef GUI_CURSES
+	WIN_INIT("debug-log", true, 0),
+#endif
 	{ .id = -1 }	/* dummy entry, marking the end */
 };
 

@@ -26,9 +26,10 @@ enum win_id_t{
 	WIN_BREAK = 0,
 	WIN_INFERIOR,
 	WIN_GDBLOG,
-	WIN_APPLOG,
 	WIN_USERLOG,
-	WIN_CMD,
+#ifdef GUI_CURSES
+	WIN_DEBUGLOG,
+#endif
 };
 
 
