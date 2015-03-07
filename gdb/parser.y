@@ -17,14 +17,14 @@
 	char* sptr;
 	unsigned int num;
 
-	result_t* result;
-	value_t* value;
-	result_class_t rclass;
-	const variable_t* variable;
+	gdb_result_t* result;
+	gdb_value_t* value;
+	gdb_result_class_t rclass;
+	const gdb_var_t* variable;
 
 	struct{
-		result_class_t rclass;
-		result_t* result;
+		gdb_result_class_t rclass;
+		gdb_result_t* result;
 	} record;
 }
 
@@ -95,14 +95,14 @@ value-list :		value											{ $$ = $1; }
 		   |		value-list ',' value							{ gdb_value_add($1, $3); $$ = $1; }
 		   ;
 
-const :				'"' STRING '"'									{ $$ = gdb_value_create(CONST, $2); };
-tuple :				'{' '}'											{ $$ = gdb_value_create(EMPTY, 0); }
-	  |				'{' result-list '}'								{ $$ = gdb_value_create(RESULT_LIST, $2); }
+const :				'"' STRING '"'									{ $$ = gdb_value_create(VT_CONST, $2); };
+tuple :				'{' '}'											{ $$ = gdb_value_create(VT_EMPTY, 0); }
+	  |				'{' result-list '}'								{ $$ = gdb_value_create(VT_RESULT_LIST, $2); }
 	  ;
 
-list :				'[' ']'											{ $$ = gdb_value_create(EMPTY, 0); }
-	 |				'[' result-list ']'								{ $$ = gdb_value_create(RESULT_LIST, $2); }
-	 |				'[' value-list ']'								{ $$ = gdb_value_create(VALUE_LIST, $2); }
+list :				'[' ']'											{ $$ = gdb_value_create(VT_EMPTY, 0); }
+	 |				'[' result-list ']'								{ $$ = gdb_value_create(VT_RESULT_LIST, $2); }
+	 |				'[' value-list ']'								{ $$ = gdb_value_create(VT_VALUE_LIST, $2); }
 	 ;
 
 token :				%empty											{ $$ = 0; }

@@ -114,7 +114,7 @@ int gdbif::write(void* buf, unsigned int nbytes){
  * \return	>0			token used for the command
  * 			-1			error
  */
-response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
+gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
@@ -171,7 +171,7 @@ response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 	/* wait for gdb response */
 	pthread_mutex_lock(&resp_mtx);
 
-	memset((void*)&resp, 0x0, sizeof(response_t));
+	memset((void*)&resp, 0x0, sizeof(gdb_response_t));
 	pthread_cond_wait(&resp_avail, &resp_mtx);
 
 	pthread_mutex_unlock(&resp_mtx);
@@ -184,7 +184,7 @@ response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 	/* increment token */
 	token++;
 
-	return (response_t*)&resp;
+	return (gdb_response_t*)&resp;
 }
 
 int gdbif::mi_parse(char* s){
@@ -193,7 +193,7 @@ int gdbif::mi_parse(char* s){
 	return (gdbparse(this) == 0 ? 0 : -1);
 }
 
-int gdbif::mi_proc_result(result_class_t rclass, unsigned int token, result_t* result){
+int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	pthread_mutex_lock(&resp_mtx);
 
 	resp_token = token;
@@ -207,14 +207,14 @@ int gdbif::mi_proc_result(result_class_t rclass, unsigned int token, result_t* r
 	return 0;
 }
 
-int gdbif::mi_proc_async(result_class_t rclass, unsigned int token, result_t* result){
+int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	/* TODO implement */
 	TODO("not yet implemented\n");
 	gdb_result_free(result);
 	return 0;
 }
 
-int gdbif::mi_proc_stream(stream_class_t sclass, char* stream){
+int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
 	/* TODO implement proper integration with log system */
 	TODO("implement proper integration with log system\n");
 

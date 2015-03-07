@@ -22,7 +22,7 @@
 %}
 
 /* struct-type definition */
-struct variable_t;
+struct gdb_var_t;
 
 %%
 # variable string						id

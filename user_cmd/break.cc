@@ -39,7 +39,7 @@ static const char* cmd_str[] = {
 
 
 /* static prototypes */
-void breakpt_read(result_t* result, breakpt_t* bkpt);
+void breakpt_read(gdb_result_t* result, breakpt_t* bkpt);
 void breakpt_print();
 
 
@@ -48,7 +48,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	char key[255];
 	const struct user_subcmd_t* scmd;
 	map<string, breakpt_t*>::iterator it;
-	response_t* resp;
+	gdb_response_t* resp;
 	breakpt_t* bkpt;
 
 
@@ -209,8 +209,8 @@ void cmd_break_help(int argc, char** argv){
 
 
 /* local functions */
-void breakpt_read(result_t* result, breakpt_t* bkpt){
-	result_t* r;
+void breakpt_read(gdb_result_t* result, breakpt_t* bkpt){
+	gdb_result_t* r;
 
 
 	list_for_each(result, r){
@@ -243,8 +243,8 @@ void breakpt_read(result_t* result, breakpt_t* bkpt){
 			break;
 
 		default:
-			if(r->value->type == RESULT_LIST)
-				breakpt_read((result_t*)r->value->value, bkpt);
+			if(r->value->type == VT_RESULT_LIST)
+				breakpt_read((gdb_result_t*)r->value->value, bkpt);
 		};
 	}
 }

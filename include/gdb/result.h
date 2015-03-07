@@ -19,29 +19,29 @@ typedef enum{
 	RC_THREAD_GRP_ADDED,
 	RC_THREAD_GRP_STARTED,
 	RC_PARAM_CHANGED,
-} result_class_t;
+} gdb_result_class_t;
 
 typedef enum{
 	SC_CONSOLE = 1,
 	SC_TARGET,
 	SC_LOG,
-} stream_class_t;
+} gdb_stream_class_t;
 
-typedef struct _result_t{
+typedef struct _gdb_result_t{
 	const char* var_name;
-	variable_id_t var_id;
+	gdb_var_id_t var_id;
 
-	value_t* value;
+	gdb_value_t* value;
 
-	struct _result_t *next, *prev;
-} result_t;
+	struct _gdb_result_t *next, *prev;
+} gdb_result_t;
 
 
 /* prototypes */
-result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t* value);
-result_t* gdb_result_free(result_t* list);
-void gdb_result_add(result_t* list, result_t* result);
-void gdb_result_print(result_t* list);
+gdb_result_t* gdb_result_create(const char* var_name, gdb_var_id_t var_id, gdb_value_t* value);
+gdb_result_t* gdb_result_free(gdb_result_t* list);
+void gdb_result_add(gdb_result_t* list, gdb_result_t* result);
+void gdb_result_print(gdb_result_t* list);
 
 
 #endif // GDB_RESULT_H

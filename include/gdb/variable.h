@@ -38,14 +38,14 @@ typedef enum{
 	V_THREAD_ID,
 	V_GROUP_ID,
 	V_PROC_ID,
-} variable_id_t;
+} gdb_var_id_t;
 
-struct variable_t{
+struct gdb_var_t{
 	const char* name;
-	variable_id_t id;
+	gdb_var_id_t id;
 };
 
-typedef variable_t variable_t;
+typedef gdb_var_t gdb_var_t;
 
 
 #endif // VARIABLEID_H

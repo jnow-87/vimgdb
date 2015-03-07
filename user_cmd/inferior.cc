@@ -23,7 +23,7 @@ static void* thread_inferior_output(void* arg);
 int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	int fd;
 	const struct user_subcmd_t* scmd;
-	response_t* resp;
+	gdb_response_t* resp;
 
 
 	if(argc < 2){

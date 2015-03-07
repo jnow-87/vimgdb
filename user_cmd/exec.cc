@@ -9,7 +9,7 @@
 /* global functions */
 int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 	const struct user_subcmd_t* scmd;
-	response_t* resp;
+	gdb_response_t* resp;
 
 
 	if(argc < 2){

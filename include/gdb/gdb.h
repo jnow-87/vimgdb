@@ -22,9 +22,9 @@ using namespace std;
 
 /* types */
 typedef struct{
-	result_class_t rclass;
-	result_t* result;
-} response_t;
+	gdb_result_class_t rclass;
+	gdb_result_t* result;
+} gdb_response_t;
 
 
 /* class */
@@ -38,11 +38,11 @@ public:
 	int init();
 
 	/* gdb machine interface (MI) */
-	response_t* mi_issue_cmd(char* cmd, const char* param_fmt, ...);
+	gdb_response_t* mi_issue_cmd(char* cmd, const char* param_fmt, ...);
 	int mi_parse(char* s);
-	int mi_proc_result(result_class_t rclass, unsigned int token, result_t* result);
-	int mi_proc_async(result_class_t rclass, unsigned int token, result_t* result);
-	int mi_proc_stream(stream_class_t sclass, char* stream);
+	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
+	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
+	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);
 
 	/* communication with gdb */
 	int sigsend(int sig);
@@ -60,7 +60,7 @@ private:
 
 	// gdb MI command response handling
 	volatile unsigned int resp_token;
-	volatile response_t resp;
+	volatile gdb_response_t resp;
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;
 };

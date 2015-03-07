@@ -11,13 +11,11 @@ unsigned int rec_depth = 0;
 
 
 /* global functions */
-result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t* value){
-	result_t* r;
+gdb_result_t* gdb_result_create(const char* var_name, gdb_var_id_t var_id, gdb_value_t* value){
+	gdb_result_t* r;
 
 
-	DEBUG("create result (\"%s\", %#x)\n", var_name, value);
-
-	r = (result_t*)malloc(sizeof(result_t));
+	r = (gdb_result_t*)malloc(sizeof(gdb_result_t));
 	if(r == 0)
 		goto err_0;
 
@@ -29,52 +27,42 @@ result_t* gdb_result_create(const char* var_name, variable_id_t var_id, value_t*
 	r->value = value;
 	list_init(r);
 
-	DEBUG("end\n\n");
-
 	return r;
 
 err_1:
 	free(r);
 
 err_0:
-
-	DEBUG("end (error)\n\n");
 	return 0;
 }
 
-result_t* gdb_result_free(result_t* list){
-	result_t* r;
+gdb_result_t* gdb_result_free(gdb_result_t* list){
+	gdb_result_t* r;
 
 
 	list_for_each(list, r){
-		DEBUG("free result (\"%s\", %#x)\n", r->var_name, r);
-
 		list_rm(&list, r);
-		r->value = gdb_value_free((value_t*)r->value);
-
-		DEBUG("free result mem\n");
+		r->value = gdb_value_free((gdb_value_t*)r->value);
 		free(r);
-		DEBUG("end\n\n");
 	}
 
 	return list;
 }
 
-void gdb_result_add(result_t* list, result_t* result){
-	DEBUG("add result %#x to %#x\n\n", result, list);
+void gdb_result_add(gdb_result_t* list, gdb_result_t* result){
 	list_add_tail(list, result);
 }
 
-void gdb_result_print(result_t* list){
+void gdb_result_print(gdb_result_t* list){
 	char rec_str[10];
-	result_t* r;
+	gdb_result_t* r;
 
 
 	snprintf(rec_str, 10, "%%%ds", rec_depth);
 	
 	list_for_each(list, r){
-		DEBUG(rec_str, "");
-		DEBUG("result %s (%d) = ", r->var_name, r->var_id);
-		gdb_value_print((value_t*)r->value);
+		USER(rec_str, "");
+		USER("result %s (%d) = ", r->var_name, r->var_id);
+		gdb_value_print((gdb_value_t*)r->value);
 	}
 }
