@@ -38,10 +38,6 @@ void gui::clear(win_id_t win){
 	win_clear(wins[win].id);
 }
 
-void gui::clearline(win_id_t win){
-	win_clrline(wins[win].id);
-}
-
 int gui::base_init(){
 	unsigned int i;
 

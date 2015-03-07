@@ -44,9 +44,6 @@ void vimui::win_vwrite(int win_id, const char* fmt, va_list lst){
 void vimui::win_clear(int win_id){
 }
 
-void vimui::win_clrline(int win_id){
-}
-
 int vimui::vim_action(vim_action_t type, const char* action, int buf_id, const char* fmt, ...){
 	return -1;
 }
