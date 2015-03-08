@@ -205,84 +205,89 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	return 0;
 }
 
-char* strescape(char* _s){
-	static char* s = 0;
-	static unsigned int len = 0;
+char* strescape(char* s, char** e, unsigned int* e_max){
+	char* t;
+	unsigned int len;
 	unsigned int i, o;
-	int x;
 	
 
-	if(_s == 0)
+	if(s == 0 || e == 0)
 		return 0;
 
-	x = strlen(_s) * 2 + 1;	// at most every char is an escape char
+	t = *e;
+	len = strlen(s) * 2 + 1;	// at most every char is an escape char
 
-	if(len < x){
-		len += x;
-		delete s;
-		s = new char[len];
+	if(*e_max < len){
+		*e_max += len;
+		t = new char[*e_max];
+		delete *e;
+		*e = t;
 	}
 
-	if(s == 0)
+	if(t == 0){
+		*e_max = 0;
 		return 0;
+	}
 
-	for(i=0, o=0; i<x/2; i++, o++){
-		switch(_s[i]){
+	for(i=0, o=0; i<len/2; i++, o++){
+		switch(s[i]){
 		case '\t':
-			s[o] = '\\';
-			s[++o] = 't';
+			t[o] = '\\';
+			t[++o] = 't';
 			break;
 
 		case '\n':
-			s[o] = '\\';
-			s[++o] = 'n';
+			t[o] = '\\';
+			t[++o] = 'n';
 			break;
 
 		case '\r':
-			s[o] = '\\';
-			s[++o] = 'r';
+			t[o] = '\\';
+			t[++o] = 'r';
 			break;
 
 		case '\"':
-			s[o] = '\\';
-			s[++o] = '\"';
+			t[o] = '\\';
+			t[++o] = '\"';
 			break;
 
 		case '\\':
-			s[o] = '\\';
-			s[++o] = '\\';
+			t[o] = '\\';
+			t[++o] = '\\';
 			break;
 
 		default:
-			s[o] = _s[i];
+			t[o] = s[i];
 		};
 	}
 
-	s[o] = 0;
+	t[o] = 0;
 
-	return s;
+	return t;
 }
 
-char* itoa(int v){
-	static char* s = 0;
-	static unsigned int len = 0;
-	int x;
+char* itoa(int v, char** s, unsigned int* max){
+	unsigned int len = 0;
 	
-
-	x = strlen(v, 10) + 1;
-
-	if(len < x){
-		len += x;
-		delete s;
-		s = new char[len];
-	}
 
 	if(s == 0)
 		return 0;
 
+	len = strlen(v, 10) + 1;
 
-	sprintf(s, "%d", v);
-	return s;
+	if(*max < len){
+		*max += len;;
+		delete *s;
+		*s = new char[*max];
+	}
+
+	if(*s == 0){
+		*max = 0;
+		return 0;
+	}
+
+	sprintf(*s, "%d", v);
+	return *s;
 }
 
 char* stralloc(char* _s, unsigned int len){

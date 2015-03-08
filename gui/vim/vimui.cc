@@ -389,8 +389,9 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 }
 
 int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...){
+	static char* s = 0;
+	static unsigned int s_len = 0;
 	unsigned int i;
-	char *s;
 	va_list lst;
 
 
@@ -401,7 +402,7 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 	va_start(lst, fmt);
 
 	/* send action header */
-	nbclient->send(itoa(buf_id));
+	nbclient->send(itoa(buf_id, &s, &s_len));
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
 
@@ -409,7 +410,7 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 	else if(type == CMD)	nbclient->send((char*)"!");
 
 	seq_num++;
-	nbclient->send(itoa(seq_num));
+	nbclient->send(itoa(seq_num, &s, &s_len));
 
 	/* process arguments */
 	if(strlen(fmt) > 0)
@@ -420,11 +421,11 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 			switch(fmt[++i]){
 			case 'i':
 			case 'd':
-				nbclient->send(itoa(va_arg(lst, int)));
+				nbclient->send(itoa(va_arg(lst, int), &s, &s_len));
 				break;
 
 			case 's':
-				nbclient->send(strescape(va_arg(lst, char*)));
+				nbclient->send(strescape(va_arg(lst, char*), &s, &s_len));
 				break;
 
 			default:

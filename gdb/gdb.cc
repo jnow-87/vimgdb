@@ -115,6 +115,8 @@ int gdbif::write(void* buf, unsigned int nbytes){
  * 			-1			error
  */
 gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
+	static char* s = 0;
+	static unsigned int s_len = 0;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
@@ -122,7 +124,7 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 
 	va_start(lst, fmt);
 
-	gdb->write(itoa(token));
+	gdb->write(itoa(token, &s, &s_len));
 	gdb->write((char*)"-");
 	gdb->write(user_cmd);
 
@@ -133,7 +135,7 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 		case '%':
 			switch(fmt[i + 1]){
 			case 'd':
-				gdb->write(itoa(va_arg(lst, int)));
+				gdb->write(itoa(va_arg(lst, int), &s, &s_len));
 				i++;
 				break;
 
