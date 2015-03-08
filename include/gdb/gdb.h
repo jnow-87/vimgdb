@@ -55,10 +55,9 @@ private:
 	pid_t pid;
 
 	// token used for gdb commands
-	unsigned int token;
+	volatile unsigned int token;
 
 	// gdb MI command response handling
-	volatile unsigned int resp_token;
 	volatile gdb_response_t resp;
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;

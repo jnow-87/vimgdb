@@ -177,15 +177,9 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 
 	pthread_cond_wait(&resp_avail, &resp_mtx);
 
-	pthread_mutex_unlock(&resp_mtx);
-
-	if(resp_token != token){
-		DEBUG("result token doesn't match issued token\n");
-		return 0;
-	}
-
-	/* increment token */
 	token++;
+
+	pthread_mutex_unlock(&resp_mtx);
 
 	return (gdb_response_t*)&resp;
 }
@@ -193,12 +187,13 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	pthread_mutex_lock(&resp_mtx);
 
-	resp_token = token;
+	if(this->token != token)
+		ERROR("result token (%d) doesn't match issued token (%d)\n", token, this->token);
+
 	resp.result = result;
 	resp.rclass = rclass;
 
 	pthread_cond_signal(&resp_avail);
-
 	pthread_mutex_unlock(&resp_mtx);
 
 	return 0;
