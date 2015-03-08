@@ -13,15 +13,6 @@
  */
 
 
-
-/**
- * \brief	initializer for static lists
- */
-#define LIST_INITIALIZER(head) { \
-	.next = 0, \
-	.prev = (head) \
-}
-
 /**
  * \brief	macros to handle a double-linked list
  * 			they can be used with any structure that
@@ -40,9 +31,11 @@
  *
  * \return	none
  */
-#define list_init(head) { \
-	(head)->next = 0; \
-	(head)->prev = (head); \
+#define list_init(head){ \
+	if((head) != 0){ \
+		(head)->next = 0; \
+		(head)->prev = (head); \
+	} \
 }
 
 /**
@@ -53,10 +46,11 @@
  *
  * \return	new head
  */
-#define list_add_head(head, new) { \
+#define list_add_head(head, new){ \
 	(new)->next = *(head); \
-	(new)->prev = (*(head))->prev; \
-	(*(head))->prev = new; \
+	(new)->prev = (*(head) == 0 ? (new) : (*(head))->prev); \
+	if(*(head) != 0) \
+		(*(head))->prev = new; \
 	\
 	*(head) = new; \
 }
@@ -71,9 +65,15 @@
  */
 #define list_add_tail(head, new){ \
 	(new)->next = 0; \
-	(new)->prev = (head)->prev; \
-	(head)->prev->next = new; \
-	(head)->prev = new; \
+	if(*(head) == 0){ \
+		*(head) = new; \
+		(new)->prev = new; \
+	} \
+	else{ \
+		(new)->prev = (*(head))->prev; \
+		(*(head))->prev->next = new; \
+		(*(head))->prev = new; \
+	} \
 }
 
 /**
@@ -85,7 +85,7 @@
  *
  * \return new head (head is updated of entry == head)
  */
-#define list_rm(head, entry) { \
+#define list_rm(head, entry){ \
 	if((entry) != (*(head))) (entry)->prev->next = (entry)->next; \
 	if((entry)->next != 0) (entry)->next->prev = (entry)->prev; \
 	else (*(head))->prev = (entry)->prev; \

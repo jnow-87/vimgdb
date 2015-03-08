@@ -66,7 +66,7 @@ gdb_value_t* gdb_value_free(gdb_value_t* value){
 }
 
 void gdb_value_add(gdb_value_t* list, gdb_value_t* value){
-	list_add_tail(list, value);
+	list_add_tail(&list, value);
 }
 
 void gdb_value_print(gdb_value_t* list){

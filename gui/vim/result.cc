@@ -44,6 +44,6 @@ vim_result_t* vim_result_add(vim_result_t* lst, vim_result_t* r){
 	if(lst == 0)
 		return r;
 
-	list_add_tail(lst, r);
+	list_add_tail(&lst, r);
 	return lst;
 }

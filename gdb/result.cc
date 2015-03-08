@@ -50,7 +50,7 @@ gdb_result_t* gdb_result_free(gdb_result_t* list){
 }
 
 void gdb_result_add(gdb_result_t* list, gdb_result_t* result){
-	list_add_tail(list, result);
+	list_add_tail(&list, result);
 }
 
 void gdb_result_print(gdb_result_t* list){

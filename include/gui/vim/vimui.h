@@ -15,15 +15,6 @@
 using namespace std;
 
 
-typedef struct{
-	int seq_num,
-		buf_id;
-
-	vim_event_id_t evt_id;
-	vim_result_t* result;
-} vim_response_t;
-
-
 class vimui : public gui{
 public:
 	/* init/destroy */
@@ -57,6 +48,17 @@ private:
 		CMD,
 	} action_t;
 
+	typedef struct _response_t{
+		int seq_num,
+			buf_id;
+
+		vim_event_id_t evt_id;
+		vim_result_t* result;
+
+		struct _response_t *next,
+						   *prev;
+	} response_t;
+
 	/* netbeans protocol */
 	int action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...);
 
@@ -73,6 +75,8 @@ private:
 	/* user input */
 	pthread_t read_tid;
 	pthread_cond_t istr_avail;
+	response_t* cmd_lst;
+
 
 	/* output */
 	char* ostr;
@@ -82,7 +86,7 @@ private:
 	/* response handling */
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;
-	volatile vim_response_t resp;
+	volatile response_t resp;
 };
 
 
