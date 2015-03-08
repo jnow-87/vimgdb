@@ -2,13 +2,12 @@
 #include <common/pty.h>
 #include <common/string.h>
 #include <gdb/gdb.h>
-#include <gdb/lexer.lex.h>
-#include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
 #include <string.h>
 #include <signal.h>
 #include <math.h>
+#include <unistd.h>
 
 
 /* class definition */
@@ -189,12 +188,6 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 	token++;
 
 	return (gdb_response_t*)&resp;
-}
-
-int gdbif::mi_parse(char* s){
-	gdb_scan_string(s);
-
-	return (gdbparse(this) == 0 ? 0 : -1);
 }
 
 int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){

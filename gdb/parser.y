@@ -10,7 +10,7 @@
 	#include <gdb/lexer.lex.h>
 
 
-	int gdberror(gdbif* gdb, const char* s);
+	int gdberror(char* line, gdbif* gdb, const char* s);
 %}
 
 %union{
@@ -29,8 +29,12 @@
 }
 
 
+%parse-param { char* line }
 %parse-param { gdbif* gdb }
 
+%initial-action{
+	gdb_scan_string(line);
+}
 
 /* terminals */
 %token NEWLINE
@@ -113,7 +117,7 @@ token :				%empty											{ $$ = 0; }
 %%
 
 
-int gdberror(gdbif* gdb, const char* s){
+int gdberror(char* line, gdbif* gdb, const char* s){
 	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
 	return 0;
 }

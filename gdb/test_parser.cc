@@ -4,7 +4,6 @@
 #include <gdb/value.h>
 #include <gdb/result.h>
 #include <gdb/parser.tab.h>
-#include <gdb/lexer.lex.h>
 #include <stdio.h>
 
 
@@ -89,8 +88,7 @@ int main(int argc, char** argv){
 		line = argv[1];
 
 	USER("%s\n", str);
-	gdb_scan_string(line);
-	printf("parser result: %d\n", gdbparse(gdb));
+	printf("parser result: %d\n", gdbparse(line, gdb));
 
 	delete gdb;
 

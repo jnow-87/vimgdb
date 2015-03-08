@@ -2,6 +2,7 @@
 #include <common/tty.h>
 #include <common/opt.h>
 #include <gdb/gdb.h>
+#include <gdb/parser.tab.h>
 #include <user_cmd/cmd.h>
 #include <gui/gui.h>
 #include <stdlib.h>
@@ -55,11 +56,10 @@ int main(int argc, char** argv){
 	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
 		return 1;
 
+	// gdb
 	INFO("initialise gdbctrl\n");
-
 	gdb = new gdbif;
 
-	// gdb
 	INFO("initialising gdb interface\n");
 	if(gdb->init() != 0)
 		return 2;
@@ -154,7 +154,7 @@ void* thread_gdb_output(void* arg){
 				ui->win_print(win_id_gdb, "gdb_read: %s", line);
 
 				TEST("parse gdb string \"%.10s...\"\n", line);
-				TEST("parser return value: %d\n", gdb->mi_parse(line));
+				TEST("parser return value: %d\n", gdbparse(line, gdb));
 
 				i = 0;
 			}
