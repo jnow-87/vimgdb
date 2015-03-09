@@ -35,7 +35,6 @@ typedef enum{
 struct vim_cmd_t{
 	const char* name;
 	vim_cmd_id_t id;
-	vim_event_id_t evt_id;
 };
 
 typedef vim_cmd_t vim_cmd_t;

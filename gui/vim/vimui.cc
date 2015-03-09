@@ -11,28 +11,25 @@
 #include <string.h>
 
 
-static void* thread_read(void* arg);
-
-
 vimui::vimui(){
 	seq_num = 1;
 	cwd = opt.vim_cwd;
 	memset((void*)&resp, -1, sizeof(response_t));
-	cmd_lst = 0;
-	list_init(cmd_lst);
+	event_lst = 0;
+	list_init(event_lst);
 
 	bufid = 1;	// avoid using buf-id 0 for netbeans
 
 	pthread_cond_init(&resp_avail, 0);
 	pthread_mutex_init(&resp_mtx, 0);
-	pthread_cond_init(&istr_avail, 0);
+	pthread_cond_init(&event_avail, 0);
 	pthread_mutex_init(&ui_mtx, 0);
 }
 
 vimui::~vimui(){
 	pthread_cond_destroy(&resp_avail);
 	pthread_mutex_destroy(&resp_mtx);
-	pthread_cond_destroy(&istr_avail);
+	pthread_cond_destroy(&event_avail);
 	pthread_mutex_destroy(&ui_mtx);
 }
 
@@ -59,7 +56,7 @@ int vimui::init(){
 
 	nbclient->set_timeout(0);
 
-	if(pthread_create(&read_tid, 0, thread_read, this) != 0)
+	if(pthread_create(&read_tid, 0, readline_thread, this) != 0)
 		goto err_3;
 
 	return 0;
@@ -84,8 +81,8 @@ void vimui::destroy(){
 	pthread_cancel(read_tid);
 	pthread_join(read_tid, 0);
 
-	list_for_each(cmd_lst, e)
-		list_rm(&cmd_lst, e);
+	list_for_each(event_lst, e)
+		list_rm(&event_lst, e);
 
 	delete cwd;
 	delete ostr;
@@ -99,32 +96,48 @@ char* vimui::readline(){
 	response_t* e;
 
 
-	/* wait for data being read by readline_thread */
-	pthread_mutex_lock(&resp_mtx);
+	while(1){
+		/* wait for data being read by readline_thread */
+		pthread_mutex_lock(&resp_mtx);
 
-	if(list_empty(cmd_lst))
-		pthread_cond_wait(&istr_avail, &resp_mtx);
+		if(list_empty(event_lst))
+			pthread_cond_wait(&event_avail, &resp_mtx);
 
-	e = list_first(cmd_lst);
-	list_rm(&cmd_lst, e);
+		e = list_first(event_lst);
+		list_rm(&event_lst, e);
 
-	pthread_mutex_unlock(&resp_mtx);
+		pthread_mutex_unlock(&resp_mtx);
 
-	if(e->result == 0){
-		delete e;
-		return 0;
-	}
+		/* process command */
+		switch(e->evt_id){
+		case E_KEYATPOS:
+			DEBUG("handle KEYATPOS event\n");
 
-	/* copy response string into line */
-	if(len < strlen(e->result->sptr)){
-		len += strlen(e->result->sptr) + 1;
-		line = new char[len];
+			// KEYATPOS events are user commands
+			// hence signal availability of a command to readline()
+			/* copy response string into line */
+			if(len < strlen(e->result->sptr)){
+				len += strlen(e->result->sptr) + 1;
+				line = new char[len];
 
-		if(line == 0)
+				if(line == 0)
+					goto end;
+			}
+
+			strcpy(line, e->result->sptr);
 			goto end;
-	}
+		
+		case E_DISCONNECT:
+			line = 0;
+			goto end;
 
-	strcpy(line, e->result->sptr);
+		default:
+			TODO("unhandled event id %d\n", e->evt_id);
+		};
+
+		vim_result_free(e->result);
+		delete e;
+	}
 
 end:
 	vim_result_free(e->result);
@@ -133,21 +146,22 @@ end:
 	return line;
 }
 
-int vimui::readline_thread(){
+void* vimui::readline_thread(void* arg){
 	char c;
 	char* line;
-	int r;
 	unsigned int i, line_len;
 	response_t* e;
+	vimui* vim;
 
 
+	vim = (vimui*)arg;
 	line_len = 255;
 	line = (char*)malloc(line_len * sizeof(char));
 
 	i = 0;
 
 	/* read from netbeans socket */
-	while(nbclient->recv(&c, 1) > 0){
+	while(vim->nbclient->recv(&c, 1) > 0){
 		if(c == '\r')
 			continue;
 
@@ -166,22 +180,11 @@ int vimui::readline_thread(){
 			line[i - 1] = '\n';
 
 			// parse line
-			r = vimparse(line, this);
-			DEBUG("parser returned %d\n", r);
+			vimparse(line, vim);
 
 			i = 0;
 		}
 	}
-
-	/* signal closed connection */
-	pthread_mutex_lock(&resp_mtx);
-
-	e = new response_t;
-	e->result = 0;
-	list_add_tail(&cmd_lst, e);
-
-	pthread_cond_signal(&istr_avail);
-	pthread_mutex_unlock(&resp_mtx);
 
 	return 0;
 }
@@ -378,27 +381,17 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	response_t* e;
 
 
-	DEBUG("handle vim event %d\n", evt->id);
-
 	pthread_mutex_lock(&resp_mtx);
 
 	/* check event type */
-	if(evt->id == E_KEYATPOS){
-		// KEYATPOS events are user commands
-		// hence signal availability of a command to readline()
+	if(evt->id & (E_KEYATPOS | E_DISCONNECT)){
 		e = new response_t;
+		e->evt_id = evt->id;
+		e->buf_id = buf_id;
 		e->result = rlst;
-		list_add_tail(&cmd_lst, e);
+		list_add_tail(&event_lst, e);
 
-		pthread_cond_signal(&istr_avail);
-	}
-	else if(resp.seq_num == seq_num){
-		// if the sequence number is awaited as action response return the result
-		resp.buf_id = buf_id;
-		resp.evt_id = evt->id;
-		resp.result = rlst;
-
-		pthread_cond_signal(&resp_avail);
+		pthread_cond_signal(&event_avail);
 	}
 	else{
 		// drop the result otherwise
@@ -463,10 +456,10 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 
 	va_end(lst);
 
-	/* wait for vim response if action is a function or has an event as response */
+	/* wait for vim response if action is a function */
 	memset((void*)&resp, -1, sizeof(response_t));
 
-	if(type == FCT || vim_cmd::lookup(action, strlen(action))->evt_id != E_NONE){
+	if(type == FCT){
 		pthread_mutex_lock(&resp_mtx);
 
 		resp.seq_num = seq_num;
@@ -485,10 +478,5 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 	else
 		nbclient->send((char*)"\n");
 
-	return 0;
-}
-
-void* thread_read(void* arg){
-	((vimui*)arg)->readline_thread();
 	return 0;
 }

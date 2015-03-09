@@ -26,7 +26,6 @@ public:
 
 	/* user input */
 	char* readline();
-	int readline_thread();
 
 	/* window functions */
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
@@ -59,8 +58,9 @@ private:
 						   *prev;
 	} response_t;
 
-	/* netbeans protocol */
+	/* netbeans */
 	int action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...);
+	static void* readline_thread(void* arg);
 
 	/* vim data */
 	int bufid;
@@ -74,9 +74,8 @@ private:
 
 	/* user input */
 	pthread_t read_tid;
-	pthread_cond_t istr_avail;
-	response_t* cmd_lst;
-
+	pthread_cond_t event_avail;
+	response_t* event_lst;
 
 	/* output */
 	char* ostr;
