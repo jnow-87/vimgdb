@@ -38,6 +38,7 @@ typedef enum{
 	V_THREAD_ID,
 	V_GROUP_ID,
 	V_PROC_ID,
+	V_MACRO_INFO,
 } gdb_var_id_t;
 
 struct gdb_var_t{

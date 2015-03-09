@@ -8,8 +8,9 @@
 
 /* global functions */
 int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
+	int r;
 	const struct user_subcmd_t* scmd;
-	gdb_response_t* resp;
+	gdb_result_t* res;
 
 
 	if(argc < 2){
@@ -25,36 +26,21 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	if(scmd->id == RUN)				resp = gdb->mi_issue_cmd((char*)"exec-run", "");
-	else if(scmd->id == CONTINUE)	resp = gdb->mi_issue_cmd((char*)"exec-continue", "");
-	else if(scmd->id == NEXT)		resp = gdb->mi_issue_cmd((char*)"exec-next", "");
-	else if(scmd->id == STEP)		resp = gdb->mi_issue_cmd((char*)"exec-step", "");
-	else if(scmd->id == RETURN)		resp = gdb->mi_issue_cmd((char*)"exec-finish", "");
-	else if(scmd->id == JUMP)		resp = gdb->mi_issue_cmd((char*)"exec-jump", "%ss %d", argv + 2, argc - 2);
-	else if(scmd->id == GOTO)		resp = gdb->mi_issue_cmd((char*)"exec-until", "%ss %d", argv + 2, argc - 2);
-	else if(scmd->id == BREAK)		return gdb->sigsend(SIGINT);
+	res = 0;
 
-	if(resp == 0){
-		WARN("error issuing mi command\n");
-		return -1;
-	}
+	if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
+	else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
+	else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
+	else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
+	else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
+	else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "%ss %d", argv + 2, argc - 2);
+	else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "%ss %d", argv + 2, argc - 2);
+	else if(scmd->id == BREAK)		r = gdb->sigsend(SIGINT);
 
-	switch(resp->rclass){
-	case RC_DONE:
-	case RC_RUNNING:
-		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
-		break;
+	if(r == 0)	USER("executed \"%s\"\n", argv[1]);
+	else		USER("error executing \"%s\"\n - %s\n", argv[1], res->value->value);
 
-	case RC_ERROR:
-		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
-		break;
-
-	default:
-		WARN("unhandled result class %d for \"%s %s\"\n", resp->rclass, argv[0], argv[1]);
-		break;
-	};
-
-	gdb_result_free(resp->result);
+	gdb_result_free(res);
 	return 0;
 }
 

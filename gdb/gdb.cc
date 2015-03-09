@@ -98,22 +98,22 @@ int gdbif::write(void* buf, unsigned int nbytes){
 /**
  * \brief	create gdb machine interface (MI) command
  *
- * \param	user_cmd	target command
- * \param	fmt			printf-like format string, describing the following parameters
- * 						supported identifiers:
- * 							'%d'		integer
- * 							'%s'		string
- * 							'%ss %d'	array of strings, length is defined by the
- * 										following integer
- * 							'--'		separator between options and parameters
- * 							.			everything else except blanks is printed literaly
+ * \param	cmd		target command
+ * \param	fmt		printf-like format string, describing the following parameters
+ * 					supported identifiers:
+ * 						'%d'		integer
+ * 						'%s'		string
+ * 						'%ss %d'	array of strings, length is defined by the
+ * 									following integer
+ * 						'--'		separator between options and parameters
+ * 						.			everything else except blanks is printed literaly
  *
- * \param	...			parameters according to param_fmt
+ * \param	...		parameters according to param_fmt
  *
- * \return	>0			token used for the command
- * 			-1			error
+ * \return	>0		token used for the command
+ * 			-1		error
  */
-gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
+int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, gdb_result_t** result, const char* fmt, ...){
 	static char* s = 0;
 	static unsigned int s_len = 0;
 	unsigned int i, j, argc;
@@ -125,7 +125,10 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 
 	gdb->write(itoa(token, &s, &s_len));
 	gdb->write((char*)"-");
-	gdb->write(user_cmd);
+	gdb->write(cmd);
+
+	if(result)
+		*result = 0;
 
 	for(i=0; i<strlen(fmt); i++){
 		gdb->write((char*)" ");
@@ -156,7 +159,8 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 
 			default:
 				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
-				return 0;
+				va_end(lst);
+				return -1;
 			};
 
 			break;
@@ -179,9 +183,19 @@ gdb_response_t* gdbif::mi_issue_cmd(char* user_cmd, const char* fmt, ...){
 
 	token++;
 
+	if(!(resp.rclass & ok_mask))
+		USER("error executing gdb command \"%s\" - \"%s\"\n", cmd, resp.result->value->value);
+
+	if(result)	*result = resp.result;
+	else		gdb_result_free(resp.result);
+
 	pthread_mutex_unlock(&resp_mtx);
 
-	return (gdb_response_t*)&resp;
+	va_end(lst);
+
+	if(resp.rclass & ok_mask)
+		return 0;
+	return -1;
 }
 
 int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){

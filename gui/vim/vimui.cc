@@ -92,6 +92,7 @@ void vimui::destroy(){
 
 char* vimui::readline(){
 	char* line = 0;
+	int id;	// TODO remove
 	unsigned int len = 0;
 	response_t* e;
 
@@ -127,6 +128,19 @@ char* vimui::readline(){
 			strcpy(line, e->result->sptr);
 			goto end;
 		
+		case E_FILEOPENED:
+			DEBUG("handle FILEOPENED event\n");
+
+			id = win_create(e->result->sptr);
+			DEBUG("create win for \"%s\" (%d)\n", e->result->sptr, id);
+			break;
+
+		case E_KILLED:
+			DEBUG("handle KILLED event\n");
+
+			win_destroy(e->buf_id);
+			break;
+
 		case E_DISCONNECT:
 			line = 0;
 			goto end;
@@ -203,6 +217,7 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	it = bufid_map.find(name);
 
 	if(it != bufid_map.end()){
+		DEBUG("already exists\n");
 		pthread_mutex_unlock(&ui_mtx);
 		return it->second;
 	}
@@ -215,8 +230,15 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 		return -1;
 	}
 
-	/* connect to vim buffer */
-	action(CMD, "putBufferNumber", id, 0, "\"%s%s\"", cwd, name);
+	/* connect to vim buffer
+	 * 	if name is absolute path assume a file to edit
+	 * 	otherwise assume a non-file buffer, e.g. 'breakpoints'
+	 */
+	if(name[0] == '/')
+		action(CMD, "editFile", id, 0, "\"%s\"", name);
+	else
+		action(CMD, "putBufferNumber", id, 0, "\"%s%s\"", cwd, name);
+
 	action(CMD, "stopDocumentListen", id, 0, "");
 
 	/* set buf_id as used */
@@ -384,7 +406,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	pthread_mutex_lock(&resp_mtx);
 
 	/* check event type */
-	if(evt->id & (E_KEYATPOS | E_DISCONNECT)){
+	if(evt->id & (E_KEYATPOS | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
 		e = new response_t;
 		e->evt_id = evt->id;
 		e->buf_id = buf_id;

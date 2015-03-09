@@ -45,10 +45,10 @@ void breakpt_print();
 
 /* global functions */
 int cmd_break_exec(gdbif* gdb, int argc, char** argv){
-	char key[255];
+	char key[256];
 	const struct user_subcmd_t* scmd;
 	map<string, breakpt_t*>::iterator it;
-	gdb_response_t* resp;
+	gdb_result_t* res;
 	breakpt_t* bkpt;
 
 
@@ -65,87 +65,91 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
+	res = 0;
+
 	switch(scmd->id){
 	case ADD:
-		resp = gdb->mi_issue_cmd((char*)"break-insert", "%s", argv[2]);
-		break;
+		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, &res, "%s", argv[2]) == 0){
+			bkpt = new breakpt_t;
+			if(bkpt == 0)
+				break;
 
+			memset(bkpt, 0x0, sizeof(breakpt_t));
+
+			breakpt_read(res, bkpt);
+
+			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
+			else					snprintf(key, 256, "%s", bkpt->at);
+
+			breakpt_lst[key] = bkpt;
+			breakpt_print();
+
+			USER("added break-point \"%s\"\n", key);
+		}
+		else
+			USER("error adding break-point \"%s\"\n", res->value->value);
+
+		break;
+	
 	case DELETE:
 	case ENABLE:
 	case DISABLE:
 		it = breakpt_lst.find(argv[2]);
 
 		if(it == breakpt_lst.end()){
-			USER("error: no breakpoint found for \"%s\"\n", argv[2]);
+			USER("error breakpoint \"%s\" not found\n", argv[2]);
 			return 0;
 		}
 
 		bkpt = it->second;
 
-		if(scmd->id == DELETE)			resp = gdb->mi_issue_cmd((char*)"break-delete", "%d", it->second->num);
-		else if(scmd->id == ENABLE)		resp = gdb->mi_issue_cmd((char*)"break-enable", "%d", it->second->num);
-		else if(scmd->id == DISABLE)	resp = gdb->mi_issue_cmd((char*)"break-disable", "%d", it->second->num);
+		switch(scmd->id){
+		case DELETE:
+			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, &res, "%d", it->second->num) == 0){
+				USER("deleted break-point \"%s\"\n", it->first.c_str());
+
+				delete it->second;
+				breakpt_lst.erase(it);
+				breakpt_print();
+			}
+			else
+				USER("error deleting break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+
+			break;
+
+		case ENABLE:
+			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, &res, "%d", it->second->num) == 0){
+				USER("enabled break-point \"%s\"\n", it->first.c_str());
+
+				bkpt->enabled = true;
+				breakpt_print();
+			}
+			else
+				USER("error enabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+
+			break;
+
+		case DISABLE:
+			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, &res, "%d", it->second->num) == 0){
+				USER("disabled break-point \"%s\"\n", it->first.c_str());
+
+				bkpt->enabled = false;
+				breakpt_print();
+			}
+			else
+				USER("error disabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+
+			break;
+		};
+
 		break;
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 		return 0;
 	};
-	
-	if(resp == 0){
-		WARN("error issuing mi command\n");
-		return -1;
-	}
 
-	switch(resp->rclass){
-	case RC_DONE:
-		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
-
-		switch(scmd->id){
-		case ADD:
-			bkpt = new breakpt_t;
-			memset(bkpt, 0x0, sizeof(breakpt_t));
-
-			breakpt_read(resp->result, bkpt);
-
-			if(bkpt->filename != 0)	snprintf(key, 255, "%s:%d", bkpt->filename, bkpt->line);
-			else					snprintf(key, 255, "%s", bkpt->at);
-
-			breakpt_lst[key] = bkpt;
-
-			breakpt_print();
-			break;
-
-		case DELETE:
-			delete it->second;
-			breakpt_lst.erase(it);
-			breakpt_print();
-			break;
-
-		case ENABLE:
-			bkpt->enabled = true;
-			breakpt_print();
-			break;
-
-		case DISABLE:
-			bkpt->enabled = false;
-			breakpt_print();
-			break;
-		};
-
-		break;
-
-	case RC_ERROR:
-		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
-		break;
-
-	default:
-		WARN("unhandled result class %d for \"%s %s\"\n", resp->rclass, argv[0], argv[1]);
-		break;
-	};
-
-	gdb_result_free(resp->result);
-
+	gdb_result_free(res);
 	return 0;
 }
 

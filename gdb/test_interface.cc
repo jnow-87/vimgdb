@@ -153,8 +153,8 @@ void* thread_gdb_output(void* arg){
 				line[i] = 0;
 				ui->win_print(win_id_gdb, "gdb_read: %s", line);
 
-				TEST("parse gdb string \"%.10s...\"\n", line);
-				TEST("parser return value: %d\n", gdbparse(line, gdb));
+				DEBUG("parse gdb string \"%.10s...\"\n", line);
+				DEBUG("parser return value: %d\n", gdbparse(line, gdb));
 
 				i = 0;
 			}

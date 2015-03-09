@@ -61,3 +61,4 @@ value,									V_VALUE
 thread-id,								V_THREAD_ID
 group-id,								V_GROUP_ID
 pid,									V_PROC_ID
+macro-info,								V_MACRO_INFO

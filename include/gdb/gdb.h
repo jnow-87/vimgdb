@@ -38,7 +38,7 @@ public:
 	int init();
 
 	/* gdb machine interface (MI) */
-	gdb_response_t* mi_issue_cmd(char* cmd, const char* param_fmt, ...);
+	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, gdb_result_t** result, const char* fmt, ...);
 	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);

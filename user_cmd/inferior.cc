@@ -1,5 +1,6 @@
 #include <common/log.h>
 #include <common/pty.h>
+#include <common/list.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
 #include <gui/gui.h>
@@ -21,9 +22,9 @@ static void* thread_inferior_output(void* arg);
 
 /* global functions */
 int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
-	int fd;
+	int fd, r;
 	const struct user_subcmd_t* scmd;
-	gdb_response_t* resp;
+	gdb_result_t *res, *e;
 
 
 	if(argc < 2){
@@ -32,14 +33,46 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
+	res = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
-	if(scmd != 0){
-		if(scmd->id == BIN)			resp = gdb->mi_issue_cmd((char*)"file-exec-file", "%ss %d", argv + 2, argc - 2);
-		else if(scmd->id == SYM)	resp = gdb->mi_issue_cmd((char*)"file-symbol-file", "%ss %d", argv + 2, argc - 2);
+	if(scmd == 0 || scmd->id == SYM){
+		if(scmd == 0)	r = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", RC_DONE, 0, "%ss %d", argv + 1, argc - 1);
+		else			r = gdb->mi_issue_cmd((char*)"file-symbol-file", RC_DONE, 0, "%ss %d", argv + 2, argc - 2);
+
+		if(r != 0){
+			USER("error loading file\n");
+			goto end;
+		}
+
+		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, &res, "") != 0){
+			USER("error getting current source file \"%s\"\n", res->value->value);
+			goto end;
+		}
+
+		list_for_each(res, e){
+			if(e->var_id == V_FULLNAME){
+				DEBUG("load source file \"%s\"\n", e->value->value);
+				ui->win_create((char*)e->value->value);
+				break;
+			}
+		}
+
+		USER("loaded input file\n");
+	}
+	else{
+		if(scmd->id == BIN){
+			if(gdb->mi_issue_cmd((char*)"file-exec-file", RC_DONE, &res, "%ss %d", argv + 2, argc - 2) != 0)
+				USER("error loading binary file \"%s\" - \"%s\"\n", argv[2], res->value->value);
+			else
+				USER("loaded binary file \"%s\"\n", argv[2]);
+		}
 		else if(scmd->id ==  ARGS){
 			TODO("implement arguments with spaces\n");
-			resp = gdb->mi_issue_cmd((char*)"exec-arguments", "%ss %d", argv + 2, argc - 2);
+			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, &res, "%ss %d", argv + 2, argc - 2) != 0)
+				USER("error setting program arguments \"%s\"\n", res->value->value);
+			else
+				USER("set program arguments\n");
 		}
 		else if(scmd->id == TTY){
 			/* setup pty */
@@ -52,33 +85,39 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 				// initialise pty
 				inferior_term = new pty;
 				if(inferior_term == 0){
-					WARN("unable to allocate new pty\n");
-					return -1;
+					USER("error allocating pseudo terminal for debugee\n");
+					return 0;
 				}
 
 				// start thread to read from the pty
 				if(pthread_create(&tid, 0, thread_inferior_output, 0) != 0){
-					WARN("unable to create thread\n");
+					USER("error creating thread to read inferior output\n");
 
 					delete inferior_term;
 					inferior_term = 0;
 
-					return -1;
+					return 0;
 				}
 
-				resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", "%s", inferior_term->get_name());
+				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, &res, "%s", inferior_term->get_name()) != 0)
+					USER("error setting inferior tty \"%s\"\n", res->value->value);
+				else
+					USER("set inferior tty to internal\n");
 			}
 			else{
 				/* use specified pty for output */
 				fd = open(argv[2], O_RDONLY);
 				if(fd == -1){
-					USER("unable to open pts \"%s\"\n", argv[2]);
+					USER("error opening pts \"%s\"\n", argv[2]);
 					return 0;
 				}
 
 				close(fd);
 
-				resp = gdb->mi_issue_cmd((char*)"inferior-tty-set", "%ss %d", argv + 2, argc - 2);
+				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, &res, "%ss %d", argv + 2, argc - 2) != 0)
+					USER("error setting inferior tty to \"%s\" - \"%s\"\n", argv[2], res->value->value);
+				else
+					USER("set inferior tty to \"%s\"\n", argv[2]);
 			}
 		}
 		else{
@@ -86,30 +125,9 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 			return 0;
 		}
 	}
-	else{
-		resp = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", "%ss %d", argv + 1, argc - 1);
-	}
 
-	if(resp == 0){
-		WARN("error issuing mi command\n");
-		return -1;
-	}
-
-	switch(resp->rclass){
-	case RC_DONE:
-		USER("done: exec \"%s %s\"\n", argv[0], argv[1]);
-		break;
-
-	case RC_ERROR:
-		USER("gdb reported error for command \"%s %s\"\n\t%s\n", argv[0], argv[1], resp->result->value->value);
-		break;
-
-	default:
-		WARN("unhandled result class %d\n", resp->rclass);
-		break;
-	};
-
-	gdb_result_free(resp->result);
+end:
+	gdb_result_free(res);
 	return 0;
 }
 

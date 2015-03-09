@@ -73,7 +73,7 @@ int main(int argc, char** argv){
 
 				if(cmd != 0 || fct != 0){
 					if(strsplit(line, &cmd_argc, &cmd_argv) != 0){
-						USER("error splitting line\n");
+						ERROR("error splitting line\n");
 						continue;
 					}
 
@@ -86,13 +86,13 @@ int main(int argc, char** argv){
 				}
 				else{
 					if(client != 0){
-						USER("direct execution \"%s\" %d\n", line, strlen(line));
+						DEBUG("trying direct execution \"%s\" %d\n", line, strlen(line));
 
 						client->send(line, strlen(line));
 						client->send((void*)"\n", 1);
 					}
 					else
-						USER("no client\n");
+						ERROR("no client\n");
 				}
 
 				i = 0;
@@ -186,7 +186,7 @@ int vim_action(vim_action_t action, int argc, char** argv){
 
 
 	if(client == 0){
-		USER("no client\n");
+		ERROR("no client\n");
 		return -1;
 	}
 
