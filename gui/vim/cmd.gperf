@@ -8,7 +8,7 @@
 %compare-strncmp
 
 /* delimiter */
-%delimiters="
+%delimiters=","
 
 /* naming */
 %define slot-name name
