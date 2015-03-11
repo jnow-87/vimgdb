@@ -83,6 +83,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 			breakpt_lst[key] = bkpt;
 			breakpt_print();
+			ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 
 			USER("added break-point \"%s\"\n", key);
 		}
@@ -107,6 +108,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		case DELETE:
 			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, &res, "%d", it->second->num) == 0){
 				USER("deleted break-point \"%s\"\n", it->first.c_str());
+				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line);
 
 				delete it->second;
 				breakpt_lst.erase(it);
@@ -123,6 +125,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 				bkpt->enabled = true;
 				breakpt_print();
+				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			}
 			else
 				USER("error enabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
@@ -135,6 +138,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 				bkpt->enabled = false;
 				breakpt_print();
+				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			}
 			else
 				USER("error disabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
