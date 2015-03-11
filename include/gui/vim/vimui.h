@@ -32,6 +32,9 @@ public:
 	int win_getid(const char* name);
 	int win_destroy(int win_id);
 
+	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
+	int win_anno_delete(int win, int line);
+
 	void win_print(int win_id, const char* fmt, ...);
 	void win_vprint(int win_id, const char* fmt, va_list lst);
 	void win_clear(int win_id);
@@ -46,6 +49,14 @@ private:
 		FCT = 1,
 		CMD,
 	} action_t;
+
+	typedef struct{
+		int id;
+		char* name;
+
+		map<int, int> annos;
+		map<string, int> anno_types;
+	} buffer_t;
 
 	typedef struct _response_t{
 		int seq_num,
@@ -64,9 +75,10 @@ private:
 
 	/* vim data */
 	int bufid;
-	map<string, int> bufid_map;
 	volatile int seq_num;
 	char* cwd;
+	map<string, buffer_t*> bufname_map;
+	map<int, buffer_t*> bufid_map;
 
 	/* vim netbeans connection */
 	socket *nbserver,

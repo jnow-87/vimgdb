@@ -217,6 +217,14 @@ int cursesui::win_getid(const char* name){
 	return win_create(name);
 }
 
+int cursesui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
+	return -1;
+}
+
+int win_anno_delete(int win, int line){
+	return -1;
+}
+
 void cursesui::win_print(int win_id, const char* fmt, ...){
 	va_list lst;
 

@@ -12,6 +12,9 @@
 
 
 vimui::vimui(){
+	pthread_mutexattr_t attr;
+
+
 	seq_num = 1;
 	cwd = opt.vim_cwd;
 	memset((void*)&resp, -1, sizeof(response_t));
@@ -23,7 +26,11 @@ vimui::vimui(){
 	pthread_cond_init(&resp_avail, 0);
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_cond_init(&event_avail, 0);
-	pthread_mutex_init(&ui_mtx, 0);
+
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&ui_mtx, &attr);
+	pthread_mutexattr_destroy(&attr);
 }
 
 vimui::~vimui(){
@@ -205,7 +212,8 @@ void* vimui::readline_thread(void* arg){
 
 int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	int id;
-	map<string, int>::iterator it;
+	buffer_t* b;
+	map<string, buffer_t*>::iterator it;
 
 
 	pthread_mutex_lock(&ui_mtx);
@@ -214,12 +222,12 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	 * 	if so return its id, otherwise
 	 * 	create new buffer
 	 */
-	it = bufid_map.find(name);
+	it = bufname_map.find(name);
 
-	if(it != bufid_map.end()){
+	if(it != bufname_map.end()){
 		DEBUG("already exists\n");
 		pthread_mutex_unlock(&ui_mtx);
-		return it->second;
+		return it->second->id;
 	}
 
 	id = bufid;
@@ -242,7 +250,14 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	action(CMD, "stopDocumentListen", id, 0, "");
 
 	/* set buf_id as used */
-	bufid_map[name] = id;
+	b = new buffer_t;
+	b->id = id;
+	b->name = new char[strlen(name) + 1];
+
+	strcpy(b->name, name);
+
+	bufname_map[name] = b;
+	bufid_map[id] = b;
 
 	pthread_mutex_unlock(&ui_mtx);
 
@@ -254,7 +269,8 @@ int vimui::win_getid(const char* name){
 }
 
 int vimui::win_destroy(int win_id){
-	map<string, int>::iterator it;
+	map<string, buffer_t*>::iterator it_name;
+	map<int, buffer_t*>::iterator it_id;
 
 
 	pthread_mutex_lock(&ui_mtx);
@@ -266,16 +282,108 @@ int vimui::win_destroy(int win_id){
 	}
 
 	/* remove buffer */
-	for(it=bufid_map.begin(); it!=bufid_map.end(); it++){
-		if(it->second == win_id){
-			bufid_map.erase(it);
-			break;
-		}
-	}
+	it_id = bufid_map.find(win_id);
+
+	if(it_id == bufid_map.end())
+		return -1;
+
+	it_name = bufname_map.find(it_id->second->name);
+
+	delete it_id->second->name;
+	delete it_id->second;
+
+	bufname_map.erase(it_name);
+	bufid_map.erase(it_id);
 
 	pthread_mutex_unlock(&ui_mtx);
 
 	return 0;
+}
+
+int vimui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
+	static unsigned int id = 1;
+	buffer_t* b;
+	string key;
+	map<int, buffer_t*>::iterator buf;
+	map<string, int>::iterator annotype;
+
+
+	key += sign;
+	key += color_fg;
+	key += color_bg;
+
+	pthread_mutex_lock(&ui_mtx);
+
+	buf = bufid_map.find(win);
+
+	if(buf == bufid_map.end())
+		goto err;
+
+	b = buf->second;
+	annotype = b->anno_types.find(key);
+
+	if(action(CMD, "startAtomic", 0, 0, "") != 0)
+		goto err;
+
+	/* create annotation type if it doesn't exist */
+	if(annotype == b->anno_types.end()){
+		if(action(CMD, "defineAnnoType", win, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
+			goto err;
+
+		b->anno_types[key] = b->anno_types.size();	// first element has value 1, since anno_types size
+													// is incremented by using the []-operator
+		annotype = b->anno_types.find(key);
+	}
+
+	/* remove annotation from line if one exists */
+	win_anno_delete(win, line);
+
+	/* add annotation */
+	if(action(CMD, "addAnno", win, 0, "%d %d %d/0", id, annotype->second, line) == 0){
+		b->annos[line] = id;
+		id++;
+
+		action(CMD, "endAtomic", 0, 0, "");
+
+		pthread_mutex_unlock(&ui_mtx);
+		return 0;
+	}
+
+err:
+	action(CMD, "endAtomic", 0, 0, "");
+	pthread_mutex_unlock(&ui_mtx);
+	return -1;
+}
+
+int vimui::win_anno_delete(int win, int line){
+	buffer_t* b;
+	map<int, buffer_t*>::iterator buf;
+	map<int, int>::iterator anno;
+
+
+	pthread_mutex_lock(&ui_mtx);
+
+	buf = bufid_map.find(win);
+
+	if(buf == bufid_map.end())
+		goto err;
+
+	b = buf->second;
+	anno = b->annos.find(line);
+
+	if(anno != b->annos.end()){
+		if(action(CMD, "removeAnno", win, 0, "%d", anno->second) != 0)
+			goto err;
+
+		b->annos.erase(anno);
+	}
+
+	pthread_mutex_unlock(&ui_mtx);
+	return 0;
+
+err:
+	pthread_mutex_unlock(&ui_mtx);
+	return -1;
 }
 
 void vimui::win_print(int win_id, const char* fmt, ...){
