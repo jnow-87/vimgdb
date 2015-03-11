@@ -1,6 +1,5 @@
 #include <common/log.h>
 #include <gdb/gdb.h>
-#include <gdb/result.h>
 #include <gui/gui.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
@@ -10,7 +9,6 @@
 int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 	int r;
 	const struct user_subcmd_t* scmd;
-	gdb_result_t* res;
 
 
 	if(argc < 2){
@@ -26,21 +24,18 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	res = 0;
-
-	if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
-	else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
-	else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
-	else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
-	else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "");
-	else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "%ss %d", argv + 2, argc - 2);
-	else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), &res, "%ss %d", argv + 2, argc - 2);
+	if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+	else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+	else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+	else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+	else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+	else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "%ss %d", argv + 2, argc - 2);
+	else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "%ss %d", argv + 2, argc - 2);
 	else if(scmd->id == BREAK)		r = gdb->sigsend(SIGINT);
 
 	if(r == 0)	USER("executed \"%s\"\n", argv[1]);
-	else		USER("error executing \"%s\"\n - %s\n", argv[1], res->value->value);
+	else		USER("error executing \"%s\"\n", argv[1]);
 
-	gdb_result_free(res);
 	return 0;
 }
 

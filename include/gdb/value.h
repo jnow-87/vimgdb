@@ -11,7 +11,7 @@ typedef enum{
 }  gdb_value_type_t;
 
 typedef struct _value_t{
-	 gdb_value_type_t type;
+	gdb_value_type_t type;
 	void* value;
 
 	struct _value_t *next, *prev;

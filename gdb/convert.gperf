@@ -1,0 +1,32 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name convert
+
+
+/* c-code */
+%{
+	#include <gdb/convert.h>
+	#include <gdb/breakpoint.h>
+	#include <gdb/location.h>
+%}
+
+/* struct-type definition */
+struct gdb_convert_t;
+
+%%
+# command						callback
+break-insert,					conv_breakpoint
+file-list-exec-source-file,		conv_location

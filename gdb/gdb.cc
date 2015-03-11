@@ -2,6 +2,7 @@
 #include <common/pty.h>
 #include <common/string.h>
 #include <gdb/gdb.h>
+#include <gdb/convert.hash.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
 #include <string.h>
@@ -113,22 +114,23 @@ int gdbif::write(void* buf, unsigned int nbytes){
  * \return	>0		token used for the command
  * 			-1		error
  */
-int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, gdb_result_t** result, const char* fmt, ...){
+int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const char* fmt, ...){
 	static char* s = 0;
 	static unsigned int s_len = 0;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
+	const gdb_convert_t* conv;
 
+
+	if(r)
+		*r = 0;
 
 	va_start(lst, fmt);
 
 	gdb->write(itoa(token, &s, &s_len));
 	gdb->write((char*)"-");
 	gdb->write(cmd);
-
-	if(result)
-		*result = 0;
 
 	for(i=0; i<strlen(fmt); i++){
 		gdb->write((char*)" ");
@@ -183,11 +185,26 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, gdb_result_t** re
 
 	token++;
 
-	if(!(resp.rclass & ok_mask))
-		USER("error executing gdb command \"%s\" - \"%s\"\n", cmd, resp.result->value->value);
+	if(resp.rclass & ok_mask){
+		if(resp.result && r){
+			conv = convert::lookup(cmd, strlen(cmd));
 
-	if(result)	*result = resp.result;
-	else		gdb_result_free(resp.result);
+			if(conv != 0){
+				if(conv->cb(resp.result, r) != 0){
+					ERROR("unable to convert result for \"%s\"\n", cmd);
+					resp.rclass = RC_ERROR;
+				}
+			}
+			else{
+				ERROR("no callback defined to convert result for \"%s\"\n", cmd);
+				resp.rclass = RC_ERROR;
+			}
+		}
+	}
+	else
+		USER("gdb-error %s: \"%s\"\n", cmd, resp.result->value->value);
+
+	gdb_result_free(resp.result);
 
 	pthread_mutex_unlock(&resp_mtx);
 

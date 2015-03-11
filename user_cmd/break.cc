@@ -1,8 +1,8 @@
 #include <common/log.h>
 #include <common/list.h>
 #include <gdb/gdb.h>
-#include <gdb/result.h>
 #include <gui/gui.h>
+#include <gdb/breakpoint.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
 #include <string.h>
@@ -14,21 +14,8 @@
 using namespace std;
 
 
-/* types */
-typedef struct{
-	unsigned int num;
-
-	unsigned int line;
-	char *filename,
-		 *fullname,
-		 *at;
-
-	bool enabled;
-} breakpt_t;
-
-
 /* static variables */
-static map<string, breakpt_t*> breakpt_lst;
+static map<string, gdb_breakpoint_t*> breakpt_lst;
 
 static const char* cmd_str[] = {
 	"break-insert",
@@ -39,7 +26,6 @@ static const char* cmd_str[] = {
 
 
 /* static prototypes */
-void breakpt_read(gdb_result_t* result, breakpt_t* bkpt);
 void breakpt_print();
 
 
@@ -47,9 +33,8 @@ void breakpt_print();
 int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	char key[256];
 	const struct user_subcmd_t* scmd;
-	map<string, breakpt_t*>::iterator it;
-	gdb_result_t* res;
-	breakpt_t* bkpt;
+	map<string, gdb_breakpoint_t*>::iterator it;
+	gdb_breakpoint_t* bkpt;
 
 
 	if(argc != 3){
@@ -65,19 +50,9 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	res = 0;
-
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, &res, "%s", argv[2]) == 0){
-			bkpt = new breakpt_t;
-			if(bkpt == 0)
-				break;
-
-			memset(bkpt, 0x0, sizeof(breakpt_t));
-
-			breakpt_read(res, bkpt);
-
+		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, (void**)&bkpt, "%s", argv[2]) == 0){
 			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
 			else					snprintf(key, 256, "%s", bkpt->at);
 
@@ -88,7 +63,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 			USER("added break-point \"%s\"\n", key);
 		}
 		else
-			USER("error adding break-point \"%s\"\n", res->value->value);
+			USER("error adding break-point\n");
 
 		break;
 	
@@ -106,7 +81,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 		switch(scmd->id){
 		case DELETE:
-			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, &res, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, "%d", it->second->num) == 0){
 				USER("deleted break-point \"%s\"\n", it->first.c_str());
 				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line);
 
@@ -115,12 +90,12 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 				breakpt_print();
 			}
 			else
-				USER("error deleting break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+				USER("error deleting break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 
 		case ENABLE:
-			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, &res, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, 0, "%d", it->second->num) == 0){
 				USER("enabled break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = true;
@@ -128,12 +103,12 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			}
 			else
-				USER("error enabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+				USER("error enabling break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 
 		case DISABLE:
-			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, &res, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, 0, "%d", it->second->num) == 0){
 				USER("disabled break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = false;
@@ -141,7 +116,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			}
 			else
-				USER("error disabling break-point \"%s\" - \"%s %s\"\n\t%s\n", it->first.c_str(), res->value->value);
+				USER("error disabling break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 		};
@@ -153,7 +128,6 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	};
 
-	gdb_result_free(res);
 	return 0;
 }
 
@@ -218,50 +192,10 @@ void cmd_break_help(int argc, char** argv){
 
 
 /* local functions */
-void breakpt_read(gdb_result_t* result, breakpt_t* bkpt){
-	gdb_result_t* r;
-
-
-	list_for_each(result, r){
-		switch(r->var_id){
-		case V_NUMBER:
-			bkpt->num = atoi((char*)r->value->value);
-			break;
-
-		case V_LINE:
-			bkpt->line = atoi((char*)r->value->value);
-			break;
-
-		case V_FILE:
-			bkpt->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->filename, (const char*)r->value->value);
-			break;
-
-		case V_FULLNAME:
-			bkpt->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->fullname, (const char*)r->value->value);
-			break;
-
-		case V_ENABLED:
-			bkpt->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
-			break;
-
-		case V_AT:
-			bkpt->at = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->at, (const char*)r->value->value);
-			break;
-
-		default:
-			if(r->value->type == VT_RESULT_LIST)
-				breakpt_read((gdb_result_t*)r->value->value, bkpt);
-		};
-	}
-}
-
 void breakpt_print(){
 	int win_id_break;
-	map<string, breakpt_t*>::iterator it;
-	breakpt_t* bkpt;
+	map<string, gdb_breakpoint_t*>::iterator it;
+	gdb_breakpoint_t* bkpt;
 
 
 	win_id_break = ui->win_getid("breakpoints");
