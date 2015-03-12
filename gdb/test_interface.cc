@@ -18,9 +18,9 @@
 
 
 /* static variables */
-gdbif* gdb;
-pthread_t tid_gdb_output,
-		  tid_main;
+gdbif* gdb = 0;
+pthread_t tid_gdb_output = 0,
+		  tid_main = 0;
 
 
 /* static prototypes */
@@ -90,7 +90,8 @@ void cleanup(int signum){
 	char c;
 
 
-	pthread_join(tid_gdb_output, 0);
+	if(tid_gdb_output != 0)
+		pthread_join(tid_gdb_output, 0);
 
 	delete gdb;
 

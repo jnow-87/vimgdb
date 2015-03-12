@@ -15,8 +15,13 @@ vimui::vimui(){
 	pthread_mutexattr_t attr;
 
 
+	read_tid = 0;
 	seq_num = 1;
 	cwd = opt.vim_cwd;
+	nbserver = 0;
+	nbclient = 0;
+	cwd = 0;
+	ostr = 0;
 	memset((void*)&resp, -1, sizeof(response_t));
 	event_lst = 0;
 	list_init(event_lst);
@@ -85,8 +90,10 @@ void vimui::destroy(){
 	response_t* e;
 
 
-	pthread_cancel(read_tid);
-	pthread_join(read_tid, 0);
+	if(read_tid != 0){
+		pthread_cancel(read_tid);
+		pthread_join(read_tid, 0);
+	}
 
 	list_for_each(event_lst, e)
 		list_rm(&event_lst, e);
@@ -225,7 +232,6 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	it = bufname_map.find(name);
 
 	if(it != bufname_map.end()){
-		DEBUG("already exists\n");
 		pthread_mutex_unlock(&ui_mtx);
 		return it->second->id;
 	}
