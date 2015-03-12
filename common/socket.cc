@@ -21,6 +21,10 @@ socket::socket(){
 	saddr = (sockaddr_in*)malloc(sizeof(sockaddr_in));
 	memset(saddr, 0, sizeof(sockaddr_in));
 	((sockaddr_in*)saddr)->sin_family = AF_INET;
+
+	sbuf_idx = 0;
+	sbuf_len = 256;
+	sbuf = (char*)malloc(sbuf_len * sizeof(char));;
 }
 
 /**
@@ -29,13 +33,10 @@ socket::socket(){
  * \param	port	port-number
  * \param	addr	targets ip
  */
-socket::socket(int port, const char* addr){
+socket::socket(int port, const char* addr) : socket(){
 	fd_sock = -1;
 	timeout = 0;
 
-	saddr = (sockaddr_in*)malloc(sizeof(sockaddr_in));
-	memset(saddr, 0, sizeof(sockaddr_in));
-	((sockaddr_in*)saddr)->sin_family = AF_INET;
 	((sockaddr_in*)saddr)->sin_port = htons(port);
 
 	if(addr == 0)
@@ -50,6 +51,7 @@ socket::socket(int port, const char* addr){
 socket::~socket(){
 	DEBUG("closing socket to %s\n", get_ip());
 
+	free(sbuf);
 	free(saddr);
 
 	if(fd_sock != -1){
@@ -68,6 +70,9 @@ socket::~socket(){
 int socket::init_client(socket_t type){
 	int sock_type;
 
+
+	if(sbuf == 0)
+		return -1;
 
 	sock_type = (type == TCP) ? SOCK_STREAM : SOCK_DGRAM;
 
@@ -97,6 +102,9 @@ int socket::init_client(socket_t type){
 int socket::init_server(socket_t type){
 	int sock_type;
 
+
+	if(sbuf == 0)
+		return -1;
 
 	sock_type = (type == TCP) ? SOCK_STREAM : SOCK_DGRAM;
 
@@ -168,7 +176,20 @@ int socket::recv(void* data, int size){
  * 	\return			number of bytes send on succes,  -1 on error
  */
 int socket::send(void* data, int size){
-	return sendto(fd_sock, data, size, 0, (sockaddr*)saddr, sizeof(sockaddr_in));
+	if(sbuf_idx + size >= sbuf_len){
+		sbuf_len += size + 256;
+		sbuf = (char*)realloc(sbuf, sbuf_len);
+	}
+	
+	memcpy(sbuf + sbuf_idx, data, size);
+	sbuf_idx += size;
+
+	if(sbuf[sbuf_idx - 1] == '\n'){
+		size = sendto(fd_sock, sbuf, sbuf_idx, 0, (sockaddr*)saddr, sizeof(sockaddr_in));
+		sbuf_idx = 0;
+	}
+
+	return size;
 }
 
 int socket::send(char* s){

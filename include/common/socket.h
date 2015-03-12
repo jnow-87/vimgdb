@@ -37,6 +37,8 @@ private:
 	void* saddr;	// is of type sockaddr_in* but has to be void*
 					// to avoid inclusion of arpa/inet.h to avoid
 					// name collision with socket()
+	char* sbuf;
+	unsigned int sbuf_len, sbuf_idx;
 };
 
 
