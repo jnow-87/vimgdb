@@ -266,6 +266,55 @@ char* strescape(char* s, char** e, unsigned int* e_max){
 	return t;
 }
 
+char* strdeescape(char* s){
+	unsigned int len;
+	unsigned int i, o;
+	
+
+	if(s == 0)
+		return 0;
+
+	len = strlen(s);
+
+	for(i=0, o=0; i<len; i++, o++){
+		if(s[i] == '\\'){
+			switch(s[++i]){
+			case 't':
+				s[o] = '\t';
+				break;
+
+			case 'n':
+				s[o] = '\n';
+				break;
+
+			case 'r':
+				s[o] = '\r';
+				break;
+
+			case '"':
+				s[o] = '\"';
+				break;
+
+			case '\\':
+				s[o] = '\\';
+				break;
+
+			default:
+				if(--i != o)
+					s[o] = s[i];
+			};
+		}
+		else{
+			if(i != o)
+				s[o] = s[i];
+		}
+	}
+
+	s[o] = 0;
+
+	return s;
+}
+
 char* itoa(int v, char** s, unsigned int* max){
 	unsigned int len = 0;
 	
