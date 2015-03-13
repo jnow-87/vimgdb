@@ -153,7 +153,7 @@ void* thread_gdb_output(void* arg){
 			  ){
 				line[i] = 0;
 
-				DEBUG("parse gdb string \"%s\"\n", line);
+				DEBUG("parse gdb string \"%.20s\"\n", line);
 
 				i = gdbparse(line, gdb);
 

@@ -46,7 +46,7 @@ obj :=
 lib :=
 bin :=
 
-subdir-y := scripts/mconf/ gdb/ gui/ user_cmd/ common/
+subdir-y := scripts/mconf/ main/ gdb/ gui/ user_cmd/ common/
 
 # fake target as default
 .PHONY: fake_all
