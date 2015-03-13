@@ -152,10 +152,15 @@ void* thread_gdb_output(void* arg){
 			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
 			  ){
 				line[i] = 0;
-				ui->win_print(win_id_gdb, "gdb_read: %s", line);
 
 				DEBUG("parse gdb string \"%s\"\n", line);
-				DEBUG("parser return value: %d\n", gdbparse(line, gdb));
+
+				i = gdbparse(line, gdb);
+
+				DEBUG("parser return value: %d\n", i);
+
+				ui->win_print(win_id_gdb, line);
+				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
 
 				i = 0;
 			}

@@ -59,13 +59,13 @@
 %%
 
 
-output :	out-of-band-record GDB NEWLINE			{ DEBUG("gdb parser: reduced to output\n"); };
+output :	out-of-band-record GDB NEWLINE			{ };
 
 
 /* out-of-band-record */
-out-of-band-record :	%empty										{ DEBUG("gdb parser: reduced to empty out-of-band-record\n"); }
-				   |	out-of-band-record async-record				{ DEBUG("gdb parser: reduced to out-of-band-record with async-record\n"); }
-				   |	out-of-band-record stream-record			{ DEBUG("gdb parser: reduced to out-of-band-record with stream-record\n"); }
+out-of-band-record :	%empty										{ }
+				   |	out-of-band-record async-record				{ }
+				   |	out-of-band-record stream-record			{ }
 				   ;
 
 async-record :			token '*' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* exec-async-output */

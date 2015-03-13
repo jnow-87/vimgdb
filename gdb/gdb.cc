@@ -238,22 +238,6 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 }
 
 int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
-	/* TODO implement proper integration with log system */
-	TODO("implement proper integration with log system\n");
-
-	switch(sclass){
-	case SC_CONSOLE:
-		TEST("console stream: \"%s\"\n", stream);
-		break;
-
-	case SC_TARGET:
-		TEST("target system stream: \"%s\"\n", stream);
-		break;
-
-	case SC_LOG:
-		TEST("log stream: \"%s\"\n", stream);
-		break;
-	};
-
+	USER(strdeescape(stream));
 	return 0;
 }
