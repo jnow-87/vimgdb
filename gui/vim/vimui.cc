@@ -15,18 +15,18 @@ vimui::vimui(){
 	pthread_mutexattr_t attr;
 
 
-	read_tid = 0;
+	bufid = 1;	// avoid using buf-id 0 for netbeans
 	seq_num = 1;
-	cwd = opt.vim_cwd;
+	read_tid = 0;
 	nbserver = 0;
 	nbclient = 0;
-	cwd = 0;
 	ostr = 0;
+	cwd = opt.vim_cwd;
+
 	memset((void*)&resp, -1, sizeof(response_t));
+
 	event_lst = 0;
 	list_init(event_lst);
-
-	bufid = 1;	// avoid using buf-id 0 for netbeans
 
 	pthread_cond_init(&resp_avail, 0);
 	pthread_mutex_init(&resp_mtx, 0);
@@ -98,7 +98,6 @@ void vimui::destroy(){
 	list_for_each(event_lst, e)
 		list_rm(&event_lst, e);
 
-	delete cwd;
 	delete ostr;
 	delete nbclient;
 	delete nbserver;
