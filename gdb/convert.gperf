@@ -28,5 +28,5 @@ struct gdb_convert_t;
 
 %%
 # command						callback
-break-insert,					conv_breakpoint
+break-insert,					conv_break_insert
 file-list-exec-source-file,		conv_location

@@ -17,8 +17,23 @@ gdb_breakpoint_t::~gdb_breakpoint_t(){
 	delete at;
 }
 
+int conv_break_insert(gdb_result_t* result, void** bkpt){
+	gdb_result_t* r;
 
-int conv_breakpoint(gdb_result_t* result, void** bkpt){
+
+	list_for_each(result, r){
+		switch(r->var_id){
+		case V_BREAKPT:
+			return conv_breakpoint((gdb_result_t*)r->value->value, (gdb_breakpoint_t**)bkpt);
+			break;
+
+		default:
+			return -1;
+		};
+	}
+}
+
+int conv_breakpoint(gdb_result_t* result, gdb_breakpoint_t** bkpt){
 	gdb_result_t* r;
 
 
@@ -28,35 +43,31 @@ int conv_breakpoint(gdb_result_t* result, void** bkpt){
 	list_for_each(result, r){
 		switch(r->var_id){
 		case V_NUMBER:
-			((gdb_breakpoint_t*)*bkpt)->num = atoi((char*)r->value->value);
+			(*bkpt)->num = atoi((char*)r->value->value);
 			break;
 
 		case V_LINE:
-			((gdb_breakpoint_t*)*bkpt)->line = atoi((char*)r->value->value);
+			(*bkpt)->line = atoi((char*)r->value->value);
 			break;
 
 		case V_FILE:
-			((gdb_breakpoint_t*)*bkpt)->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(((gdb_breakpoint_t*)*bkpt)->filename, (const char*)r->value->value);
+			(*bkpt)->filename = new char[strlen((const char*)r->value->value) + 1];
+			strcpy((*bkpt)->filename, (const char*)r->value->value);
 			break;
 
 		case V_FULLNAME:
-			((gdb_breakpoint_t*)*bkpt)->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(((gdb_breakpoint_t*)*bkpt)->fullname, (const char*)r->value->value);
+			(*bkpt)->fullname = new char[strlen((const char*)r->value->value) + 1];
+			strcpy((*bkpt)->fullname, (const char*)r->value->value);
 			break;
 
 		case V_ENABLED:
-			((gdb_breakpoint_t*)*bkpt)->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
+			(*bkpt)->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
 			break;
 
 		case V_AT:
-			((gdb_breakpoint_t*)*bkpt)->at = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(((gdb_breakpoint_t*)*bkpt)->at, (const char*)r->value->value);
+			(*bkpt)->at = new char[strlen((const char*)r->value->value) + 1];
+			strcpy((*bkpt)->at, (const char*)r->value->value);
 			break;
-
-		default:
-			if(r->value->type == VT_RESULT_LIST)
-				conv_breakpoint((gdb_result_t*)r->value->value, bkpt);
 		};
 	}
 
