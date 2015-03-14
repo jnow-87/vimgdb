@@ -28,13 +28,15 @@ struct gdb_var_t;
 # variable string						id
 id,										V_ID
 msg,									V_MSG
+name,									V_NAME
 bkpt,									V_BREAKPT
+bkptno,									V_BREAKPT_NUM
 number,									V_NUMBER
 type,									V_TYPE
 catch-type,								V_CATCH_TYPE
 disp,									V_DISPOSITION
 enabled,								V_ENABLED
-addr,									V_ADDR
+addr,									V_ADDRESS
 func,									V_FUNCTION
 file,									V_FILE
 fullname,								V_FULLNAME
@@ -55,6 +57,7 @@ original-location,						V_ORIG_LOCATION
 times,									V_TIMES
 installed,								V_INSTALLED
 what,									V_WHAT
+thread-group,							V_THREAD_GROUP
 thread-groups,							V_THREAD_GROUPS
 param,									V_PARAM
 value,									V_VALUE
@@ -62,3 +65,15 @@ thread-id,								V_THREAD_ID
 group-id,								V_GROUP_ID
 pid,									V_PROC_ID
 macro-info,								V_MACRO_INFO
+target-name,							V_TGT_NAME
+host-name,								V_HOST_NAME
+symbols-loaded,							V_SYM_LOADED
+reason,									V_REASON
+frame,									V_FRAME
+args,									V_ARGS
+stopped-threads,						V_THREADS_STOPPED
+core,									V_CORE
+signal-name,							V_SIG_NAME
+signal-meaning,							V_SIG_MEANING
+gdb-result-var,							V_GDBRES_VAR
+return-value,							V_RETVAL

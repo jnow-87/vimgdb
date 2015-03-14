@@ -2,6 +2,7 @@
 #include <common/pty.h>
 #include <common/string.h>
 #include <gdb/gdb.h>
+#include <gdb/event.h>
 #include <gdb/convert.hash.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
@@ -18,6 +19,7 @@
 gdbif::gdbif(){
 	gdb = 0;
 	token = 1;
+	is_running = false;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_cond_init(&resp_avail, 0);
@@ -94,6 +96,14 @@ int gdbif::read(void* buf, unsigned int nbytes){
  */
 int gdbif::write(void* buf, unsigned int nbytes){
 	return gdb->write(buf, nbytes);
+}
+
+bool gdbif::running(){
+	return is_running;
+}
+
+bool gdbif::running(bool state){
+	return (is_running = state);
 }
 
 /**
@@ -231,8 +241,28 @@ int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_res
 }
 
 int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
-	/* TODO implement */
-	TODO("not yet implemented\n");
+	int r;
+
+
+	switch(rclass){
+	case RC_STOPPED:
+		r = evt_stopped(this, result);
+		break;
+
+	case RC_RUNNING:
+		r = evt_running(this, result);
+
+	case RC_BREAK_MODIFIED:
+		break;
+
+	default:
+		r = 0;
+		DEBUG("unhandled gdb-event %d\n", rclass);
+	};
+
+	if(r != 0)
+		ERROR("error handling gdb-event %d\n", rclass);
+
 	gdb_result_free(result);
 	return 0;
 }

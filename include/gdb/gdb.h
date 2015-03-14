@@ -48,11 +48,16 @@ public:
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
 
+	/* inferior state */
+	bool running();
+	bool running(bool state);
+
 private:
 	/* variables */
 	// gdb child data
 	pty* gdb;
 	pid_t pid;
+	bool is_running;
 
 	// token used for gdb commands
 	volatile unsigned int token;
