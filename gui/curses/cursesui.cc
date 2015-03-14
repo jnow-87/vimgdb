@@ -221,7 +221,11 @@ int cursesui::win_anno_add(int win, int line, const char* sign, const char* colo
 	return -1;
 }
 
-int win_anno_delete(int win, int line){
+int cursesui::win_anno_delete(int win, int line, const char* sign){
+	return -1;
+}
+
+int cursesui::win_cursor_set(int win, int line){
 	return -1;
 }
 

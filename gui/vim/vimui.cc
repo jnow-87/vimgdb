@@ -105,7 +105,6 @@ void vimui::destroy(){
 
 char* vimui::readline(){
 	char* line = 0;
-	int id;	// TODO remove
 	unsigned int len = 0;
 	response_t* e;
 
@@ -144,8 +143,7 @@ char* vimui::readline(){
 		case E_FILEOPENED:
 			DEBUG("handle FILEOPENED event\n");
 
-			id = win_create(e->result->sptr);
-			DEBUG("create win for \"%s\" (%d)\n", e->result->sptr, id);
+			win_create(e->result->sptr);
 			break;
 
 		case E_KILLED:
@@ -273,7 +271,7 @@ int vimui::win_getid(const char* name){
 	return win_create(name);
 }
 
-int vimui::win_destroy(int win_id){
+int vimui::win_destroy(int win){
 	map<string, buffer_t*>::iterator it_name;
 	map<int, buffer_t*>::iterator it_id;
 
@@ -281,13 +279,13 @@ int vimui::win_destroy(int win_id){
 	pthread_mutex_lock(&ui_mtx);
 
 	/* close vim buffer */
-	if(action(CMD, "close", win_id, 0, "") != 0){
+	if(action(CMD, "close", win, 0, "") != 0){
 		pthread_mutex_unlock(&ui_mtx);
 		return -1;
 	}
 
 	/* remove buffer */
-	it_id = bufid_map.find(win_id);
+	it_id = bufid_map.find(win);
 
 	if(it_id == bufid_map.end())
 		return -1;
@@ -307,45 +305,45 @@ int vimui::win_destroy(int win_id){
 
 int vimui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
 	static unsigned int id = 1;
-	buffer_t* b;
+	buffer_t* buf;
 	string key;
-	map<int, buffer_t*>::iterator buf;
+	map<int, buffer_t*>::iterator bit;
 	map<string, int>::iterator annotype;
 
 
-	key += sign;
+	key = sign;
 	key += color_fg;
 	key += color_bg;
 
 	pthread_mutex_lock(&ui_mtx);
 
-	buf = bufid_map.find(win);
+	bit = bufid_map.find(win);
 
-	if(buf == bufid_map.end())
+	if(bit == bufid_map.end())
 		goto err;
 
-	b = buf->second;
-	annotype = b->anno_types.find(key);
+	buf = bit->second;
+	annotype = buf->anno_types.find(key);
 
 	if(action(CMD, "startAtomic", 0, 0, "") != 0)
 		goto err;
 
 	/* create annotation type if it doesn't exist */
-	if(annotype == b->anno_types.end()){
+	if(annotype == buf->anno_types.end()){
 		if(action(CMD, "defineAnnoType", win, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
 			goto err;
 
-		b->anno_types[key] = b->anno_types.size();	// first element has value 1, since anno_types size
-													// is incremented by using the []-operator
-		annotype = b->anno_types.find(key);
+		buf->anno_types[key] = buf->anno_types.size();	// first element has value 1, since anno_types size
+														// is incremented by using the []-operator
+		annotype = buf->anno_types.find(key);
 	}
-
-	/* remove annotation from line if one exists */
-	win_anno_delete(win, line);
 
 	/* add annotation */
 	if(action(CMD, "addAnno", win, 0, "%d %d %d/0", id, annotype->second, line) == 0){
-		b->annos[line] = id;
+		key = line;
+		key += sign;
+
+		buf->annos[key] = id;
 		id++;
 
 		action(CMD, "endAtomic", 0, 0, "");
@@ -360,27 +358,30 @@ err:
 	return -1;
 }
 
-int vimui::win_anno_delete(int win, int line){
-	buffer_t* b;
-	map<int, buffer_t*>::iterator buf;
-	map<int, int>::iterator anno;
+int vimui::win_anno_delete(int win, int line, const char* sign){
+	buffer_t* buf;
+	string key;
+	map<int, buffer_t*>::iterator bit;
+	map<string, int>::iterator anno;
 
 
 	pthread_mutex_lock(&ui_mtx);
 
-	buf = bufid_map.find(win);
+	bit = bufid_map.find(win);
 
-	if(buf == bufid_map.end())
+	if(bit == bufid_map.end())
 		goto err;
 
-	b = buf->second;
-	anno = b->annos.find(line);
+	buf = bit->second;
+	key = line;
+	key += sign;
+	anno = buf->annos.find(key);
 
-	if(anno != b->annos.end()){
+	if(anno != buf->annos.end()){
 		if(action(CMD, "removeAnno", win, 0, "%d", anno->second) != 0)
 			goto err;
 
-		b->annos.erase(anno);
+		buf->annos.erase(anno);
 	}
 
 	pthread_mutex_unlock(&ui_mtx);
@@ -391,16 +392,20 @@ err:
 	return -1;
 }
 
-void vimui::win_print(int win_id, const char* fmt, ...){
+int vimui::win_cursor_set(int win, int line){
+	return action(CMD, "setDot", win, 0, "%d/0", line);
+}
+
+void vimui::win_print(int win, const char* fmt, ...){
 	va_list lst;
 
 
 	va_start(lst, fmt);
-	win_vprint(win_id, fmt, lst);
+	win_vprint(win, fmt, lst);
 	va_end(lst);
 }
 
-void vimui::win_vprint(int win_id, const char* fmt, va_list lst){
+void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	int len, buf, buf_line, buf_col;
 	vim_result_t* r;
 	va_list tlst;
@@ -408,7 +413,7 @@ void vimui::win_vprint(int win_id, const char* fmt, va_list lst){
 
 	pthread_mutex_lock(&ui_mtx);
 
-	action(CMD, "startAtomic", 0, 0, "");
+	action(CMD, "startAtomic", win, 0, "");
 
 	/* create string */
 	while(1){
@@ -435,27 +440,27 @@ void vimui::win_vprint(int win_id, const char* fmt, va_list lst){
 	vim_result_free(r);
 
 	/* get length of target buffer */
-	if(action(FCT, "getLength", win_id, &r, "") != 0)
+	if(action(FCT, "getLength", win, &r, "") != 0)
 		goto end;
 
 	len = r->num;
 	vim_result_free(r);
 
 	/* insert text and update cursor position */
-	action(FCT, "insert", win_id, 0, "%d \"%s\"", len, ostr);
-	action(CMD, "setDot", win_id, 0, "%d", len + strlen(ostr) - 1);
+	action(FCT, "insert", win, 0, "%d \"%s\"", len, ostr);
+	action(CMD, "setDot", win, 0, "%d", len + strlen(ostr) - 1);
 
 	/* reset cursor to previous buffer if its different from target buffer */
-	if(buf > 0 && win_id != buf)
+	if(buf > 0 && win != buf)
 		action(CMD, "setDot", buf, 0, "%d/%d", buf_line, buf_col);
 
 end:
-	action(CMD, "endAtomic", 0, 0, "");
+	action(CMD, "endAtomic", win, 0, "");
 
 	pthread_mutex_unlock(&ui_mtx);
 }
 
-void vimui::win_clear(int win_id){
+void vimui::win_clear(int win){
 	int buf, buf_line, buf_col;
 	vim_result_t* r;
 
@@ -474,13 +479,13 @@ void vimui::win_clear(int win_id){
 	vim_result_free(r);
 
 	/* get length of buffer and remove text */
-	if(action(FCT, "getLength", win_id, &r, "") == 0)
-		action(FCT, "remove", win_id, 0, "0 %d", r->num);
+	if(action(FCT, "getLength", win, &r, "") == 0)
+		action(FCT, "remove", win, 0, "0 %d", r->num);
 
 	vim_result_free(r);
 
 	/* reset cursor to previous buffer if its different from target buffer */
-	if(buf > 0 && win_id != buf)
+	if(buf > 0 && win != buf)
 		action(CMD, "setDot", buf, 0, "%d/%d", buf_line, buf_col);
 
 end:
@@ -490,14 +495,13 @@ end:
 }
 
 int vimui::reply(int seq_num, vim_result_t* rlst){
-	DEBUG("handle vim reply to seq-num %d\n", seq_num);
-
 	pthread_mutex_lock(&resp_mtx);
 
 	/* check if this is the sequence number waited for, if not drop it
 	 *	this is safe since there can only be one outstanding action()
 	 */
 	if(resp.seq_num == seq_num){
+		DEBUG("vim reply to seq-num %d\n", seq_num);
 		resp.result = rlst;
 
 		pthread_cond_signal(&resp_avail);

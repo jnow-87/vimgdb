@@ -83,7 +83,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		case DELETE:
 			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, "%d", it->second->num) == 0){
 				USER("deleted break-point \"%s\"\n", it->first.c_str());
-				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line);
+				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line, "b");
 
 				delete it->second;
 				breakpt_lst.erase(it);

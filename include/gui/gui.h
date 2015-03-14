@@ -21,7 +21,9 @@ public:
 	virtual int win_destroy(int win_id) = 0;
 
 	virtual int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg) = 0;
-	virtual int win_anno_delete(int win, int line) = 0;
+	virtual int win_anno_delete(int win, int line, const char* sign) = 0;
+
+	virtual int win_cursor_set(int win, int line) = 0;
 
 	virtual void win_print(int win, const char* fmt, ...) = 0;
 	virtual void win_vprint(int win, const char* fmt, va_list lst) = 0;

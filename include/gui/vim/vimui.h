@@ -30,14 +30,16 @@ public:
 	/* window functions */
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
 	int win_getid(const char* name);
-	int win_destroy(int win_id);
+	int win_destroy(int win);
 
 	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
-	int win_anno_delete(int win, int line);
+	int win_anno_delete(int win, int line, const char* sign);
 
-	void win_print(int win_id, const char* fmt, ...);
-	void win_vprint(int win_id, const char* fmt, va_list lst);
-	void win_clear(int win_id);
+	int win_cursor_set(int win, int line);
+
+	void win_print(int win, const char* fmt, ...);
+	void win_vprint(int win, const char* fmt, va_list lst);
+	void win_clear(int win);
 
 	/* netbeans message handling */
 	int reply(int seq_num, vim_result_t* rlst);
@@ -54,7 +56,7 @@ private:
 		int id;
 		char* name;
 
-		map<int, int> annos;
+		map<string, int> annos;
 		map<string, int> anno_types;
 	} buffer_t;
 
