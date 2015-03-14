@@ -51,7 +51,6 @@ tty::~tty(){
  * 			-1 on error
  */
 int tty::read(void* buf, unsigned int nbytes){
-	// TODO
 	return libc::read(fd_in, buf, nbytes);
 }
 
@@ -65,7 +64,6 @@ int tty::read(void* buf, unsigned int nbytes){
  * 			-1 on error
  */
 int tty::write(void* buf, unsigned int nbytes){
-	// TODO
 	return libc::write(fd_out, buf, nbytes);
 }
 
