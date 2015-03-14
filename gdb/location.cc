@@ -26,7 +26,7 @@ int conv_location(gdb_result_t* result, void** loc){
 	list_for_each(result, r){
 		switch(r->var_id){
 		case V_LINE:
-			((gdb_location_t*)*loc)->line = atoi((char*)r->value);
+			((gdb_location_t*)*loc)->line = atoi((char*)r->value->value);
 			break;
 
 		case V_FILE:
