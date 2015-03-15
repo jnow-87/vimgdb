@@ -3,13 +3,14 @@
 
 
 #include <stdarg.h>
+#include <pthread.h>
 
 
 /* class */
 class gui{
 public:
 	/* init/destroy */
-	virtual int init() = 0;
+	virtual int init(pthread_t main_tid) = 0;
 	virtual void destroy() = 0;
 
 	/* user input */

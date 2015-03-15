@@ -20,13 +20,6 @@ using namespace std;
 					"-q" 				/* disbale gdb info on start*/
 
 
-/* types */
-typedef struct{
-	gdb_result_class_t rclass;
-	gdb_result_t* result;
-} gdb_response_t;
-
-
 /* class */
 class gdbif{
 public:
@@ -35,7 +28,7 @@ public:
 	~gdbif();
 
 	/* init gdb interface */
-	int init();
+	int init(pthread_t main_tid);
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const char* fmt, ...);
@@ -44,28 +37,50 @@ public:
 	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);
 
 	/* communication with gdb */
-	int sigsend(int sig);
 	int read(void* buf, unsigned int nbytes);
 	int write(void* buf, unsigned int nbytes);
+
+	int sigsend(int sig);
 
 	/* inferior state */
 	bool running();
 	bool running(bool state);
 
 private:
-	/* variables */
-	// gdb child data
+	/* types */
+	typedef struct _response_t{
+		gdb_result_class_t rclass;
+		gdb_result_t* result;
+
+		struct _response_t *next,
+						   *prev;
+	} response_t;
+
+	/* gdb child data */
 	pty* gdb;
-	pid_t pid;
+	pid_t gdb_pid;
 	bool is_running;
 
-	// token used for gdb commands
-	volatile unsigned int token;
+	/* gdb communication */
+	static void* readline_thread(void* arg);
+	static void* event_thread(void* arg);
 
-	// gdb MI command response handling
-	volatile gdb_response_t resp;
-	pthread_cond_t resp_avail;
-	pthread_mutex_t resp_mtx;
+	unsigned int token;
+
+	response_t resp,
+			   *event_lst;
+
+	pthread_t read_tid,
+			  event_tid;
+
+	pthread_cond_t resp_avail,
+				   event_avail;
+
+	pthread_mutex_t resp_mtx,
+					event_mtx;
+
+	/* main thread data */
+	pthread_t main_tid;
 };
 
 

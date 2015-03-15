@@ -1,11 +1,15 @@
 #include <common/log.h>
 #include <common/pty.h>
 #include <common/string.h>
+#include <common/list.h>
+#include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/event.h>
 #include <gdb/convert.hash.h>
+#include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
+#include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 #include <math.h>
@@ -17,12 +21,17 @@
  * \brief	standard constructor
  */
 gdbif::gdbif(){
+	main_tid = 0;
+	read_tid = 0;
 	gdb = 0;
 	token = 1;
 	is_running = false;
+	event_lst = 0;
 
 	pthread_mutex_init(&resp_mtx, 0);
+	pthread_mutex_init(&event_mtx, 0);
 	pthread_cond_init(&resp_avail, 0);
+	pthread_cond_init(&event_avail, 0);
 }
 
 /**
@@ -33,8 +42,20 @@ gdbif::~gdbif(){
 	delete this->gdb;
 	this->gdb = 0;
 
+	if(read_tid != 0){
+		pthread_cancel(read_tid);
+		pthread_join(read_tid, 0);
+	}
+
+	if(event_tid != 0){
+		pthread_cancel(event_tid);
+		pthread_join(event_tid, 0);
+	}
+
 	pthread_cond_destroy(&resp_avail);
+	pthread_cond_destroy(&event_avail);
 	pthread_mutex_destroy(&resp_mtx);
+	pthread_mutex_destroy(&event_mtx);
 }
 
 /**
@@ -43,67 +64,34 @@ gdbif::~gdbif(){
  * \return	0	on success
  * 			-1	on error (check errno)
  */
-int gdbif::init(){
+int gdbif::init(pthread_t main_tid){
+	this->main_tid = main_tid;
+
 	// initialise pseudo terminal
 	this->gdb = new pty();
 
 	// fork child process
-	pid = gdb->fork();
+	gdb_pid = gdb->fork();
 
-	if(pid == 0){
+	if(gdb_pid == 0){
 		/* child */
 		log::cleanup();
 
 		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
 	}
-	else if(pid > 0){
+	else if(gdb_pid > 0){
 		/* parent */
+		if(pthread_create(&read_tid, 0, readline_thread, this) != 0)
+			return -1;
+
+		if(pthread_create(&event_tid, 0, event_thread, this) != 0)
+			return -1;
 		return 0;
 	}
 	else{
 		/* error */
 		return -1;
 	}
-}
-
-int gdbif::sigsend(int sig){
-	sigval v;
-
-	return sigqueue(pid, sig, v);
-}
-
-/**
- * \brief	read from gdb terminal
- *
- * \param	buf		target buffer
- * \param	nbytes	max bytes to read
- *
- * \return	number of read bytes on success
- * 			-1 on error
- */
-int gdbif::read(void* buf, unsigned int nbytes){
-	return gdb->read(buf, nbytes);
-}
-
-/**
- * \brief	write to gdb terminal
- *
- * \param	buf		source buffer
- * \param	nbytes	number of bytes to write
- *
- * \return	number of written bytes on success
- * 			-1 on error
- */
-int gdbif::write(void* buf, unsigned int nbytes){
-	return gdb->write(buf, nbytes);
-}
-
-bool gdbif::running(){
-	return is_running;
-}
-
-bool gdbif::running(bool state){
-	return (is_running = state);
 }
 
 /**
@@ -186,7 +174,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const c
 	/* wait for gdb response */
 	pthread_mutex_lock(&resp_mtx);
 
-	memset((void*)&resp, 0x0, sizeof(gdb_response_t));
+	memset((void*)&resp, 0x0, sizeof(response_t));
 
 	gdb->write((char*)"\n");	// ensure that response cannot arrive
 								// before it is expected
@@ -242,32 +230,190 @@ int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_res
 
 int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	int r;
+	response_t* e;
 
+
+	pthread_mutex_lock(&event_mtx);
 
 	switch(rclass){
 	case RC_STOPPED:
-		r = evt_stopped(this, result);
-		break;
-
 	case RC_RUNNING:
-		r = evt_running(this, result);
+		e = new response_t;
 
-	case RC_BREAK_MODIFIED:
+		e->rclass = rclass;
+		e->result = result;
+		list_add_tail(&event_lst, e);
+
+		pthread_cond_signal(&event_avail);
 		break;
 
 	default:
-		r = 0;
 		DEBUG("unhandled gdb-event %d\n", rclass);
+		gdb_result_free(result);
 	};
 
-	if(r != 0)
-		ERROR("error handling gdb-event %d\n", rclass);
+	pthread_mutex_unlock(&event_mtx);
 
-	gdb_result_free(result);
 	return 0;
 }
 
 int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
 	USER(strdeescape(stream));
 	return 0;
+}
+
+/**
+ * \brief	read from gdb terminal
+ *
+ * \param	buf		target buffer
+ * \param	nbytes	max bytes to read
+ *
+ * \return	number of read bytes on success
+ * 			-1 on error
+ */
+int gdbif::read(void* buf, unsigned int nbytes){
+	return gdb->read(buf, nbytes);
+}
+
+/**
+ * \brief	write to gdb terminal
+ *
+ * \param	buf		source buffer
+ * \param	nbytes	number of bytes to write
+ *
+ * \return	number of written bytes on success
+ * 			-1 on error
+ */
+int gdbif::write(void* buf, unsigned int nbytes){
+	return gdb->write(buf, nbytes);
+}
+
+int gdbif::sigsend(int sig){
+	sigval v;
+
+	return sigqueue(gdb_pid, sig, v);
+}
+
+bool gdbif::running(){
+	return is_running;
+}
+
+bool gdbif::running(bool state){
+	return (is_running = state);
+}
+
+void* gdbif::readline_thread(void* arg){
+	char c, *line;
+	int win_id_gdb;
+	unsigned int i, len;
+	gdbif* gdb;
+	sigval v;
+
+
+	i = 0;
+	gdb = (gdbif*)arg;
+
+	len = 255;
+	line = (char*)malloc(len * sizeof(char));
+
+	if(line == 0)
+		goto err_0;
+
+	win_id_gdb = ui->win_create("gdb-log", true, 0);
+
+	if(win_id_gdb < 0)
+		goto err_1;
+
+	while(1){
+		if(gdb->read(&c, 1) == 1){
+			// ignore CR to avoid issues when printing the string
+			if(c == '\r')
+				continue;
+
+			line[i++] = c;
+
+			if(i >= len){
+				len *= 2;
+				line = (char*)realloc(line, len);
+
+				if(line == 0)
+					goto err_0;
+			}
+
+			// check for end of gdb line, a simple newline as separator
+			// doesn't work, since the parse would try to parse the line,
+			// detecting a syntax error
+			if(strncmp(line + i - 6, "(gdb)\n", 6) == 0 ||
+			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
+			  ){
+				line[i] = 0;
+
+				DEBUG("parse gdb string \"%.10s\"\n", line);
+
+				i = gdbparse(line, gdb);
+
+				DEBUG("parser return value: %d\n", i);
+
+				ui->win_print(win_id_gdb, line);
+				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
+
+				i = 0;
+			}
+		}
+		else{
+			INFO("gdb read shutdown\n");
+			break;
+		}
+	}
+
+err_2:
+	ui->win_destroy(win_id_gdb);
+
+err_1:
+	free(line);
+
+err_0:
+	pthread_sigqueue(gdb->main_tid, SIGTERM, v);
+	pthread_exit(0);
+
+}
+
+void* gdbif::event_thread(void* arg){
+	int r;
+	gdbif* gdb;
+	response_t* e;
+
+
+	gdb = (gdbif*)arg;
+
+	while(1){
+		pthread_mutex_lock(&gdb->event_mtx);
+
+		if(list_empty(gdb->event_lst))
+			pthread_cond_wait(&gdb->event_avail, &gdb->event_mtx);
+
+		e = list_first(gdb->event_lst);
+		list_rm(&gdb->event_lst, e);
+
+		pthread_mutex_unlock(&gdb->event_mtx);
+
+		switch(e->rclass){
+		case RC_STOPPED:
+			r = evt_stopped(gdb, e->result);
+			break;
+
+		case RC_RUNNING:
+			r = evt_running(gdb, e->result);
+			break;
+
+		default:
+			r = -1;
+		};
+
+		if(r != 0)
+			ERROR("error handling gdb-event %d\n", e->rclass);
+
+		gdb_result_free(e->result);
+		delete e;
+	}
 }

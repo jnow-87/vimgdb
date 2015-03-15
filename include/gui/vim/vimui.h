@@ -21,7 +21,7 @@ public:
 	vimui();
 	~vimui();
 
-	int init();
+	int init(pthread_t main_tid);
 	void destroy();
 
 	/* user input */
@@ -77,7 +77,7 @@ private:
 
 	/* vim data */
 	int bufid;
-	volatile int seq_num;
+	int seq_num;
 	char* cwd;
 	map<string, buffer_t*> bufname_map;
 	map<int, buffer_t*> bufid_map;
@@ -88,6 +88,7 @@ private:
 
 	/* user input */
 	pthread_t read_tid;
+	pthread_mutex_t event_mtx;
 	pthread_cond_t event_avail;
 	response_t* event_lst;
 
@@ -99,7 +100,10 @@ private:
 	/* response handling */
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;
-	volatile response_t resp;
+	response_t resp;
+
+	/* main thread data */
+	pthread_t main_tid;
 };
 
 

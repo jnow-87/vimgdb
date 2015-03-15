@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 
 
 	ui = new cursesui();
-	ui->init();
+	ui->init(0);
 
 	win_user = ui->win_create("user-log", true, 0);
 

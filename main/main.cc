@@ -1,14 +1,11 @@
 #include <common/log.h>
-#include <common/tty.h>
 #include <common/opt.h>
 #include <gdb/gdb.h>
-#include <gdb/parser.tab.h>
-#include <user_cmd/cmd.h>
 #include <gui/gui.h>
+#include <user_cmd/cmd.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
-#include <string.h>
 
 #ifdef GUI_CURSES
 	#include <gui/curses/cursesui.h>
@@ -17,15 +14,11 @@
 #endif
 
 
-/* static variables */
 gdbif* gdb = 0;
-pthread_t tid_gdb_output = 0,
-		  tid_main = 0;
 
 
 /* static prototypes */
 void cleanup(int signum);
-void* thread_gdb_output(void*);
 
 
 int main(int argc, char** argv){
@@ -49,7 +42,7 @@ int main(int argc, char** argv){
 	#error "invalid gui defined"
 #endif
 
-	if(ui->init() != 0)
+	if(ui->init(pthread_self()) != 0)
 		return 1;
 
 	// logging
@@ -61,11 +54,8 @@ int main(int argc, char** argv){
 	gdb = new gdbif;
 
 	INFO("initialising gdb interface\n");
-	if(gdb->init() != 0)
+	if(gdb->init(pthread_self()) != 0)
 		return 2;
-
-	tid_main = pthread_self();
-	pthread_create(&tid_gdb_output, 0, thread_gdb_output, 0);
 
 	/* main loop */
 	while(1){
@@ -80,19 +70,12 @@ int main(int argc, char** argv){
 	}
 
 err:
-	pthread_cancel(tid_gdb_output);
 	cleanup(SIGTERM);
 }
 
 
 /* static functions */
 void cleanup(int signum){
-	char c;
-
-
-	if(tid_gdb_output != 0)
-		pthread_join(tid_gdb_output, 0);
-
 	delete gdb;
 
 	log::cleanup();
@@ -107,77 +90,4 @@ void cleanup(int signum){
 #endif
 
 	exit(1);
-}
-
-void* thread_gdb_output(void* arg){
-	char c, *line;
-	int win_id_gdb;
-	unsigned int i, len;
-	sigval v;
-
-
-	i = 0;
-
-	len = 255;
-	line = (char*)malloc(len * sizeof(char));
-
-	if(line == 0)
-		goto err_0;
-
-	win_id_gdb = ui->win_create("gdb-log", true, 0);
-
-	if(win_id_gdb < 0)
-		goto err_1;
-
-	while(1){
-		if(gdb->read(&c, 1) == 1){
-			// ignore CR to avoid issues when printing the string
-			if(c == '\r')
-				continue;
-
-			line[i++] = c;
-
-			if(i >= len){
-				len *= 2;
-				line = (char*)realloc(line, len);
-
-				if(line == 0)
-					goto err_0;
-			}
-
-			// check for end of gdb line, a simple newline as separator
-			// doesn't work, since the parse would try to parse the line,
-			// detecting a syntax error
-			if(strncmp(line + i - 6, "(gdb)\n", 6) == 0 ||
-			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
-			  ){
-				line[i] = 0;
-
-				DEBUG("parse gdb string \"%.20s\"\n", line);
-
-				i = gdbparse(line, gdb);
-
-				DEBUG("parser return value: %d\n", i);
-
-				ui->win_print(win_id_gdb, line);
-				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
-
-				i = 0;
-			}
-		}
-		else{
-			INFO("gdb read shutdown\n");
-			goto err_2;
-		}
-	}
-
-err_2:
-	ui->win_destroy(win_id_gdb);
-
-err_1:
-	free(line);
-
-err_0:
-	pthread_sigqueue(tid_main, SIGTERM, v);
-	pthread_exit(0);
 }

@@ -7,6 +7,7 @@
 #include <gui/vim/result.h>
 #include <cmd.hash.h>
 #include <parser.tab.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,6 +16,7 @@ vimui::vimui(){
 	pthread_mutexattr_t attr;
 
 
+	main_tid = 0;
 	bufid = 1;	// avoid using buf-id 0 for netbeans
 	seq_num = 1;
 	read_tid = 0;
@@ -28,8 +30,9 @@ vimui::vimui(){
 	event_lst = 0;
 	list_init(event_lst);
 
-	pthread_cond_init(&resp_avail, 0);
 	pthread_mutex_init(&resp_mtx, 0);
+	pthread_mutex_init(&event_mtx, 0);
+	pthread_cond_init(&resp_avail, 0);
 	pthread_cond_init(&event_avail, 0);
 
 	pthread_mutexattr_init(&attr);
@@ -40,12 +43,15 @@ vimui::vimui(){
 
 vimui::~vimui(){
 	pthread_cond_destroy(&resp_avail);
-	pthread_mutex_destroy(&resp_mtx);
 	pthread_cond_destroy(&event_avail);
+	pthread_mutex_destroy(&resp_mtx);
+	pthread_mutex_destroy(&event_mtx);
 	pthread_mutex_destroy(&ui_mtx);
 }
 
-int vimui::init(){
+int vimui::init(pthread_t main_tid){
+	this->main_tid = main_tid;
+
 	ostr_len = 255;
 	ostr = new char[ostr_len];
 
@@ -111,15 +117,15 @@ char* vimui::readline(){
 
 	while(1){
 		/* wait for data being read by readline_thread */
-		pthread_mutex_lock(&resp_mtx);
+		pthread_mutex_lock(&event_mtx);
 
 		if(list_empty(event_lst))
-			pthread_cond_wait(&event_avail, &resp_mtx);
+			pthread_cond_wait(&event_avail, &event_mtx);
 
 		e = list_first(event_lst);
 		list_rm(&event_lst, e);
 
-		pthread_mutex_unlock(&resp_mtx);
+		pthread_mutex_unlock(&event_mtx);
 
 		/* process command */
 		switch(e->evt_id){
@@ -169,49 +175,6 @@ end:
 	delete e;
 
 	return line;
-}
-
-void* vimui::readline_thread(void* arg){
-	char c;
-	char* line;
-	unsigned int i, line_len;
-	response_t* e;
-	vimui* vim;
-
-
-	vim = (vimui*)arg;
-	line_len = 255;
-	line = (char*)malloc(line_len * sizeof(char));
-
-	i = 0;
-
-	/* read from netbeans socket */
-	while(vim->nbclient->recv(&c, 1) > 0){
-		if(c == '\r')
-			continue;
-
-		line[i++] = c;
-
-		if(i >= line_len){
-			line_len *= 2;
-			line = (char*)realloc(line, line_len * sizeof(char));
-		}
-
-		if(c == '\n'){
-			line[i] = 0;
-
-			line[i - 1] = 0;
-			DEBUG("parse vim input \"%s\"\n", line);
-			line[i - 1] = '\n';
-
-			// parse line
-			vimparse(line, vim);
-
-			i = 0;
-		}
-	}
-
-	return 0;
 }
 
 int vimui::win_create(const char* name, bool oneline, unsigned int height){
@@ -520,7 +483,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	response_t* e;
 
 
-	pthread_mutex_lock(&resp_mtx);
+	pthread_mutex_lock(&event_mtx);
 
 	/* check event type */
 	if(evt->id & (E_KEYATPOS | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
@@ -538,7 +501,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 		vim_result_free(rlst);
 	}
 
-	pthread_mutex_unlock(&resp_mtx);
+	pthread_mutex_unlock(&event_mtx);
 
 	return 0;
 }
@@ -618,4 +581,49 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 		nbclient->send((char*)"\n");
 
 	return 0;
+}
+
+void* vimui::readline_thread(void* arg){
+	char c;
+	char* line;
+	unsigned int i, line_len;
+	response_t* e;
+	vimui* vim;
+	sigval v;
+
+
+	vim = (vimui*)arg;
+	line_len = 255;
+	line = (char*)malloc(line_len * sizeof(char));
+
+	i = 0;
+
+	/* read from netbeans socket */
+	while(vim->nbclient->recv(&c, 1) > 0){
+		if(c == '\r')
+			continue;
+
+		line[i++] = c;
+
+		if(i >= line_len){
+			line_len *= 2;
+			line = (char*)realloc(line, line_len * sizeof(char));
+		}
+
+		if(c == '\n'){
+			line[i] = 0;
+
+			line[i - 1] = 0;
+			DEBUG("parse vim input \"%s\"\n", line);
+			line[i - 1] = '\n';
+
+			// parse line
+			vimparse(line, vim);
+
+			i = 0;
+		}
+	}
+
+	pthread_sigqueue(vim->main_tid, SIGTERM, v);
+	pthread_exit(0);
 }
