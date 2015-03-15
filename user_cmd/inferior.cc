@@ -99,6 +99,15 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 					USER("set inferior tty to internal\n");
 			}
 			else{
+				/* close internal terminal if exists */
+				if(inferior_term != 0){
+					pthread_cancel(tid);
+					pthread_join(tid, 0);
+
+					delete inferior_term;
+					inferior_term = 0;
+				}
+
 				/* use specified pty for output */
 				fd = open(argv[2], O_RDONLY);
 				if(fd == -1){
