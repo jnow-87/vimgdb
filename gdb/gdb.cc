@@ -130,9 +130,10 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const c
 	gdb->write((char*)"-");
 	gdb->write(cmd);
 
-	for(i=0; i<strlen(fmt); i++){
+	if(*fmt != 0)
 		gdb->write((char*)" ");
 
+	for(i=0; i<strlen(fmt); i++){
 		switch(fmt[i]){
 		case '%':
 			switch(fmt[i + 1]){
