@@ -77,3 +77,8 @@ signal-name,							V_SIG_NAME
 signal-meaning,							V_SIG_MEANING
 gdb-result-var,							V_GDBRES_VAR
 return-value,							V_RETVAL
+numchild,								V_NUM_CHILD
+has_more,								V_HAS_MORE
+changelist,								V_CHANGELIST
+in_scope,								V_INSCOPE
+type_changed,							V_TYPE_CHANGED

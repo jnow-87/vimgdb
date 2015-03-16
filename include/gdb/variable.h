@@ -54,6 +54,11 @@ typedef enum{
 	V_SIG_MEANING,
 	V_GDBRES_VAR,
 	V_RETVAL,
+	V_NUM_CHILD,
+	V_HAS_MORE,
+	V_CHANGELIST,
+	V_INSCOPE,
+	V_TYPE_CHANGED
 } gdb_var_id_t;
 
 struct gdb_var_t{
