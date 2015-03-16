@@ -118,6 +118,6 @@ token :				%empty											{ $$ = 0; }
 
 
 int gdberror(char* line, gdbif* gdb, const char* s){
-	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
+	USER("gdbparse: %s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
 	return 0;
 }
