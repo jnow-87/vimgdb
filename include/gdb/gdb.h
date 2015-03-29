@@ -3,6 +3,7 @@
 
 
 #include <common/pty.h>
+#include <common/list.h>
 #include <gdb/result.h>
 #include <pthread.h>
 #include <signal.h>
@@ -29,6 +30,7 @@ public:
 
 	/* init gdb interface */
 	int init(pthread_t main_tid);
+	void on_stop(int (*hdlr)(gdbif*));
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const char* fmt, ...);
@@ -56,6 +58,13 @@ private:
 						   *prev;
 	} response_t;
 
+	typedef struct _stop_hdlr_t{
+		int (*hdlr)(gdbif*);
+
+		struct _stop_hdlr_t *next,
+							*prev;
+	} stop_hdlr_t;
+
 	/* gdb child data */
 	pty* gdb;
 	pid_t gdb_pid;
@@ -78,6 +87,12 @@ private:
 
 	pthread_mutex_t resp_mtx,
 					event_mtx;
+
+	/* gdb event handling */
+	int evt_running(gdb_result_t* result);
+	int evt_stopped(gdb_result_t* result);
+
+	stop_hdlr_t* stop_hdlr;
 
 	/* main thread data */
 	pthread_t main_tid;

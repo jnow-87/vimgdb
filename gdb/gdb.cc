@@ -1,10 +1,11 @@
 #include <common/log.h>
 #include <common/pty.h>
 #include <common/string.h>
+#include <common/file.h>
 #include <common/list.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
-#include <gdb/event.h>
+#include <gdb/frame.h>
 #include <gdb/convert.hash.h>
 #include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
@@ -27,6 +28,7 @@ gdbif::gdbif(){
 	token = 1;
 	is_running = false;
 	event_lst = 0;
+	stop_hdlr = 0;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
@@ -92,6 +94,16 @@ int gdbif::init(pthread_t main_tid){
 		/* error */
 		return -1;
 	}
+}
+
+void gdbif::on_stop(int (*hdlr)(gdbif*)){
+	stop_hdlr_t* e;
+
+
+	e = new stop_hdlr_t;
+	e->hdlr = hdlr;
+
+	list_add_tail(&stop_hdlr, e);
 }
 
 /**
@@ -400,11 +412,11 @@ void* gdbif::event_thread(void* arg){
 
 		switch(e->rclass){
 		case RC_STOPPED:
-			r = evt_stopped(gdb, e->result);
+			r = gdb->evt_stopped(e->result);
 			break;
 
 		case RC_RUNNING:
-			r = evt_running(gdb, e->result);
+			r = gdb->evt_running(e->result);
 			break;
 
 		default:
@@ -417,4 +429,71 @@ void* gdbif::event_thread(void* arg){
 		gdb_result_free(e->result);
 		delete e;
 	}
+}
+
+int gdbif::evt_running(gdb_result_t* result){
+	running(true);
+	return 0;
+}
+
+int gdbif::evt_stopped(gdb_result_t* result){
+	char* reason;
+	gdb_result_t* r;
+	gdb_frame_t* frame;
+	stop_hdlr_t* e;
+
+
+	reason = 0;
+	frame = 0;
+
+	running(false);
+
+	/* parse result */
+	list_for_each(result, r){
+		switch(r->var_id){
+		case IDV_REASON:
+			reason = (char*)r->value->value;
+			break;
+
+		case IDV_FRAME:
+			conv_frame((gdb_result_t*)r->value->value, &frame);
+			break;
+
+		default:
+			break;
+		};
+	}
+
+	if(reason == 0)
+		goto err;
+
+	/* check reason */
+	if(strcmp(reason, "breakpoint-hit") == 0 ||
+	   strcmp(reason, "end-stepping-range") == 0 ||
+	   strcmp(reason, "function-finished") == 0){
+
+		if(FILE_EXISTS(frame->fullname)){
+			ui->win_cursor_set(ui->win_getid(frame->fullname), frame->line);
+			ERROR("add anno\n");
+			ui->win_anno_add(ui->win_getid(frame->fullname), frame->line, "ip", "White", "Black");
+		}
+		else
+			USER("file \"%s\" does not exist\n", frame->fullname);
+	}
+	else if(strcmp(reason, "exited-normally") == 0){
+		USER("program exited\n");
+	}
+
+	/* execute callbacks */
+	list_for_each(stop_hdlr, e){
+		if(e->hdlr(this) != 0)
+			USER("error executing on-stop handler\n");
+	}
+
+	delete frame;
+	return 0;
+
+err:
+	delete frame;
+	return -1;
 }
