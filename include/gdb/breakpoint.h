@@ -24,8 +24,7 @@ public:
 
 
 /* prototypes */
-int conv_break_insert(gdb_result_t* result, void** bkpt);
-int conv_breakpoint(gdb_result_t* result, gdb_breakpoint_t** bkpt);
+int result_to_brkpt(gdb_result_t* result, void** bkpt);
 
 
 #endif // BREAKPOINT_H

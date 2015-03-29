@@ -43,6 +43,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
+	bkpt = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
@@ -52,7 +53,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, (void**)&bkpt, "%s", argv[2]) == 0){
+		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, result_to_brkpt, (void**)&bkpt, "%s", argv[2]) == 0){
 			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
 			else					snprintf(key, 256, "%s", bkpt->at);
 
@@ -81,7 +82,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 		switch(scmd->id){
 		case DELETE:
-			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, 0, "%d", it->second->num) == 0){
 				USER("deleted break-point \"%s\"\n", it->first.c_str());
 				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line, "b");
 
@@ -95,7 +96,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 			break;
 
 		case ENABLE:
-			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, 0, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, 0, 0, "%d", it->second->num) == 0){
 				USER("enabled break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = true;
@@ -108,7 +109,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 			break;
 
 		case DISABLE:
-			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, 0, "%d", it->second->num) == 0){
+			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, 0, 0, "%d", it->second->num) == 0){
 				USER("disabled break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = false;
@@ -203,6 +204,7 @@ void breakpt_print(){
 	if(win_id_break < 0)
 		return;
 
+	// TODO use atomicStart for the loop
 	ui->win_clear(win_id_break);
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){

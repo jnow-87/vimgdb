@@ -17,56 +17,47 @@ gdb_breakpoint_t::~gdb_breakpoint_t(){
 	delete at;
 }
 
-int conv_break_insert(gdb_result_t* result, void** bkpt){
+int result_to_brkpt(gdb_result_t* result, void** _bkpt){
 	gdb_result_t* r;
+	gdb_breakpoint_t* bkpt;
 
+
+	if(*_bkpt == 0)
+		*_bkpt = new gdb_breakpoint_t;
+
+	bkpt = (gdb_breakpoint_t*)*_bkpt;
 
 	list_for_each(result, r){
 		switch(r->var_id){
 		case IDV_BREAKPT:
-			return conv_breakpoint((gdb_result_t*)r->value->value, (gdb_breakpoint_t**)bkpt);
+			return result_to_brkpt((gdb_result_t*)r->value->value, _bkpt);
 			break;
 
-		default:
-			return -1;
-		};
-	}
-}
-
-int conv_breakpoint(gdb_result_t* result, gdb_breakpoint_t** bkpt){
-	gdb_result_t* r;
-
-
-	if(*bkpt == 0)
-		*bkpt = new gdb_breakpoint_t;
-
-	list_for_each(result, r){
-		switch(r->var_id){
 		case IDV_NUMBER:
-			(*bkpt)->num = atoi((char*)r->value->value);
+			bkpt->num = atoi((char*)r->value->value);
 			break;
 
 		case IDV_LINE:
-			(*bkpt)->line = atoi((char*)r->value->value);
+			bkpt->line = atoi((char*)r->value->value);
 			break;
 
 		case IDV_FILE:
-			(*bkpt)->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*bkpt)->filename, (const char*)r->value->value);
+			bkpt->filename = new char[strlen((const char*)r->value->value) + 1];
+			strcpy(bkpt->filename, (const char*)r->value->value);
 			break;
 
 		case IDV_FULLNAME:
-			(*bkpt)->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*bkpt)->fullname, (const char*)r->value->value);
+			bkpt->fullname = new char[strlen((const char*)r->value->value) + 1];
+			strcpy(bkpt->fullname, (const char*)r->value->value);
 			break;
 
 		case IDV_ENABLED:
-			(*bkpt)->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
+			bkpt->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
 			break;
 
 		case IDV_AT:
-			(*bkpt)->at = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*bkpt)->at, (const char*)r->value->value);
+			bkpt->at = new char[strlen((const char*)r->value->value) + 1];
+			strcpy(bkpt->at, (const char*)r->value->value);
 			break;
 		};
 	}

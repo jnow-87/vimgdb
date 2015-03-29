@@ -16,7 +16,7 @@ gdb_location_t::~gdb_location_t(){
 }
 
 
-int conv_location(gdb_result_t* result, void** loc){
+int result_to_location(gdb_result_t* result, void** loc){
 	gdb_result_t* r;
 
 

@@ -6,7 +6,6 @@
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/frame.h>
-#include <gdb/convert.hash.h>
 #include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
@@ -124,17 +123,13 @@ void gdbif::on_stop(int (*hdlr)(gdbif*)){
  * \return	>0		token used for the command
  * 			-1		error
  */
-int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const char* fmt, ...){
+int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...){
 	static char* s = 0;
 	static unsigned int s_len = 0;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
-	const gdb_convert_t* conv;
 
-
-	if(r)
-		*r = 0;
 
 	va_start(lst, fmt);
 
@@ -196,18 +191,10 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const c
 
 	token++;
 
-	if(resp.rclass & ok_mask){
-		if(resp.result && r){
-			conv = convert::lookup(cmd, strlen(cmd));
-
-			if(conv != 0){
-				if(conv->cb(resp.result, r) != 0){
-					ERROR("unable to convert result for \"%s\"\n", cmd);
-					resp.rclass = RC_ERROR;
-				}
-			}
-			else{
-				ERROR("no callback defined to convert result for \"%s\"\n", cmd);
+	if((resp.rclass & ok_mask)){
+		if(resp.result && r && process){
+			if(process(resp.result, r) != 0){
+				ERROR("unable to process result for \"%s\"\n", cmd);
 				resp.rclass = RC_ERROR;
 			}
 		}

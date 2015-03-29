@@ -37,15 +37,15 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0 || scmd->id == SYM){
-		if(scmd == 0)	r = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", RC_DONE, 0, "%ss %d", argv + 1, argc - 1);
-		else			r = gdb->mi_issue_cmd((char*)"file-symbol-file", RC_DONE, 0, "%ss %d", argv + 2, argc - 2);
+		if(scmd == 0)	r = gdb->mi_issue_cmd((char*)"file-exec-and-symbols", RC_DONE, 0, 0, "%ss %d", argv + 1, argc - 1);
+		else			r = gdb->mi_issue_cmd((char*)"file-symbol-file", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2);
 
 		if(r != 0){
 			USER("error loading file\n");
 			goto end;
 		}
 
-		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, (void**)&loc, "") != 0){
+		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0){
 			USER("error getting current source file\n");
 			goto end;
 		}
@@ -56,14 +56,14 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 	}
 	else{
 		if(scmd->id == BIN){
-			if(gdb->mi_issue_cmd((char*)"file-exec-file", RC_DONE, 0, "%ss %d", argv + 2, argc - 2) != 0)
+			if(gdb->mi_issue_cmd((char*)"file-exec-file", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
 				USER("error loading binary file \"%s\"\n", argv[2]);
 			else
 				USER("loaded binary file \"%s\"\n", argv[2]);
 		}
 		else if(scmd->id ==  ARGS){
 			TODO("implement arguments with spaces\n");
-			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, 0, "%ss %d", argv + 2, argc - 2) != 0)
+			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
 				USER("error setting program arguments\n");
 			else
 				USER("set program arguments\n");
@@ -93,7 +93,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 					return 0;
 				}
 
-				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, "%s", inferior_term->get_name()) != 0)
+				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, 0, "%s", inferior_term->get_name()) != 0)
 					USER("error setting inferior tty\n");
 				else
 					USER("set inferior tty to internal\n");
@@ -117,7 +117,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 
 				close(fd);
 
-				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, "%ss %d", argv + 2, argc - 2) != 0)
+				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
 					USER("error setting inferior tty to \"%s\"\n", argv[2]);
 				else
 					USER("set inferior tty to \"%s\"\n", argv[2]);

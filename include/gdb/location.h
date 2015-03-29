@@ -19,7 +19,7 @@ public:
 
 
 /* prototypes */
-int conv_location(gdb_result_t* result, void** loc);
+int result_to_location(gdb_result_t* result, void** loc);
 
 
 #endif // LOCATION_H

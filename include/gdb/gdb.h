@@ -33,7 +33,7 @@ public:
 	void on_stop(int (*hdlr)(gdbif*));
 
 	/* gdb machine interface (MI) */
-	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, void** r, const char* fmt, ...);
+	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...);
 	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);

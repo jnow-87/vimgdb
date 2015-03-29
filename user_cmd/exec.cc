@@ -20,6 +20,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
+	loc = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
@@ -31,7 +32,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		if(scmd->id == BREAK){
 			r = gdb->sigsend(SIGINT);
 
-			if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, (void**)&loc, "") != 0)
+			if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
 				return 0;
 
 			if(FILE_EXISTS(loc->fullname)){
@@ -49,9 +50,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		}
 	}
 	else{
-		loc = 0;
-
-		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, (void**)&loc, "") != 0)
+		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
 			return 0;
 
 		if(FILE_EXISTS(loc->fullname))	ui->win_anno_delete(ui->win_getid(loc->fullname), loc->line, "ip");
@@ -59,13 +58,13 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 
 		delete loc;
 
-		if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
-		else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
-		else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
-		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
-		else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "%ss %d", argv + 2, argc - 2);
-		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "%ss %d", argv + 2, argc - 2);
-		else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, "");
+		if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == BREAK){
 			USER("error executing \"%s\" - inferior is not running\n", argv[1]);
 			return 0;
