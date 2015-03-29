@@ -11,7 +11,7 @@ unsigned int rec_depth = 0;
 
 
 /* global functions */
-gdb_result_t* gdb_result_create(const char* var_name, gdb_var_id_t var_id, gdb_value_t* value){
+gdb_result_t* gdb_result_create(const char* var_name, gdb_id_val_t var_id, gdb_value_t* value){
 	gdb_result_t* r;
 
 

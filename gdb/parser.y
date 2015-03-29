@@ -6,7 +6,7 @@
 	#include <gdb/gdb.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
-	#include <gdb/variable.h>
+	#include <gdb/identifier.h>
 	#include <gdb/lexer.lex.h>
 
 
@@ -20,7 +20,7 @@
 	gdb_result_t* result;
 	gdb_value_t* value;
 	gdb_result_class_t rclass;
-	const gdb_var_t* variable;
+	const gdb_id_t* var_id;
 
 	struct{
 		gdb_result_class_t rclass;
@@ -42,7 +42,7 @@
 %token <rclass> RESULT_CLASS
 %token <sptr> STRING
 %token <num> NUMBER
-%token <variable> VARIABLE
+%token <var_id> IDENTIFIER
 
 /* non-terminals */
 %type <record> record
@@ -85,7 +85,7 @@ stream-record :			'~' '"' STRING '"' NEWLINE					{ gdb->mi_proc_stream(SC_CONSOL
 			  ;
 
 /* common */
-result :			VARIABLE '=' value								{ $$ = gdb_result_create($1->name, $1->id, $3); };
+result :			IDENTIFIER '=' value							{ $$ = gdb_result_create($1->name, $1->id, $3); };
 result-list :		result											{ $$ = $1; }
 		    |		result-list ',' result							{ gdb_result_add($1, $3); $$ = $1; }
 	   		;

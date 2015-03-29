@@ -5,7 +5,7 @@
 	#include <gdb/gdb.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
-	#include <gdb/variable.hash.h>
+	#include <gdb/identifier.hash.h>
 	#include <common/log.h>
 	#include <common/string.h>
 
@@ -57,12 +57,12 @@
 \r?\n									{ gdb_col = 0; return NEWLINE; }
 [0-9]*									{ gdblval.num = atoi(gdbtext); return NUMBER; }
 
-	/* gdb variable and unquoted string */
+	/* gdb identifier and unquoted string */
 [a-zA-Z][a-zA-Z0-9_\-.]*				{
-											/* check if string is a known gdb variable */
-											if(variable::lookup(gdbtext, gdbleng) != 0){
-												gdblval.variable = variable::lookup(gdbtext, gdbleng);
-												return VARIABLE;
+											/* check if string is a known gdb identifier */
+											if(identifier::lookup(gdbtext, gdbleng) != 0){
+												gdblval.var_id = identifier::lookup(gdbtext, gdbleng);
+												return IDENTIFIER;
 											}
 											else{
 												gdblval.sptr = stralloc(gdbtext, gdbleng);

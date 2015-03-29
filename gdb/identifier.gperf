@@ -1,0 +1,84 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name identifier
+
+
+/* c-code */
+%{
+	#include <gdb/identifier.h>
+%}
+
+/* struct-type definition */
+struct gdb_id_t;
+
+%%
+# variable string						id
+id,										IDV_ID
+msg,									IDV_MSG
+name,									IDV_NAME
+bkpt,									IDV_BREAKPT
+bkptno,									IDV_BREAKPT_NUM
+number,									IDV_NUMBER
+type,									IDV_TYPE
+catch-type,								IDV_CATCH_TYPE
+disp,									IDV_DISPOSITION
+enabled,								IDV_ENABLED
+addr,									IDV_ADDRESS
+func,									IDV_FUNCTION
+file,									IDV_FILE
+fullname,								IDV_FULLNAME
+line,									IDV_LINE
+at,										IDV_AT
+pending,								IDV_PENDING
+evaluated-by,							IDV_EVAL_BY
+thread,									IDV_THREAD
+task,									IDV_TASK
+cond,									IDV_CONDITION
+ignore,									IDV_IGNORE
+enable,									IDV_ENABLE
+traceframe-usage,						IDV_TRACEFRAME
+static-tracepoint-marker-string-id,		IDV_TRACEMARKER
+mask,									IDV_MASK
+pass,									IDV_PASS
+original-location,						IDV_ORIG_LOCATION
+times,									IDV_TIMES
+installed,								IDV_INSTALLED
+what,									IDV_WHAT
+thread-group,							IDV_THREAD_GROUP
+thread-groups,							IDV_THREAD_GROUPS
+param,									IDV_PARAM
+value,									IDV_VALUE
+thread-id,								IDV_THREAD_ID
+group-id,								IDV_GROUP_ID
+pid,									IDV_PROC_ID
+macro-info,								IDV_MACRO_INFO
+target-name,							IDV_TGT_NAME
+host-name,								IDV_HOST_NAME
+symbols-loaded,							IDV_SYM_LOADED
+reason,									IDV_REASON
+frame,									IDV_FRAME
+args,									IDV_ARGS
+stopped-threads,						IDV_THREADS_STOPPED
+core,									IDV_CORE
+signal-name,							IDV_SIG_NAME
+signal-meaning,							IDV_SIG_MEANING
+gdb-result-var,							IDV_GDBRES_VAR
+return-value,							IDV_RETVAL
+numchild,								IDV_NUM_CHILD
+has_more,								IDV_HAS_MORE
+changelist,								IDV_CHANGELIST
+in_scope,								IDV_INSCOPE
+type_changed,							IDV_TYPE_CHANGED

@@ -3,7 +3,7 @@
 
 
 #include <gdb/value.h>
-#include <gdb/variable.h>
+#include <gdb/identifier.h>
 
 
 /* types */
@@ -31,7 +31,7 @@ typedef enum{
 
 typedef struct _gdb_result_t{
 	const char* var_name;
-	gdb_var_id_t var_id;
+	gdb_id_val_t var_id;
 
 	gdb_value_t* value;
 
@@ -40,7 +40,7 @@ typedef struct _gdb_result_t{
 
 
 /* prototypes */
-gdb_result_t* gdb_result_create(const char* var_name, gdb_var_id_t var_id, gdb_value_t* value);
+gdb_result_t* gdb_result_create(const char* var_name, gdb_id_val_t var_id, gdb_value_t* value);
 gdb_result_t* gdb_result_free(gdb_result_t* list);
 void gdb_result_add(gdb_result_t* list, gdb_result_t* result);
 void gdb_result_print(gdb_result_t* list);

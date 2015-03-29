@@ -25,11 +25,11 @@ int evt_stopped(gdbif* gdb, gdb_result_t* result){
 
 	list_for_each(result, r){
 		switch(r->var_id){
-		case V_REASON:
+		case IDV_REASON:
 			reason = (char*)r->value->value;
 			break;
 
-		case V_FRAME:
+		case IDV_FRAME:
 			conv_frame((gdb_result_t*)r->value->value, &frame);
 			break;
 

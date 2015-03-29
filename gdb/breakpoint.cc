@@ -23,7 +23,7 @@ int conv_break_insert(gdb_result_t* result, void** bkpt){
 
 	list_for_each(result, r){
 		switch(r->var_id){
-		case V_BREAKPT:
+		case IDV_BREAKPT:
 			return conv_breakpoint((gdb_result_t*)r->value->value, (gdb_breakpoint_t**)bkpt);
 			break;
 
@@ -42,29 +42,29 @@ int conv_breakpoint(gdb_result_t* result, gdb_breakpoint_t** bkpt){
 
 	list_for_each(result, r){
 		switch(r->var_id){
-		case V_NUMBER:
+		case IDV_NUMBER:
 			(*bkpt)->num = atoi((char*)r->value->value);
 			break;
 
-		case V_LINE:
+		case IDV_LINE:
 			(*bkpt)->line = atoi((char*)r->value->value);
 			break;
 
-		case V_FILE:
+		case IDV_FILE:
 			(*bkpt)->filename = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*bkpt)->filename, (const char*)r->value->value);
 			break;
 
-		case V_FULLNAME:
+		case IDV_FULLNAME:
 			(*bkpt)->fullname = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*bkpt)->fullname, (const char*)r->value->value);
 			break;
 
-		case V_ENABLED:
+		case IDV_ENABLED:
 			(*bkpt)->enabled = (strcmp((const char*)r->value->value, "y") == 0) ? true : false;
 			break;
 
-		case V_AT:
+		case IDV_AT:
 			(*bkpt)->at = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*bkpt)->at, (const char*)r->value->value);
 			break;

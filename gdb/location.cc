@@ -25,16 +25,16 @@ int conv_location(gdb_result_t* result, void** loc){
 
 	list_for_each(result, r){
 		switch(r->var_id){
-		case V_LINE:
+		case IDV_LINE:
 			((gdb_location_t*)*loc)->line = atoi((char*)r->value->value);
 			break;
 
-		case V_FILE:
+		case IDV_FILE:
 			((gdb_location_t*)*loc)->filename = new char[strlen((const char*)r->value->value) + 1];
 			strcpy(((gdb_location_t*)*loc)->filename, (const char*)r->value->value);
 			break;
 
-		case V_FULLNAME:
+		case IDV_FULLNAME:
 			((gdb_location_t*)*loc)->fullname = new char[strlen((const char*)r->value->value) + 1];
 			strcpy(((gdb_location_t*)*loc)->fullname, (const char*)r->value->value);
 			break;

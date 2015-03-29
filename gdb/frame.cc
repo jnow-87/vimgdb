@@ -25,24 +25,24 @@ int conv_frame(gdb_result_t* result, gdb_frame_t** frame){
 
 	list_for_each(result, r){
 		switch(r->var_id){
-		case V_ADDRESS:
+		case IDV_ADDRESS:
 			(*frame)->addr = (void*)atol((char*)r->value->value);
 			break;
 
-		case V_LINE:
+		case IDV_LINE:
 			(*frame)->line = atoi((char*)r->value->value);
 
-		case V_FUNCTION:
+		case IDV_FUNCTION:
 			(*frame)->function = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*frame)->function, (const char*)r->value->value);
 			break;
 
-		case V_FILE:
+		case IDV_FILE:
 			(*frame)->filename = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*frame)->filename, (const char*)r->value->value);
 			break;
 
-		case V_FULLNAME:
+		case IDV_FULLNAME:
 			(*frame)->fullname = new char[strlen((const char*)r->value->value) + 1];
 			strcpy((*frame)->fullname, (const char*)r->value->value);
 			break;
