@@ -3,6 +3,7 @@
 
 %{
 	#include <common/log.h>
+	#include <common/string.h>
 	#include <gdb/gdb.h>
 	#include <gdb/value.h>
 	#include <gdb/result.h>
@@ -99,6 +100,7 @@ value-list :		value											{ $$ = $1; }
 		   |		value-list ',' value							{ gdb_value_add($1, $3); $$ = $1; }
 		   ;
 
+const :             '"' '"'                                         { $$ = gdb_value_create(VT_CONST, stralloc((char*)"", 0)); };
 const :				'"' STRING '"'									{ $$ = gdb_value_create(VT_CONST, $2); };
 tuple :				'{' '}'											{ $$ = gdb_value_create(VT_EMPTY, 0); }
 	  |				'{' result-list '}'								{ $$ = gdb_value_create(VT_RESULT_LIST, $2); }
