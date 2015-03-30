@@ -11,6 +11,12 @@
 	#include <gdb/lexer.lex.h>
 
 
+	/* macros */
+	// extended error messages
+	#define YYERROR_VERBOSE
+
+
+	/* prototypes */
 	int gdberror(char* line, gdbif* gdb, const char* s);
 %}
 

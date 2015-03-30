@@ -9,6 +9,12 @@
 	#include <lexer.lex.h>
 
 
+	/* macros */
+	// extended error messages
+	#define YYERROR_VERBOSE
+
+
+	/* prototypes */
 	int vimerror(char* line, vimui* vim, const char* s);
 %}
 
