@@ -8,13 +8,14 @@ let s:gdblog_name = "gdb-log"
 let s:userlog_name = "user-log"
 let s:break_name = "breakpoints"
 let s:inferior_name = "inferior"
+let s:variable_name = "variables"
 
 " open buffers when entering a tab
 autocmd TabEnter * call s:prepare()
 
 " preliminary mappings
-nnoremap <silent> b :exec "nbkey break add " . fnamemodify(bufname('.'), ":t") . ":" . line('.')<cr>
-nnoremap <silent> B :exec "nbkey break delete " . fnamemodify(bufname('.'), ":t") . ":" . line('.')<cr>
+nnoremap <silent> b :exec "nbkey break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
+nnoremap <silent> B :exec "nbkey break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
 nnoremap <silent> <F2> :exec "nbkey exec step"<cr>
 nnoremap <silent> <F3> :exec "nbkey exec next"<cr>
 nnoremap <silent> <F5> :exec "nbkey exec return"<cr>
@@ -59,7 +60,7 @@ endfunction
 " \param	dimension	buffer width or height, depending on where
 "
 " \return	name of new buffer
-function! s:buffer_split(name, relative, where, dimension, visible)
+function! s:buffer_split(name, relative, where, dimension, visible, syntax)
 	" check if buffer is already visible
 	if bufwinnr(a:name) != -1
 		return bufname(bufnr("%"))
@@ -77,6 +78,7 @@ function! s:buffer_split(name, relative, where, dimension, visible)
 	setlocal noequalalways
 	setlocal bufhidden=hide
 	setlocal noswapfile
+	exe "setlocal syntax=" . a:syntax
 
 	if a:visible == 0
 		exe "close"
@@ -90,10 +92,11 @@ endfunction
 " \brief	open vimgdb buffers
 function! s:prepare()
 	let s:src_name = s:buffer_initial(s:src_name)
-	call s:buffer_split(s:gdblog_name, s:src_name, "belowright", s:gdblog_height, 1)
-	call s:buffer_split(s:userlog_name, s:src_name, "belowright", s:userlog_height, 1)
-	call s:buffer_split(s:break_name, s:src_name, "vertical rightbelow", s:break_width, 1)
-	call s:buffer_split(s:inferior_name, s:break_name, "rightbelow", "", 1)
+	call s:buffer_split(s:gdblog_name, s:src_name, "belowright", s:gdblog_height, 1, "")
+	call s:buffer_split(s:userlog_name, s:src_name, "belowright", s:userlog_height, 1, "")
+	call s:buffer_split(s:break_name, s:src_name, "vertical rightbelow", s:break_width, 1, "")
+	call s:buffer_split(s:variable_name, s:break_name, "rightbelow", "", 1, "vimgdb_var")
+	call s:buffer_split(s:inferior_name, s:break_name, "rightbelow", "", 1, "")
 
 	call s:buffer_focus(s:src_name)
 endfunction
