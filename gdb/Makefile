@@ -1,4 +1,4 @@
-obj-y := gdb.o parser.tab.o lexer.lex.o result.o value.o identifier.o breakpoint.o location.o frame.o
+obj-y := gdb.o parser.tab.o lexer.lex.o result.o value.o identifier.o breakpoint.o location.o frame.o variable.o variablelist.o
 bin-y := test-parser
 
 ## test-parser

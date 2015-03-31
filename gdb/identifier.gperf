@@ -82,3 +82,8 @@ has_more,								IDV_HAS_MORE
 changelist,								IDV_CHANGELIST
 in_scope,								IDV_INSCOPE
 type_changed,							IDV_TYPE_CHANGED
+ndeleted,								IDV_NDELETED
+lang,									IDV_LANG
+exp,									IDV_EXP
+child,									IDV_CHILD
+children,								IDV_CHILDS

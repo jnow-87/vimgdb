@@ -57,6 +57,8 @@ int main(int argc, char** argv){
 	if(gdb->init(pthread_self()) != 0)
 		return 2;
 
+	gdb->on_stop(cmd_var_update);
+
 	/* main loop */
 	while(1){
 		line = ui->readline();

@@ -59,6 +59,11 @@ typedef enum{
 	IDV_CHANGELIST,
 	IDV_INSCOPE,
 	IDV_TYPE_CHANGED,
+	IDV_NDELETED,
+	IDV_LANG,
+	IDV_EXP,
+	IDV_CHILD,
+	IDV_CHILDS,
 } gdb_id_val_t;
 
 struct gdb_id_t{

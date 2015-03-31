@@ -20,6 +20,8 @@ typedef enum{
 	BREAK,
 	JUMP,
 	GOTO,
+	FOLD,
+	SET,
 } user_subcmd_id_t;
 
 struct user_subcmd_t{

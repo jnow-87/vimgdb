@@ -42,3 +42,5 @@ return,		RETURN
 break,		BREAK
 jump,		JUMP
 goto,		GOTO
+fold,		FOLD
+set,		SET
