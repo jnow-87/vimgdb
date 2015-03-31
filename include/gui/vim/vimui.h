@@ -76,8 +76,6 @@ private:
 	static void* readline_thread(void* arg);
 
 	/* vim data */
-	int bufid;
-	int seq_num;
 	char* cwd;
 	map<string, buffer_t*> bufname_map;
 	map<int, buffer_t*> bufid_map;

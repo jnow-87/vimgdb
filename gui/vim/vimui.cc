@@ -17,8 +17,6 @@ vimui::vimui(){
 
 
 	main_tid = 0;
-	bufid = 1;	// avoid using buf-id 0 for netbeans
-	seq_num = 1;
 	read_tid = 0;
 	nbserver = 0;
 	nbclient = 0;
@@ -178,6 +176,7 @@ end:
 }
 
 int vimui::win_create(const char* name, bool oneline, unsigned int height){
+	static int bufid = 1;	// avoid using buf-id 0 for netbeans
 	int id;
 	buffer_t* b;
 	map<string, buffer_t*>::iterator it;
@@ -507,6 +506,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 }
 
 int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...){
+	static int seq_num = 1;
 	static char* s = 0;
 	static unsigned int s_len = 0;
 	unsigned int i;
