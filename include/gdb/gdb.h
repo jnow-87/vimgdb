@@ -51,11 +51,11 @@ public:
 private:
 	/* types */
 	typedef struct _response_t{
-		gdb_result_class_t rclass;
-		gdb_result_t* result;
+		gdb_result_class_t volatile rclass;
+		gdb_result_t* volatile result;
 
-		struct _response_t *next,
-						   *prev;
+		struct _response_t * volatile next,
+						   * volatile prev;
 	} response_t;
 
 	typedef struct _stop_hdlr_t{
@@ -68,16 +68,16 @@ private:
 	/* gdb child data */
 	pty* gdb;
 	pid_t gdb_pid;
-	bool is_running;
+	bool volatile is_running;
 
 	/* gdb communication */
 	static void* readline_thread(void* arg);
 	static void* event_thread(void* arg);
 
-	unsigned int token;
+	unsigned int volatile token;
 
-	response_t resp,
-			   *event_lst;
+	response_t resp;
+	response_t* volatile event_lst;
 
 	pthread_t read_tid,
 			  event_tid;

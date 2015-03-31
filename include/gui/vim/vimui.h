@@ -64,11 +64,11 @@ private:
 		int seq_num,
 			buf_id;
 
-		vim_event_id_t evt_id;
-		vim_result_t* result;
+		vim_event_id_t volatile evt_id;
+		vim_result_t* volatile result;
 
-		struct _response_t *next,
-						   *prev;
+		struct _response_t * volatile next,
+						   * volatile prev;
 	} response_t;
 
 	/* netbeans */
@@ -90,7 +90,7 @@ private:
 	pthread_t read_tid;
 	pthread_mutex_t event_mtx;
 	pthread_cond_t event_avail;
-	response_t* event_lst;
+	response_t* volatile event_lst;
 
 	/* output */
 	char* ostr;
