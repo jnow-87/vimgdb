@@ -258,7 +258,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 }
 
 int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
-	USER(strdeescape(stream));
+	USER("%s", strdeescape(stream));	// use "%s" to avoid issues with '%' within stream
 	return 0;
 }
 
@@ -349,12 +349,11 @@ void* gdbif::readline_thread(void* arg){
 				line[i] = 0;
 
 				DEBUG("parse gdb string \"%.10s\"\n", line);
+				ui->win_print(win_id_gdb, "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
 
 				DEBUG("parser return value: %d\n", i);
-
-				ui->win_print(win_id_gdb, line);
 				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
 
 				i = 0;
