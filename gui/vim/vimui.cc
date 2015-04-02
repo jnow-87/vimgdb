@@ -5,6 +5,8 @@
 #include <gui/vim/vimui.h>
 #include <gui/vim/event.h>
 #include <gui/vim/result.h>
+#include <gui/vim/cursor.h>
+#include <gui/vim/length.h>
 #include <cmd.hash.h>
 #include <parser.tab.h>
 #include <signal.h>
@@ -241,7 +243,7 @@ int vimui::win_destroy(int win){
 	pthread_mutex_lock(&ui_mtx);
 
 	/* close vim buffer */
-	if(action(CMD, "close", win, 0, "") != 0){
+	if(action(CMD, "close", win, 0, 0, "") != 0){
 		pthread_mutex_unlock(&ui_mtx);
 		return -1;
 	}
@@ -287,12 +289,12 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 	buf = bit->second;
 	annotype = buf->anno_types.find(key);
 
-	if(action(CMD, "startAtomic", 0, 0, "") != 0)
+	if(action(CMD, "startAtomic", 0, 0, 0, "") != 0)
 		goto err;
 
 	/* create annotation type if it doesn't exist */
 	if(annotype == buf->anno_types.end()){
-		if(action(CMD, "defineAnnoType", win, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
+		if(action(CMD, "defineAnnoType", win, 0, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
 			goto err;
 
 		buf->anno_types[key] = buf->anno_types.size();	// first element has value 1, since anno_types size
@@ -301,21 +303,21 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 	}
 
 	/* add annotation */
-	if(action(CMD, "addAnno", win, 0, "%d %d %d/0", id, annotype->second, line) == 0){
+	if(action(CMD, "addAnno", win, 0, 0, "%d %d %d/0", id, annotype->second, line) == 0){
 		key = line;
 		key += sign;
 
 		buf->annos[key] = id;
 		id++;
 
-		action(CMD, "endAtomic", 0, 0, "");
+		action(CMD, "endAtomic", 0, 0, 0, "");
 
 		pthread_mutex_unlock(&ui_mtx);
 		return 0;
 	}
 
 err:
-	action(CMD, "endAtomic", 0, 0, "");
+	action(CMD, "endAtomic", 0, 0, 0, "");
 	pthread_mutex_unlock(&ui_mtx);
 	return -1;
 }
@@ -340,7 +342,7 @@ int vimui::win_anno_delete(int win, int line, const char* sign){
 	anno = buf->annos.find(key);
 
 	if(anno != buf->annos.end()){
-		if(action(CMD, "removeAnno", win, 0, "%d", anno->second) != 0)
+		if(action(CMD, "removeAnno", win, 0, 0, "%d", anno->second) != 0)
 			goto err;
 
 		buf->annos.erase(anno);
@@ -355,7 +357,7 @@ err:
 }
 
 int vimui::win_cursor_set(int win, int line){
-	return action(CMD, "setDot", win, 0, "%d/0", line);
+	return action(CMD, "setDot", win, 0, 0, "%d/0", line);
 }
 
 void vimui::win_print(int win, const char* fmt, ...){
@@ -368,14 +370,14 @@ void vimui::win_print(int win, const char* fmt, ...){
 }
 
 void vimui::win_vprint(int win, const char* fmt, va_list lst){
-	int len, buf, buf_line, buf_col;
-	vim_result_t* r;
+	int len;
+	vim_cursor_t cur;
 	va_list tlst;
 
 
 	pthread_mutex_lock(&ui_mtx);
 
-	action(CMD, "startAtomic", win, 0, "");
+	action(CMD, "startAtomic", win, 0, 0, "");
 
 	/* create string */
 	while(1){
@@ -393,65 +395,50 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	}
 
 	/* get current vim buffer and cursor position */
-	if(action(FCT, "getCursor", 0, &r, "") != 0)
+	if(action(FCT, "getCursor", 0, result_to_cursor, (void*)&cur, "") != 0)
 		goto end;
-
-	buf = r->num;
-	buf_line = r->next->num;
-	buf_col = r->next->next->num;
-	vim_result_free(r);
 
 	/* get length of target buffer */
-	if(action(FCT, "getLength", win, &r, "") != 0)
+	if(action(FCT, "getLength", win, result_to_length, (void*)&len, "") != 0)
 		goto end;
 
-	len = r->num;
-	vim_result_free(r);
-
 	/* insert text and update cursor position */
-	action(FCT, "insert", win, 0, "%d \"%s\"", len, ostr);
-	action(CMD, "setDot", win, 0, "%d", len + strlen(ostr) - 1);
+	action(FCT, "insert", win, 0, 0, "%d \"%s\"", len, ostr);
+	action(CMD, "setDot", win, 0, 0, "%d", len + strlen(ostr) - 1);
 
 	/* reset cursor to previous buffer if its different from target buffer */
-	if(buf > 0 && win != buf)
-		action(CMD, "setDot", buf, 0, "%d/%d", buf_line, buf_col);
+	if(cur.bufid > 0 && win != cur.bufid)
+		action(CMD, "setDot", cur.bufid, 0, 0, "%d/%d", cur.line, cur.column);
 
 end:
-	action(CMD, "endAtomic", win, 0, "");
+	action(CMD, "endAtomic", win, 0, 0, "");
 
 	pthread_mutex_unlock(&ui_mtx);
 }
 
 void vimui::win_clear(int win){
-	int buf, buf_line, buf_col;
-	vim_result_t* r;
+	int len;
+	vim_cursor_t cur;
 
 
 	pthread_mutex_lock(&ui_mtx);
 
-	action(CMD, "startAtomic", 0, 0, "");
+	action(CMD, "startAtomic", 0, 0, 0, "");
 
 	/* get current vim buffer and cursor position */
-	if(action(FCT, "getCursor", 0, &r, "") != 0)
+	if(action(FCT, "getCursor", 0, result_to_cursor, (void*)&cur, "") != 0)
 		goto end;
 
-	buf = r->num;
-	buf_line = r->next->num;
-	buf_col = r->next->next->num;
-	vim_result_free(r);
-
 	/* get length of buffer and remove text */
-	if(action(FCT, "getLength", win, &r, "") == 0)
-		action(FCT, "remove", win, 0, "0 %d", r->num);
-
-	vim_result_free(r);
+	if(action(FCT, "getLength", win, result_to_length, (void*)&len, "") == 0)
+		action(FCT, "remove", win, 0, 0, "0 %d", len);
 
 	/* reset cursor to previous buffer if its different from target buffer */
-	if(buf > 0 && win != buf)
-		action(CMD, "setDot", buf, 0, "%d/%d", buf_line, buf_col);
+	if(cur.bufid > 0 && win != cur.bufid)
+		action(CMD, "setDot", cur.bufid, 0, 0, "%d/%d", cur.line, cur.column);
 
 end:
-	action(CMD, "endAtomic", 0, 0, "");
+	action(CMD, "endAtomic", 0, 0, 0, "");
 
 	pthread_mutex_unlock(&ui_mtx);
 }
@@ -505,7 +492,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	return 0;
 }
 
-int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...){
+int vimui::action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...){
 	static int seq_num = 1;
 	static char* s = 0;
 	static unsigned int s_len = 0;
@@ -513,9 +500,8 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 	va_list lst;
 
 
-	/* init result */
-	if(result)
-		*result = 0;
+	if(buf_id < 0)
+		return -1;
 
 	va_start(lst, fmt);
 
@@ -571,11 +557,17 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_result_t** 
 		// wait for response
 		pthread_cond_wait(&resp_avail, &resp_mtx);
 
-		// update result if requested, otherwise free
-		if(result)	*result = resp.result;
-		else		vim_result_free(resp.result);
-
 		pthread_mutex_unlock(&resp_mtx);
+
+		// process result if requested, otherwise free
+		if(process){
+			if(process(resp.result, result) != 0){
+				vim_result_free(resp.result);
+				return -1;
+			}
+		}
+
+		vim_result_free(resp.result);
 	}
 	else
 		nbclient->send((char*)"\n");

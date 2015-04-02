@@ -1,4 +1,4 @@
-obj-y := vimui.o parser.o lexer.o event.o result.o cmd.o
+obj-y := vimui.o parser.o lexer.o event.o result.o cmd.o cursor.o length.o
 bin-y := test-nbprotocol
 
 

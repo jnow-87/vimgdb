@@ -72,7 +72,7 @@ private:
 	} response_t;
 
 	/* netbeans */
-	int action(action_t type, const char* action, int buf_id, vim_result_t** result, const char* fmt, ...);
+	int action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...);
 	static void* readline_thread(void* arg);
 
 	/* vim data */
