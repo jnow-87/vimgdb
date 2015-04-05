@@ -22,6 +22,7 @@ typedef enum{
 	GOTO,
 	FOLD,
 	SET,
+	VIEW,
 } user_subcmd_id_t;
 
 struct user_subcmd_t{

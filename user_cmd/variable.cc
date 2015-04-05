@@ -104,6 +104,10 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		var->modified = true;
 		break;
 
+	case VIEW:
+		var_lst.update(gdb);
+		break;
+
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
