@@ -140,6 +140,10 @@ char* cursesui::readline(){
 	}
 }
 
+int cursesui::atomic(bool en){
+	return 0;
+}
+
 /**
  * \brief	create new cursesui window
  *

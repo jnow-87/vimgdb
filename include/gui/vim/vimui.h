@@ -28,6 +28,7 @@ public:
 	char* readline();
 
 	/* window functions */
+	int atomic(bool state);
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
 	int win_getid(const char* name);
 	int win_destroy(int win);
@@ -71,37 +72,40 @@ private:
 						   * volatile prev;
 	} response_t;
 
-	/* netbeans */
+	/* prototypes */
+	int atomic(bool en, bool apply);
 	int action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...);
 	static void* readline_thread(void* arg);
 
-	/* vim data */
+	/* data */
+	// vim
 	char* cwd;
+	bool volatile cursor_update;
 	pthread_mutex_t buf_mtx;
 	map<string, buffer_t*> bufname_map;
 	map<int, buffer_t*> bufid_map;
 
-	/* vim netbeans connection */
+	// netbeans connection
 	socket *nbserver,
 		   *nbclient;
 
-	/* user input */
+	// user input
 	pthread_t read_tid;
 	pthread_mutex_t event_mtx;
 	pthread_cond_t event_avail;
 	response_t* volatile event_lst;
 
-	/* output */
+	// output
 	char* ostr;
 	unsigned int ostr_len;
 	pthread_mutex_t ui_mtx;
 
-	/* response handling */
+	// response handling
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;
 	response_t resp;
 
-	/* main thread data */
+	// main thread data
 	pthread_t main_tid;
 };
 

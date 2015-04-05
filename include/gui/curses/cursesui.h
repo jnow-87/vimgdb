@@ -30,6 +30,7 @@ public:
 	char* readline();
 
 	/* window functions */
+	int atomic(bool en);
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
 	int win_getid(const char* name);
 	int win_destroy(int win_id);
