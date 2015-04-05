@@ -61,10 +61,8 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 			breakpt_print();
 			ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 
-			USER("added break-point \"%s\"\n", key);
+			USER("add break-point \"%s\"\n", key);
 		}
-		else
-			USER("error adding break-point\n");
 
 		break;
 	
@@ -83,41 +81,35 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		switch(scmd->id){
 		case DELETE:
 			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, 0, "%d", it->second->num) == 0){
-				USER("deleted break-point \"%s\"\n", it->first.c_str());
+				USER("delet break-point \"%s\"\n", it->first.c_str());
 				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line, "b");
 
 				delete it->second;
 				breakpt_lst.erase(it);
 				breakpt_print();
 			}
-			else
-				USER("error deleting break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 
 		case ENABLE:
 			if(gdb->mi_issue_cmd((char*)"break-enable", RC_DONE, 0, 0, "%d", it->second->num) == 0){
-				USER("enabled break-point \"%s\"\n", it->first.c_str());
+				USER("enable break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = true;
 				breakpt_print();
 				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			}
-			else
-				USER("error enabling break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 
 		case DISABLE:
 			if(gdb->mi_issue_cmd((char*)"break-disable", RC_DONE, 0, 0, "%d", it->second->num) == 0){
-				USER("disabled break-point \"%s\"\n", it->first.c_str());
+				USER("disable break-point \"%s\"\n", it->first.c_str());
 
 				bkpt->enabled = false;
 				breakpt_print();
 				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			}
-			else
-				USER("error disabling break-point \"%s\" - \"%s %s\"\n", it->first.c_str());
 
 			break;
 		};
@@ -126,7 +118,6 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
-		return 0;
 	};
 
 	return 0;

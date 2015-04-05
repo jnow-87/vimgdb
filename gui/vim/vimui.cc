@@ -457,7 +457,7 @@ int vimui::reply(int seq_num, vim_result_t* rlst){
 		pthread_cond_signal(&resp_avail);
 	}
 	else{
-		DEBUG("drop vim reply with sequence number %d\n", seq_num);
+		DEBUG("drop vim reply with sequence number %d, expected %d\n", seq_num, resp.seq_num);
 		vim_result_free(rlst);
 	}
 
@@ -510,6 +510,8 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	nbclient->send(itoa(buf_id, (char**)&s, (unsigned int*)&s_len));
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
+	
+	DEBUG("%s\n", action);
 
 	if(type == FCT)			nbclient->send((char*)"/");
 	else if(type == CMD)	nbclient->send((char*)"!");
@@ -611,7 +613,7 @@ void* vimui::readline_thread(void* arg){
 			line[i - 1] = '\n';
 
 			// parse line
-			vimparse(line, vim);
+			DEBUG("parser return value: %d\n", vimparse(line, vim));
 
 			i = 0;
 		}

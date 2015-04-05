@@ -71,7 +71,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		}
 	}
 
-	if(r == 0)	USER("executed \"%s\"\n", argv[1]);
+	if(r == 0)	USER("%s\n", argv[1]);
 	else		USER("error executing \"%s\"\n", argv[1]);
 
 	return 0;

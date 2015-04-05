@@ -402,10 +402,12 @@ void* gdbif::event_thread(void* arg){
 
 		switch(e->rclass){
 		case RC_STOPPED:
+			DEBUG("handle event STOPPED\n");
 			r = gdb->evt_stopped(e->result);
 			break;
 
 		case RC_RUNNING:
+			DEBUG("handle event RUNNING\n");
 			r = gdb->evt_running(e->result);
 			break;
 
@@ -471,7 +473,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			USER("file \"%s\" does not exist\n", frame->fullname);
 	}
 	else if(strcmp(reason, "exited-normally") == 0){
-		USER("program exited\n");
+		USER("program exited normally\n");
 	}
 
 	/* execute callbacks */

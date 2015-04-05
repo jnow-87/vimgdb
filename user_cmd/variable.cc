@@ -36,7 +36,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 	case ADD:
 		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&var, "- * %s", argv[2]) == 0){
 			if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name) == 0){
-				USER("added variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
+				USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
 				var_lst.add(var->name, var);
 			}
 		}
@@ -46,7 +46,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		var = var_lst.find(argv[2]);
 
 		if(var == 0){
-			USER("unknown variable at line %s\n", argv[2]);
+			USER("no variable at line %s\n", argv[2]);
 			return -1;
 		}
 
@@ -54,7 +54,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 			var = var->parent;
 
 		if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "%s", var->name) == 0){
-			USER("deleted variable \"%s\"\n", var->name);
+			USER("delete variable \"%s\"\n", var->name);
 
 			var_lst.rm(var);
 			delete var;
@@ -97,6 +97,9 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
 		var->modified = true;
 		break;
+
+	default:
+		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
 	var_lst.print(gdb);
@@ -105,6 +108,8 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 }
 
 void cmd_var_help(int argc, char** argv){
+	// TODO add
+	TODO("not yet implemented\n");
 }
 
 int cmd_var_update(gdbif* gdb){
