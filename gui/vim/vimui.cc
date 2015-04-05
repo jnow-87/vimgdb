@@ -30,6 +30,7 @@ vimui::vimui(){
 	event_lst = 0;
 	list_init(event_lst);
 
+	pthread_mutex_init(&buf_mtx, 0);
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
 	pthread_cond_init(&resp_avail, 0);
@@ -46,6 +47,7 @@ vimui::~vimui(){
 	pthread_cond_destroy(&event_avail);
 	pthread_mutex_destroy(&resp_mtx);
 	pthread_mutex_destroy(&event_mtx);
+	pthread_mutex_destroy(&buf_mtx);
 	pthread_mutex_destroy(&ui_mtx);
 }
 
@@ -185,18 +187,21 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	map<string, buffer_t*>::iterator it;
 
 
-	pthread_mutex_lock(&ui_mtx);
 
 	/* check if buffer for name already exists
 	 * 	if so return its id, otherwise
 	 * 	create new buffer
 	 */
+	pthread_mutex_lock(&buf_mtx);
+
 	it = bufname_map.find(name);
 
 	if(it != bufname_map.end()){
-		pthread_mutex_unlock(&ui_mtx);
+		pthread_mutex_unlock(&buf_mtx);
 		return it->second->id;
 	}
+
+	pthread_mutex_lock(&ui_mtx);
 
 	id = bufid;
 	bufid++;
@@ -211,11 +216,11 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	 * 	otherwise assume a non-file buffer, e.g. 'breakpoints'
 	 */
 	if(name[0] == '/')
-		action(CMD, "editFile", id, 0, "\"%s\"", name);
+		action(CMD, "editFile", id, 0, 0, "\"%s\"", name);
 	else
-		action(CMD, "putBufferNumber", id, 0, "\"%s%s\"", cwd, name);
+		action(CMD, "putBufferNumber", id, 0, 0, "\"%s%s\"", cwd, name);
 
-	action(CMD, "stopDocumentListen", id, 0, "");
+	action(CMD, "stopDocumentListen", id, 0, 0, "");
 
 	/* set buf_id as used */
 	b = new buffer_t;
@@ -224,9 +229,12 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 
 	strcpy(b->name, name);
 
+	pthread_mutex_lock(&buf_mtx);
+
 	bufname_map[name] = b;
 	bufid_map[id] = b;
 
+	pthread_mutex_unlock(&buf_mtx);
 	pthread_mutex_unlock(&ui_mtx);
 
 	return id;
@@ -244,16 +252,16 @@ int vimui::win_destroy(int win){
 	pthread_mutex_lock(&ui_mtx);
 
 	/* close vim buffer */
-	if(action(CMD, "close", win, 0, 0, "") != 0){
-		pthread_mutex_unlock(&ui_mtx);
-		return -1;
-	}
+	if(action(CMD, "close", win, 0, 0, "") != 0)
+		goto err_0;
 
 	/* remove buffer */
+	pthread_mutex_lock(&buf_mtx);
+
 	it_id = bufid_map.find(win);
 
 	if(it_id == bufid_map.end())
-		return -1;
+		goto err_1;
 
 	it_name = bufname_map.find(it_id->second->name);
 
@@ -263,9 +271,18 @@ int vimui::win_destroy(int win){
 	bufname_map.erase(it_name);
 	bufid_map.erase(it_id);
 
+	pthread_mutex_unlock(&buf_mtx);
 	pthread_mutex_unlock(&ui_mtx);
 
 	return 0;
+
+err_1:
+	pthread_mutex_unlock(&ui_mtx);
+
+err_0:
+	pthread_mutex_unlock(&buf_mtx);
+
+	return -1;
 }
 
 int vimui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
@@ -282,7 +299,9 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 
 	pthread_mutex_lock(&ui_mtx);
 
+	pthread_mutex_lock(&buf_mtx);
 	bit = bufid_map.find(win);
+	pthread_mutex_unlock(&buf_mtx);
 
 	if(bit == bufid_map.end())
 		goto err;
@@ -332,7 +351,9 @@ int vimui::win_anno_delete(int win, int line, const char* sign){
 
 	pthread_mutex_lock(&ui_mtx);
 
+	pthread_mutex_lock(&buf_mtx);
 	bit = bufid_map.find(win);
+	pthread_mutex_unlock(&buf_mtx);
 
 	if(bit == bufid_map.end())
 		goto err;
@@ -358,7 +379,14 @@ err:
 }
 
 int vimui::win_cursor_set(int win, int line){
-	return action(CMD, "setDot", win, 0, 0, "%d/0", line);
+	int r;
+
+
+	pthread_mutex_lock(&ui_mtx);
+	r = action(CMD, "setDot", win, 0, 0, "%d/0", line);
+	pthread_mutex_unlock(&ui_mtx);
+
+	return r;
 }
 
 void vimui::win_print(int win, const char* fmt, ...){
@@ -378,7 +406,8 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 
 	pthread_mutex_lock(&ui_mtx);
 
-	action(CMD, "startAtomic", win, 0, 0, "");
+	if(action(CMD, "startAtomic", win, 0, 0, "") != 0)
+		goto end;
 
 	/* create string */
 	while(1){
@@ -510,7 +539,7 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	nbclient->send(itoa(buf_id, (char**)&s, (unsigned int*)&s_len));
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
-	
+
 	DEBUG("%s\n", action);
 
 	if(type == FCT)			nbclient->send((char*)"/");
@@ -548,10 +577,10 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	va_end(lst);
 
 	/* wait for vim response if action is a function */
-	memset((void*)&resp, -1, sizeof(response_t));
-
 	if(type == FCT){
 		pthread_mutex_lock(&resp_mtx);
+
+		memset((void*)&resp, -1, sizeof(response_t));
 
 		resp.seq_num = seq_num;
 		nbclient->send((char*)"\n");		// issue action after mutex has been locked
