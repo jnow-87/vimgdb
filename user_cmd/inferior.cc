@@ -51,6 +51,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 		}
 
 		ui->win_create(loc->fullname);
+
 		if(scmd == 0)	USER("loaded input file \"%s\"\n", argv[1]);
 		else			USER("loaded input file \"%s\"\n", argv[2]);
 	}
@@ -92,6 +93,8 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 
 					return 0;
 				}
+
+				thread_name[tid] = "inferior";
 
 				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, 0, "%s", inferior_term->get_name()) != 0)
 					USER("error setting inferior tty\n");

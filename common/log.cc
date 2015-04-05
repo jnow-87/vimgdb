@@ -5,6 +5,10 @@
 #include <time.h>
 
 
+/* global variables */
+map<pthread_t, string> thread_name;
+
+
 /* static variables */
 FILE* log::log_file = 0;
 int log::win_id_debug = 0;

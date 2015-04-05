@@ -26,6 +26,8 @@ int main(int argc, char** argv){
 
 
 	/* initialise */
+	thread_name[pthread_self()] = "main";
+
 	if(opt_parse(argc, argv) != 0)
 		return 1;
 

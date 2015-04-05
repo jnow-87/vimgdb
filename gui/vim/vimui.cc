@@ -77,6 +77,7 @@ int vimui::init(pthread_t main_tid){
 	if(pthread_create(&read_tid, 0, readline_thread, this) != 0)
 		goto err_3;
 
+	thread_name[read_tid] = "vim-readline";
 	return 0;
 
 err_3:

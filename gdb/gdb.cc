@@ -85,8 +85,12 @@ int gdbif::init(pthread_t main_tid){
 		if(pthread_create(&read_tid, 0, readline_thread, this) != 0)
 			return -1;
 
+		thread_name[read_tid] = "gdb-readline";
+
 		if(pthread_create(&event_tid, 0, event_thread, this) != 0)
 			return -1;
+
+		thread_name[event_tid] = "gdb-event";
 		return 0;
 	}
 	else{

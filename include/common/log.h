@@ -4,6 +4,11 @@
 
 #include <sys/types.h>
 #include <stdio.h>
+#include <map>
+#include <string>
+
+
+using namespace std;
 
 
 /* types */
@@ -20,13 +25,17 @@ enum log_level_t{
 
 
 /* macros */
-#define INFO(msg, ...)	log::print(INFO, "[INFO][%19.19s] %15.15s:%-5d %15.15s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define ERROR(msg, ...)	log::print(ERROR, "[ ERR][%19.19s] %15.15s:%-5d %15.15s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define WARN(msg, ...)	log::print(WARN, "[WARN][%19.19s] %15.15s:%-5d %15.15s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define TODO(msg, ...)	log::print(TODO, "[TODO][%19.19s] %15.15s:%-5d %15.15s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define DEBUG(msg, ...)	log::print(DEBUG, "[ DBG][%19.19s] %15.15s:%-5d %15.15s(): " msg, log::stime(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define INFO(msg, ...)	log::print(INFO,	"[II][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR,	"[EE][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define WARN(msg, ...)	log::print(WARN,	"[WW][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TODO(msg, ...)	log::print(TODO,	"[TD][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define DEBUG(msg, ...)	log::print(DEBUG,	"[DB][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
 #define TEST(msg, ...)	log::print(TEST, msg, ##__VA_ARGS__)
+
+
+/* external variables */
+extern map<pthread_t, string> thread_name;
 
 
 /* class */
