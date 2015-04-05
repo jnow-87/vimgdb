@@ -24,6 +24,12 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
+	if(argc < 2){
+		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
+		cmd_var_help(1, argv);
+		return 0;
+	}
+
 	var = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
