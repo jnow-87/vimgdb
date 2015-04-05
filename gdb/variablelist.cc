@@ -49,7 +49,7 @@ void gdb_variablelist::print(gdbif* gdb){
 	if(win_id_var < 0)
 		return;
 
-	// TODO use atomicStart for the loop
+	ui->atomic(true);
 	ui->win_clear(win_id_var);
 	lmap.clear();
 
@@ -58,6 +58,8 @@ void gdb_variablelist::print(gdbif* gdb){
 		if(sit->second->parent == 0)
 			print(gdb, sit->second, &i, win_id_var, 1);
 	}
+
+	ui->atomic(false);
 }
 
 void gdb_variablelist::print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl){

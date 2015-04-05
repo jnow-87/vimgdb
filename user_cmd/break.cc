@@ -195,7 +195,7 @@ void breakpt_print(){
 	if(win_id_break < 0)
 		return;
 
-	// TODO use atomicStart for the loop
+	ui->atomic(true);
 	ui->win_clear(win_id_break);
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
@@ -210,4 +210,6 @@ void breakpt_print(){
 			else					ui->win_print(win_id_break, "   %s [disabled]\n", bkpt->at);
 		}
 	}
+
+	ui->atomic(false);
 }
