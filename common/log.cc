@@ -40,20 +40,26 @@ int log::init(const char* file_name, log_level_t lvl){
 	}
 
 	if(ui){
+#ifdef GUI_CURSES
 		win_id_user = ui->win_create("user-log", true, 0);
 
 		if(win_id_user < 0)
 			goto err_1;
 
-#ifdef GUI_CURSES
 		win_id_debug = ui->win_create("debug-log", true, 0);
 
 		if(win_id_debug < 0)
 			goto err_2;
+#else
+
+		win_id_user = ui->win_getid("user-log");
+
 #endif // GUI_CURSES
 	}
 
 	return 0;
+
+#ifdef GUI_CURSES
 
 err_2:
 	ui->win_destroy(win_id_user);
@@ -63,6 +69,8 @@ err_1:
 
 err_0:
 	return -1;
+
+#endif // GUI_CURSES
 }
 
 /**
@@ -78,7 +86,9 @@ void log::cleanup(){
 	// otherwise any forked process would destroy them
 	if(ui && creator == getpid()){
 		ui->win_destroy(win_id_user);
+#ifdef GUI_CURSES
 		ui->win_destroy(win_id_debug);
+#endif
 	}
 }
 
@@ -108,6 +118,9 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
 			else					ui->win_vprint(win_id_debug, msg, lst);
 #else
+			if(win_id_user < 0)
+				win_id_user = ui->win_getid("user-log");
+
 			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
 			else					vprintf(msg, lst);
 #endif

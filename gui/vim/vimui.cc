@@ -184,27 +184,20 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	static int volatile bufid = 1;	// avoid using buf-id 0 for netbeans
 	int id;
 	buffer_t* b;
-	map<string, buffer_t*>::iterator it;
-
 
 
 	/* check if buffer for name already exists
 	 * 	if so return its id, otherwise
 	 * 	create new buffer
 	 */
-	pthread_mutex_lock(&buf_mtx);
+	id = win_getid(name);
 
-	it = bufname_map.find(name);
-
-	if(it != bufname_map.end()){
-		pthread_mutex_unlock(&buf_mtx);
-		return it->second->id;
-	}
+	if(id > 0)
+		return id;
 
 	pthread_mutex_lock(&ui_mtx);
 
-	id = bufid;
-	bufid++;
+	id = bufid++;
 
 	if(id < 0){
 		pthread_mutex_unlock(&ui_mtx);
@@ -225,23 +218,58 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	/* set buf_id as used */
 	b = new buffer_t;
 	b->id = id;
-	b->name = new char[strlen(name) + 1];
 
-	strcpy(b->name, name);
+	if(name[0] == '/'){
+		b->name = new char[strlen(name) + 1];
+		strcpy(b->name, name);
+	}
+	else{
+		b->name = new char[strlen(name) + strlen(cwd) + 1];
+		sprintf(b->name, "%s%s", cwd, name);
+	}
+
 
 	pthread_mutex_lock(&buf_mtx);
 
-	bufname_map[name] = b;
+	bufname_map[b->name] = b;
 	bufid_map[id] = b;
 
 	pthread_mutex_unlock(&buf_mtx);
+
 	pthread_mutex_unlock(&ui_mtx);
 
 	return id;
 }
 
 int vimui::win_getid(const char* name){
-	return win_create(name);
+	static char* volatile s = 0;
+	static unsigned int volatile slen = 0;
+	unsigned int len;
+	map<string, buffer_t*>::iterator it;
+
+
+	pthread_mutex_lock(&buf_mtx);
+
+	if(name[0] != '/'){
+		len = strlen(name) + strlen(cwd) + 1;
+
+		if(slen < len){
+			delete s;
+			s = new char[len];
+			slen = len;
+		}
+
+		sprintf(s, "%s%s", cwd, name);
+		it = bufname_map.find(s);
+	}
+	else
+		it = bufname_map.find(name);
+
+	pthread_mutex_unlock(&buf_mtx);
+
+	if(it != bufname_map.end())
+		return it->second->id;
+	return -1;
 }
 
 int vimui::win_destroy(int win){

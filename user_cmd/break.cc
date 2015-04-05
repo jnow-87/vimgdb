@@ -59,7 +59,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 			breakpt_lst[key] = bkpt;
 			breakpt_print();
-			ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
+			ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 
 			USER("add break-point \"%s\"\n", key);
 		}
@@ -82,7 +82,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		case DELETE:
 			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, 0, "%d", it->second->num) == 0){
 				USER("delet break-point \"%s\"\n", it->first.c_str());
-				ui->win_anno_delete(ui->win_getid(bkpt->fullname), bkpt->line, "b");
+				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
 
 				delete it->second;
 				breakpt_lst.erase(it);
@@ -97,7 +97,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 				bkpt->enabled = true;
 				breakpt_print();
-				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
+				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			}
 
 			break;
@@ -108,7 +108,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 				bkpt->enabled = false;
 				breakpt_print();
-				ui->win_anno_add(ui->win_getid(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
+				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			}
 
 			break;

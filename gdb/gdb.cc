@@ -323,10 +323,16 @@ void* gdbif::readline_thread(void* arg){
 	if(line == 0)
 		goto err_0;
 
+#ifdef GUI_CURSES
 	win_id_gdb = ui->win_create("gdb-log", true, 0);
 
 	if(win_id_gdb < 0)
 		goto err_1;
+#else
+
+	win_id_gdb = ui->win_getid("gdb-log");
+
+#endif // GUI_CURSES
 
 	while(1){
 		if(gdb->read(&c, 1) == 1){
@@ -341,7 +347,7 @@ void* gdbif::readline_thread(void* arg){
 				line = (char*)realloc(line, len);
 
 				if(line == 0)
-					goto err_0;
+					goto err_2;
 			}
 
 			// check for end of gdb line, a simple newline as separator
@@ -351,6 +357,9 @@ void* gdbif::readline_thread(void* arg){
 			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
 			  ){
 				line[i] = 0;
+
+				if(win_id_gdb < 0)
+					win_id_gdb = ui->win_getid("gdb-log");
 
 				DEBUG("parse gdb string \"%.10s\"\n", line);
 				ui->win_print(win_id_gdb, "%s", line);		// use "%s" to avoid issues with '%' within line
@@ -369,11 +378,19 @@ void* gdbif::readline_thread(void* arg){
 		}
 	}
 
+	ui->win_destroy(win_id_gdb);
+	free(line);
+
 err_2:
+
+#ifdef GUI_CURSES
+
 	ui->win_destroy(win_id_gdb);
 
 err_1:
 	free(line);
+
+#endif // GUI_CURSES
 
 err_0:
 	pthread_sigqueue(gdb->main_tid, SIGTERM, v);
@@ -465,15 +482,15 @@ int gdbif::evt_stopped(gdb_result_t* result){
 	   strcmp(reason, "function-finished") == 0){
 
 		if(FILE_EXISTS(frame->fullname)){
-			ui->win_cursor_set(ui->win_getid(frame->fullname), frame->line);
+			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
 			ERROR("add anno\n");
-			ui->win_anno_add(ui->win_getid(frame->fullname), frame->line, "ip", "White", "Black");
+			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 		}
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);
 	}
 	else if(strcmp(reason, "exited-normally") == 0){
-		USER("program exited normally\n");
+		USER("program exited\n");
 	}
 
 	/* execute callbacks */

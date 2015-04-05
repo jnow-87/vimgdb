@@ -94,5 +94,8 @@ void gdb_variablelist::print(gdbif* gdb, gdb_variable_t* var, int* line, int win
 }
 
 void gdb_variablelist::update(gdbif* gdb){
+	if(ui->win_getid("variables") < 0)
+		return;
+
 	gdb->mi_issue_cmd((char*)"var-update", RC_DONE, result_to_change_list, (void**)this, "*");
 }

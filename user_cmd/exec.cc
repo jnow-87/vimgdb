@@ -36,8 +36,8 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 				return 0;
 
 			if(FILE_EXISTS(loc->fullname)){
-				ui->win_cursor_set(ui->win_getid(loc->fullname), loc->line);
-				ui->win_anno_add(ui->win_getid(loc->fullname), loc->line, "ip", "White", "Black");
+				ui->win_cursor_set(ui->win_create(loc->fullname), loc->line);
+				ui->win_anno_add(ui->win_create(loc->fullname), loc->line, "ip", "White", "Black");
 			}
 			else
 				USER("file \"%s\" does not exist\n", loc->fullname);
@@ -53,7 +53,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
 			return 0;
 
-		if(FILE_EXISTS(loc->fullname))	ui->win_anno_delete(ui->win_getid(loc->fullname), loc->line, "ip");
+		if(FILE_EXISTS(loc->fullname))	ui->win_anno_delete(ui->win_create(loc->fullname), loc->line, "ip");
 		else							USER("file \"%s\" does not exist\n", loc->fullname);
 
 		delete loc;
@@ -71,8 +71,8 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		}
 	}
 
-	if(r == 0)	USER("%s\n", argv[1]);
-	else		USER("error executing \"%s\"\n", argv[1]);
+	if(r == 0)
+		USER("%s\n", argv[1]);
 
 	return 0;
 }
