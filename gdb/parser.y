@@ -45,7 +45,7 @@
 
 /* terminals */
 %token NEWLINE
-%token GDB
+%token GDBTK
 %token <rclass> RESULT_CLASS
 %token <sptr> STRING
 %token <num> NUMBER
@@ -66,7 +66,7 @@
 %%
 
 
-output :	out-of-band-record GDB NEWLINE			{ };
+output :	out-of-band-record GDBTK NEWLINE						{ };
 
 
 /* out-of-band-record */

@@ -13,7 +13,7 @@ map<pthread_t, string> thread_name;
 FILE* log::log_file = 0;
 int log::win_id_debug = 0;
 int log::win_id_user = 0;
-log_level_t log::log_level = (log_level_t)(INFO | ERROR | WARN);
+log_level_t log::log_level = (log_level_t)(ERROR | USER);
 pid_t log::creator = 0;
 
 

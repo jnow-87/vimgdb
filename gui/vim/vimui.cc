@@ -133,7 +133,7 @@ char* vimui::readline(){
 		/* process command */
 		switch(e->evt_id){
 		case E_KEYATPOS:
-			DEBUG("handle KEYATPOS event\n");
+			VIM("handle KEYATPOS event\n");
 
 			// KEYATPOS events are user commands
 			// hence signal availability of a command to readline()
@@ -150,13 +150,13 @@ char* vimui::readline(){
 			goto end;
 		
 		case E_FILEOPENED:
-			DEBUG("handle FILEOPENED event\n");
+			VIM("handle FILEOPENED event\n");
 
 			win_create(e->result->sptr);
 			break;
 
 		case E_KILLED:
-			DEBUG("handle KILLED event\n");
+			VIM("handle KILLED event\n");
 
 			win_destroy(e->buf_id);
 			break;
@@ -508,13 +508,13 @@ int vimui::reply(int seq_num, vim_result_t* rlst){
 	 *	this is safe since there can only be one outstanding action()
 	 */
 	if(resp.seq_num == seq_num){
-		DEBUG("vim reply to seq-num %d\n", seq_num);
+		VIM("vim reply to seq-num %d\n", seq_num);
 		resp.result = rlst;
 
 		pthread_cond_signal(&resp_avail);
 	}
 	else{
-		DEBUG("drop vim reply with sequence number %d, expected %d\n", seq_num, resp.seq_num);
+		VIM("drop vim reply with sequence number %d, expected %d\n", seq_num, resp.seq_num);
 		vim_result_free(rlst);
 	}
 
@@ -541,7 +541,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	}
 	else{
 		// drop the result otherwise
-		DEBUG("drop vim event %d for buffer %d, sequence number %d\n", evt->id, buf_id, seq_num);
+		VIM("drop vim event %d for buffer %d, sequence number %d\n", evt->id, buf_id, seq_num);
 		vim_result_free(rlst);
 	}
 
@@ -568,7 +568,7 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
 
-	DEBUG("%s\n", action);
+	VIM("%s\n", action);
 
 	if(type == FCT)			nbclient->send((char*)"/");
 	else if(type == CMD)	nbclient->send((char*)"!");
@@ -666,11 +666,11 @@ void* vimui::readline_thread(void* arg){
 			line[i] = 0;
 
 			line[i - 1] = 0;
-			DEBUG("parse vim input \"%s\"\n", line);
+			VIM("parse vim input \"%s\"\n", line);
 			line[i - 1] = '\n';
 
 			// parse line
-			DEBUG("parser return value: %d\n", vimparse(line, vim));
+			VIM("parser return value: %d\n", vimparse(line, vim));
 
 			i = 0;
 		}

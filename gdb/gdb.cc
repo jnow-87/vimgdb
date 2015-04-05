@@ -252,7 +252,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 		break;
 
 	default:
-		DEBUG("unhandled gdb-event %d\n", rclass);
+		GDB("unhandled gdb-event %d\n", rclass);
 		gdb_result_free(result);
 	};
 
@@ -361,19 +361,19 @@ void* gdbif::readline_thread(void* arg){
 				if(win_id_gdb < 0)
 					win_id_gdb = ui->win_getid("gdb-log");
 
-				DEBUG("parse gdb string \"%.10s\"\n", line);
+				GDB("parse gdb string \"%.10s\"\n", line);
 				ui->win_print(win_id_gdb, "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
 
-				DEBUG("parser return value: %d\n", i);
+				GDB("parser return value: %d\n", i);
 				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
 
 				i = 0;
 			}
 		}
 		else{
-			INFO("gdb read shutdown\n");
+			DEBUG("gdb read shutdown\n");
 			break;
 		}
 	}
@@ -419,12 +419,12 @@ void* gdbif::event_thread(void* arg){
 
 		switch(e->rclass){
 		case RC_STOPPED:
-			DEBUG("handle event STOPPED\n");
+			GDB("handle event STOPPED\n");
 			r = gdb->evt_stopped(e->result);
 			break;
 
 		case RC_RUNNING:
-			DEBUG("handle event RUNNING\n");
+			GDB("handle event RUNNING\n");
 			r = gdb->evt_running(e->result);
 			break;
 
@@ -483,7 +483,6 @@ int gdbif::evt_stopped(gdb_result_t* result){
 
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
-			ERROR("add anno\n");
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 		}
 		else

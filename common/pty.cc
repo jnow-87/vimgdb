@@ -204,7 +204,7 @@ int pty::login(int fd){
  * \param	signal number
  */
 void pty::sig_hdlr_chld(int signum){
-	INFO("caught child signal %d, initialising cleanup\n", signum);
+	DEBUG("caught child signal %d, initialising cleanup\n", signum);
 
 	// kill self
 	kill(libc::getpid(), SIGTERM);

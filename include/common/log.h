@@ -14,22 +14,22 @@ using namespace std;
 /* types */
 enum log_level_t{
 	NONE = 0x0,
-	INFO = 0x1,
-	WARN = 0x2,
-	ERROR = 0x4,
-	DEBUG = 0x8,
-	USER = 0x10,
-	TEST = 0x20,
-	TODO = 0x40,
+	ERROR = 0x1,
+	DEBUG = 0x2,
+	USER = 0x4,
+	TEST = 0x8,
+	TODO = 0x10,
+	GDB = 0x20,
+	VIM = 0x40,
 };
 
 
 /* macros */
-#define INFO(msg, ...)	log::print(INFO,	"[II][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define ERROR(msg, ...)	log::print(ERROR,	"[EE][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define WARN(msg, ...)	log::print(WARN,	"[WW][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define TODO(msg, ...)	log::print(TODO,	"[TD][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define DEBUG(msg, ...)	log::print(DEBUG,	"[DB][%19.19s] %15.15s - %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR,	" [EE][%19.19s] %15.15s @ %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TODO(msg, ...)	log::print(TODO,	"[TBD][%19.19s] %15.15s @ %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define DEBUG(msg, ...)	log::print(DEBUG,	"[DBG][%19.19s] %15.15s @ %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define GDB(msg, ...)	log::print(GDB,		"[GDB][%19.19s] %15.15s @ %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define VIM(msg, ...)	log::print(VIM,		"[VIM][%19.19s] %15.15s @ %15.15s:%-5d %15.15s(): " msg, log::stime(), thread_name[pthread_self()].c_str(), __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
 #define TEST(msg, ...)	log::print(TEST, msg, ##__VA_ARGS__)
 

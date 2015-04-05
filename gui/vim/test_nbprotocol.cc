@@ -38,7 +38,7 @@ int main(int argc, char** argv){
 	const vim_fct_t* fct;
 
 
-	log::init("/dev/stdout", (log_level_t)(INFO | WARN | ERROR | DEBUG | USER | TEST | TODO));
+	log::init("/dev/stdout", (log_level_t)(ERROR | DEBUG | GDB | VIM | USER | TEST | TODO));
 
 
 	client = 0;
@@ -86,7 +86,7 @@ int main(int argc, char** argv){
 				}
 				else{
 					if(client != 0){
-						DEBUG("trying direct execution \"%s\" %d\n", line, strlen(line));
+						GDB("trying direct execution \"%s\" %d\n", line, strlen(line));
 
 						client->send(line, strlen(line));
 						client->send((void*)"\n", 1);

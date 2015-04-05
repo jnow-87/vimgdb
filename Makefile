@@ -28,11 +28,11 @@ gperfflags := $(GPERFFLAGS)
 
 # log level
 cppflags += -DLOG_FILE=\"$(CONFIG_LOG_FILE)\"
-cppflags += -DLOG_LEVEL="(log_level_t)(LOG_INFO | LOG_WARN | LOG_ERROR | LOG_DEBUG | LOG_USER | LOG_TEST | LOG_TODO)"
-$(call loglevel,INFO)
-$(call loglevel,WARN)
+cppflags += -DLOG_LEVEL="(log_level_t)(LOG_ERROR | LOG_DEBUG | LOG_GDB | LOG_VIM | LOG_USER | LOG_TEST | LOG_TODO)"
 $(call loglevel,ERROR)
 $(call loglevel,DEBUG)
+$(call loglevel,GDB)
+$(call loglevel,VIM)
 $(call loglevel,USER)
 $(call loglevel,TEST)
 $(call loglevel,TODO)

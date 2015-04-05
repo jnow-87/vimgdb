@@ -213,7 +213,7 @@ void* thread_inferior_output(void* arg){
 
 		}
 		else{
-			INFO("inferior read shutdown\n");
+			DEBUG("inferior read shutdown\n");
 
 			ui->win_destroy(win_id_inf);
 			return 0;

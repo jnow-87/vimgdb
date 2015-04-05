@@ -52,10 +52,10 @@ int main(int argc, char** argv){
 		return 1;
 
 	// gdb
-	INFO("initialise gdbctrl\n");
+	DEBUG("initialise gdbctrl\n");
 	gdb = new gdbif;
 
-	INFO("initialising gdb interface\n");
+	DEBUG("initialising gdb interface\n");
 	if(gdb->init(pthread_self()) != 0)
 		return 2;
 

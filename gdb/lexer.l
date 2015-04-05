@@ -51,7 +51,7 @@
 "library-loaded"						{ gdblval.num = RC_LIB_LOADED; return RESULT_CLASS; }
 
 	/* gdb EOL string */
-"(gdb)"\ ?								{ return GDB; }
+"(gdb)"\ ?								{ return GDBTK; }
 
 	/* general patterns */
 \r?\n									{ gdb_col = 0; return NEWLINE; }
@@ -76,7 +76,7 @@
 <QSTRING>([^\"]|(\\\"))*				{ gdblval.sptr = stralloc(gdbtext, gdbleng); return STRING; }
 
 	/* MI command */
-^[0-9]*-.*\n							{ gdbtext[gdbleng - 1] = 0; WARN("ignore MI command \"%s\\n\"\n", gdbtext); }
+^[0-9]*-.*\n							{ gdbtext[gdbleng - 1] = 0; GDB("ignore MI command \"%s\\n\"\n", gdbtext); }
 
 	/* default */
 .										{ return gdbtext[0]; }
