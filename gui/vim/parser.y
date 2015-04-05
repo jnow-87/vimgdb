@@ -20,7 +20,7 @@
 
 %union{
 	char* sptr;
-	unsigned int num;
+	int num;
 
 	const vim_event_t* event;
 
