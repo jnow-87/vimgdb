@@ -178,7 +178,7 @@ end:
 }
 
 int vimui::win_create(const char* name, bool oneline, unsigned int height){
-	static int bufid = 1;	// avoid using buf-id 0 for netbeans
+	static int volatile bufid = 1;	// avoid using buf-id 0 for netbeans
 	int id;
 	buffer_t* b;
 	map<string, buffer_t*>::iterator it;
@@ -268,7 +268,7 @@ int vimui::win_destroy(int win){
 }
 
 int vimui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
-	static unsigned int id = 1;
+	static unsigned int volatile id = 1;
 	buffer_t* buf;
 	string key;
 	map<int, buffer_t*>::iterator bit;
@@ -493,9 +493,9 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 }
 
 int vimui::action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...){
-	static int seq_num = 1;
-	static char* s = 0;
-	static unsigned int s_len = 0;
+	static int volatile seq_num = 1;
+	static char* volatile s = 0;
+	static unsigned int volatile s_len = 0;
 	unsigned int i;
 	va_list lst;
 
@@ -506,7 +506,7 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	va_start(lst, fmt);
 
 	/* send action header */
-	nbclient->send(itoa(buf_id, &s, &s_len));
+	nbclient->send(itoa(buf_id, (char**)&s, (unsigned int*)&s_len));
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
 
@@ -514,7 +514,7 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 	else if(type == CMD)	nbclient->send((char*)"!");
 
 	seq_num++;
-	nbclient->send(itoa(seq_num, &s, &s_len));
+	nbclient->send(itoa(seq_num, (char**)&s, (unsigned int*)&s_len));
 
 	/* process arguments */
 	if(strlen(fmt) > 0)
@@ -525,11 +525,11 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 			switch(fmt[++i]){
 			case 'i':
 			case 'd':
-				nbclient->send(itoa(va_arg(lst, int), &s, &s_len));
+				nbclient->send(itoa(va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
 				break;
 
 			case 's':
-				nbclient->send(strescape(va_arg(lst, char*), &s, &s_len));
+				nbclient->send(strescape(va_arg(lst, char*), (char**)&s, (unsigned int*)&s_len));
 				break;
 
 			default:

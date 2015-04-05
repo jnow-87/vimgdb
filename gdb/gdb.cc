@@ -124,8 +124,8 @@ void gdbif::on_stop(int (*hdlr)(gdbif*)){
  * 			-1		error
  */
 int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...){
-	static char* s = 0;
-	static unsigned int s_len = 0;
+	static char* volatile s = 0;
+	static unsigned int volatile s_len = 0;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
@@ -133,7 +133,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 
 	va_start(lst, fmt);
 
-	gdb->write(itoa(token, &s, &s_len));
+	gdb->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
 	gdb->write((char*)"-");
 	gdb->write(cmd);
 
@@ -145,7 +145,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 		case '%':
 			switch(fmt[i + 1]){
 			case 'd':
-				gdb->write(itoa(va_arg(lst, int), &s, &s_len));
+				gdb->write(itoa(va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
 				i++;
 				break;
 
