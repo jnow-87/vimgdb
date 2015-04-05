@@ -482,8 +482,8 @@ int gdbif::evt_stopped(gdb_result_t* result){
 	   strcmp(reason, "function-finished") == 0){
 
 		if(FILE_EXISTS(frame->fullname)){
-			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
+			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
 		}
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);

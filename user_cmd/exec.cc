@@ -36,8 +36,8 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 				return 0;
 
 			if(FILE_EXISTS(loc->fullname)){
-				ui->win_cursor_set(ui->win_create(loc->fullname), loc->line);
 				ui->win_anno_add(ui->win_create(loc->fullname), loc->line, "ip", "White", "Black");
+				ui->win_cursor_set(ui->win_create(loc->fullname), loc->line);
 			}
 			else
 				USER("file \"%s\" does not exist\n", loc->fullname);
