@@ -186,11 +186,8 @@ void cmd_inferior_help(int argc, char** argv){
 /* local functions */
 void* thread_inferior_output(void* arg){
 	char c, line[1024];
-	int win_id_inf;
 	unsigned int i;
 
-
-	win_id_inf = ui->win_getid("inferior");
 
 	i = 0;
 	while(1){
@@ -204,10 +201,7 @@ void* thread_inferior_output(void* arg){
 			if(c == '\n'){
 				line[i] = 0;
 
-				if(win_id_inf < 0)
-					win_id_inf = ui->win_getid("inferior");
-
-				ui->win_print(win_id_inf, line);
+				ui->win_print(ui->win_getid("inferior"), line);
 				i = 0;
 			}
 
@@ -215,7 +209,7 @@ void* thread_inferior_output(void* arg){
 		else{
 			DEBUG("inferior read shutdown\n");
 
-			ui->win_destroy(win_id_inf);
+			ui->win_destroy(ui->win_getid("inferior"));
 			return 0;
 		}
 	}

@@ -308,7 +308,6 @@ bool gdbif::running(bool state){
 
 void* gdbif::readline_thread(void* arg){
 	char c, *line;
-	int win_id_gdb;
 	unsigned int i, len;
 	gdbif* gdb;
 	sigval v;
@@ -324,14 +323,8 @@ void* gdbif::readline_thread(void* arg){
 		goto err_0;
 
 #ifdef GUI_CURSES
-	win_id_gdb = ui->win_create("gdb-log", true, 0);
-
-	if(win_id_gdb < 0)
+	if(ui->win_create("gdb-log", true, 0) < 0)
 		goto err_1;
-#else
-
-	win_id_gdb = ui->win_getid("gdb-log");
-
 #endif // GUI_CURSES
 
 	while(1){
@@ -358,16 +351,13 @@ void* gdbif::readline_thread(void* arg){
 			  ){
 				line[i] = 0;
 
-				if(win_id_gdb < 0)
-					win_id_gdb = ui->win_getid("gdb-log");
-
 				GDB("parse gdb string \"%.10s\"\n", line);
-				ui->win_print(win_id_gdb, "%s", line);		// use "%s" to avoid issues with '%' within line
+				ui->win_print(ui->win_getid("gdb-log"), "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
 
 				GDB("parser return value: %d\n", i);
-				ui->win_print(win_id_gdb, "parser return value: %d\n", i);
+				ui->win_print(ui->win_getid("gdb-log"), "parser return value: %d\n", i);
 
 				i = 0;
 			}
@@ -378,14 +368,14 @@ void* gdbif::readline_thread(void* arg){
 		}
 	}
 
-	ui->win_destroy(win_id_gdb);
+	ui->win_destroy(ui->win_getid("gdb-log"));
 	free(line);
 
 err_2:
 
 #ifdef GUI_CURSES
 
-	ui->win_destroy(win_id_gdb);
+	ui->win_destroy(ui->win_getid("gdb-log"));
 
 err_1:
 	free(line);

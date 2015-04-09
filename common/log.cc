@@ -50,10 +50,6 @@ int log::init(const char* file_name, log_level_t lvl){
 
 		if(win_id_debug < 0)
 			goto err_2;
-#else
-
-		win_id_user = ui->win_getid("user-log");
-
 #endif // GUI_CURSES
 	}
 
@@ -118,10 +114,7 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
 			else					ui->win_vprint(win_id_debug, msg, lst);
 #else
-			if(win_id_user < 0)
-				win_id_user = ui->win_getid("user-log");
-
-			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid("user-log"), msg, lst);
 			else					vprintf(msg, lst);
 #endif
 
