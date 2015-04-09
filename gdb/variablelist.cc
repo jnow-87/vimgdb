@@ -112,6 +112,9 @@ void gdb_variablelist::get_list(char* filename){
 	if(fp == 0)
 		return;
 
+	for(lit=lmap.begin(); lit!=lmap.end(); lit++)
+		fprintf(fp, "%d\\n", lit->first);
+
 	for(sit=smap.begin(); sit!=smap.end(); sit++)
 		fprintf(fp, "%s\\n", sit->second->name);
 
