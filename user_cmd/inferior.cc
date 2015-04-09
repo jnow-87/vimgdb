@@ -8,6 +8,7 @@
 #include <user_cmd/subcmd.hash.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <fcntl.h>
 
 
@@ -185,9 +186,15 @@ void cmd_inferior_help(int argc, char** argv){
 
 /* local functions */
 void* thread_inferior_output(void* arg){
-	char c, line[1024];
-	unsigned int i;
+	char c;
+	char* line;
+	unsigned int i, len = 256;
 
+
+	line = (char*)malloc(len * sizeof(char));
+
+	if(line == 0)
+		return 0;
 
 	i = 0;
 	while(1){
@@ -198,8 +205,19 @@ void* thread_inferior_output(void* arg){
 
 			line[i++] = c;
 
+			if(i >= len){
+				len += 256;
+				line = (char*)realloc(line, len * sizeof(char));
+
+				if(line == 0)
+					return 0;
+			}
+
 			if(c == '\n'){
 				line[i] = 0;
+
+				while(ui->win_getid("inferior") == -1)
+					usleep(100000);
 
 				ui->win_print(ui->win_getid("inferior"), line);
 				i = 0;
