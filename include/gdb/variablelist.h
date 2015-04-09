@@ -24,6 +24,7 @@ public:
 
 	void print(gdbif* gdb);
 	void update(gdbif* gdb);
+	void get_list(char* filename);
 
 private:
 	void print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl);

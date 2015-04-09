@@ -44,4 +44,5 @@ jump,		JUMP
 goto,		GOTO
 fold,		FOLD
 set,		SET
+get,		GET
 view,		VIEW

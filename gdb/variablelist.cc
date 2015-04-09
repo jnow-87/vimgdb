@@ -1,5 +1,6 @@
 #include <gdb/variablelist.h>
 #include <gui/gui.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -100,4 +101,19 @@ void gdb_variablelist::update(gdbif* gdb){
 		return;
 
 	gdb->mi_issue_cmd((char*)"var-update", RC_DONE, result_to_change_list, (void**)this, "*");
+}
+
+void gdb_variablelist::get_list(char* filename){
+	FILE* fp;
+
+
+	fp = fopen(filename, "w");
+
+	if(fp == 0)
+		return;
+
+	for(sit=smap.begin(); sit!=smap.end(); sit++)
+		fprintf(fp, "%s\\n", sit->second->name);
+
+	fclose(fp);
 }

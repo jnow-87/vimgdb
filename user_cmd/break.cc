@@ -26,13 +26,14 @@ static const char* cmd_str[] = {
 
 
 /* static prototypes */
-void breakpt_print();
+void breakpt_print(char* filename = 0);
 
 
 /* global functions */
 int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	char key[256];
 	const struct user_subcmd_t* scmd;
+	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
 	gdb_breakpoint_t* bkpt;
 
@@ -51,7 +52,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE) && argc < 3){
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == GET) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(1, argv);
 		return 0;
@@ -122,6 +123,10 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 		break;
 
+	case GET:
+		breakpt_print(argv[2]);
+		break;
+
 	case VIEW:
 		breakpt_print();
 		break;
@@ -146,6 +151,7 @@ void cmd_break_help(int argc, char** argv){
 		USER("       enable <location>    enable breakpoint\n");
 		USER("       disable <location>   disable breakpoint\n");
 		USER("		 view                 update breakpoint window\n");
+		USER("       get <filename>       get list of breakpoints\n");
 		USER("\n");
 	}
 	else{
@@ -186,6 +192,12 @@ void cmd_break_help(int argc, char** argv){
 				USER("\n");
 				break;
 
+			case GET:
+				USER("usage %s %s <filename>\n", argv[0], argv[i]);
+				USER("          print '\\n' seprated list of breakpoint to file <filename>\n");
+				USER("\n");
+				break;
+
 			case VIEW:
 				break;
 
@@ -198,32 +210,50 @@ void cmd_break_help(int argc, char** argv){
 
 
 /* local functions */
-void breakpt_print(){
+void breakpt_print(char* filename){
 	int win_id_break;
+	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
 	gdb_breakpoint_t* bkpt;
 
 
-	win_id_break = ui->win_getid("breakpoints");
+	if(filename != 0){
+		fp = fopen(filename, "w");
 
-	if(win_id_break < 0)
-		return;
+		if(fp == 0)
+			return;
+	}
+	else{
+		win_id_break = ui->win_getid("breakpoints");
 
-	ui->atomic(true);
-	ui->win_clear(win_id_break);
+		if(win_id_break < 0)
+			return;
+
+		ui->atomic(true);
+		ui->win_clear(win_id_break);
+	}
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
 		bkpt = it->second;
 
-		if(bkpt->enabled){
-			if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d\n", bkpt->filename, bkpt->line);
-			else					ui->win_print(win_id_break, "   %s\n", bkpt->at);
+		if(filename != 0){
+				if(bkpt->filename != 0)	fprintf(fp, "%s:%d\\n", bkpt->filename, bkpt->line);
+				else					fprintf(fp, "%s\\n", bkpt->at);
 		}
 		else{
-			if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
-			else					ui->win_print(win_id_break, "   %s [disabled]\n", bkpt->at);
+			if(bkpt->enabled){
+				if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d\n", bkpt->filename, bkpt->line);
+				else					ui->win_print(win_id_break, "   %s\n", bkpt->at);
+			}
+			else{
+				if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
+				else					ui->win_print(win_id_break, "   %s [disabled]\n", bkpt->at);
+			}
 		}
 	}
 
-	ui->atomic(false);
+	if(filename != 0)
+		fclose(fp);
+	else
+		ui->atomic(false);
 }

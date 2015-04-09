@@ -38,7 +38,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == SET) && argc < 3){
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == SET || scmd->id == GET) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(1, argv);
 		return 0;
@@ -52,6 +52,8 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 				var_lst.add(var->name, var);
 			}
 		}
+
+		var_lst.print(gdb);
 		break;
 	
 	case DELETE:
@@ -71,6 +73,8 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 			var_lst.rm(var);
 			delete var;
 		}
+
+		var_lst.print(gdb);
 		break;
 
 	case FOLD:
@@ -96,6 +100,8 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		}
 		else if(var->parent)
 			var->parent->childs_visible = false;
+
+		var_lst.print(gdb);
 		break;
 
 	case SET:
@@ -108,17 +114,21 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 
 		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
 		var->modified = true;
+		var_lst.print(gdb);
+		break;
+
+	case GET:
+		var_lst.get_list(argv[2]);
 		break;
 
 	case VIEW:
 		var_lst.update(gdb);
+		var_lst.print(gdb);
 		break;
 
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
-
-	var_lst.print(gdb);
 
 	return 0;
 }
@@ -135,6 +145,7 @@ void cmd_var_help(int argc, char** argv){
 		USER("      delete <var-def>        delete variable\n");
 		USER("      fold <var-def>          fold/unfold variable\n");
 		USER("      set <var-def> <value>   set variable\n");
+		USER("      get <filename>          get list of variables\n");
 		USER("      view                    update variable window\n");
 		USER("\n");
 	}
@@ -169,6 +180,12 @@ void cmd_var_help(int argc, char** argv){
 			case SET:
 				USER("usage %s %s <var-def> <value>\n", argv[0], argv[i]);
 				USER("   set variable <var-def> to value <value>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("\n");
+				break;
+
+			case GET:
+				USER("usage %s %s <filename>\n", argv[0], argv[i]);
+				USER("          print '\\n' seprated list of variables to file <filename>\n");
 				USER("\n");
 				break;
 
