@@ -37,7 +37,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 	gdb_breakpoint_t* bkpt;
 
 
-	if(argc != 3){
+	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_break_help(1, argv);
 		return 0;
@@ -48,6 +48,12 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
+		return 0;
+	}
+
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE) && argc < 3){
+		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
+		cmd_var_help(1, argv);
 		return 0;
 	}
 
@@ -116,6 +122,10 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 		break;
 
+	case VIEW:
+		breakpt_print();
+		break;
+
 	default:
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
@@ -135,6 +145,7 @@ void cmd_break_help(int argc, char** argv){
 		USER("       delete <location>    delete breakpoint\n");
 		USER("       enable <location>    enable breakpoint\n");
 		USER("       disable <location>   disable breakpoint\n");
+		USER("		 view                 update breakpoint window\n");
 		USER("\n");
 	}
 	else{
@@ -173,6 +184,9 @@ void cmd_break_help(int argc, char** argv){
 				USER("usage %s %s <location>\n", argv[0], argv[i]);
 				USER("          disable breakpoint at <location> as specified in breakpoint window\n");
 				USER("\n");
+				break;
+
+			case VIEW:
 				break;
 
 			default:
