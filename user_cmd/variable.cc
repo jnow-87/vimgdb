@@ -38,6 +38,12 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		return 0;
 	}
 
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == SET) && argc < 3){
+		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
+		cmd_var_help(1, argv);
+		return 0;
+	}
+
 	switch(scmd->id){
 	case ADD:
 		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&var, "- * %s", argv[2]) == 0){
@@ -118,8 +124,62 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 }
 
 void cmd_var_help(int argc, char** argv){
-	// TODO add
-	TODO("not yet implemented\n");
+	unsigned int i;
+	const struct user_subcmd_t* scmd;
+
+
+	if(argc == 1){
+		USER("usage: %s [sub-command] <args>...\n", argv[0]);
+		USER("   sub-commands:\n");
+		USER("      add <expr>              add variable for expression <expr>\n");
+		USER("      delete <var-def>        delete variable\n");
+		USER("      fold <var-def>          fold/unfold variable\n");
+		USER("      set <var-def> <value>   set variable\n");
+		USER("      view                    update variable window\n");
+		USER("\n");
+	}
+	else{
+		for(i=1; i<argc; i++){
+			scmd = user_subcmd::lookup(argv[i], strlen(argv[i]));
+
+			if(scmd == 0){
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+				continue;
+			}
+
+			switch(scmd->id){
+			case ADD:
+				USER("usage %s %s <expr>\n", argv[0], argv[i]);
+				USER("   add new variable for expression <expr>, <expr> being any valid c/c++-expression\n");
+				USER("\n");
+				break;
+
+			case DELETE:
+				USER("usage %s %s <var-def>\n", argv[0], argv[i]);
+				USER("   delete variable <var-def>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("\n");
+				break;
+
+			case FOLD:
+				USER("usage %s %s <var-def>\n", argv[0], argv[i]);
+				USER("   fold variable <var-def>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("\n");
+				break;
+
+			case SET:
+				USER("usage %s %s <var-def> <value>\n", argv[0], argv[i]);
+				USER("   set variable <var-def> to value <value>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("\n");
+				break;
+
+			case VIEW:
+				break;
+
+			default:
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+			};
+		}
+	}
 }
 
 int cmd_var_update(gdbif* gdb){
