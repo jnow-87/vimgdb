@@ -64,7 +64,14 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
 		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
-		else if(scmd->id == CONTINUE)	r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		else if(scmd->id == CONTINUE){
+			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+
+			if(r != 0){
+				USER("error executing \"%s\", trying to start first inferior\n", argv[1]);
+				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+			}
+		}
 		else if(scmd->id == BREAK){
 			USER("error executing \"%s\" - inferior is not running\n", argv[1]);
 			return 0;
