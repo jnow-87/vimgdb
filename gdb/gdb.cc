@@ -467,10 +467,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 		goto err;
 
 	/* check reason */
-	if(strcmp(reason, "breakpoint-hit") == 0 ||
-	   strcmp(reason, "end-stepping-range") == 0 ||
-	   strcmp(reason, "function-finished") == 0){
-
+	if(reason != 0 && frame != 0){
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
