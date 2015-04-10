@@ -310,10 +310,10 @@ int vimui::win_destroy(int win){
 	return 0;
 
 err_1:
-	pthread_mutex_unlock(&ui_mtx);
+	pthread_mutex_unlock(&buf_mtx);
 
 err_0:
-	pthread_mutex_unlock(&buf_mtx);
+	pthread_mutex_unlock(&ui_mtx);
 
 	return -1;
 }
