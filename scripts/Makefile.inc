@@ -65,7 +65,6 @@ endef
 define loglevel
 $(if $(CONFIG_LOG_$(1)), \
   $(eval cppflags += -DLOG_$(1)=$(1)), \
-  $(eval cppflags += -DLOG_$(1)=0) \
 )
 endef
 
