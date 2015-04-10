@@ -54,7 +54,7 @@ int cmd_break_exec(gdbif* gdb, int argc, char** argv){
 
 	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == GET) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
-		cmd_var_help(1, argv);
+		cmd_var_help(2, argv);
 		return 0;
 	}
 
@@ -150,7 +150,7 @@ void cmd_break_help(int argc, char** argv){
 		USER("       delete <location>    delete breakpoint\n");
 		USER("       enable <location>    enable breakpoint\n");
 		USER("       disable <location>   disable breakpoint\n");
-		USER("		 view                 update breakpoint window\n");
+		USER("       view                 update breakpoint window\n");
 		USER("       get <filename>       get list of breakpoints\n");
 		USER("\n");
 	}

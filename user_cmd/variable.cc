@@ -40,7 +40,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 
 	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == SET || scmd->id == GET) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
-		cmd_var_help(1, argv);
+		cmd_var_help(2, argv);
 		return 0;
 	}
 
