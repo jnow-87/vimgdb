@@ -30,7 +30,7 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 
 	if(gdb->running()){
 		if(scmd->id == BREAK){
-			r = gdb->sigsend(SIGINT);
+			gdb->sigsend(SIGINT);
 
 			if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
 				return 0;
@@ -62,8 +62,13 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 		else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == JUMP)		r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
 		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id == JUMP){
+			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
+				return 0;
+				
+			r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
+		}
 		else if(scmd->id == CONTINUE){
 			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 
@@ -76,10 +81,12 @@ int cmd_exec_exec(gdbif* gdb, int argc, char** argv){
 			USER("error executing \"%s\" - inferior is not running\n", argv[1]);
 			return 0;
 		}
+
+		if(r != 0)
+			return 0;
 	}
 
-	if(r == 0)
-		USER("%s\n", argv[1]);
+	USER("%s\n", argv[1]);
 
 	return 0;
 }

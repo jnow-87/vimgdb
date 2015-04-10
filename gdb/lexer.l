@@ -44,6 +44,7 @@
 "stopped"								{ gdblval.num = RC_STOPPED; return RESULT_CLASS; }
 "breakpoint-created"					{ gdblval.num = RC_BREAK_CREATED; return RESULT_CLASS; }
 "breakpoint-modified"					{ gdblval.num = RC_BREAK_MODIFIED; return RESULT_CLASS; }
+"breakpoint-deleted"					{ gdblval.num = RC_BREAK_DELETED; return RESULT_CLASS; }
 "thread-created"						{ gdblval.num = RC_THREAD_CREATED; return RESULT_CLASS; }
 "thread-group-added"					{ gdblval.num = RC_THREAD_GRP_ADDED; return RESULT_CLASS; }
 "thread-group-started"					{ gdblval.num = RC_THREAD_GRP_STARTED; return RESULT_CLASS; }
