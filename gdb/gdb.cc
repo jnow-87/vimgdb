@@ -41,12 +41,9 @@ gdbif::gdbif(){
 gdbif::~gdbif(){
 	// close gdb terminal
 	delete this->gdb;
-	this->gdb = 0;
 
-	if(read_tid != 0){
-		pthread_cancel(read_tid);
+	if(read_tid != 0)
 		pthread_join(read_tid, 0);
-	}
 
 	if(event_tid != 0){
 		pthread_cancel(event_tid);
@@ -368,24 +365,15 @@ void* gdbif::readline_thread(void* arg){
 		}
 	}
 
-	ui->win_destroy(ui->win_getid("gdb-log"));
-	free(line);
-
 err_2:
-
-#ifdef GUI_CURSES
-
 	ui->win_destroy(ui->win_getid("gdb-log"));
 
 err_1:
 	free(line);
 
-#endif // GUI_CURSES
-
 err_0:
 	pthread_sigqueue(gdb->main_tid, SIGTERM, v);
 	pthread_exit(0);
-
 }
 
 void* gdbif::event_thread(void* arg){
