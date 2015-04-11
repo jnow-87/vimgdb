@@ -23,6 +23,7 @@ void cleanup(int signum);
 
 int main(int argc, char** argv){
 	char* line;
+	sigval v;
 
 
 	/* initialise */
@@ -66,22 +67,23 @@ int main(int argc, char** argv){
 		line = ui->readline();
 
 		if(line == 0){
-			ERROR("error reading user input\n");
-			goto err;
+			DEBUG("detect ui shutdown\n");
+			goto end;
 		}
 
 		cmd_exec(line, gdb);
 	}
 
-err:
-	cleanup(SIGTERM);
+end:
+	// call cleanup() through signal to prevent nested signals
+	// from other threads like closing ui and gdb
+	pthread_sigqueue(pthread_self(), SIGTERM, v);
 }
 
 
 /* static functions */
 void cleanup(int signum){
 	delete gdb;
-
 	log::cleanup();
 	ui->destroy();
 
