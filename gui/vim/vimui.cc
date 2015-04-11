@@ -191,6 +191,9 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	buffer_t* b;
 
 
+	if(name == 0)
+		return -1;
+
 	/* check if buffer for name already exists
 	 * 	if so return its id, otherwise
 	 * 	create new buffer
