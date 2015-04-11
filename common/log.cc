@@ -11,8 +11,6 @@ map<pthread_t, string> thread_name;
 
 /* static variables */
 FILE* log::log_file = 0;
-int log::win_id_debug = 0;
-int log::win_id_user = 0;
 log_level_t log::log_level = (log_level_t)(ERROR | USER);
 pid_t log::creator = 0;
 
@@ -41,14 +39,10 @@ int log::init(const char* file_name, log_level_t lvl){
 
 	if(ui){
 #ifdef GUI_CURSES
-		win_id_user = ui->win_create("user-log", true, 0);
-
-		if(win_id_user < 0)
+		if(ui->win_create("user-log", true, 0) < 0)
 			goto err_1;
 
-		win_id_debug = ui->win_create("debug-log", true, 0);
-
-		if(win_id_debug < 0)
+		if(ui->win_create("debug-log", true, 0) < 0)
 			goto err_2;
 #endif // GUI_CURSES
 	}
@@ -58,7 +52,7 @@ int log::init(const char* file_name, log_level_t lvl){
 #ifdef GUI_CURSES
 
 err_2:
-	ui->win_destroy(win_id_user);
+	ui->win_destroy(ui->win_getid("user-log"));
 
 err_1:
 	fclose(log_file);
@@ -81,9 +75,10 @@ void log::cleanup(){
 	// ensure that only creating process is closing the windows
 	// otherwise any forked process would destroy them
 	if(ui && creator == getpid()){
-		ui->win_destroy(win_id_user);
+		ui->win_destroy(ui->win_getid("user-log"));
+
 #ifdef GUI_CURSES
-		ui->win_destroy(win_id_debug);
+		ui->win_destroy(ui->win_getid("debug-log"));
 #endif
 	}
 }
@@ -111,8 +106,8 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			va_start(lst, msg);
 
 #ifdef GUI_CURSES
-			if(lvl & (USER | TEST))	ui->win_vprint(win_id_user, msg, lst);
-			else					ui->win_vprint(win_id_debug, msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid("user-log"), msg, lst);
+			else					ui->win_vprint(ui->win_getid("debug-log"), msg, lst);
 #else
 			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid("user-log"), msg, lst);
 			else					vprintf(msg, lst);

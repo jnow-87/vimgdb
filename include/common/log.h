@@ -94,8 +94,6 @@ public:
 
 private:
 	static FILE* log_file;			// file pointer to log file
-	static int win_id_debug,		// gui window ids
-			   win_id_user;
 	static log_level_t log_level;	// current log level
 	static pid_t creator;			// pid of creating process
 };
