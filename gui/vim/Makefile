@@ -14,3 +14,8 @@ $(loc_built_tree)/vimui.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/cmd.
 $(loc_built_tree)/test_nbprotocol.o: $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/fct.hash.h $(loc_built_tree)/event.hash.h $(loc_built_tree)/lexer.lex.h $(loc_built_tree)/parser.tab.h
 $(loc_built_tree)/parser.o: $(loc_built_tree)/lexer.lex.h
 $(loc_built_tree)/lexer.o: $(loc_built_tree)/event.hash.h
+
+plugin := $(shell \
+	cp -au $(loc_src_tree)/plugin/* ~/.vim/plugin; \
+	mkdir -p ~/.vim/autoload/vimgdb; \
+	cp -au $(loc_src_tree)/autoload/* ~/.vim/autoload/vimgdb/)
