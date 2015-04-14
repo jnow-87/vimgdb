@@ -52,19 +52,19 @@ int result_to_variable(gdb_result_t* result, void** _var){
 	list_for_each(result, r){
 		switch(r->var_id){
 		case IDV_NAME:
-			var->name = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(var->name, (const char*)r->value->value);
+			var->name = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_TYPE:
-			var->type = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(var->type, (const char*)r->value->value);
+			var->type = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_VALUE:
 			delete var->value;
-			var->value = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(var->value, (const char*)r->value->value);
+			var->value = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_NUM_CHILD:
@@ -72,11 +72,9 @@ int result_to_variable(gdb_result_t* result, void** _var){
 			break;
 
 		case IDV_EXP:
-			if(var->exp != 0)
-				delete var->exp;
-
-			var->exp = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(var->exp, (const char*)r->value->value);
+			delete var->exp;
+			var->exp = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_CHILDS:

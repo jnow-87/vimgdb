@@ -16,27 +16,30 @@ gdb_location_t::~gdb_location_t(){
 }
 
 
-int result_to_location(gdb_result_t* result, void** loc){
+int result_to_location(gdb_result_t* result, void** loc_){
 	gdb_result_t* r;
+	gdb_location_t* loc;
 
 
-	if(*loc == 0)
-		*loc = new gdb_location_t;
+	if(*loc_ == 0)
+		*loc_ = new gdb_location_t;
+
+	loc = (gdb_location_t*)*loc_;
 
 	list_for_each(result, r){
 		switch(r->var_id){
 		case IDV_LINE:
-			((gdb_location_t*)*loc)->line = atoi((char*)r->value->value);
+			loc->line = atoi((char*)r->value->value);
 			break;
 
 		case IDV_FILE:
-			((gdb_location_t*)*loc)->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(((gdb_location_t*)*loc)->filename, (const char*)r->value->value);
+			loc->filename = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_FULLNAME:
-			((gdb_location_t*)*loc)->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(((gdb_location_t*)*loc)->fullname, (const char*)r->value->value);
+			loc->fullname = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		default:

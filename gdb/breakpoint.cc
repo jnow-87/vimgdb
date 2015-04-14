@@ -42,13 +42,13 @@ int result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			break;
 
 		case IDV_FILE:
-			bkpt->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->filename, (const char*)r->value->value);
+			bkpt->filename = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_FULLNAME:
-			bkpt->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->fullname, (const char*)r->value->value);
+			bkpt->fullname = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_ENABLED:
@@ -56,8 +56,8 @@ int result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			break;
 
 		case IDV_AT:
-			bkpt->at = new char[strlen((const char*)r->value->value) + 1];
-			strcpy(bkpt->at, (const char*)r->value->value);
+			bkpt->at = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 		};
 	}
