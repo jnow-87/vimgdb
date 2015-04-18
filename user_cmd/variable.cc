@@ -3,7 +3,6 @@
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/variable.h>
-#include <gdb/variablelist.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
 #include <stdlib.h>
@@ -15,13 +14,20 @@ using namespace std;
 
 
 /* static variables */
-static gdb_variablelist var_lst;
+static map<unsigned int, gdb_variable_t*> line_map;
+
+
+/* local prototypes */
+void var_print(gdbif* gdb);
+void var_print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl);
 
 
 /* global functions */
 int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 	gdb_variable_t *var, *c;
 	const struct user_subcmd_t* scmd;
+	FILE* fp;
+	map<unsigned int, gdb_variable_t*>::iterator it;
 
 
 	if(argc < 2){
@@ -49,20 +55,22 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&var, "- * %s", argv[2]) == 0){
 			if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name) == 0){
 				USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
-				var_lst.add(var->name, var);
+				var->origin = O_STACK;
 			}
 		}
 
-		var_lst.print(gdb);
+		var_print(gdb);
 		break;
 	
 	case DELETE:
-		var = var_lst.find(argv[2]);
+		it = line_map.find(atoi(argv[2]));
 
-		if(var == 0){
+		if(it == line_map.end()){
 			USER("no variable at line %s\n", argv[2]);
 			return -1;
 		}
+
+		var = it->second;
 
 		while(var->parent != 0)
 			var = var->parent;
@@ -70,20 +78,21 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "%s", var->name) == 0){
 			USER("delete variable \"%s\"\n", var->name);
 
-			var_lst.rm(var);
 			delete var;
 		}
 
-		var_lst.print(gdb);
+		var_print(gdb);
 		break;
 
 	case FOLD:
-		var = var_lst.find(argv[2]);
+		it = line_map.find(atoi(argv[2]));
 
-		if(var == 0){
-			USER("no variable for expression \"%s\"\n", argv[2]);
+		if(it == line_map.end()){
+			USER("no variable at line \"%s\"\n", argv[2]);
 			return -1;
 		}
+
+		var = it->second;
 
 		if(var->nchilds){
 			if(var->childs == 0){
@@ -91,7 +100,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 
 				list_for_each(var->childs, c){
 					gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&c, "%s", c->name);
-					var_lst.add(c->name, c);
+					c->origin = O_USER;
 				}
 			}
 
@@ -101,29 +110,38 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		else if(var->parent)
 			var->parent->childs_visible = false;
 
-		var_lst.print(gdb);
+		var_print(gdb);
 		break;
 
 	case SET:
-		var = var_lst.find(argv[2]);
+		it = line_map.find(atoi(argv[2]));
 
-		if(var == 0){
-			USER("no variable for expression \"%s\"\n", argv[2]);
+		if(it == line_map.end()){
+			USER("no variable at line \"%s\"\n", argv[2]);
 			return -1;
 		}
 
+		var = it->second;
+
 		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
 		var->modified = true;
-		var_lst.print(gdb);
+		var_print(gdb);
 		break;
 
 	case GET:
-		var_lst.get_list(argv[2]);
+		fp = fopen(argv[2], "w");
+
+		if(fp == 0)
+			return -1;
+
+		for(it=line_map.begin(); it!=line_map.end(); it++)
+			fprintf(fp, "%d\\n", it->first);
+
+		fclose(fp);
 		break;
 
 	case VIEW:
-		var_lst.update(gdb);
-		var_lst.print(gdb);
+		cmd_var_update(gdb);
 		break;
 
 	default:
@@ -200,8 +218,70 @@ void cmd_var_help(int argc, char** argv){
 }
 
 int cmd_var_update(gdbif* gdb){
-	var_lst.update(gdb);
-	var_lst.print(gdb);
+	if(ui->win_getid("variables") < 0)
+		return 0;
+
+	gdb_variables_update(gdb);
+	var_print(gdb);
 
 	return 0;
+}
+
+/* local functions */
+void var_print(gdbif* gdb){
+	int win_id_var, i;
+	map<string, gdb_variable_t*>::iterator it;
+
+
+	win_id_var = ui->win_getid("variables");
+
+	if(win_id_var < 0)
+		return;
+
+	ui->atomic(true);
+	ui->win_clear(win_id_var);
+	line_map.clear();
+
+	i = 1;
+
+	for(it=gdb_var_lst.begin(); it!=gdb_var_lst.end(); it++){
+		if(it->second->parent == 0)
+			var_print(gdb, it->second, &i, win_id_var, 1);
+	}
+
+	ui->atomic(false);
+}
+
+void var_print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl){
+	char rec_s[rec_lvl + 1];
+	gdb_variable_t* v;
+	map<unsigned int, gdb_variable_t*>::iterator it;
+
+
+	/* assemble blank string */
+	memset(rec_s, ' ', rec_lvl);
+	rec_s[rec_lvl] = 0;
+
+	/* update variable value */
+	if(var->modified)
+		gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name);
+
+	/* update UI */
+	ui->win_print(win_id, "%s%s%s %s = %s\n", (var->modified ? "*" : " "), rec_s, (var->nchilds == 0 ? "   " : (var->childs_visible ? "[-]" : "[+]")), var->exp, var->value);
+
+	/* update variable structs */
+	var->modified = false;
+	line_map[*line] = var;
+	(*line)++;
+
+	/* print childs */
+	if(var->childs_visible){
+		list_for_each(var->childs, v)
+			var_print(gdb, v, line, win_id, rec_lvl + 1);
+	}
+
+	if(rec_lvl == 1){
+		ui->win_print(win_id, "\n");
+		(*line)++;
+	}
 }

@@ -3,9 +3,16 @@
 
 
 #include <gdb/result.h>
+#include <gdb/gdb.h>
 
 
 /* types */
+typedef enum{
+	O_UNKNOWN = 0,
+	O_STACK,
+	O_USER,
+} gdb_varorigin_t;
+
 class gdb_variable_t{
 public:
 	gdb_variable_t();
@@ -21,6 +28,8 @@ public:
 
 	unsigned int nchilds;
 
+	gdb_varorigin_t origin;
+
 	class gdb_variable_t *next,
 						 *prev,
 						 *parent,
@@ -28,9 +37,15 @@ public:
 };
 
 
+/* external variables */
+extern map<string, gdb_variable_t*> gdb_var_lst;
+
+
 /* prototypes */
+int gdb_variables_update(gdbif* gdb);
+
 int result_to_variable(gdb_result_t* result, void** var);
-int result_to_change_list(gdb_result_t* result, void** var_lst);
+int result_to_change_list(gdb_result_t* result, void** unused);
 
 
 #endif // GDB_VARIABLE_H

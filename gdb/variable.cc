@@ -1,7 +1,6 @@
 #include <common/list.h>
 #include <common/log.h>
 #include <gdb/variable.h>
-#include <gdb/variablelist.h>
 #include <stdlib.h>
 #include <string.h>
 #include <map>
@@ -11,6 +10,11 @@
 using namespace std;
 
 
+/* global variables */
+map<string, gdb_variable_t*> gdb_var_lst;
+
+
+/* class */
 gdb_variable_t::gdb_variable_t(){
 	name = 0;
 	exp = 0;
@@ -21,13 +25,15 @@ gdb_variable_t::gdb_variable_t(){
 	modified = false;
 	childs_visible = false;
 	nchilds = 0;
-
-	list_init(this);
+	origin = O_UNKNOWN;
 }
 
 gdb_variable_t::~gdb_variable_t(){
 	gdb_variable_t* c;
 
+
+	gdb_var_lst.erase(gdb_var_lst.find(name));
+	
 	delete name;
 	delete exp;
 	delete type;
@@ -37,6 +43,13 @@ gdb_variable_t::~gdb_variable_t(){
 		list_rm(&childs, c);
 		delete c;
 	}
+}
+
+
+/* global functions */
+int gdb_variables_update(gdbif* gdb){
+	gdb->mi_issue_cmd((char*)"var-update", RC_DONE, result_to_change_list, 0, "*");
+	return 0;
 }
 
 int result_to_variable(gdb_result_t* result, void** _var){
@@ -54,6 +67,7 @@ int result_to_variable(gdb_result_t* result, void** _var){
 		case IDV_NAME:
 			var->name = (char*)r->value->value;
 			r->value->value = 0;
+			gdb_var_lst[var->name] = var;
 			break;
 
 		case IDV_TYPE:
@@ -104,14 +118,12 @@ int result_to_variable(gdb_result_t* result, void** _var){
 	return var->name == 0 ? -1 : 0;
 }
 
-int result_to_change_list(gdb_result_t* result, void** _var_lst){
-	gdb_variablelist* var_lst;
+int result_to_change_list(gdb_result_t* result, void** unused){
 	gdb_variable_t* var;
 	gdb_result_t* r;
 	gdb_value_t* v;
+	map<string, gdb_variable_t*>::iterator it;
 
-
-	var_lst = (gdb_variablelist*)_var_lst;
 
 	if(result->var_id != IDV_CHANGELIST)
 		return -1;
@@ -119,12 +131,14 @@ int result_to_change_list(gdb_result_t* result, void** _var_lst){
 	list_for_each((gdb_value_t*)result->value->value, v){
 		list_for_each((gdb_result_t*)v->value, r){
 			if(r->var_id == IDV_NAME){
-				var = var_lst->find((char*)r->value->value);
+				it = gdb_var_lst.find((char*)r->value->value);
 
-				if(var == 0){
+				if(it == gdb_var_lst.end()){
 					ERROR("variable \"%s\" not found in variable list\n", r->value->value);
 					continue;
 				}
+
+				var = it->second;
 
 				if(var->parent == 0 || var->parent->childs_visible)
 					var->modified = true;

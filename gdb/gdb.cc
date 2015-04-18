@@ -193,7 +193,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	token++;
 
 	if((resp.rclass & ok_mask)){
-		if(resp.result && r && process){
+		if(resp.result && process){
 			if(process(resp.result, r) != 0){
 				ERROR("unable to process result for \"%s\"\n", cmd);
 				resp.rclass = RC_ERROR;
