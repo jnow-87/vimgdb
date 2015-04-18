@@ -52,12 +52,9 @@ int cmd_var_exec(int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&var, "- * %s", argv[2]) == 0){
-			if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name) == 0){
-				USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
-				var->origin = O_STACK;
-			}
-		}
+		var = new gdb_variable_t();
+		if(var->create(argv[2], O_USER) == 0)
+			USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
 
 		var_print();
 		break;
@@ -75,9 +72,8 @@ int cmd_var_exec(int argc, char** argv){
 		while(var->parent != 0)
 			var = var->parent;
 
-		if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "%s", var->name) == 0){
+		if(var->destroy() == 0){
 			USER("delete variable \"%s\"\n", var->name);
-
 			delete var;
 		}
 
@@ -95,14 +91,7 @@ int cmd_var_exec(int argc, char** argv){
 		var = it->second;
 
 		if(var->nchilds){
-			if(var->childs == 0){
-				gdb->mi_issue_cmd((char*)"var-list-children", RC_DONE, result_to_variable, (void**)&var, "%s", var->name);
-
-				list_for_each(var->childs, c){
-					gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&c, "%s", c->name);
-					c->origin = O_USER;
-				}
-			}
+			var->init_childs();
 
 			if(var->childs_visible)	var->childs_visible = false;
 			else					var->childs_visible = true;
@@ -122,9 +111,7 @@ int cmd_var_exec(int argc, char** argv){
 		}
 
 		var = it->second;
-
-		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
-		var->modified = true;
+		var->set(argc - 3, argv + 3);
 		var_print();
 		break;
 
@@ -263,8 +250,7 @@ void var_print(gdb_variable_t* var, int* line, int win_id, int rec_lvl){
 	rec_s[rec_lvl] = 0;
 
 	/* update variable value */
-	if(var->modified)
-		gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name);
+	var->update();
 
 	/* update UI */
 	ui->win_print(win_id, "%s%s%s %s = %s\n", (var->modified ? "*" : " "), rec_s, (var->nchilds == 0 ? "   " : (var->childs_visible ? "[-]" : "[+]")), var->exp, var->value);

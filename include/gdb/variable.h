@@ -18,6 +18,13 @@ public:
 	gdb_variable_t();
 	~gdb_variable_t();
 
+	int create(char* expr, gdb_varorigin_t origin);
+	int destroy();
+
+	int set(int argc, char** argv);
+	int update();
+	int init_childs();
+
 	char *name,
 		 *exp,
 		 *type,

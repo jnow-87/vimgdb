@@ -1,5 +1,6 @@
 #include <common/list.h>
 #include <common/log.h>
+#include <gdb/gdb.h>
 #include <gdb/variable.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,6 +44,69 @@ gdb_variable_t::~gdb_variable_t(){
 		list_rm(&childs, c);
 		delete c;
 	}
+}
+
+int gdb_variable_t::create(char* expr, gdb_varorigin_t origin){
+	gdb_variable_t* v;
+
+
+	v = this;
+
+	if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&v, "- %s %s", (origin == O_STACK ? "*" : "@"), expr) == 0){
+		if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, result_to_variable, (void**)&v, "%s", name) == 0)
+			return 0;
+	}
+
+	return -1;
+}
+
+int gdb_variable_t::destroy(){
+	if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "%s", name) != 0)
+		return -1;
+	return 0;
+}
+
+int gdb_variable_t::update(){
+	gdb_variable_t* v;
+
+
+	if(modified){
+		v = this;
+
+		if(gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&v, "%s", name) != 0)
+			return -1;
+	}
+
+	return 0;
+}
+
+int gdb_variable_t::set(int argc, char** argv){
+	if(gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", name, argv, argc) != 0)
+		return -1;
+
+	modified = true;
+	return 0;
+}
+
+int gdb_variable_t::init_childs(){
+	gdb_variable_t *v, *c;
+
+
+	v = this;
+
+	if(childs != 0)
+		return 0;
+
+	if(gdb->mi_issue_cmd((char*)"var-list-children", RC_DONE, result_to_variable, (void**)&v, "%s", name) != 0)
+		return -1;
+
+	list_for_each(childs, c){
+		c->origin = origin;
+		if(gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&c, "%s", c->name) != 0)
+			return -1;
+	}
+
+	return 0;
 }
 
 
