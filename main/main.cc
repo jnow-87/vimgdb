@@ -14,9 +14,6 @@
 #endif
 
 
-gdbif* gdb = 0;
-
-
 /* static prototypes */
 void cleanup(int signum);
 
@@ -71,7 +68,7 @@ int main(int argc, char** argv){
 			goto end;
 		}
 
-		cmd_exec(line, gdb);
+		cmd_exec(line);
 	}
 
 end:

@@ -18,12 +18,12 @@ static map<unsigned int, gdb_variable_t*> line_map;
 
 
 /* local prototypes */
-void var_print(gdbif* gdb);
-void var_print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl);
+void var_print();
+void var_print(gdb_variable_t* var, int* line, int win_id, int rec_lvl);
 
 
 /* global functions */
-int cmd_var_exec(gdbif* gdb, int argc, char** argv){
+int cmd_var_exec(int argc, char** argv){
 	gdb_variable_t *var, *c;
 	const struct user_subcmd_t* scmd;
 	FILE* fp;
@@ -59,7 +59,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 			}
 		}
 
-		var_print(gdb);
+		var_print();
 		break;
 	
 	case DELETE:
@@ -81,7 +81,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 			delete var;
 		}
 
-		var_print(gdb);
+		var_print();
 		break;
 
 	case FOLD:
@@ -110,7 +110,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		else if(var->parent)
 			var->parent->childs_visible = false;
 
-		var_print(gdb);
+		var_print();
 		break;
 
 	case SET:
@@ -125,7 +125,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 
 		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
 		var->modified = true;
-		var_print(gdb);
+		var_print();
 		break;
 
 	case GET:
@@ -141,7 +141,7 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		break;
 
 	case VIEW:
-		cmd_var_update(gdb);
+		cmd_var_update();
 		break;
 
 	default:
@@ -217,18 +217,18 @@ void cmd_var_help(int argc, char** argv){
 	}
 }
 
-int cmd_var_update(gdbif* gdb){
+int cmd_var_update(){
 	if(ui->win_getid("variables") < 0)
 		return 0;
 
-	gdb_variables_update(gdb);
-	var_print(gdb);
+	gdb_variables_update();
+	var_print();
 
 	return 0;
 }
 
 /* local functions */
-void var_print(gdbif* gdb){
+void var_print(){
 	int win_id_var, i;
 	map<string, gdb_variable_t*>::iterator it;
 
@@ -246,13 +246,13 @@ void var_print(gdbif* gdb){
 
 	for(it=gdb_var_lst.begin(); it!=gdb_var_lst.end(); it++){
 		if(it->second->parent == 0)
-			var_print(gdb, it->second, &i, win_id_var, 1);
+			var_print(it->second, &i, win_id_var, 1);
 	}
 
 	ui->atomic(false);
 }
 
-void var_print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_lvl){
+void var_print(gdb_variable_t* var, int* line, int win_id, int rec_lvl){
 	char rec_s[rec_lvl + 1];
 	gdb_variable_t* v;
 	map<unsigned int, gdb_variable_t*>::iterator it;
@@ -277,7 +277,7 @@ void var_print(gdbif* gdb, gdb_variable_t* var, int* line, int win_id, int rec_l
 	/* print childs */
 	if(var->childs_visible){
 		list_for_each(var->childs, v)
-			var_print(gdb, v, line, win_id, rec_lvl + 1);
+			var_print(v, line, win_id, rec_lvl + 1);
 	}
 
 	if(rec_lvl == 1){

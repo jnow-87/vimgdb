@@ -45,7 +45,7 @@ var,		cmd_var_exec,		cmd_var_help,		"manage user defined variables"
  * \return	0			sucess
  * 			-1			error
  */
-int cmd_exec(char* cmdline, gdbif* gdb){
+int cmd_exec(char* cmdline){
 	unsigned int nspace, i, len;
 	int r;
 	char** argv;
@@ -112,7 +112,7 @@ int cmd_exec(char* cmdline, gdbif* gdb){
 		r = -1;
 	}
 	else
-		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(gdb, nspace + 1, argv);
+		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(nspace + 1, argv);
 
 	delete [] argv;
 	return r;

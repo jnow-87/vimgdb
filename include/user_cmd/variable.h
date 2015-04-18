@@ -6,9 +6,9 @@
 
 
 /* prototypes */
-int cmd_var_exec(gdbif* gdb, int argc, char** argv);
+int cmd_var_exec(int argc, char** argv);
 void cmd_var_help(int argc, char** argv);
-int cmd_var_update(gdbif* gdb);
+int cmd_var_update();
 
 
 #endif // USER_VARIABLE_H

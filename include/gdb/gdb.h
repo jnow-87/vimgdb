@@ -30,7 +30,7 @@ public:
 
 	/* init gdb interface */
 	int init(pthread_t main_tid);
-	void on_stop(int (*hdlr)(gdbif*));
+	void on_stop(int (*hdlr)(void));
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...);
@@ -59,7 +59,7 @@ private:
 	} response_t;
 
 	typedef struct _stop_hdlr_t{
-		int (*hdlr)(gdbif*);
+		int (*hdlr)(void);
 
 		struct _stop_hdlr_t *next,
 							*prev;
@@ -97,6 +97,10 @@ private:
 	/* main thread data */
 	pthread_t main_tid;
 };
+
+
+/* external variables */
+extern gdbif* gdb;
 
 
 #endif

@@ -22,7 +22,7 @@ static void* thread_inferior_output(void* arg);
 
 
 /* global functions */
-int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
+int cmd_inferior_exec(int argc, char** argv){
 	int fd, r;
 	const struct user_subcmd_t* scmd;
 	gdb_location_t* loc;

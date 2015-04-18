@@ -42,7 +42,7 @@ extern map<string, gdb_variable_t*> gdb_var_lst;
 
 
 /* prototypes */
-int gdb_variables_update(gdbif* gdb);
+int gdb_variables_update();
 
 int result_to_variable(gdb_result_t* result, void** var);
 int result_to_change_list(gdb_result_t* result, void** unused);

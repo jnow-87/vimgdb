@@ -16,6 +16,10 @@
 #include <unistd.h>
 
 
+/* global variables */
+gdbif* gdb = 0;
+
+
 /* class definition */
 /**
  * \brief	standard constructor
@@ -96,7 +100,7 @@ int gdbif::init(pthread_t main_tid){
 	}
 }
 
-void gdbif::on_stop(int (*hdlr)(gdbif*)){
+void gdbif::on_stop(int (*hdlr)(void)){
 	stop_hdlr_t* e;
 
 
@@ -469,7 +473,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 
 	/* execute callbacks */
 	list_for_each(stop_hdlr, e){
-		if(e->hdlr(this) != 0)
+		if(e->hdlr() != 0)
 			USER("error executing on-stop handler\n");
 	}
 

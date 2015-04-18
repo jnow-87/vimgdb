@@ -30,7 +30,7 @@ void breakpt_print(char* filename = 0);
 
 
 /* global functions */
-int cmd_break_exec(gdbif* gdb, int argc, char** argv){
+int cmd_break_exec(int argc, char** argv){
 	char key[256];
 	const struct user_subcmd_t* scmd;
 	FILE* fp;

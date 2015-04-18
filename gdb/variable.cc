@@ -33,7 +33,7 @@ gdb_variable_t::~gdb_variable_t(){
 
 
 	gdb_var_lst.erase(gdb_var_lst.find(name));
-	
+
 	delete name;
 	delete exp;
 	delete type;
@@ -47,7 +47,7 @@ gdb_variable_t::~gdb_variable_t(){
 
 
 /* global functions */
-int gdb_variables_update(gdbif* gdb){
+int gdb_variables_update(){
 	gdb->mi_issue_cmd((char*)"var-update", RC_DONE, result_to_change_list, 0, "*");
 	return 0;
 }
