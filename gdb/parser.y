@@ -79,7 +79,7 @@ async-record :			token '*' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1
 			 |			token '+' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* status-async-output */
 			 |			token '=' record NEWLINE					{ gdb->mi_proc_async($3.rclass, $1, $3.result); }		/* notify-async-output */
 			 |			token '^' record NEWLINE					{ gdb->mi_proc_result($3.rclass, $1, $3.result); }		/* result-record */
-			 |			error NEWLINE								{ }														/* allow continued parsing after error */
+			 |			error NEWLINE								{ gdb->mi_proc_result(RC_ERROR, 0, 0); }				/* allow continued parsing after error */
 			 ;
 
 record :				RESULT_CLASS								{ $$.rclass = $1, $$.result = 0; }

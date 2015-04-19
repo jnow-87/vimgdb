@@ -205,7 +205,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 		}
 	}
 	else
-		USER("gdb-error %s: \"%s\"\n", cmd, resp.result->value->value);
+		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? resp.result->value->value : "gdb implementation error"));
 
 	gdb_result_free(resp.result);
 
@@ -467,9 +467,8 @@ int gdbif::evt_stopped(gdb_result_t* result){
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);
 	}
-	else if(strcmp(reason, "exited-normally") == 0){
+	else if(strcmp(reason, "exited-normally") == 0)
 		USER("program exited\n");
-	}
 
 	/* execute callbacks */
 	list_for_each(stop_hdlr, e){
