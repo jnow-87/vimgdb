@@ -228,6 +228,7 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	/* set buf_id as used */
 	b = new buffer_t;
 	b->id = id;
+	b->len = 0;
 
 	if(name[0] == '/'){
 		b->name = new char[strlen(name) + 1];
@@ -433,9 +434,15 @@ void vimui::win_print(int win, const char* fmt, ...){
 void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	int len;
 	va_list tlst;
+	buffer_t* buf;
 
 
 	if(win < 0)
+		return;
+
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
+
+	if(buf == 0)
 		return;
 
 	pthread_mutex_lock(&ui_mtx);
@@ -456,16 +463,13 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 		ostr = new char[ostr_len];
 	}
 
-	/* get length of target buffer */
-	if(action(FCT, "getLength", win, result_to_length, (void*)&len, "") != 0)
-		goto end;
-
 	/* insert text and update cursor position */
-	action(FCT, "insert", win, 0, 0, "%d \"%s\"", len, ostr);
+	action(FCT, "insert", win, 0, 0, "%d \"%s\"", buf->len, ostr);
+	buf->len += len;
 
 	/* update cursor */
 	if(cursor_update)
-		action(CMD, "setDot", win, 0, 0, "%d", len + strlen(ostr) - 1);
+		action(CMD, "setDot", win, 0, 0, "%d", buf->len - 1);
 
 end:
 	atomic(false, false);
@@ -474,7 +478,13 @@ end:
 
 void vimui::win_clear(int win){
 	int len;
+	buffer_t* buf;
 
+
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
+
+	if(buf == 0)
+		return;
 
 	pthread_mutex_lock(&ui_mtx);
 
@@ -483,6 +493,8 @@ void vimui::win_clear(int win){
 	/* get length of buffer and remove text */
 	if(action(FCT, "getLength", win, result_to_length, (void*)&len, "") == 0)
 		action(FCT, "remove", win, 0, 0, "0 %d", len);
+
+	buf->len = 0;
 
 	atomic(false, false);
 
