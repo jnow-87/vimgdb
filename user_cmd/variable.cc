@@ -1,3 +1,4 @@
+#include <common/map.h>
 #include <common/log.h>
 #include <common/list.h>
 #include <gui/gui.h>
@@ -60,14 +61,12 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 	
 	case DELETE:
-		it = line_map.find(atoi(argv[2]));
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
-		if(it == line_map.end()){
+		if(var == 0){
 			USER("no variable at line %s\n", argv[2]);
 			return -1;
 		}
-
-		var = it->second;
 
 		while(var->parent != 0)
 			var = var->parent;
@@ -81,14 +80,12 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 
 	case FOLD:
-		it = line_map.find(atoi(argv[2]));
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
-		if(it == line_map.end()){
+		if(var == 0){
 			USER("no variable at line \"%s\"\n", argv[2]);
 			return -1;
 		}
-
-		var = it->second;
 
 		if(var->nchilds){
 			var->init_childs();
@@ -103,14 +100,13 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 
 	case SET:
-		it = line_map.find(atoi(argv[2]));
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
-		if(it == line_map.end()){
+		if(var == 0){
 			USER("no variable at line \"%s\"\n", argv[2]);
 			return -1;
 		}
 
-		var = it->second;
 		var->set(argc - 3, argv + 3);
 		var_print();
 		break;
@@ -242,7 +238,6 @@ void var_print(){
 void var_print(gdb_variable_t* var, int* line, int win_id, int rec_lvl){
 	char rec_s[rec_lvl + 1];
 	gdb_variable_t* v;
-	map<unsigned int, gdb_variable_t*>::iterator it;
 
 
 	/* assemble blank string */

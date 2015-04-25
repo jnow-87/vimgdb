@@ -2,6 +2,7 @@
 #include <common/log.h>
 #include <common/list.h>
 #include <common/opt.h>
+#include <common/map.h>
 #include <gui/vim/vimui.h>
 #include <gui/vim/event.h>
 #include <gui/vim/result.h>
@@ -14,6 +15,7 @@
 #include <string.h>
 
 
+/* class implementation */
 vimui::vimui(){
 	pthread_mutexattr_t attr;
 
@@ -325,8 +327,7 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 	static unsigned int volatile id = 1;
 	buffer_t* buf;
 	string key;
-	map<int, buffer_t*>::iterator bit;
-	map<string, int>::iterator annotype;
+	int annotype;
 
 
 	key = sign;
@@ -335,30 +336,27 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 
 	pthread_mutex_lock(&ui_mtx);
 
-	pthread_mutex_lock(&buf_mtx);
-	bit = bufid_map.find(win);
-	pthread_mutex_unlock(&buf_mtx);
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
 
-	if(bit == bufid_map.end())
+	if(buf == 0)
 		goto err;
 
-	buf = bit->second;
-	annotype = buf->anno_types.find(key);
+	annotype = MAP_LOOKUP(buf->anno_types, key);
 
 	atomic(true, false);
 
 	/* create annotation type if it doesn't exist */
-	if(annotype == buf->anno_types.end()){
+	if(annotype == 0){
 		if(action(CMD, "defineAnnoType", win, 0, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
 			goto err;
 
 		buf->anno_types[key] = buf->anno_types.size();	// first element has value 1, since anno_types size
 														// is incremented by using the []-operator
-		annotype = buf->anno_types.find(key);
+		annotype = MAP_LOOKUP(buf->anno_types, key);
 	}
 
 	/* add annotation */
-	if(action(CMD, "addAnno", win, 0, 0, "%d %d %d/0", id, annotype->second, line) == 0){
+	if(action(CMD, "addAnno", win, 0, 0, "%d %d %d/0", id, annotype, line) == 0){
 		key = line;
 		key += sign;
 
@@ -380,20 +378,16 @@ err:
 int vimui::win_anno_delete(int win, int line, const char* sign){
 	buffer_t* buf;
 	string key;
-	map<int, buffer_t*>::iterator bit;
 	map<string, int>::iterator anno;
 
 
 	pthread_mutex_lock(&ui_mtx);
 
-	pthread_mutex_lock(&buf_mtx);
-	bit = bufid_map.find(win);
-	pthread_mutex_unlock(&buf_mtx);
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
 
-	if(bit == bufid_map.end())
+	if(buf == 0)
 		goto err;
 
-	buf = bit->second;
 	key = line;
 	key += sign;
 	anno = buf->annos.find(key);

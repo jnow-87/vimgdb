@@ -1,3 +1,4 @@
+#include <common/map.h>
 #include <common/list.h>
 #include <common/log.h>
 #include <gdb/gdb.h>
@@ -186,7 +187,6 @@ int result_to_change_list(gdb_result_t* result, void** unused){
 	gdb_variable_t* var;
 	gdb_result_t* r;
 	gdb_value_t* v;
-	map<string, gdb_variable_t*>::iterator it;
 
 
 	if(result->var_id != IDV_CHANGELIST)
@@ -195,14 +195,12 @@ int result_to_change_list(gdb_result_t* result, void** unused){
 	list_for_each((gdb_value_t*)result->value->value, v){
 		list_for_each((gdb_result_t*)v->value, r){
 			if(r->var_id == IDV_NAME){
-				it = gdb_var_lst.find((char*)r->value->value);
+				var = MAP_LOOKUP(gdb_var_lst, (char*)r->value->value);
 
-				if(it == gdb_var_lst.end()){
+				if(var == 0){
 					ERROR("variable \"%s\" not found in variable list\n", r->value->value);
 					continue;
 				}
-
-				var = it->second;
 
 				if(var->parent == 0 || var->parent->childs_visible)
 					var->modified = true;
