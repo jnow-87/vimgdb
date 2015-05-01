@@ -79,14 +79,16 @@ function! vimgdb#window#init()
 	exec "autocmd! BufWinEnter " . g:vimgdb_userlog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal syntax=vimgdb_userlog
 		\ "
 
 	" autocmd for gdb-log
 	exec "autocmd! BufWinEnter " . g:vimgdb_gdblog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal syntax=vimgdb_gdblog
 		\ "
 endfunction
 

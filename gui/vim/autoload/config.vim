@@ -1,4 +1,37 @@
 """"""""""""""""""""
+" highlight groups "
+""""""""""""""""""""
+
+if !hlexists("vimgdb_ok")
+	highlight default vimgdb_ok	ctermfg=28
+endif
+
+if !hlexists("vimgdb_error")
+	highlight default vimgdb_error ctermfg=1
+endif
+
+if !hlexists("vimgdb_warn")
+	highlight default vimgdb_warn ctermfg=3
+endif
+
+if !hlexists("vimgdb_variable_changed")
+	highlight default vimgdb_variable_changed ctermfg=202
+endif
+
+if !hlexists("vimgdb_micmd")
+	highlight default vimgdb_micmd ctermfg=27
+endif
+
+if !hlexists("vimgdb_navigation")
+	highlight default vimgdb_navigation ctermfg=56
+endif
+
+if !hlexists("vimgdb_functionname")
+	highlight default vimgdb_functionname ctermfg=27
+endif
+
+
+""""""""""""""""""""
 " global functions "
 """"""""""""""""""""
 
@@ -44,8 +77,8 @@ function vimgdb#config#init()
 	call vimgdb#util#assign("g:vimgdb_callstack_vertical", 0)
 
 	" preliminary mappings
-	nnoremap <silent> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
-	nnoremap <silent> B :exec "Break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
+	nnoremap <silent> <buffer> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
+	nnoremap <silent> <buffer> B :exec "Break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
 	nnoremap <silent> <F2> :silent Step<cr>
 	nnoremap <silent> <F3> :silent Nnext<cr>
 	nnoremap <silent> <F5> :silent Return<cr>
