@@ -61,8 +61,13 @@ int cmd_exec_exec(int argc, char** argv){
 		if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
+		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "--thread %u --frame 0", gdb->threadid());
+		else if(scmd->id == GOTO){
+			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
+				return -1;
+				
+			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+		}
 		else if(scmd->id == JUMP){
 			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;

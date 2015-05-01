@@ -70,6 +70,7 @@ host-name,								IDV_HOST_NAME
 symbols-loaded,							IDV_SYM_LOADED
 reason,									IDV_REASON
 frame,									IDV_FRAME
+arg,									IDV_ARG
 args,									IDV_ARGS
 stopped-threads,						IDV_THREADS_STOPPED
 core,									IDV_CORE
@@ -87,3 +88,7 @@ lang,									IDV_LANG
 exp,									IDV_EXP
 child,									IDV_CHILD
 children,								IDV_CHILDS
+level,									IDV_LEVEL
+stack,									IDV_STACK
+variables,								IDV_VARIABLES
+exit-code,								IDV_EXITCODE

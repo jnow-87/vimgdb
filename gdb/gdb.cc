@@ -32,6 +32,7 @@ gdbif::gdbif(){
 	is_running = false;
 	event_lst = 0;
 	stop_hdlr = 0;
+	cur_thread = -1;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
@@ -324,6 +325,10 @@ bool gdbif::running(bool state){
 	return (is_running = state);
 }
 
+unsigned int gdbif::threadid(){
+	return cur_thread;
+}
+
 void* gdbif::readline_thread(void* arg){
 	char c, *line;
 	unsigned int i, len;
@@ -467,6 +472,10 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
 			break;
 
+		case IDV_THREAD_ID:
+			cur_thread = atoi((char*)r->value->value);
+			break;
+
 		default:
 			break;
 		};
@@ -484,8 +493,13 @@ int gdbif::evt_stopped(gdb_result_t* result){
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);
 	}
-	else if(strcmp(reason, "exited-normally") == 0)
+	else if(strcmp(reason, "exited-normally") == 0){
 		USER("program exited\n");
+		goto end;
+	}
+
+	/* update variables */
+	gdb_variable_t::get_changed();
 
 	/* execute callbacks */
 	list_for_each(stop_hdlr, e){
@@ -493,6 +507,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			USER("error executing on-stop handler\n");
 	}
 
+end:
 	delete frame;
 	return 0;
 

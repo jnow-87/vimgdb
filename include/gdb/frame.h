@@ -3,6 +3,7 @@
 
 
 #include <gdb/result.h>
+#include <gdb/variable.h>
 
 
 class gdb_frame_t{
@@ -13,11 +14,20 @@ public:
 	~gdb_frame_t();
 
 	void* addr;
-	unsigned int line;
+	unsigned int line,
+				 level;
 	
 	char *function,
 		 *filename,
 		 *fullname;
+
+	bool expanded;
+
+	gdb_variable_t *args,
+				   *locals;
+
+	gdb_frame_t *next,
+				*prev;
 };
 
 

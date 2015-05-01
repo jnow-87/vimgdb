@@ -6,6 +6,7 @@
 #include <user_cmd/inferior.h>
 #include <user_cmd/break.h>
 #include <user_cmd/variable.h>
+#include <user_cmd/callstack.h>
 #include <user_cmd/help.h>
 #include <user_cmd/test.h>
 

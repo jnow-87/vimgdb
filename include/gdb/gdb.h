@@ -47,6 +47,7 @@ public:
 	/* inferior state */
 	bool running();
 	bool running(bool state);
+	unsigned int threadid();
 
 private:
 	/* types */
@@ -69,6 +70,7 @@ private:
 	pty* gdb;
 	pid_t gdb_pid;
 	bool volatile is_running;
+	unsigned int cur_thread;
 
 	/* gdb communication */
 	static void* readline_thread(void* arg);

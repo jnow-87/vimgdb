@@ -46,10 +46,14 @@
 "breakpoint-modified"					{ gdblval.num = RC_BREAK_MODIFIED; return RESULT_CLASS; }
 "breakpoint-deleted"					{ gdblval.num = RC_BREAK_DELETED; return RESULT_CLASS; }
 "thread-created"						{ gdblval.num = RC_THREAD_CREATED; return RESULT_CLASS; }
+"thread-exited"							{ gdblval.num = RC_THREAD_EXITED; return RESULT_CLASS; }
+"thread-selected"						{ gdblval.num = RC_THREAD_SELECTED; return RESULT_CLASS; }
 "thread-group-added"					{ gdblval.num = RC_THREAD_GRP_ADDED; return RESULT_CLASS; }
 "thread-group-started"					{ gdblval.num = RC_THREAD_GRP_STARTED; return RESULT_CLASS; }
+"thread-group-exited"					{ gdblval.num = RC_THREAD_GRP_EXITED; return RESULT_CLASS; }
 "cmd-param-changed"						{ gdblval.num = RC_PARAM_CHANGED; return RESULT_CLASS; }
 "library-loaded"						{ gdblval.num = RC_LIB_LOADED; return RESULT_CLASS; }
+"library-unloaded"						{ gdblval.num = RC_LIB_UNLOADED; return RESULT_CLASS; }
 
 	/* gdb EOL string */
 "(gdb)"\ ?								{ return GDBTK; }
