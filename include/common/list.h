@@ -111,7 +111,7 @@
  * \return	pointer to the last list element
  * 			0 if list is empty
  */
-#define list_last(head) ((head)->prev)
+#define list_last(head) ((head) ? (head)->prev : 0)
 
 /**
  * \brief	find an element in the list by key
@@ -192,7 +192,6 @@
  */
 //#define list_for_each(head, entry) for(entry=(head)->next; (entry)!=head; entry=(entry)->next)
 #define list_for_each(head, entry) for(auto next=((head) == 0 ? 0 : (head)->next), entry=(head); (entry)!=0; entry=(next), next=(next == 0 ? 0 : next->next))
-
 
 
 #endif
