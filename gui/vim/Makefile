@@ -17,5 +17,6 @@ $(loc_built_tree)/lexer.o: $(loc_built_tree)/event.hash.h
 
 plugin := $(shell \
 	cp -au $(loc_src_tree)/plugin/* ~/.vim/plugin; \
+	cp -au $(loc_src_tree)/syntax/* ~/.vim/syntax; \
 	mkdir -p ~/.vim/autoload/vimgdb; \
 	cp -au $(loc_src_tree)/autoload/* ~/.vim/autoload/vimgdb/)

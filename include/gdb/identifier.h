@@ -48,6 +48,7 @@ typedef enum{
 	IDV_SYM_LOADED,
 	IDV_REASON,
 	IDV_FRAME,
+	IDV_ARG,
 	IDV_ARGS,
 	IDV_CORE,
 	IDV_SIG_NAME,
@@ -64,6 +65,10 @@ typedef enum{
 	IDV_EXP,
 	IDV_CHILD,
 	IDV_CHILDS,
+	IDV_LEVEL,
+	IDV_STACK,
+	IDV_VARIABLES,
+	IDV_EXITCODE,
 } gdb_id_val_t;
 
 struct gdb_id_t{

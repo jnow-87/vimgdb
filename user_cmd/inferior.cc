@@ -22,7 +22,7 @@ static void* thread_inferior_output(void* arg);
 
 
 /* global functions */
-int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
+int cmd_inferior_exec(int argc, char** argv){
 	int fd, r;
 	const struct user_subcmd_t* scmd;
 	gdb_location_t* loc;
@@ -44,7 +44,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 		if(r != 0)
 			goto end;
 
-		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
+		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, gdb_location_t::result_to_location, (void**)&loc, "") != 0)
 			goto end;
 
 		ui->win_create(loc->fullname);
@@ -74,7 +74,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 				inferior_term = new pty;
 				if(inferior_term == 0){
 					USER("error allocating pseudo terminal for debugee\n");
-					return 0;
+					return -1;
 				}
 
 				// start thread to read from the pty
@@ -84,7 +84,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 					delete inferior_term;
 					inferior_term = 0;
 
-					return 0;
+					return -1;
 				}
 
 				thread_name[tid] = "inferior";
@@ -106,7 +106,7 @@ int cmd_inferior_exec(gdbif* gdb, int argc, char** argv){
 				fd = open(argv[2], O_RDONLY);
 				if(fd == -1){
 					USER("error opening pts \"%s\"\n", argv[2]);
-					return 0;
+					return -1;
 				}
 
 				close(fd);

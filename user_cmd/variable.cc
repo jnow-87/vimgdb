@@ -1,9 +1,9 @@
+#include <common/map.h>
 #include <common/log.h>
 #include <common/list.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/variable.h>
-#include <gdb/variablelist.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
 #include <stdlib.h>
@@ -15,13 +15,15 @@ using namespace std;
 
 
 /* static variables */
-static gdb_variablelist var_lst;
+static map<unsigned int, gdb_variable_t*> line_map;
 
 
 /* global functions */
-int cmd_var_exec(gdbif* gdb, int argc, char** argv){
+int cmd_var_exec(int argc, char** argv){
 	gdb_variable_t *var, *c;
 	const struct user_subcmd_t* scmd;
+	FILE* fp;
+	map<unsigned int, gdb_variable_t*>::iterator it;
 
 
 	if(argc < 2){
@@ -46,54 +48,42 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, result_to_variable, (void**)&var, "- * %s", argv[2]) == 0){
-			if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, result_to_variable, (void**)&var, "%s", var->name) == 0){
-				USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
-				var_lst.add(var->name, var);
-			}
-		}
+		var = gdb_variable_t::acquire(argv[2]);
 
-		var_lst.print(gdb);
+		if(var == 0)
+			return -1;
+
+		USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
+		cmd_var_print();
 		break;
 	
 	case DELETE:
-		var = var_lst.find(argv[2]);
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
 		if(var == 0){
 			USER("no variable at line %s\n", argv[2]);
-			return -1;
+			return 0;
 		}
 
 		while(var->parent != 0)
 			var = var->parent;
 
-		if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "%s", var->name) == 0){
+		if(gdb_variable_t::release(var) == 0)
 			USER("delete variable \"%s\"\n", var->name);
 
-			var_lst.rm(var);
-			delete var;
-		}
-
-		var_lst.print(gdb);
+		cmd_var_print();
 		break;
 
 	case FOLD:
-		var = var_lst.find(argv[2]);
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
 		if(var == 0){
-			USER("no variable for expression \"%s\"\n", argv[2]);
-			return -1;
+			USER("no variable at line \"%s\"\n", argv[2]);
+			return 0;
 		}
 
 		if(var->nchilds){
-			if(var->childs == 0){
-				gdb->mi_issue_cmd((char*)"var-list-children", RC_DONE, result_to_variable, (void**)&var, "%s", var->name);
-
-				list_for_each(var->childs, c){
-					gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, result_to_variable, (void**)&c, "%s", c->name);
-					var_lst.add(c->name, c);
-				}
-			}
+			var->init_childs();
 
 			if(var->childs_visible)	var->childs_visible = false;
 			else					var->childs_visible = true;
@@ -101,29 +91,39 @@ int cmd_var_exec(gdbif* gdb, int argc, char** argv){
 		else if(var->parent)
 			var->parent->childs_visible = false;
 
-		var_lst.print(gdb);
+		cmd_var_print();
 		break;
 
 	case SET:
-		var = var_lst.find(argv[2]);
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
 
 		if(var == 0){
-			USER("no variable for expression \"%s\"\n", argv[2]);
-			return -1;
+			USER("no variable at line \"%s\"\n", argv[2]);
+			return 0;
 		}
 
-		gdb->mi_issue_cmd((char*)"var-assign", RC_DONE, 0, 0, "%s \"%ss %d\"", var->name, argv + 3, argc - 3);
-		var->modified = true;
-		var_lst.print(gdb);
+		var->set(argc - 3, argv + 3);
+
+		gdb_variable_t::get_changed();
+
+		cmd_var_print();
+		cmd_callstack_print();
 		break;
 
 	case GET:
-		var_lst.get_list(argv[2]);
+		fp = fopen(argv[2], "w");
+
+		if(fp == 0)
+			return -1;
+
+		for(it=line_map.begin(); it!=line_map.end(); it++)
+			fprintf(fp, "%d\\n", it->first);
+
+		fclose(fp);
 		break;
 
 	case VIEW:
-		var_lst.update(gdb);
-		var_lst.print(gdb);
+		cmd_var_print();
 		break;
 
 	default:
@@ -141,12 +141,12 @@ void cmd_var_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("      add <expr>              add variable for expression <expr>\n");
-		USER("      delete <var-def>        delete variable\n");
-		USER("      fold <var-def>          fold/unfold variable\n");
-		USER("      set <var-def> <value>   set variable\n");
-		USER("      get <filename>          get list of variables\n");
-		USER("      view                    update variable window\n");
+		USER("      add <expr>           add variable for expression <expr>\n");
+		USER("      delete <line>        delete variable\n");
+		USER("      fold <line>          fold/unfold variable\n");
+		USER("      set <line> <value>   set variable\n");
+		USER("      get <filename>       get list of variables\n");
+		USER("      view                 update variable window\n");
 		USER("\n");
 	}
 	else{
@@ -166,26 +166,26 @@ void cmd_var_help(int argc, char** argv){
 				break;
 
 			case DELETE:
-				USER("usage %s %s <var-def>\n", argv[0], argv[i]);
-				USER("   delete variable <var-def>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("usage %s %s <line>\n", argv[0], argv[i]);
+				USER("   delete variable at line <line>\n");
 				USER("\n");
 				break;
 
 			case FOLD:
-				USER("usage %s %s <var-def>\n", argv[0], argv[i]);
-				USER("   fold variable <var-def>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("usage %s %s <line>\n", argv[0], argv[i]);
+				USER("   fold variable at line <line>\n");
 				USER("\n");
 				break;
 
 			case SET:
-				USER("usage %s %s <var-def> <value>\n", argv[0], argv[i]);
-				USER("   set variable <var-def> to value <value>, <var-def> being either the variable name or the line in the variable window\n");
+				USER("usage %s %s <line> <value>\n", argv[0], argv[i]);
+				USER("   set variable value at line <line>\n");
 				USER("\n");
 				break;
 
 			case GET:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("          print '\\n' seprated list of variables to file <filename>\n");
+				USER("          print '\\n' seprated list of line numbers that contain variables to file <filename>\n");
 				USER("\n");
 				break;
 
@@ -199,9 +199,27 @@ void cmd_var_help(int argc, char** argv){
 	}
 }
 
-int cmd_var_update(gdbif* gdb){
-	var_lst.update(gdb);
-	var_lst.print(gdb);
+int cmd_var_print(){
+	int win_id;
+	unsigned int line;
+	map<string, gdb_variable_t*>::iterator it;
 
-	return 0;
+
+	win_id = ui->win_getid("variables");
+
+	if(win_id < 0)
+		return 0;
+
+	ui->atomic(true);
+	ui->win_clear(win_id);
+	line_map.clear();
+
+	line = 1;
+
+	for(it=gdb_var_lst.begin(); it!=gdb_var_lst.end(); it++){
+		if(it->second->origin == O_USER && it->second->parent == 0)
+			it->second->print(win_id, &line, &line_map, true);
+	}
+
+	ui->atomic(false);
 }

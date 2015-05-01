@@ -59,6 +59,13 @@ function! vimgdb#window#init()
 		\ "vertical":g:vimgdb_variables_vertical,
 	\ }
 
+	let s:win_lst[g:vimgdb_callstack_name] = {
+		\ "show":g:vimgdb_callstack_show,
+		\ "width":g:vimgdb_callstack_width,
+		\ "height":g:vimgdb_callstack_height,
+		\ "vertical":g:vimgdb_callstack_vertical,
+	\ }
+
 	" update vimgdb completio
 	exec "let s:win_names = \"" . g:vimgdb_userlog_name . "\n" . g:vimgdb_gdblog_name . "\n" . g:vimgdb_break_name . "\n" . g:vimgdb_inferior_name . "\n" . g:vimgdb_variables_name . "\""
 
@@ -72,14 +79,16 @@ function! vimgdb#window#init()
 	exec "autocmd! BufWinEnter " . g:vimgdb_userlog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal syntax=vimgdb_userlog
 		\ "
 
 	" autocmd for gdb-log
 	exec "autocmd! BufWinEnter " . g:vimgdb_gdblog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal syntax=vimgdb_gdblog
 		\ "
 endfunction
 

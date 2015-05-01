@@ -14,9 +14,6 @@
 #endif
 
 
-gdbif* gdb = 0;
-
-
 /* static prototypes */
 void cleanup(int signum);
 
@@ -60,7 +57,8 @@ int main(int argc, char** argv){
 	if(gdb->init(pthread_self()) != 0)
 		return 2;
 
-	gdb->on_stop(cmd_var_update);
+	gdb->on_stop(cmd_var_print);
+	gdb->on_stop(cmd_callstack_update);
 
 	/* main loop */
 	while(1){
@@ -71,7 +69,7 @@ int main(int argc, char** argv){
 			goto end;
 		}
 
-		cmd_exec(line, gdb);
+		cmd_exec(line);
 	}
 
 end:

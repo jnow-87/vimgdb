@@ -96,6 +96,6 @@ endfunction
 " \brief	complete inferior variable symbol names
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#complete#sym_var(subcmd)
+function! vimgdb#complete#sym_variable(subcmd)
 	return g:vimgdb_inferior_vars
 endfunction

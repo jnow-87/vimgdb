@@ -3,11 +3,11 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Var":{
-		\ "add":{"__nested__":"vimgdb#complete#sym_var"},
-		\ "delete":{"__nested__":"vimgdb#var#complete"},
-		\ "fold":{"__nested__":"vimgdb#var#complete"},
-		\ "set":{"__nested__":"vimgdb#var#complete"},
+	\ "Variable":{
+		\ "add":{"__nested__":"vimgdb#complete#sym_variable"},
+		\ "delete":{"__nested__":"vimgdb#variable#complete"},
+		\ "fold":{"__nested__":"vimgdb#variable#complete"},
+		\ "set":{"__nested__":"vimgdb#variable#complete"},
 		\ "view":{},
 	\ }
 \ }
@@ -21,38 +21,38 @@ let s:var_lst = ""
 """"""""""""""""""""
 
 " \brief	init variable command
-function! vimgdb#var#init()
+function! vimgdb#variable#init()
 	" update vimgdb completion
 	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Var call s:var(<f-args>)
-	call vimgdb#util#execabbrev("var", "Var")
+	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Variable call s:variable(<f-args>)
+	call vimgdb#util#execabbrev("variable", "Variable")
 
 	" autocmd for variables window
 	exec "autocmd! BufWinEnter " . g:vimgdb_variables_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
-		\ setlocal syntax=vimgdb_var |
-		\ nnoremap <c-f> :silent exec \"Var fold \" . line('.')<cr>
+		\ setlocal syntax=vimgdb_variable |
+		\ nnoremap <buffer> <c-f> :silent exec \"Variable fold \" . line('.')<cr>
 		\ "
 endfunction
 
 " \brief	cleanup variable command
-function! vimgdb#var#cleanup()
+function! vimgdb#variable#cleanup()
 	" command
-	unabbrev var
-	delcommand Var
+	unabbrev variable
+	delcommand Variable
 
 	" autocmd
 	exec "autocmd! BufWinEnter " . g:vimgdb_variables_name
 endfunction
 
-" \brief	complete vimgdb variable names
+" \brief	complete vimgdb variable buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#var#complete(subcmd)
+function! vimgdb#variable#complete(subcmd)
 	return s:var_lst
 endfunction
 
@@ -62,7 +62,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	variable command implementation
-function! s:var(...)
+function! s:variable(...)
 	exec "Window open " . g:vimgdb_variables_name
 
 	" wait for vimgdb to assign id to new buffer, otherwise the
@@ -70,11 +70,10 @@ function! s:var(...)
 	sleep 100m
 
 	" exec vimgdb command
-	call vimgdb#util#cmd("var " . join(a:000))
+	call vimgdb#util#cmd("variable " . join(a:000))
 
-	" get list of gdb variable names
-	call delete("/tmp/vimgdb_var")
-	call vimgdb#util#cmd("var get /tmp/vimgdb_var")
-	let s:var_lst = vimgdb#util#file_read("/tmp/vimgdb_var", 5)
+	" get list of gdb variable buffer lines
+	call delete("/tmp/vimgdb_variable")
+	call vimgdb#util#cmd("variable get /tmp/vimgdb_variable")
+	let s:var_lst = vimgdb#util#file_read("/tmp/vimgdb_variable", 5)
 endfunction
-

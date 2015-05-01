@@ -4,7 +4,7 @@
 #include <user_cmd/cmd.h>
 
 
-int cmd_test_exec(gdbif* gdb, int argc, char** argv){
+int cmd_test_exec(int argc, char** argv){
 	unsigned int i;
 
 

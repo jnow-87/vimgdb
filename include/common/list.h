@@ -111,7 +111,7 @@
  * \return	pointer to the last list element
  * 			0 if list is empty
  */
-#define list_last(head) ((head)->prev)
+#define list_last(head) ((head) ? (head)->prev : 0)
 
 /**
  * \brief	find an element in the list by key
@@ -125,7 +125,7 @@
  * 			0 if no valid element found
  */
 #define list_find(head, member, value) ({ \
-	typeof(head) tmp = (head); \
+	auto tmp = (head); \
 \
 	for(;tmp!=0; tmp=tmp->next){ \
 		if(tmp->member == value) \
@@ -147,7 +147,7 @@
  * 			0 if no valid element found
  */
 #define list_find_str(head, member, str) ({ \
-	typeof(head) tmp = (head); \
+	auto tmp = (head); \
 \
 	for(;tmp!=0; tmp=tmp->next){ \
 		if(strcmp(tmp->member, (str)) == 0) \
@@ -161,7 +161,7 @@
  * \brief	same as list_find_str but use strncmp
  */
 #define list_find_strn(head, member, str, n) ({ \
-	typeof(head) tmp = (head); \
+	auto tmp = (head); \
 \
 	for(;tmp!=0; tmp=tmp->next){ \
 		if(strncmp(tmp->member, (str), (n)) == 0) \
@@ -191,8 +191,7 @@
  * \return none
  */
 //#define list_for_each(head, entry) for(entry=(head)->next; (entry)!=head; entry=(entry)->next)
-#define list_for_each(head, entry) for(typeof(head)next=((head) == 0 ? 0 : (head)->next), entry=(head); (entry)!=0; entry=(next), next=(next == 0 ? 0 : next->next))
-
+#define list_for_each(head, entry) for(auto next=((head) == 0 ? 0 : (head)->next), entry=(head); (entry)!=0; entry=(next), next=(next == 0 ? 0 : next->next))
 
 
 #endif

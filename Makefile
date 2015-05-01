@@ -17,7 +17,7 @@ src_tree := $(SRC_TREE)
 
 # init default flags
 cflags := $(CFLAGS)
-cxxflags := $(CXXFLAGS)
+cxxflags := $(CXXFLAGS) -std=c++11
 cppflags := $(CPPFLAGS) -g -I"include/" -I"$(built_tree)/"
 ldflags := $(LDFLAGS)
 asflags := $(ASFLAGS) -g

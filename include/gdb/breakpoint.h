@@ -5,9 +5,10 @@
 #include <gdb/result.h>
 
 
-/* types */
 class gdb_breakpoint_t{
 public:
+	static int result_to_brkpt(gdb_result_t* result, void** bkpt);
+
 	gdb_breakpoint_t();
 	~gdb_breakpoint_t();
 
@@ -21,10 +22,6 @@ public:
 
 	bool enabled;
 };
-
-
-/* prototypes */
-int result_to_brkpt(gdb_result_t* result, void** bkpt);
 
 
 #endif // BREAKPOINT_H

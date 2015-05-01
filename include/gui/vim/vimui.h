@@ -56,6 +56,7 @@ private:
 	typedef struct{
 		int id;
 		char* name;
+		unsigned int len;
 
 		map<string, int> annos;
 		map<string, int> anno_types;

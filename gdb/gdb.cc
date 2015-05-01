@@ -16,6 +16,10 @@
 #include <unistd.h>
 
 
+/* global variables */
+gdbif* gdb = 0;
+
+
 /* class definition */
 /**
  * \brief	standard constructor
@@ -28,6 +32,7 @@ gdbif::gdbif(){
 	is_running = false;
 	event_lst = 0;
 	stop_hdlr = 0;
+	cur_thread = -1;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
@@ -96,7 +101,7 @@ int gdbif::init(pthread_t main_tid){
 	}
 }
 
-void gdbif::on_stop(int (*hdlr)(gdbif*)){
+void gdbif::on_stop(int (*hdlr)(void)){
 	stop_hdlr_t* e;
 
 
@@ -127,10 +132,13 @@ void gdbif::on_stop(int (*hdlr)(gdbif*)){
 int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...){
 	static char* volatile s = 0;
 	static unsigned int volatile s_len = 0;
+	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
 
+
+	pthread_mutex_lock(&m);
 
 	va_start(lst, fmt);
 
@@ -172,8 +180,10 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 				break;
 
 			default:
-				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
+				pthread_mutex_unlock(&m);
 				va_end(lst);
+
+				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
 				return -1;
 			};
 
@@ -198,19 +208,26 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	token++;
 
 	if((resp.rclass & ok_mask)){
-		if(resp.result && r && process){
-			if(process(resp.result, r) != 0){
-				ERROR("unable to process result for \"%s\"\n", cmd);
-				resp.rclass = RC_ERROR;
+		if(resp.result){
+			if(process){
+				if(process(resp.result, r) != 0){
+					ERROR("unable to process result for \"%s\"\n", cmd);
+					resp.rclass = RC_ERROR;
+				}
+			}
+			else if(r){
+				*r = (void**)resp.result;
+				resp.result = 0;
 			}
 		}
 	}
 	else
-		USER("gdb-error %s: \"%s\"\n", cmd, resp.result->value->value);
+		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? resp.result->value->value : "gdb implementation error"));
 
 	gdb_result_free(resp.result);
 
 	pthread_mutex_unlock(&resp_mtx);
+	pthread_mutex_unlock(&m);
 
 	va_end(lst);
 
@@ -306,6 +323,10 @@ bool gdbif::running(){
 
 bool gdbif::running(bool state){
 	return (is_running = state);
+}
+
+unsigned int gdbif::threadid(){
+	return cur_thread;
 }
 
 void* gdbif::readline_thread(void* arg){
@@ -448,7 +469,11 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			break;
 
 		case IDV_FRAME:
-			conv_frame((gdb_result_t*)r->value->value, &frame);
+			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
+			break;
+
+		case IDV_THREAD_ID:
+			cur_thread = atoi((char*)r->value->value);
 			break;
 
 		default:
@@ -470,14 +495,19 @@ int gdbif::evt_stopped(gdb_result_t* result){
 	}
 	else if(strcmp(reason, "exited-normally") == 0){
 		USER("program exited\n");
+		goto end;
 	}
+
+	/* update variables */
+	gdb_variable_t::get_changed();
 
 	/* execute callbacks */
 	list_for_each(stop_hdlr, e){
-		if(e->hdlr(this) != 0)
+		if(e->hdlr() != 0)
 			USER("error executing on-stop handler\n");
 	}
 
+end:
 	delete frame;
 	return 0;
 
