@@ -5,9 +5,10 @@
 #include <gdb/result.h>
 
 
-/* types */
 class gdb_location_t{
 public:
+	static int result_to_location(gdb_result_t* result, void** loc);
+
 	gdb_location_t();
 	~gdb_location_t();
 
@@ -16,10 +17,6 @@ public:
 
 	unsigned int line;
 };
-
-
-/* prototypes */
-int result_to_location(gdb_result_t* result, void** loc);
 
 
 #endif // LOCATION_H

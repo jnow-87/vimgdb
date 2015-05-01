@@ -464,7 +464,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			break;
 
 		case IDV_FRAME:
-			conv_frame((gdb_result_t*)r->value->value, &frame);
+			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
 			break;
 
 		default:

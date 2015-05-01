@@ -32,8 +32,8 @@ int cmd_exec_exec(int argc, char** argv){
 		if(scmd->id == BREAK){
 			gdb->sigsend(SIGINT);
 
-			if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
-				return 0;
+			if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, gdb_location_t::result_to_location, (void**)&loc, "") != 0)
+				return -1;
 
 			if(FILE_EXISTS(loc->fullname)){
 				ui->win_anno_add(ui->win_create(loc->fullname), loc->line, "ip", "White", "Black");
@@ -50,8 +50,8 @@ int cmd_exec_exec(int argc, char** argv){
 		}
 	}
 	else{
-		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, result_to_location, (void**)&loc, "") != 0)
-			return 0;
+		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, gdb_location_t::result_to_location, (void**)&loc, "") != 0)
+			return -1;
 
 		if(FILE_EXISTS(loc->fullname))	ui->win_anno_delete(ui->win_create(loc->fullname), loc->line, "ip");
 		else							USER("file \"%s\" does not exist\n", loc->fullname);
@@ -65,7 +65,7 @@ int cmd_exec_exec(int argc, char** argv){
 		else if(scmd->id == GOTO)		r = gdb->mi_issue_cmd((char*)"exec-until", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
 		else if(scmd->id == JUMP){
 			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
-				return 0;
+				return -1;
 				
 			r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
 		}
@@ -83,7 +83,7 @@ int cmd_exec_exec(int argc, char** argv){
 		}
 
 		if(r != 0)
-			return 0;
+			return -1;
 	}
 
 	USER("%s\n", argv[1]);

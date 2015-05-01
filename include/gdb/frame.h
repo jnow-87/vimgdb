@@ -7,6 +7,8 @@
 
 class gdb_frame_t{
 public:
+	static int result_to_frame(gdb_result_t* result, gdb_frame_t** frame);
+
 	gdb_frame_t();
 	~gdb_frame_t();
 
@@ -17,9 +19,6 @@ public:
 		 *filename,
 		 *fullname;
 };
-
-
-int conv_frame(gdb_result_t* result, gdb_frame_t** frame);
 
 
 #endif // GDB_FRAME_H

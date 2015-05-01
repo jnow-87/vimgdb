@@ -15,7 +15,7 @@ gdb_location_t::~gdb_location_t(){
 	delete filename;
 }
 
-int result_to_location(gdb_result_t* result, void** loc_){
+int gdb_location_t::result_to_location(gdb_result_t* result, void** loc_){
 	gdb_result_t* r;
 	gdb_location_t* loc;
 

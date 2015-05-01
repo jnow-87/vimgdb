@@ -16,7 +16,7 @@ gdb_frame_t::~gdb_frame_t(){
 	delete fullname;
 }
 
-int conv_frame(gdb_result_t* result, gdb_frame_t** frame){
+int gdb_frame_t::result_to_frame(gdb_result_t* result, gdb_frame_t** frame){
 	gdb_result_t* r;
 
 

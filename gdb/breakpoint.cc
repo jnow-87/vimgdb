@@ -17,7 +17,7 @@ gdb_breakpoint_t::~gdb_breakpoint_t(){
 	delete at;
 }
 
-int result_to_brkpt(gdb_result_t* result, void** _bkpt){
+int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
 	gdb_result_t* r;
 	gdb_breakpoint_t* bkpt;
 

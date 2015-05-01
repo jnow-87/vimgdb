@@ -18,6 +18,9 @@ public:
 	gdb_variable_t();
 	~gdb_variable_t();
 
+	static int result_to_variable(gdb_result_t* result, void** var);
+	static int result_to_change_list(gdb_result_t* result, void** unused);
+
 	int create(char* expr, gdb_varorigin_t origin);
 	int destroy();
 
