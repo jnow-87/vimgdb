@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-int strlen(int val, int base){
+int strlen(unsigned int val, int base){
 	unsigned int len;
 
 
@@ -14,6 +14,10 @@ int strlen(int val, int base){
 			return len;
 		len++;
 	}
+}
+
+int strlen(int val, int base){
+	return strlen((unsigned int)(val < 0 ? val * -1 : val), base) + (val < 0 ? 1 : 0);
 }
 
 int strsplit(char* line, int* _argc, char*** _argv){
@@ -315,14 +319,14 @@ char* strdeescape(char* s){
 	return s;
 }
 
-char* itoa(int v, char** s, unsigned int* max){
+char* itoa(unsigned int v, char** s, unsigned int* max, bool neg){
 	unsigned int len = 0;
 	
 
 	if(s == 0)
 		return 0;
 
-	len = strlen(v, 10) + 1;
+	len = strlen(v, 10) + 1 + (neg ? 1 : 0);
 
 	if(*max < len){
 		*max += len;;
@@ -335,8 +339,12 @@ char* itoa(int v, char** s, unsigned int* max){
 		return 0;
 	}
 
-	sprintf(*s, "%d", v);
+	sprintf(*s, "%s%u", (neg ? "-" : ""), v);
 	return *s;
+}
+
+char* itoa(int v, char** s, unsigned int* max){
+	return itoa((unsigned int)(v < 0 ? v * -1 : v), s, max, (v < 0 ? true : false));
 }
 
 char* stralloc(char* _s, unsigned int len){
