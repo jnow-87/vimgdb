@@ -37,6 +37,12 @@ function vimgdb#config#init()
 	call vimgdb#util#assign("g:vimgdb_variables_height", 10)
 	call vimgdb#util#assign("g:vimgdb_variables_vertical", 1)
 
+	let g:vimgdb_callstack_name = "callstack"
+	call vimgdb#util#assign("g:vimgdb_callstack_show", 1)
+	call vimgdb#util#assign("g:vimgdb_callstack_width", 40)
+	call vimgdb#util#assign("g:vimgdb_callstack_height", 10)
+	call vimgdb#util#assign("g:vimgdb_callstack_vertical", 0)
+
 	" preliminary mappings
 	nnoremap <silent> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
 	nnoremap <silent> B :exec "Break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
