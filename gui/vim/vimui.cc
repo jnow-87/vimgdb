@@ -634,7 +634,11 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 			switch(fmt[++i]){
 			case 'i':
 			case 'd':
-				nbclient->send(itoa(va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				nbclient->send(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				break;
+
+			case 'u':
+				nbclient->send(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
 				break;
 
 			case 's':
