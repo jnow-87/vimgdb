@@ -150,7 +150,12 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 		case '%':
 			switch(fmt[i + 1]){
 			case 'd':
-				gdb->write(itoa(va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				gdb->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				i++;
+				break;
+
+			case 'u':
+				gdb->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
 				i++;
 				break;
 
