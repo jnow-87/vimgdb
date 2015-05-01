@@ -207,10 +207,16 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	token++;
 
 	if((resp.rclass & ok_mask)){
-		if(resp.result && process){
-			if(process(resp.result, r) != 0){
-				ERROR("unable to process result for \"%s\"\n", cmd);
-				resp.rclass = RC_ERROR;
+		if(resp.result){
+			if(process){
+				if(process(resp.result, r) != 0){
+					ERROR("unable to process result for \"%s\"\n", cmd);
+					resp.rclass = RC_ERROR;
+				}
+			}
+			else if(r){
+				*r = (void**)resp.result;
+				resp.result = 0;
 			}
 		}
 	}
