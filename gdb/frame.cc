@@ -31,20 +31,24 @@ int conv_frame(gdb_result_t* result, gdb_frame_t** frame){
 
 		case IDV_LINE:
 			(*frame)->line = atoi((char*)r->value->value);
+			break;
 
 		case IDV_FUNCTION:
-			(*frame)->function = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*frame)->function, (const char*)r->value->value);
+			delete (*frame)->function;
+			(*frame)->function = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_FILE:
-			(*frame)->filename = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*frame)->filename, (const char*)r->value->value);
+			delete (*frame)->filename;
+			(*frame)->filename = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 
 		case IDV_FULLNAME:
-			(*frame)->fullname = new char[strlen((const char*)r->value->value) + 1];
-			strcpy((*frame)->fullname, (const char*)r->value->value);
+			delete (*frame)->fullname;
+			(*frame)->fullname = (char*)r->value->value;
+			r->value->value = 0;
 			break;
 		};
 	}

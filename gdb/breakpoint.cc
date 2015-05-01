@@ -42,11 +42,13 @@ int result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			break;
 
 		case IDV_FILE:
+			delete bkpt->filename;
 			bkpt->filename = (char*)r->value->value;
 			r->value->value = 0;
 			break;
 
 		case IDV_FULLNAME:
+			delete bkpt->fullname;
 			bkpt->fullname = (char*)r->value->value;
 			r->value->value = 0;
 			break;
@@ -56,6 +58,7 @@ int result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			break;
 
 		case IDV_AT:
+			delete bkpt->at;
 			bkpt->at = (char*)r->value->value;
 			r->value->value = 0;
 			break;

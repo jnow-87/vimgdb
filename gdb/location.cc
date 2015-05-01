@@ -15,7 +15,6 @@ gdb_location_t::~gdb_location_t(){
 	delete filename;
 }
 
-
 int result_to_location(gdb_result_t* result, void** loc_){
 	gdb_result_t* r;
 	gdb_location_t* loc;
@@ -33,11 +32,13 @@ int result_to_location(gdb_result_t* result, void** loc_){
 			break;
 
 		case IDV_FILE:
+			delete loc->filename;
 			loc->filename = (char*)r->value->value;
 			r->value->value = 0;
 			break;
 
 		case IDV_FULLNAME:
+			delete loc->fullname;
 			loc->fullname = (char*)r->value->value;
 			r->value->value = 0;
 			break;
