@@ -29,7 +29,7 @@ function! s:vimgdb(state)
 
 		" commands
 		call vimgdb#window#init()
-		call vimgdb#var#init()
+		call vimgdb#variable#init()
 		call vimgdb#exec#init()
 		call vimgdb#break#init()
 		call vimgdb#inferior#init()
@@ -60,7 +60,7 @@ function! s:vimgdb(state)
 		" cleanup
 		call vimgdb#complete#cleanup()
 		call vimgdb#window#cleanup()
-		call vimgdb#var#cleanup()
+		call vimgdb#variable#cleanup()
 		call vimgdb#exec#cleanup()
 		call vimgdb#break#cleanup()
 		call vimgdb#inferior#cleanup()
