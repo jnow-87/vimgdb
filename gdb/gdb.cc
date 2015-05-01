@@ -131,10 +131,13 @@ void gdbif::on_stop(int (*hdlr)(void)){
 int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...){
 	static char* volatile s = 0;
 	static unsigned int volatile s_len = 0;
+	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 	unsigned int i, j, argc;
 	char** argv;
 	va_list lst;
 
+
+	pthread_mutex_lock(&m);
 
 	va_start(lst, fmt);
 
@@ -176,8 +179,10 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 				break;
 
 			default:
-				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
+				pthread_mutex_unlock(&m);
 				va_end(lst);
+
+				ERROR("invalid format sequence %%%c\n", fmt[i + 1]);
 				return -1;
 			};
 
@@ -215,6 +220,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	gdb_result_free(resp.result);
 
 	pthread_mutex_unlock(&resp_mtx);
+	pthread_mutex_unlock(&m);
 
 	va_end(lst);
 
