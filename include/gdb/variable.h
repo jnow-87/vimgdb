@@ -31,6 +31,7 @@ public:
 
 
 	int set(int argc, char** argv);
+	int format(char* fmt);
 	int update();
 	int print(int win_id, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
 	int init_childs();

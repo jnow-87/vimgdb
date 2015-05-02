@@ -92,3 +92,4 @@ level,									IDV_LEVEL
 stack,									IDV_STACK
 variables,								IDV_VARIABLES
 exit-code,								IDV_EXITCODE
+format,									IDV_FORMAT

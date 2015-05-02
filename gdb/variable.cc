@@ -269,6 +269,14 @@ int gdb_variable_t::set(int argc, char** argv){
 	return 0;
 }
 
+int gdb_variable_t::format(char* fmt){
+	if(gdb->mi_issue_cmd((char*)"var-set-format",  RC_DONE, 0, 0, "\"%s\" %s", name, fmt) != 0)
+		return -1;
+
+	modified = true;
+	return 0;
+}
+
 int gdb_variable_t::update(){
 	gdb_variable_t* v;
 
