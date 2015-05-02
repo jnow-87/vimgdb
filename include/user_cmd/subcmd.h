@@ -24,6 +24,7 @@ typedef enum{
 	SET,
 	GET,
 	VIEW,
+	FORMAT,
 } user_subcmd_id_t;
 
 struct user_subcmd_t{

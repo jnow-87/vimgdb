@@ -40,11 +40,26 @@ int cmd_var_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == SET || scmd->id == GET) && argc < 3){
+	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == GET) && argc < 3) || (scmd->id == SET || scmd->id == FORMAT && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
 	}
+
+	switch(scmd->id){
+	case DELETE:
+	case FOLD:
+	case SET:
+	case FORMAT:
+		var = MAP_LOOKUP(line_map, atoi(argv[2]));
+
+		if(var == 0){
+			USER("no variable at line %s\n", argv[2]);
+			return 0;
+		}
+
+		break;
+	};
 
 	switch(scmd->id){
 	case ADD:
@@ -58,13 +73,6 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 	
 	case DELETE:
-		var = MAP_LOOKUP(line_map, atoi(argv[2]));
-
-		if(var == 0){
-			USER("no variable at line %s\n", argv[2]);
-			return 0;
-		}
-
 		while(var->parent != 0)
 			var = var->parent;
 
@@ -75,13 +83,6 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 
 	case FOLD:
-		var = MAP_LOOKUP(line_map, atoi(argv[2]));
-
-		if(var == 0){
-			USER("no variable at line \"%s\"\n", argv[2]);
-			return 0;
-		}
-
 		if(var->nchilds){
 			var->init_childs();
 
@@ -95,19 +96,17 @@ int cmd_var_exec(int argc, char** argv){
 		break;
 
 	case SET:
-		var = MAP_LOOKUP(line_map, atoi(argv[2]));
-
-		if(var == 0){
-			USER("no variable at line \"%s\"\n", argv[2]);
-			return 0;
-		}
-
 		var->set(argc - 3, argv + 3);
 
 		gdb_variable_t::get_changed();
 
 		cmd_var_print();
 		cmd_callstack_print();
+		break;
+
+	case FORMAT:
+		var->format(argv[3]);
+		cmd_var_print();
 		break;
 
 	case GET:

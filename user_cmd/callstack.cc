@@ -40,11 +40,23 @@ int cmd_callstack_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == FOLD || scmd->id == SET || scmd->id == GET) && argc < 3){
+	if(((scmd->id == FOLD || scmd->id == GET) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_callstack_help(2, argv);
 		return 0;
 	}
+
+	switch(scmd->id){
+	case SET:
+	case FORMAT:
+		var = MAP_LOOKUP(line_vars, atoi(argv[2]));
+
+		if(var == 0){
+			USER("no variable at line \"%s\"\n", argv[2]);
+			return 0;
+		}
+		break;
+	};
 
 	switch(scmd->id){
 	case FOLD:
@@ -76,19 +88,17 @@ int cmd_callstack_exec(int argc, char** argv){
 		break;
 
 	case SET:
-		var = MAP_LOOKUP(line_vars, atoi(argv[2]));
-
-		if(var == 0){
-			USER("no variable at line \"%s\"\n", argv[2]);
-			return 0;
-		}
-
 		var->set(argc - 3, argv + 3);
 
 		gdb_variable_t::get_changed();
 
 		cmd_callstack_print();
 		cmd_var_print();
+		break;
+
+	case FORMAT:
+		var->format(argv[3]);
+		cmd_callstack_print();
 		break;
 
 	case GET:

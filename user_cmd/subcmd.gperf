@@ -46,3 +46,4 @@ fold,		FOLD
 set,		SET
 get,		GET
 view,		VIEW
+format,		FORMAT
