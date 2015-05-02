@@ -35,10 +35,10 @@ int cmd_register_init(){
 	if(gdb->mi_issue_cmd((char*)"data-list-register-names", RC_DONE, 0, (void**)&r, "") != 0)
 		return -1;
 
-	if(r->var_id != IDV_REG_NAMES){
-		gdb_result_free(r);
-		return -1;
-	}
+	if(r->var_id != IDV_REG_NAMES)
+		goto err_0;
+
+	ui->atomic(true);
 
 	/* create variables */
 	list_for_each((gdb_value_t*)r->value->value, val){
@@ -48,15 +48,25 @@ int cmd_register_init(){
 		var = gdb_variable_t::acquire((char*)val->value, O_REGISTER);
 
 		if(var == 0)
-			return -1;
+			goto err_1;
 
 		if(var->format((char*)"hexadecimal") != 0)
-			return -1;
+			goto err_1;
 	}
 
 	cmd_register_print();
 
+	gdb_result_free(r);
+	ui->atomic(false);
+
 	return 0;
+
+err_1:
+	ui->atomic(false);
+
+err_0:
+	gdb_result_free(r);
+	return -1;
 }
 
 int cmd_register_exec(int argc, char** argv){
