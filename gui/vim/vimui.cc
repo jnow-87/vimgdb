@@ -221,7 +221,7 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	if(name[0] == '/')
 		action(CMD, "editFile", id, 0, 0, "\"%s\"", name);
 	else
-		action(CMD, "putBufferNumber", id, 0, 0, "\"%s%s\"", cwd, name);
+		action(CMD, "putBufferNumber", id, 0, 0, "\"%s/%s\"", cwd, name);
 
 	action(CMD, "stopDocumentListen", id, 0, 0, "");
 
@@ -235,8 +235,8 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 		strcpy(b->name, name);
 	}
 	else{
-		b->name = new char[strlen(name) + strlen(cwd) + 1];
-		sprintf(b->name, "%s%s", cwd, name);
+		b->name = new char[strlen(name) + strlen(cwd) + 2];
+		sprintf(b->name, "%s/%s", cwd, name);
 	}
 
 
@@ -262,7 +262,7 @@ int vimui::win_getid(const char* name){
 	pthread_mutex_lock(&buf_mtx);
 
 	if(name[0] != '/'){
-		len = strlen(name) + strlen(cwd) + 1;
+		len = strlen(name) + strlen(cwd) + 2;
 
 		if(slen < len){
 			delete s;
@@ -270,7 +270,7 @@ int vimui::win_getid(const char* name){
 			slen = len;
 		}
 
-		sprintf(s, "%s%s", cwd, name);
+		sprintf(s, "%s/%s", cwd, name);
 		it = bufname_map.find(s);
 	}
 	else
