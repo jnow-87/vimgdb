@@ -32,7 +32,7 @@ gdbif::gdbif(){
 	is_running = false;
 	event_lst = 0;
 	stop_hdlr = 0;
-	cur_thread = -1;
+	cur_thread = 0;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
