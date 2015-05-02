@@ -132,6 +132,8 @@ void cmd_callstack_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
+	ui->atomic(true);
+
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
@@ -185,6 +187,8 @@ void cmd_callstack_help(int argc, char** argv){
 			};
 		}
 	}
+
+	ui->atomic(false);
 }
 
 int cmd_callstack_update(){
