@@ -216,8 +216,8 @@ int cmd_var_print(){
 
 	line = 1;
 
-	for(it=gdb_var_lst.begin(); it!=gdb_var_lst.end(); it++){
-		if(it->second->origin == O_USER && it->second->parent == 0)
+	for(it=gdb_user_var.begin(); it!=gdb_user_var.end(); it++){
+		if(it->second->parent == 0)
 			it->second->print(win_id, &line, &line_map, true);
 	}
 

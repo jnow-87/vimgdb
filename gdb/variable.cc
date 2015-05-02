@@ -14,7 +14,12 @@ using namespace std;
 
 
 /* global variables */
-map<string, gdb_variable_t*> gdb_var_lst;
+map<string, gdb_variable_t*> gdb_user_var;
+map<string, gdb_variable_t*> gdb_callstack_var;
+
+
+/* static variables */
+static map<string, gdb_variable_t*> gdb_var_lst;
 
 
 /* class */
@@ -39,10 +44,17 @@ gdb_variable_t::~gdb_variable_t(){
 	map<string, gdb_variable_t*>::iterator it;
 
 
-	it = gdb_var_lst.find(name);
+	MAP_ERASE(gdb_var_lst, name);
 
-	if(it != gdb_var_lst.end())
-		gdb_var_lst.erase(it);
+	switch(origin){
+	case O_CALLSTACK:
+		MAP_ERASE(gdb_callstack_var, name);
+		break;
+
+	case O_USER:
+		MAP_ERASE(gdb_user_var, name);
+		break;
+	};
 
 	delete name;
 	delete exp;
@@ -56,20 +68,28 @@ gdb_variable_t::~gdb_variable_t(){
 }
 
 gdb_variable_t* gdb_variable_t::acquire(char* expr, char* context, unsigned int frame){
+	unsigned int i;
 	gdb_variable_t* v;
+	gdb_origin_t origin;
 	string key;
 
 
+	/* identify variable origin and set key accordingly */
 	if(context){
+		origin = O_CALLSTACK;
+
 		key = "s:";
 		key += context;
 		key += ":";
 	}
-	else
+	else{
+		origin = O_USER;
 		key = "u:";
+	}
 
 	key += expr;
 
+	/* check if variables already exists */
 	v = MAP_LOOKUP(gdb_var_lst, key);
 
 	if(v != 0){
@@ -77,30 +97,43 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, char* context, unsigned int 
 		return v;
 	}
 
+	/* create variable */
 	v = new gdb_variable_t;
 
-	if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "--thread %u --frame %u \"%s\" %s %s", gdb->threadid(), frame, key.c_str(), (context ? "*" : "@"), expr) == 0){
-		v->origin = context ? O_STACK : O_USER;
-
-		gdb_var_lst[key] = v;
-
-		if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\"", v->name) == 0)
-			return v;
+	if(gdb->threadid() == 0){
+		// create variable without inferior being started (no threadid available)
+		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\" %s %s", key.c_str(), (origin == O_USER  ? "@" : "*"), expr) != 0)
+			return 0;
 	}
+	else{
+		// create variable in the context of the current thread and frame
+		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "--thread %u --frame %u \"%s\" %s %s", gdb->threadid(), frame, key.c_str(), (origin == O_USER  ? "@" : "*"), expr) != 0)
+			return 0;
+	}
+
+	v->origin = origin;
+
+	gdb_var_lst[key] = v;
+
+	switch(origin){
+	case O_CALLSTACK:
+		gdb_callstack_var[key] = v;
+		break;
+
+	case O_USER:
+		gdb_user_var[key] = v;
+		break;
+	};
+
+	if(gdb->mi_issue_cmd((char*)"var-info-expression", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\"", v->name) == 0)
+		return v;
 
 	return 0;
 }
 
 int gdb_variable_t::release(gdb_variable_t* v){
-	map<string, gdb_variable_t*>::iterator it;
-
-
 	if(--v->refcnt == 0){
-		it = gdb_var_lst.find(v->name);
-
-		if(it != gdb_var_lst.end()){
-			gdb_var_lst.erase(it);
-
+		if(MAP_LOOKUP(gdb_var_lst, v->name) != 0){
 			if(gdb->mi_issue_cmd((char*)"var-delete", RC_DONE, 0, 0, "\"%s\"", v->name) != 0)
 				return -1;
 		}

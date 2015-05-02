@@ -14,9 +14,9 @@ using namespace std;
 /* types */
 typedef enum{
 	O_UNKNOWN = 0,
-	O_STACK,
+	O_CALLSTACK,
 	O_USER,
-} gdb_varorigin_t;
+} gdb_origin_t;
 
 
 /* class */
@@ -48,7 +48,7 @@ public:
 	unsigned int nchilds,
 				 refcnt;
 
-	gdb_varorigin_t origin;
+	gdb_origin_t origin;
 
 	class gdb_variable_t *next,
 						 *prev,
@@ -65,7 +65,8 @@ private:
 
 
 /* external variables */
-extern map<string, gdb_variable_t*> gdb_var_lst;
+extern map<string, gdb_variable_t*> gdb_user_var;
+extern map<string, gdb_variable_t*> gdb_callstack_var;
 
 
 #endif // GDB_VARIABLE_H
