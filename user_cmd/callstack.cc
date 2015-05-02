@@ -136,6 +136,7 @@ void cmd_callstack_help(int argc, char** argv){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
 		USER("      fold <line>          fold/unfold variable/frame\n");
+		USER("      format <line> <fmt>  change variable output format\n");
 		USER("      set <line> <value>   set variable\n");
 		USER("      get <filename>       get list of variables/frames\n");
 		USER("      view                 update callstack window\n");
@@ -154,6 +155,13 @@ void cmd_callstack_help(int argc, char** argv){
 			case FOLD:
 				USER("usage %s %s <line>\n", argv[0], argv[i]);
 				USER("   fold variable or frame at line <line>\n");
+				USER("\n");
+				break;
+
+			case FORMAT:
+				USER("usage %s %s <line> <format>\n", argv[0], argv[i]);
+				USER("   change format of variable at line <line> to <format>\n");
+				USER("   <format> = binary | decimal | hexadecimal | octal | natural\n");
 				USER("\n");
 				break;
 
@@ -252,7 +260,7 @@ int cmd_callstack_update(){
 
 		// update frame
 		list_for_each(varlst, vartmp){
-			var = gdb_variable_t::acquire(vartmp->name, (char*)ctx.c_str(), frame->level);
+			var = gdb_variable_t::acquire(vartmp->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
 	
 			if(var != 0){
 				var->refcnt++;	// avoid variable being deleted once deleting the frame

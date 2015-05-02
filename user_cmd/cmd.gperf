@@ -36,6 +36,7 @@ break,		cmd_break_exec,		cmd_break_help,		"manage breakpoints"
 exec,		cmd_exec_exec,		cmd_exec_help,		"run control"
 variable,	cmd_var_exec,		cmd_var_help,		"manage user defined variables"
 callstack,	cmd_callstack_exec,	cmd_callstack_help,	"control layout and variables on the callstack"
+register,	cmd_register_exec,	cmd_register_help,	"control target registers"
 %%
 
 /**

@@ -16,6 +16,7 @@ using namespace std;
 /* global variables */
 map<string, gdb_variable_t*> gdb_user_var;
 map<string, gdb_variable_t*> gdb_callstack_var;
+map<string, gdb_variable_t*> gdb_register_var;
 
 
 /* static variables */
@@ -51,6 +52,10 @@ gdb_variable_t::~gdb_variable_t(){
 		MAP_ERASE(gdb_callstack_var, name);
 		break;
 
+	case O_REGISTER:
+		MAP_ERASE(gdb_register_var, name);
+		break;
+
 	case O_USER:
 		MAP_ERASE(gdb_user_var, name);
 		break;
@@ -67,25 +72,27 @@ gdb_variable_t::~gdb_variable_t(){
 	}
 }
 
-gdb_variable_t* gdb_variable_t::acquire(char* expr, char* context, unsigned int frame){
-	unsigned int i;
+gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* context, unsigned int frame){
 	gdb_variable_t* v;
-	gdb_origin_t origin;
 	string key;
 
 
 	/* identify variable origin and set key accordingly */
-	if(context){
-		origin = O_CALLSTACK;
-
+	switch(origin){
+	case O_CALLSTACK:
 		key = "s:";
 		key += context;
 		key += ":";
-	}
-	else{
-		origin = O_USER;
+		break;
+
+	case O_REGISTER:
+		key = "r:";
+		break;
+
+	case O_USER:
 		key = "u:";
-	}
+		break;
+	};
 
 	key += expr;
 
@@ -102,12 +109,12 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, char* context, unsigned int 
 
 	if(gdb->threadid() == 0){
 		// create variable without inferior being started (no threadid available)
-		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\" %s %s", key.c_str(), (origin == O_USER  ? "@" : "*"), expr) != 0)
+		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\" %s %s%s", key.c_str(), (origin == O_USER  ? "@" : "*"), (origin == O_REGISTER ? "$" : ""), expr) != 0)
 			return 0;
 	}
 	else{
 		// create variable in the context of the current thread and frame
-		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "--thread %u --frame %u \"%s\" %s %s", gdb->threadid(), frame, key.c_str(), (origin == O_USER  ? "@" : "*"), expr) != 0)
+		if(gdb->mi_issue_cmd((char*)"var-create", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "--thread %u --frame %u \"%s\" %s %s%s", gdb->threadid(), frame, key.c_str(), (origin == O_USER  ? "@" : "*"), (origin == O_REGISTER ? "$" : ""), expr) != 0)
 			return 0;
 	}
 
@@ -118,6 +125,10 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, char* context, unsigned int 
 	switch(origin){
 	case O_CALLSTACK:
 		gdb_callstack_var[key] = v;
+		break;
+
+	case O_REGISTER:
+		gdb_register_var[key] = v;
 		break;
 
 	case O_USER:

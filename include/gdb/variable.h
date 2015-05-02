@@ -15,6 +15,7 @@ using namespace std;
 typedef enum{
 	O_UNKNOWN = 0,
 	O_CALLSTACK,
+	O_REGISTER,
 	O_USER,
 } gdb_origin_t;
 
@@ -22,7 +23,7 @@ typedef enum{
 /* class */
 class gdb_variable_t{
 public:
-	static gdb_variable_t* acquire(char* expr, char* context = 0, unsigned int frame = 0);
+	static gdb_variable_t* acquire(char* expr, gdb_origin_t origin, char* context = 0, unsigned int frame = 0);
 	static int release(gdb_variable_t* v);
 	static int get_changed();
 
@@ -68,6 +69,7 @@ private:
 /* external variables */
 extern map<string, gdb_variable_t*> gdb_user_var;
 extern map<string, gdb_variable_t*> gdb_callstack_var;
+extern map<string, gdb_variable_t*> gdb_register_var;
 
 
 #endif // GDB_VARIABLE_H

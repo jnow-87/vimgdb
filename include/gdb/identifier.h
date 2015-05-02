@@ -70,6 +70,7 @@ typedef enum{
 	IDV_VARIABLES,
 	IDV_EXITCODE,
 	IDV_FORMAT,
+	IDV_REG_NAMES,
 } gdb_id_val_t;
 
 struct gdb_id_t{
