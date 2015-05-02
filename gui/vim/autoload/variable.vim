@@ -7,6 +7,17 @@ let s:cmd_dict = {
 		\ "add":{"__nested__":"vimgdb#complete#sym_variable"},
 		\ "delete":{"__nested__":"vimgdb#variable#complete"},
 		\ "fold":{"__nested__":"vimgdb#variable#complete"},
+		\ "format":{
+			\ "__nested__":"vimgdb#variable#complete",
+			\ "__nested1__":{
+				\ "binary":{},
+				\ "decimal":{},
+				\ "hexadecimal":{},
+				\ "octal":{},
+				\ "natural":{},
+			\ },
+		\ },
+		\
 		\ "set":{"__nested__":"vimgdb#variable#complete"},
 		\ "view":{},
 	\ }

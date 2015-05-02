@@ -26,29 +26,66 @@ function! vimgdb#complete#lookup(arg, line, pos)
 	let l:dict = g:vimgdb_cmd_dict
 
 	" iterate over arguments (l:argv) checking dictionary for completion
-	for l:i in range(0, l:argc - 1)
-		" check if l:dict contains key argv[i]
+	let l:i = 0
+	while l:i < l:argc
 		if has_key(l:dict, l:argv[l:i])
-			" cycle to next dictionary
+			" l:dict contains key l:argv[i], hence cycle to next dictionary
 			let l:dict = l:dict[l:argv[l:i]]
 		else
-			" if key is not present check if this is the last argument
-			if l:i == l:argc - 1 && a:line[a:pos - 1] != ' '
-				" argv[i] is the last argument, since there is no entry in
-				" l:dict it is apperently incomplete, hence break the loop
-				" returning the completion for l:dict
-				break
-			endif
-			
-			" argv[i] is not the last argument, hence this indicated an
-			" invalid subcommand, therefor return empty string, indicating
-			" the error
-			return ""
-		endif
-	endfor
+			" key l:argv[i] is not present in l:dict
 
-	" check for nested completion function
+			if l:i == l:argc - 1 && a:line[a:pos - 1] != ' '
+				" l:argv[i] is the last argument, since there is no entry in
+				" l:dict and a:line[a:pos - 1] is not a blank, the current
+				" argument is incomplete, hence break the loop and return
+				" content of current dictionary l:dict
+				break
+
+			elseif has_key(l:dict, "__nested__")
+				" l:dict contains an entry '__nested__', i.e. its completion
+				" is computed via a function
+				" completion will only continue if a second stage nest is
+				" present, i.e. '__nested1__' is defined as a dictionary
+				"
+				if !has_key(l:dict, "__nested1__")
+					" no subsequent completion for this argument
+					return ""
+				endif
+
+				" get subsequent dictionary
+				let l:subnest = l:dict["__nested1__"]
+
+				" get completion for current argument
+				exec "let l:str = " . l:dict["__nested__"] . "(\"" . a:arg . "\")"
+
+				" generate intermediate dictionary containing all results for
+				" the current completion level as key and the subsequent nest,
+				" as value
+				let l:sargv = split(l:str, '\n')
+				let l:sargc = len(l:sargv)
+
+				let l:dict = {}
+				for l:j in range(0, l:sargc - 1)
+					let l:dict[l:sargv[l:j]] = l:subnest
+				endfor
+
+				" for next iteration with same element of l:argv[] but on the
+				" intermediate dictionary
+				continue
+
+			else
+				" no entry found for argument, while argument also not being
+				" incomplete, this indicated an invalid argument
+				" incomplete ar
+				return ""
+			endif
+		endif
+
+		let l:i += 1
+	endwhile
+
 	if has_key(l:dict, "__nested__")
+		" nesting is defined use the given function to compute the completion
 		exec "return " . l:dict["__nested__"] . "(\"" . a:arg . "\")"
 	endif
 

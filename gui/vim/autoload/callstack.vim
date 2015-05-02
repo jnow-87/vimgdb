@@ -5,6 +5,17 @@
 let s:cmd_dict = {
 	\ "Callstack":{
 		\ "fold":{"__nested__":"vimgdb#callstack#complete"},
+		\ "format":{
+			\ "__nested__":"vimgdb#callstack#complete",
+			\ "__nested1__":{
+				\ "binary":{},
+				\ "decimal":{},
+				\ "hexadecimal":{},
+				\ "octal":{},
+				\ "natural":{},
+			\ },
+		\ },
+		\
 		\ "set":{"__nested__":"vimgdb#callstack#complete"},
 		\ "view":{},
 	\ }
