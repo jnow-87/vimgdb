@@ -76,6 +76,12 @@ function vimgdb#config#init()
 	call vimgdb#util#assign("g:vimgdb_callstack_height", 10)
 	call vimgdb#util#assign("g:vimgdb_callstack_vertical", 0)
 
+	let g:vimgdb_register_name = "registers"
+	call vimgdb#util#assign("g:vimgdb_register_show", 0)
+	call vimgdb#util#assign("g:vimgdb_register_width", 40)
+	call vimgdb#util#assign("g:vimgdb_register_height", 10)
+	call vimgdb#util#assign("g:vimgdb_register_vertical", 1)
+
 	" preliminary mappings
 	nnoremap <silent> <buffer> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
 	nnoremap <silent> <buffer> B :exec "Break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>

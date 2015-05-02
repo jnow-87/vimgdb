@@ -34,6 +34,7 @@ function! s:vimgdb(state)
 		call vimgdb#break#init()
 		call vimgdb#inferior#init()
 		call vimgdb#callstack#init()
+		call vimgdb#register#init()
 
 		" start netbeans
 		exec ":nbstart :127.0.0.1:1235:"
@@ -46,6 +47,7 @@ function! s:vimgdb(state)
 		call vimgdb#window#open(g:vimgdb_break_name, g:vimgdb_break_width, g:vimgdb_break_height, g:vimgdb_break_vertical, g:vimgdb_break_show)
 		call vimgdb#window#open(g:vimgdb_variables_name, g:vimgdb_variables_width, g:vimgdb_variables_height, g:vimgdb_variables_vertical, g:vimgdb_variables_show)
 		call vimgdb#window#open(g:vimgdb_inferior_name, g:vimgdb_inferior_width, g:vimgdb_inferior_height, g:vimgdb_inferior_vertical, g:vimgdb_inferior_show)
+		call vimgdb#window#open(g:vimgdb_register_name, g:vimgdb_register_width, g:vimgdb_register_height, g:vimgdb_register_vertical, g:vimgdb_register_show)
 
 		call vimgdb#window#focus(1)
 
@@ -67,6 +69,7 @@ function! s:vimgdb(state)
 		call vimgdb#break#cleanup()
 		call vimgdb#inferior#cleanup()
 		call vimgdb#callstack#cleanup()
+		call vimgdb#register#cleanup()
 
 		" close windows
 		call vimgdb#window#close(g:vimgdb_initial_name)
@@ -76,6 +79,7 @@ function! s:vimgdb(state)
 		call vimgdb#window#close(g:vimgdb_variables_name)
 		call vimgdb#window#close(g:vimgdb_inferior_name)
 		call vimgdb#window#close(g:vimgdb_callstack_name)
+		call vimgdb#window#close(g:vimgdb_register_name)
 
 		let s:initialised = 0
 	else
