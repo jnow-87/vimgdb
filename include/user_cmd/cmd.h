@@ -24,7 +24,7 @@ typedef user_cmd_t user_cmd_t;
 
 
 /* prototypes */
-int cmd_exec(char* cmdline);
+int cmd_exec(char* line);
 
 
 #endif // CMD_H

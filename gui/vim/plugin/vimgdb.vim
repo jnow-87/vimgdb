@@ -15,7 +15,7 @@ let s:initialised = 0
 " \brief	vimgdb init and cleanup function
 "
 " \param	state	"start" | "stop"
-function! s:vimgdb(state)
+function! s:vimgdb(state, ...)
 	if a:state == "" || a:state == "start"
 		if s:initialised != 0
 			return
@@ -82,6 +82,8 @@ function! s:vimgdb(state)
 		call vimgdb#window#close(g:vimgdb_register_name)
 
 		let s:initialised = 0
+	elseif a:state == "direct"
+		call vimgdb#util#cmd(join(a:000))
 	else
 		echoerr "invalid state"
 	endif
@@ -89,7 +91,7 @@ endfunction
 
 " \brief	completion for vimgdb()
 function! s:complete(arg, line, pos)
-	return "start\nstop"
+	return "start\nstop\ndirect"
 endfunction
 
 """"""""""""

@@ -36,7 +36,7 @@ endfunction
 "
 " \param	cmd		command to execute
 function! vimgdb#util#cmd(cmd)
-	exec "nbkey " . a:cmd
+	exec "nbkey " . escape(a:cmd, '"')
 endfunction
 
 " \brief	create exec-mode abbreviation

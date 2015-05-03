@@ -19,6 +19,7 @@
 /* c-code */
 %{
 	#include <common/log.h>
+	#include <common/string.h>
 	#include <gdb/gdb.h>
 	#include <user_cmd/cmd.h>
 	#include <string.h>
@@ -47,54 +48,15 @@ register,	cmd_register_exec,	cmd_register_help,	"control target registers"
  * \return	0			sucess
  * 			-1			error
  */
-int cmd_exec(char* cmdline){
-	unsigned int nspace, i, len;
-	int r;
+int cmd_exec(char* line){
+	unsigned int i;
+	int argc, r;
 	char** argv;
 
 
-	len = strlen(cmdline);
-
-	/* count number of spaces within cmdline */
-	i = 0;
-	nspace = 0;
-	while(i < len){
-		if(cmdline[i] == ' '){
-			while(++i < len && cmdline[i] == ' ');
-			nspace++;
-		}
-
-		if(cmdline[i] == '"')
-			while(++i < len && cmdline[i] != '"');
-
-		i++;
-	}
-
-	/* assign argv to space-separated strings in cmdline */
-	argv = new char*[nspace + 1];
-	argv[0] = cmdline;
-	i = 0;
-	nspace = 0;
-	while(i < len){
-		if(cmdline[i] == ' '){
-			cmdline[i] = 0;
-
-			while(++i < len && cmdline[i] == ' ');
-
-			if(i == len)
-				break;
-
-			i--;
-			argv[++nspace] = cmdline + i + 1;
-		}
-
-		if(cmdline[i] == '"'){
-			argv[nspace]++;
-			while(++i < len && cmdline[i] != '"');
-			cmdline[i] = 0;
-		}
-
-		i++;
+	if(strsplit(strdeescape(line), &argc, &argv) != 0){
+		ERROR("error pre-processing command string \"%s\"\n", line);
+		return -1;
 	}
 
 	/* execute command */
@@ -102,20 +64,17 @@ int cmd_exec(char* cmdline){
 		GDB("invalid user command \"%s\", trying direct execution by gdb\n", argv[0]);
 
 		/* send unknown command to gdb */
-		// reset all '\0' to ' '
-		for(i=0; i<len; i++){
-			if(cmdline[i] == 0) cmdline[i] = ' ';
-		}
-
-		// send cmdline to gdb
-		gdb->write(cmdline, len);
+		gdb->write(line, strlen(line));
 		gdb->write((void*)"\n", 1);
 
 		r = -1;
 	}
 	else
-		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(nspace + 1, argv);
+		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc, argv);
 
+	for(i=0; i<argc; i++)
+		delete argv[i];
 	delete [] argv;
+
 	return r;
 }
