@@ -209,65 +209,68 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	return 0;
 }
 
-char* strescape(char* s, char** e, unsigned int* e_max){
-	char* t;
+char* strescape(char* s, char** _dst, unsigned int* max){
+	char* dst;
+	char src[strlen(s) + 1];
 	unsigned int len;
 	unsigned int i, o;
 	
 
-	if(s == 0 || e == 0)
+	if(s == 0 || _dst == 0)
 		return 0;
 
-	t = *e;
 	len = strlen(s) * 2 + 1;	// at most every char is an escape char
+	strcpy(src, s);
 
-	if(*e_max < len){
-		*e_max += len;
-		t = new char[*e_max];
-		delete *e;
-		*e = t;
+	if(*max < len){
+		delete *_dst;
+
+		*max += len;
+		*_dst = new char[*max];
 	}
 
-	if(t == 0){
-		*e_max = 0;
+	dst = *_dst;
+
+	if(dst == 0){
+		*max = 0;
 		return 0;
 	}
 
 	for(i=0, o=0; i<len/2; i++, o++){
-		switch(s[i]){
+		switch(src[i]){
 		case '\t':
-			t[o] = '\\';
-			t[++o] = 't';
+			dst[o] = '\\';
+			dst[++o] = 't';
 			break;
 
 		case '\n':
-			t[o] = '\\';
-			t[++o] = 'n';
+			dst[o] = '\\';
+			dst[++o] = 'n';
 			break;
 
 		case '\r':
-			t[o] = '\\';
-			t[++o] = 'r';
+			dst[o] = '\\';
+			dst[++o] = 'r';
 			break;
 
 		case '\"':
-			t[o] = '\\';
-			t[++o] = '\"';
+			dst[o] = '\\';
+			dst[++o] = '\"';
 			break;
 
 		case '\\':
-			t[o] = '\\';
-			t[++o] = '\\';
+			dst[o] = '\\';
+			dst[++o] = '\\';
 			break;
 
 		default:
-			t[o] = s[i];
+			dst[o] = src[i];
 		};
 	}
 
-	t[o] = 0;
+	dst[o] = 0;
 
-	return t;
+	return dst;
 }
 
 char* strdeescape(char* s){
