@@ -53,6 +53,9 @@ function! s:vimgdb(state, ...)
 
 		call vimgdb#window#focus(1)
 
+		" signal end of initialisation to vimgdb
+		call vimgdb#util#cmd("init-done")
+
 		let s:initialised = 1
 
 	elseif a:state == "stop"

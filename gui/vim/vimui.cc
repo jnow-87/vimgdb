@@ -83,6 +83,10 @@ int vimui::init(pthread_t main_tid){
 		goto err_3;
 
 	thread_name[read_tid] = "vim-readline";
+
+	// wait for vim to finish init
+	while(strcmp(readline(), "init-done") != 0);
+
 	return 0;
 
 err_3:
@@ -436,9 +440,6 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	va_list tlst;
 	buffer_t* buf;
 
-
-	if(win < 0)
-		return;
 
 	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
 
