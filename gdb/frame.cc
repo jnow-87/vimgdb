@@ -44,7 +44,7 @@ int gdb_frame_t::result_to_frame(gdb_result_t* result, gdb_frame_t** frame){
 	list_for_each(result, r){
 		switch(r->var_id){
 		case IDV_ADDRESS:
-			(*frame)->addr = (void*)atol((char*)r->value->value);
+			(*frame)->addr = (void*)strtoll((char*)r->value->value, 0, 16);
 			break;
 
 		case IDV_LINE:
