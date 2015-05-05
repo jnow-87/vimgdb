@@ -73,6 +73,13 @@ function! vimgdb#window#init()
 		\ "vertical":g:vimgdb_register_vertical,
 	\ }
 
+	let s:win_lst[g:vimgdb_memory_name] = {
+		\ "show":g:vimgdb_memory_show,
+		\ "width":g:vimgdb_memory_width,
+		\ "height":g:vimgdb_memory_height,
+		\ "vertical":g:vimgdb_memory_vertical,
+	\ }
+
 	" update vimgdb completio
 	exec "let s:win_names = \""
 		\ . g:vimgdb_userlog_name . "\n"
@@ -81,7 +88,8 @@ function! vimgdb#window#init()
 		\ . g:vimgdb_inferior_name . "\n"
 		\ . g:vimgdb_variables_name . "\n"
 		\ . g:vimgdb_callstack_name . "\n"
-		\ . g:vimgdb_register_name
+		\ . g:vimgdb_register_name . "\n"
+		\ . g:vimgdb_memory_name
 		\ . "\""
 
 	call extend(g:vimgdb_cmd_dict, s:cmd_dict)

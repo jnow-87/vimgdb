@@ -34,6 +34,10 @@ if !hlexists("vimgdb_functionname")
 	highlight default vimgdb_functionname ctermfg=27
 endif
 
+if !hlexists("vimgdb_memory_unknown")
+	highlight default vimgdb_memory_unknown ctermfg=88
+endif
+
 
 """"""""""""""""""""
 " global functions "
@@ -85,6 +89,12 @@ function vimgdb#config#init()
 	call vimgdb#util#assign("g:vimgdb_register_width", 40)
 	call vimgdb#util#assign("g:vimgdb_register_height", 10)
 	call vimgdb#util#assign("g:vimgdb_register_vertical", 1)
+
+	let g:vimgdb_memory_name = "memory"
+	call vimgdb#util#assign("g:vimgdb_memory_show", 0)
+	call vimgdb#util#assign("g:vimgdb_memory_width", 40)
+	call vimgdb#util#assign("g:vimgdb_memory_height", 10)
+	call vimgdb#util#assign("g:vimgdb_memory_vertical", 0)
 
 	" preliminary mappings
 	nnoremap <silent> <buffer> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
