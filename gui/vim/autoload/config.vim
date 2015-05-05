@@ -14,8 +14,12 @@ if !hlexists("vimgdb_warn")
 	highlight default vimgdb_warn ctermfg=3
 endif
 
-if !hlexists("vimgdb_variable_changed")
-	highlight default vimgdb_variable_changed ctermfg=202
+if !hlexists("vimgdb_hidden")
+	highlight default vimgdb_hidden ctermfg=0
+endif
+
+if !hlexists("vimgdb_content_changed")
+	highlight default vimgdb_content_changed ctermfg=202
 endif
 
 if !hlexists("vimgdb_micmd")
