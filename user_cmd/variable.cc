@@ -40,7 +40,7 @@ int cmd_var_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == GET) && argc < 3) || (scmd->id == SET || scmd->id == FORMAT && argc < 4)){
+	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == GET) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -102,6 +102,7 @@ int cmd_var_exec(int argc, char** argv){
 
 		cmd_var_print();
 		cmd_callstack_print();
+		cmd_memory_update();
 		break;
 
 	case FORMAT:

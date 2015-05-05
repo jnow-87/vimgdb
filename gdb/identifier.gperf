@@ -94,3 +94,8 @@ variables,								IDV_VARIABLES
 exit-code,								IDV_EXITCODE
 format,									IDV_FORMAT
 register-names,							IDV_REG_NAMES
+memory,									IDV_MEMORY
+begin,									IDV_BEGIN
+end,									IDV_END
+offset,									IDV_OFFSET
+contents,								IDV_CONTENTS

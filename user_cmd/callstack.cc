@@ -94,6 +94,7 @@ int cmd_callstack_exec(int argc, char** argv){
 
 		cmd_callstack_print();
 		cmd_var_print();
+		cmd_memory_update();
 		break;
 
 	case FORMAT:
@@ -327,7 +328,7 @@ int cmd_callstack_print(){
 			var->print(win_id, &line, &line_vars, frame->expanded, 1);
 
 			if(!frame->expanded && var != list_last(frame->args))
-				ui->win_print(win_id, ", ");
+				ui->win_print(win_id, ",%s", var->modified ? "" : " ");
 		}
 
 		ui->win_print(win_id, ")\n");

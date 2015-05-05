@@ -60,6 +60,7 @@ int main(int argc, char** argv){
 	gdb->on_stop(cmd_var_print);
 	gdb->on_stop(cmd_callstack_update);
 	gdb->on_stop(cmd_register_print);
+	gdb->on_stop(cmd_memory_update);
 
 	/* main loop */
 	while(1){
