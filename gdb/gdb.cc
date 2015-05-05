@@ -168,8 +168,10 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 					argv = va_arg(lst, char**);
 					argc = va_arg(lst, int);
 
-					for(j=0; j<argc; j++)
+					for(j=0; j<argc; j++){
 						gdb->write(argv[j]);
+						gdb->write((char*)" ");
+					}
 
 					i += 4;
 				}
