@@ -18,6 +18,7 @@ let s:cmd_dict = {
 		\
 		\ "set":{"__nested__":"vimgdb#callstack#complete"},
 		\ "view":{},
+		\ "open":{},
 	\ }
 \ }
 
@@ -40,6 +41,7 @@ function! vimgdb#callstack#init()
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
+		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_variable |
 		\ nnoremap <buffer> <c-f> :silent exec \"Callstack fold \" . line('.')<cr>
 		\ "
@@ -74,12 +76,16 @@ endfunction
 
 " \brief	callstack command implementation
 function! s:callstack(...)
-	exec "Window open " . g:vimgdb_callstack_name
+	if a:1 == "open"
+		call vimgdb#window#open(g:vimgdb_callstack_name, 1)
+		call vimgdb#util#cmd("callstack view")
 
-	" wait for vimgdb to assign id to new buffer, otherwise the
-	" subsequent vimgdb#util#cmd() is not able to send the command
-	sleep 100m
+	elseif a:1 == "view"
+		call vimgdb#window#view(g:vimgdb_callstack_name)
+		call vimgdb#util#cmd("callstack view")
 
-	" exec vimgdb command
-	call vimgdb#util#cmd("callstack " . join(a:000))
+	else
+		call vimgdb#window#open(g:vimgdb_callstack_name, 1)
+		call vimgdb#util#cmd("callstack " . join(a:000))
+	endif
 endfunction

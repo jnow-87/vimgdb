@@ -41,13 +41,13 @@ function! s:vimgdb(state, ...)
 
 		" init windows
 		call vimgdb#window#initial(g:vimgdb_initial_name)
-		call vimgdb#window#open(g:vimgdb_userlog_name, g:vimgdb_userlog_width, g:vimgdb_userlog_height, g:vimgdb_userlog_vertical, g:vimgdb_userlog_show)
-		call vimgdb#window#open(g:vimgdb_gdblog_name, g:vimgdb_gdblog_width, g:vimgdb_gdblog_height, g:vimgdb_gdblog_vertical, g:vimgdb_gdblog_show)
-		call vimgdb#window#open(g:vimgdb_callstack_name, g:vimgdb_callstack_width, g:vimgdb_callstack_height, g:vimgdb_callstack_vertical, g:vimgdb_callstack_show)
-		call vimgdb#window#open(g:vimgdb_break_name, g:vimgdb_break_width, g:vimgdb_break_height, g:vimgdb_break_vertical, g:vimgdb_break_show)
-		call vimgdb#window#open(g:vimgdb_variables_name, g:vimgdb_variables_width, g:vimgdb_variables_height, g:vimgdb_variables_vertical, g:vimgdb_variables_show)
-		call vimgdb#window#open(g:vimgdb_inferior_name, g:vimgdb_inferior_width, g:vimgdb_inferior_height, g:vimgdb_inferior_vertical, g:vimgdb_inferior_show)
-		call vimgdb#window#open(g:vimgdb_register_name, g:vimgdb_register_width, g:vimgdb_register_height, g:vimgdb_register_vertical, g:vimgdb_register_show)
+		call vimgdb#window#open(g:vimgdb_userlog_name, 0)
+		call vimgdb#window#open(g:vimgdb_gdblog_name, 0)
+		call vimgdb#window#open(g:vimgdb_callstack_name, 0)
+		call vimgdb#window#open(g:vimgdb_break_name, 0)
+		call vimgdb#window#open(g:vimgdb_variables_name, 0)
+		call vimgdb#window#open(g:vimgdb_inferior_name, 0)
+		call vimgdb#window#open(g:vimgdb_register_name, 0)
 
 		call vimgdb#window#focus(1)
 

@@ -20,6 +20,7 @@ let s:cmd_dict = {
 		\
 		\ "set":{"__nested__":"vimgdb#variable#complete"},
 		\ "view":{},
+		\ "open":{},
 	\ }
 \ }
 
@@ -45,6 +46,7 @@ function! vimgdb#variable#init()
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
+		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_variable |
 		\ nnoremap <buffer> <c-f> :silent exec \"Variable fold \" . line('.')<cr>
 		\ "
@@ -74,14 +76,18 @@ endfunction
 
 " \brief	variable command implementation
 function! s:variable(...)
-	exec "Window open " . g:vimgdb_variables_name
+	if a:1 == "open"
+		call vimgdb#window#open(g:vimgdb_variables_name, 1)
+		call vimgdb#util#cmd("variable view")
 
-	" wait for vimgdb to assign id to new buffer, otherwise the
-	" subsequent vimgdb#util#cmd() is not able to send the command
-	sleep 100m
+	elseif a:1 == "view"
+		call vimgdb#window#view(g:vimgdb_variables_name)
+		call vimgdb#util#cmd("variable view")
 
-	" exec vimgdb command
-	call vimgdb#util#cmd("variable " . join(a:000))
+	else
+		call vimgdb#window#open(g:vimgdb_variables_name, 1)
+		call vimgdb#util#cmd("variable " . join(a:000))
+	endif
 
 	" get list of gdb variable buffer lines
 	call delete("/tmp/vimgdb_variable")

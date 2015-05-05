@@ -9,6 +9,7 @@ let s:cmd_dict = {
 		\ "enable":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "disable":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "view":{},
+		\ "open":{},
 	\ }
 \ }
 
@@ -32,7 +33,8 @@ function! vimgdb#break#init()
 	exec "autocmd! BufWinEnter " . g:vimgdb_break_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal nowrap
 		\ "
 endfunction
 
@@ -62,16 +64,18 @@ endfunction
 "
 " \param	...		argument list as required by vimgdb
 function! s:break(...)
-	if a:1 == "view"
-		exec "Window open " . g:vimgdb_break_name
+	if a:1 == "open"
+		call vimgdb#window#open(g:vimgdb_break_name, 1)
+		call vimgdb#util#cmd("break view")
 
-		" wait for vimgdb to assign id to new buffer, otherwise the
-		" subsequent vimgdb#util#cmd() is not able to send the command
-		sleep 100m
+	elseif a:1 == "view"
+		call vimgdb#window#view(g:vimgdb_break_name)
+		call vimgdb#util#cmd("break view")
+
+	else
+		" exec vimgdb command
+		call vimgdb#util#cmd("break " . join(a:000))
 	endif
-
-	" exec vimgdb command
-	call vimgdb#util#cmd("break " . join(a:000))
 
 	" ask vimgdb for breakpoint list
 	call delete("/tmp/vimgdb_break")

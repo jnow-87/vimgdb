@@ -10,6 +10,7 @@ let s:cmd_dict = {
 		\ "args":{},
 		\ "tty":{"__nested__":"vimgdb#complete#pts"},
 		\ "view":{},
+		\ "open":{},
 	\ }
 \ }
 
@@ -31,7 +32,8 @@ function! vimgdb#inferior#init()
 	exec "autocmd! BufWinEnter " . g:vimgdb_inferior_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
-		\ setlocal bufhidden=delete
+		\ setlocal bufhidden=delete |
+		\ setlocal nowrap
 		\ "
 endfunction
 
@@ -58,25 +60,29 @@ endfunction
 
 " \brief	inferior command implementation
 function! s:inferior(...)
-	if a:1 == "view"
-		exec "Window open " . g:vimgdb_inferior_name
+	if a:1 == "open"
+		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
+		call vimgdb#util#cmd("inferior view")
 
-		" wait for vimgdb to assign id to new buffer, otherwise the
-		" subsequent vimgdb#util#cmd() is not able to send the command
-		sleep 100m
-	elseif a:1 != "bin" && a:1 != "args" && a:1 != "tty"
-		let l:file = a:1
+	elseif a:1 == "view"
+		call vimgdb#window#view(g:vimgdb_inferior_name)
+		call vimgdb#util#cmd("inferior view")
 
-		if a:1 == "sym"
-			let l:file = a:2
+	else
+		if a:1 != "bin" && a:1 != "args" && a:1 != "tty"
+			let l:file = a:1
+
+			if a:1 == "sym"
+				let l:file = a:2
+			endif
+
+			" read symbols from file
+			let g:vimgdb_inferior_vars = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* [bBCdDgGrRsS] ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
+			let g:vimgdb_inferior_functions = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* T ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
+			let g:vimgdb_inferior_files = system("readelf  -s " . l:file . " |grep ' FILE' | tr -s ' ' | cut -d ' ' -f 9 | tr -s ' ' | grep '.' | sort | uniq")
 		endif
 
-		" read symbols from file
-		let g:vimgdb_inferior_vars = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* [bBCdDgGrRsS] ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
-		let g:vimgdb_inferior_functions = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* T ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
-		let g:vimgdb_inferior_files = system("readelf  -s " . l:file . " |grep ' FILE' | tr -s ' ' | cut -d ' ' -f 9 | tr -s ' ' | grep '.' | sort | uniq")
+		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
+		call vimgdb#util#cmd("inferior " . join(a:000))
 	endif
-
-	" exec vimgdb command
-	call vimgdb#util#cmd("inferior " . join(a:000))
 endfunction

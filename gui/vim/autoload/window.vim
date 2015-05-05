@@ -74,7 +74,15 @@ function! vimgdb#window#init()
 	\ }
 
 	" update vimgdb completio
-	exec "let s:win_names = \"" . g:vimgdb_userlog_name . "\n" . g:vimgdb_gdblog_name . "\n" . g:vimgdb_break_name . "\n" . g:vimgdb_inferior_name . "\n" . g:vimgdb_variables_name . "\n" . g:vimgdb_callstack_name . "\n" . g:vimgdb_register_name . "\""
+	exec "let s:win_names = \""
+		\ . g:vimgdb_userlog_name . "\n"
+		\ . g:vimgdb_gdblog_name . "\n"
+		\ . g:vimgdb_break_name . "\n"
+		\ . g:vimgdb_inferior_name . "\n"
+		\ . g:vimgdb_variables_name . "\n"
+		\ . g:vimgdb_callstack_name . "\n"
+		\ . g:vimgdb_register_name
+		\ . "\""
 
 	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
 
@@ -87,6 +95,7 @@ function! vimgdb#window#init()
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
+		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_userlog
 		\ "
 
@@ -95,6 +104,7 @@ function! vimgdb#window#init()
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
+		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_gdblog
 		\ "
 endfunction
@@ -137,20 +147,26 @@ endfunction
 " \brief	open a window and add to window list
 "
 " \param	name		buffer name
-" \param	width		window width (only applies for vertically split windows)
-" \param	height		window height (only applies for horizontally split windows)
-" \param	vertical	specify if window shall be horizontal (0) or vertical (1)
-" \param	visible		specify if window shall be displayed
-function! vimgdb#window#open(name, width, height, vertical, visible)
+" \param	force_open	overwrite visibility setting for window, forcing it to
+"						be displayed
+function! vimgdb#window#open(name, force_open)
+	" get window parameter
+	if has_key(s:win_lst, a:name)
+		let l:win = s:win_lst[a:name]
+	else
+		echoerr "window '". a:name . "' not in list"
+		return
+	endif
+
 	" return if buffer is already visible or shall not be displayer
-	if a:visible == 0 || bufwinnr(a:name) != -1
+	if (l:win.show == 0 && a:force_open != 1) || bufwinnr(a:name) != -1
 		return
 	endif
 
 	let l:relative = -1
 	let l:split_arg = "rightbelow"
 
-	if a:vertical == 1
+	if l:win.vertical == 1
 		" for vertically split windows
 		if len(s:win_lst_vert) > 0
 			" focus the last of the vertically split windows
@@ -158,7 +174,7 @@ function! vimgdb#window#open(name, width, height, vertical, visible)
 			let l:relative = str2nr(l:keys[len(l:keys) - 1])
 		else
 			" make the window the first vertical window
-			let l:split_arg = "vertical rightbelow" . a:width
+			let l:split_arg = "vertical rightbelow" . l:win.width
 
 			" focus the first horizontal window
 			if len(s:win_lst_hor) > 0
@@ -168,7 +184,7 @@ function! vimgdb#window#open(name, width, height, vertical, visible)
 		endif
 	else
 		" for horizontally split windows
-		let l:split_arg .= a:height
+		let l:split_arg .= l:win.height
 
 		if len(s:win_lst_hor) > 0
 			" focus the first horizontal window
@@ -192,7 +208,7 @@ function! vimgdb#window#open(name, width, height, vertical, visible)
 	exe l:split_arg . " split " . a:name
 
 	" update respective window list
-	if a:vertical == 1
+	if l:win.vertical == 1
 		let s:win_lst_vert[bufnr(a:name)] = 1
 	else
 		let s:win_lst_hor[bufnr(a:name)] = 1
@@ -200,6 +216,37 @@ function! vimgdb#window#open(name, width, height, vertical, visible)
 
 	" set autocmd for window close
 	exec "autocmd! BufWinLeave " . a:name " silent call vimgdb#window#close(\"" . a:name . "\")"
+
+	" wait for vimgdb to assign id to new buffer, otherwise the
+	" subsequent vimgdb#util#cmd() is not able to send the command
+	sleep 100m
+endfunction
+
+" \brief	open buffer in current window if not already displayed elsewhere
+"
+" \param	name	window name
+function! vimgdb#window#view(name)
+	" return if buffer is already displayed
+	if bufwinnr(a:name) != -1
+		return
+	endif
+
+	if has_key(s:win_lst, a:name)
+		let l:win = s:win_lst[a:name]
+	else
+		echoerr "window '". a:name . "' not in list"
+		return
+	endif
+
+	" open buffer
+	exec "edit " . a:name
+
+	" set autocmd for window close
+	exec "autocmd! BufWinLeave " . a:name " silent call vimgdb#window#close(\"" . a:name . "\")"
+
+	" wait for vimgdb to assign id to new buffer, otherwise the
+	" subsequent vimgdb#util#cmd() is not able to send the command
+	sleep 100m
 endfunction
 
 " \brief	close a window and remove from window list
@@ -245,11 +292,12 @@ endfunction
 " \param	cmd		window command (open, view, close)
 " \param	name	window name
 function! s:window(cmd, name)
-	if a:cmd == "view" || a:cmd == "open"
-		if has_key(s:win_lst, a:name)
-			let l:win = s:win_lst[a:name]
-			call vimgdb#window#open(a:name, l:win.width, l:win.height, l:win.vertical, 1)
-		endif
+	if a:cmd == "open"
+		call vimgdb#window#open(a:name, 1)
+
+	elseif a:cmd == "view"
+		call vimgdb#window#view(a:name)
+	
 	elseif a:cmd == "close"
 		call vimgdb#window#close(a:name)
 	endif
