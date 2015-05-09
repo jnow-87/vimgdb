@@ -96,6 +96,8 @@ int cmd_break_exec(int argc, char** argv){
 
 				bkpt->enabled = true;
 				breakpt_print();
+
+				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
 				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			}
 
@@ -107,6 +109,8 @@ int cmd_break_exec(int argc, char** argv){
 
 				bkpt->enabled = false;
 				breakpt_print();
+
+				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
 				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			}
 
