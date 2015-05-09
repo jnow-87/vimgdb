@@ -1,3 +1,4 @@
+#include <common/log.h>
 #include <common/list.h>
 #include <gdb/memory.h>
 #include <stdlib.h>
@@ -45,6 +46,10 @@ int gdb_memory_t::result_to_memory(gdb_result_t* result, void** _mem){
 			delete mem->content;
 			mem->content = (char*)r->value->value;
 			r->value->value = 0;
+			break;
+
+		default:
+			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;
 		};
 	}

@@ -1,3 +1,4 @@
+#include <common/log.h>
 #include <common/list.h>
 #include <gdb/frame.h>
 #include <string.h>
@@ -71,6 +72,10 @@ int gdb_frame_t::result_to_frame(gdb_result_t* result, gdb_frame_t** frame){
 			delete (*frame)->fullname;
 			(*frame)->fullname = (char*)r->value->value;
 			r->value->value = 0;
+			break;
+
+		default:
+			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;
 		};
 	}

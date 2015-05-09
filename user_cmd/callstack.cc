@@ -56,6 +56,9 @@ int cmd_callstack_exec(int argc, char** argv){
 			return 0;
 		}
 		break;
+
+	default:
+		break;
 	};
 
 	switch(scmd->id){
@@ -228,6 +231,10 @@ int cmd_callstack_update(){
 			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
 
 			list_add_head(&callstack, frame);
+			break;
+
+		default:
+			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;
 		};
 	}

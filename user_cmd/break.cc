@@ -119,6 +119,9 @@ int cmd_break_exec(int argc, char** argv){
 			}
 
 			break;
+
+		default:
+			break;
 		};
 
 		break;

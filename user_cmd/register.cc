@@ -106,6 +106,9 @@ int cmd_register_exec(int argc, char** argv){
 			return 0;
 		}
 		break;
+
+	default:
+		break;
 	};
 
 	switch(scmd->id){

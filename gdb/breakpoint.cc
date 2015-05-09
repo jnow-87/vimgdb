@@ -62,6 +62,10 @@ int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			bkpt->at = (char*)r->value->value;
 			r->value->value = 0;
 			break;
+
+		default:
+			DEBUG("unhandled identifier %d\n", r->var_id);
+			break;
 		};
 	}
 

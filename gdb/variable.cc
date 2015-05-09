@@ -60,6 +60,9 @@ gdb_variable_t::~gdb_variable_t(){
 	case O_USER:
 		MAP_ERASE(gdb_user_var, name);
 		break;
+
+	case O_UNKNOWN:
+		break;
 	};
 
 	delete name;
@@ -92,6 +95,9 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 
 	case O_USER:
 		key = "u:";
+		break;
+
+	case O_UNKNOWN:
 		break;
 	};
 
@@ -134,6 +140,9 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 
 	case O_USER:
 		gdb_user_var[key] = v;
+		break;
+
+	case O_UNKNOWN:
 		break;
 	};
 
@@ -221,6 +230,10 @@ int gdb_variable_t::result_to_variable(gdb_result_t* result, void** _var){
 				}
 			}
 			break;
+
+		default:
+			DEBUG("unhandled identifier %d\n", r->var_id);
+			break;
 		};
 	}
 
@@ -265,6 +278,10 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 			case IDV_INSCOPE:
 				if(var != 0)
 					var->inscope = ((char*)(r->value->value))[0] == 't' ? true : false;
+				break;
+
+			default:
+				DEBUG("unhandled identifier %d\n", r->var_id);
 				break;
 			};
 		}
