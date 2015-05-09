@@ -17,7 +17,7 @@ gdb_result_t* gdb_result_create(const char* var_name, gdb_id_val_t var_id, gdb_v
 
 	r = (gdb_result_t*)malloc(sizeof(gdb_result_t));
 	if(r == 0)
-		goto err_0;
+		return 0;
 
 	// var_name is assumed to be properly allocated, i.e. the
 	// string will stay available
@@ -28,12 +28,6 @@ gdb_result_t* gdb_result_create(const char* var_name, gdb_id_val_t var_id, gdb_v
 	list_init(r);
 
 	return r;
-
-err_1:
-	free(r);
-
-err_0:
-	return 0;
 }
 
 gdb_result_t* gdb_result_free(gdb_result_t* list){

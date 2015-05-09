@@ -48,6 +48,9 @@ int gdb_memory_t::result_to_memory(gdb_result_t* result, void** _mem){
 			r->value->value = 0;
 			break;
 
+		case IDV_OFFSET:
+			break;
+
 		default:
 			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;

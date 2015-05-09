@@ -191,7 +191,7 @@
  * \return none
  */
 //#define list_for_each(head, entry) for(entry=(head)->next; (entry)!=head; entry=(entry)->next)
-#define list_for_each(head, entry) for(auto next=((head) == 0 ? 0 : (head)->next), entry=(head); (entry)!=0; entry=(next), next=(next == 0 ? 0 : next->next))
+#define list_for_each(head, entry) entry=(head); for(auto next=((head) == 0 ? 0 : (head)->next); (entry)!=0; entry=(next), next=(next == 0 ? 0 : next->next))
 
 
 #endif

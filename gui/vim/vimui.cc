@@ -436,7 +436,7 @@ void vimui::win_print(int win, const char* fmt, ...){
 }
 
 void vimui::win_vprint(int win, const char* fmt, va_list lst){
-	int len;
+	unsigned int len;
 	va_list tlst;
 	buffer_t* buf;
 
@@ -472,7 +472,6 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	if(cursor_update)
 		action(CMD, "setDot", win, 0, 0, "%d", buf->len - 1);
 
-end:
 	atomic(false, false);
 	pthread_mutex_unlock(&ui_mtx);
 }
@@ -693,7 +692,6 @@ void* vimui::readline_thread(void* arg){
 	char c;
 	char* line;
 	unsigned int i, line_len;
-	response_t* e;
 	vimui* vim;
 	sigval v;
 

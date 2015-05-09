@@ -132,7 +132,7 @@ int cmd_callstack_exec(int argc, char** argv){
 }
 
 void cmd_callstack_help(int argc, char** argv){
-	unsigned int i;
+	int i;
 	const struct user_subcmd_t* scmd;
 
 
@@ -198,7 +198,7 @@ void cmd_callstack_help(int argc, char** argv){
 int cmd_callstack_update(){
 	int win_id;
 	gdb_result_t *result, *r;
-	gdb_value_t *val;
+	gdb_value_t* val;
 	gdb_frame_t *frame;
 	gdb_variable_t *vartmp, *var, *varlst;
 	string ctx;
@@ -359,4 +359,6 @@ int cmd_callstack_print(){
 	}
 
 	ui->atomic(false);
+
+	return 0;
 }

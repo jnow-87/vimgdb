@@ -63,6 +63,15 @@ int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			r->value->value = 0;
 			break;
 
+		case IDV_TYPE:
+		case IDV_DISPOSITION:
+		case IDV_ADDRESS:
+		case IDV_FUNCTION:
+		case IDV_ORIG_LOCATION:
+		case IDV_TIMES:
+		case IDV_THREAD_GROUPS:
+			break;
+
 		default:
 			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;

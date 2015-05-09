@@ -17,13 +17,6 @@ using namespace std;
 /* static variables */
 static map<string, gdb_breakpoint_t*> breakpt_lst;
 
-static const char* cmd_str[] = {
-	"break-insert",
-	"break-delete",
-	"break-enable",
-	"break-disable",
-};
-
 
 /* static prototypes */
 void breakpt_print(char* filename = 0);
@@ -33,7 +26,6 @@ void breakpt_print(char* filename = 0);
 int cmd_break_exec(int argc, char** argv){
 	char key[256];
 	const struct user_subcmd_t* scmd;
-	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
 	gdb_breakpoint_t* bkpt;
 
@@ -142,7 +134,7 @@ int cmd_break_exec(int argc, char** argv){
 }
 
 void cmd_break_help(int argc, char** argv){
-	unsigned int i;
+	int i;
 	const struct user_subcmd_t* scmd;
 
 

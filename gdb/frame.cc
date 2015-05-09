@@ -74,6 +74,9 @@ int gdb_frame_t::result_to_frame(gdb_result_t* result, gdb_frame_t** frame){
 			r->value->value = 0;
 			break;
 
+		case IDV_ARGS:
+			break;
+
 		default:
 			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;

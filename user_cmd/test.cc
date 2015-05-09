@@ -6,7 +6,7 @@
 
 
 int cmd_test_exec(int argc, char** argv){
-	unsigned int i;
+	int i;
 
 
 	USER("command: %s\n", argv[0]);

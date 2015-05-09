@@ -162,7 +162,7 @@ int cmd_register_exec(int argc, char** argv){
 }
 
 void cmd_register_help(int argc, char** argv){
-	unsigned int i;
+	int i;
 	const struct user_subcmd_t* scmd;
 
 

@@ -1,5 +1,6 @@
 %option prefix="gdb"
 %option noyywrap
+%option nounput
 
 %{
 	#include <gdb/gdb.h>

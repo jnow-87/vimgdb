@@ -10,6 +10,7 @@
 class gui{
 public:
 	/* init/destroy */
+	virtual ~gui(){}
 	virtual int init(pthread_t main_tid) = 0;
 	virtual void destroy() = 0;
 

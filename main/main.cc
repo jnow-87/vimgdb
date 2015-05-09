@@ -87,13 +87,7 @@ void cleanup(int signum){
 	log::cleanup();
 	ui->destroy();
 
-#ifdef GUI_CURSES
-	delete (cursesui*)ui;
-#elif GUI_VIM
-	delete (vimui*)ui;
-#else
-	#error "invalid gui defined"
-#endif
+	delete ui;
 
 	exit(1);
 }

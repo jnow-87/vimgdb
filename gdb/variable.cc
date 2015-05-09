@@ -231,6 +231,11 @@ int gdb_variable_t::result_to_variable(gdb_result_t* result, void** _var){
 			}
 			break;
 
+		case IDV_HAS_MORE:
+		case IDV_LANG:
+		case IDV_THREAD_ID:
+			break;
+
 		default:
 			DEBUG("unhandled identifier %d\n", r->var_id);
 			break;
@@ -278,6 +283,10 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 			case IDV_INSCOPE:
 				if(var != 0)
 					var->inscope = ((char*)(r->value->value))[0] == 't' ? true : false;
+				break;
+
+			case IDV_HAS_MORE:
+			case IDV_TYPE_CHANGED:
 				break;
 
 			default:

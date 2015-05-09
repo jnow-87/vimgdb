@@ -80,7 +80,7 @@ int main(int argc, char** argv){
 					if(cmd != 0)	vim_action(CMD, cmd_argc, cmd_argv);
 					else			vim_action(FCT, cmd_argc, cmd_argv);
 
-					for(i=0; i<cmd_argc; i++)
+					for(i=0; i<(unsigned int)cmd_argc; i++)
 						delete cmd_argv[i];
 					delete cmd_argv;
 				}
@@ -200,7 +200,7 @@ int vim_action(vim_action_t action, int argc, char** argv){
 	else if(action == CMD)	client->send((void*)"!", 1);
 	client->send(seq_str, strlen(seq_str));
 
-	for(i=2; i<argc; i++){
+	for(i=2; i<(unsigned int)argc; i++){
 		client->send((void*)" ", 1);
 		client->send(argv[i], strlen(argv[i]));
 	}

@@ -254,7 +254,6 @@ int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_res
 }
 
 int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
-	int r;
 	response_t* e;
 
 
@@ -396,7 +395,10 @@ void* gdbif::readline_thread(void* arg){
 err_2:
 	ui->win_destroy(ui->win_getid("gdb-log"));
 
+#ifdef GUI_CURSES
 err_1:
+#endif // GUI_CURSES
+
 	free(line);
 
 err_0:
@@ -444,6 +446,8 @@ void* gdbif::event_thread(void* arg){
 		gdb_result_free(e->result);
 		delete e;
 	}
+
+	return 0;
 }
 
 int gdbif::evt_running(gdb_result_t* result){

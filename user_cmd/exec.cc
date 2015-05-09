@@ -97,7 +97,7 @@ int cmd_exec_exec(int argc, char** argv){
 }
 
 void cmd_exec_help(int argc, char** argv){
-	unsigned int i;
+	int i;
 	const struct user_subcmd_t* scmd;
 
 

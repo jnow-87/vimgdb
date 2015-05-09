@@ -50,7 +50,7 @@ memory,		cmd_memory_exec,	cmd_memory_help,	"display and modify memory"
  * 			-1			error
  */
 int cmd_exec(char* line){
-	unsigned int i;
+	int i;
 	int argc, r;
 	char** argv;
 

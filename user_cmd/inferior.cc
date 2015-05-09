@@ -132,7 +132,7 @@ end:
 }
 
 void cmd_inferior_help(int argc, char** argv){
-	unsigned int i;
+	int i;
 	const struct user_subcmd_t* scmd;
 
 

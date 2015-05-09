@@ -1,5 +1,6 @@
 %option prefix="vim"
 %option noyywrap
+%option nounput
 
 %{
 	#include <common/log.h>

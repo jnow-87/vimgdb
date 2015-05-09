@@ -18,7 +18,7 @@ gdb_value_t* gdb_value_create( gdb_value_type_t type, void* value){
 
 	v = (gdb_value_t*)malloc(sizeof(gdb_value_t));
 	if(v == 0)
-		goto err_0;
+		return 0;
 
 	// in case type == CONST, value is assumed to be allocated
 	// properly, i.e. the string will stay available
@@ -28,12 +28,6 @@ gdb_value_t* gdb_value_create( gdb_value_type_t type, void* value){
 	list_init(v);
 
 	return v;
-
-err_1:
-	free(v);
-
-err_0:
-	return 0;
 }
 
 gdb_value_t* gdb_value_free(gdb_value_t* value){
