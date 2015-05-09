@@ -51,7 +51,7 @@ endfunction
 "
 " \param	var		variable name
 " \param	val		value
-function! vimgdb#util#assign(var, val)
+function! vimgdb#util#cond_assign(var, val)
 	if !exists(a:var)
 		exec "let " . a:var . " = \"" . a:val . "\""
 	endif

@@ -76,6 +76,7 @@ function! s:vimgdb(state, ...)
 		call vimgdb#callstack#cleanup()
 		call vimgdb#register#cleanup()
 		call vimgdb#memory#cleanup()
+		call vimgdb#config#cleanup()
 
 		" close windows
 		call vimgdb#window#close(g:vimgdb_initial_name)

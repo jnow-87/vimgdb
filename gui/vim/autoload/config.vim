@@ -38,6 +38,12 @@ if !hlexists("vimgdb_memory_unknown")
 	highlight default vimgdb_memory_unknown ctermfg=88
 endif
 
+""""""""""
+" keymap "
+""""""""""
+
+let s:keymap = {}
+
 
 """"""""""""""""""""
 " global functions "
@@ -45,64 +51,110 @@ endif
 
 " \brief	apply configuration
 function vimgdb#config#init()
-	" parameter
+	" assign window parameter
 	let g:vimgdb_initial_name = "source"
 
 	let g:vimgdb_userlog_name = "user-log"
-	call vimgdb#util#assign("g:vimgdb_userlog_show", 1)
-	call vimgdb#util#assign("g:vimgdb_userlog_width", 40)
-	call vimgdb#util#assign("g:vimgdb_userlog_height", 10)
-	call vimgdb#util#assign("g:vimgdb_userlog_vertical", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_userlog_show", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_userlog_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_userlog_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_userlog_vertical", 0)
 
 	let g:vimgdb_gdblog_name = "gdb-log"
-	call vimgdb#util#assign("g:vimgdb_gdblog_show", 1)
-	call vimgdb#util#assign("g:vimgdb_gdblog_width", 40)
-	call vimgdb#util#assign("g:vimgdb_gdblog_height", 10)
-	call vimgdb#util#assign("g:vimgdb_gdblog_vertical", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_gdblog_show", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_gdblog_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_gdblog_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_gdblog_vertical", 0)
 
 	let g:vimgdb_break_name = "breakpoints"
-	call vimgdb#util#assign("g:vimgdb_break_show", 0)
-	call vimgdb#util#assign("g:vimgdb_break_width", 40)
-	call vimgdb#util#assign("g:vimgdb_break_height", 10)
-	call vimgdb#util#assign("g:vimgdb_break_vertical", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_break_show", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_break_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_break_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_break_vertical", 1)
 
 	let g:vimgdb_inferior_name = "inferior"
-	call vimgdb#util#assign("g:vimgdb_inferior_show", 1)
-	call vimgdb#util#assign("g:vimgdb_inferior_width", 40)
-	call vimgdb#util#assign("g:vimgdb_inferior_height", 10)
-	call vimgdb#util#assign("g:vimgdb_inferior_vertical", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_inferior_show", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_inferior_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_inferior_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_inferior_vertical", 1)
 
 	let g:vimgdb_variables_name = "variables"
-	call vimgdb#util#assign("g:vimgdb_variables_show", 0)
-	call vimgdb#util#assign("g:vimgdb_variables_width", 40)
-	call vimgdb#util#assign("g:vimgdb_variables_height", 10)
-	call vimgdb#util#assign("g:vimgdb_variables_vertical", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_variables_show", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_variables_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_variables_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_variables_vertical", 1)
 
 	let g:vimgdb_callstack_name = "callstack"
-	call vimgdb#util#assign("g:vimgdb_callstack_show", 1)
-	call vimgdb#util#assign("g:vimgdb_callstack_width", 40)
-	call vimgdb#util#assign("g:vimgdb_callstack_height", 10)
-	call vimgdb#util#assign("g:vimgdb_callstack_vertical", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_callstack_show", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_callstack_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_callstack_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_callstack_vertical", 0)
 
 	let g:vimgdb_register_name = "registers"
-	call vimgdb#util#assign("g:vimgdb_register_show", 0)
-	call vimgdb#util#assign("g:vimgdb_register_width", 40)
-	call vimgdb#util#assign("g:vimgdb_register_height", 10)
-	call vimgdb#util#assign("g:vimgdb_register_vertical", 1)
+	call vimgdb#util#cond_assign("g:vimgdb_register_show", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_register_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_register_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_register_vertical", 1)
 
 	let g:vimgdb_memory_name = "memory"
-	call vimgdb#util#assign("g:vimgdb_memory_show", 0)
-	call vimgdb#util#assign("g:vimgdb_memory_width", 40)
-	call vimgdb#util#assign("g:vimgdb_memory_height", 10)
-	call vimgdb#util#assign("g:vimgdb_memory_vertical", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_memory_show", 0)
+	call vimgdb#util#cond_assign("g:vimgdb_memory_width", 40)
+	call vimgdb#util#cond_assign("g:vimgdb_memory_height", 10)
+	call vimgdb#util#cond_assign("g:vimgdb_memory_vertical", 0)
 
-	" preliminary mappings
-	nnoremap <silent> <buffer> b :exec "Break add " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
-	nnoremap <silent> <buffer> B :exec "Break delete " . fnamemodify(bufname('%'), ":t") . ":" . line('.')<cr>
-	nnoremap <silent> <F2> :silent Step<cr>
-	nnoremap <silent> <F3> :silent Nnext<cr>
-	nnoremap <silent> <F5> :silent Return<cr>
-	nnoremap <silent> <F6> :silent Run<cr>
-	nnoremap <silent> <F7> :silent Continue<cr>
-	nnoremap <silent> <F8> :silent Int<cr>
+	" assign key mappings
+	call s:map_key("b", "n", ":exec 'Break add ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("B", "n", ":exec 'Break delete ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("<F2>", "n", ":silent Step<cr>")
+	call s:map_key("<F3>", "n",  ":silent Nnext<cr>")
+	call s:map_key("<F5>", "n",  ":silent Return<cr>")
+	call s:map_key("<F6>", "n",  ":silent Run<cr>")
+	call s:map_key("<F7>", "n",  ":silent Continue<cr>")
+	call s:map_key("<F8>", "n",  ":silent Int<cr>")
+endfunction
+
+" \brief	cleanup config
+function! vimgdb#config#cleanup()
+	" restore key mappings
+	for l:key in keys(s:keymap)
+		let l:val = s:keymap[l:key]
+
+		let l:restore = l:val['restore']
+		exec l:val['mode'] . "unmap " . l:key
+
+		if l:restore != {} && l:restore['sid'] == 1
+			exec l:restore['mode']
+				\ . (l:restore['noremap'] == 1 ? "noremap " : "map ")
+				\ . (l:restore['silent'] == 1 ? "<silent> " : "")
+				\ . (l:restore['nowait'] == 1 ? "<nowait> " : "")
+				\ . (l:restore['expr'] == 1 ? "<expr> " : "")
+				\ . (l:restore['buffer'] == 1 ? "<buffer> " : "")
+				\ . l:restore['lhs'] . " " . l:restore['rhs']
+			let s:keymap[l:key]['restore'] = {}
+		endif
+	endfor
+endfunction
+
+
+"""""""""""""""""""
+" local functions "
+"""""""""""""""""""
+
+" \brief	create key map
+"
+" \param	lhs		left-hand-side
+" \param	mode	mode to use, e.g. "n", "i", ...
+" \param	rhs		right-hand-side
+function! s:map_key(lhs, mode, rhs)
+	" create entry in s:keymap if it doesn't exist
+	if !has_key(s:keymap, a:lhs)
+		let s:keymap[a:lhs] = {}
+	endif
+
+	" store mode and current map
+	let s:keymap[a:lhs]['mode'] = a:mode
+	let s:keymap[a:lhs]['restore'] = maparg(a:lhs, a:mode, 0, 1)
+
+	" apply new map
+	exec a:mode . "noremap <silent>" . a:lhs . " " . a:rhs
 endfunction
