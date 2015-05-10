@@ -113,6 +113,11 @@ int cmd_memory_exec(int argc, char** argv){
 		for(it=line_map.begin(); it!=line_map.end(); it++)
 			fprintf(fp, "%d\\n", it->first);
 
+		fprintf(fp, "<addr>");
+
+		list_for_each(mem_lst, mem)
+			fprintf(fp, "%s\\n", mem->begin);
+
 		fclose(fp);
 		break;
 
