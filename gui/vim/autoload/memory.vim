@@ -5,9 +5,9 @@
 let s:cmd_dict = {
 	\ "Memory":{
 		\ "add":{},
-		\ "delete":{"__nested__":"vimgdb#memory#complete"},
-		\ "set":{},
-		\ "fold":{"__nested__":"vimgdb#memory#complete"},
+		\ "delete":{"__nested__":"vimgdb#memory#complete_lines"},
+		\ "set":{"__nested__":"vimgdb#memory#complete_addr"},
+		\ "fold":{"__nested__":"vimgdb#memory#complete_lines"},
 		\ "view":{},
 		\ "open":{},
 	\ }
@@ -51,11 +51,23 @@ endfunction
 " \brief	complete vimgdb memory buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#memory#complete(subcmd)
+function! vimgdb#memory#complete_lines(subcmd)
 	" get list of gdb memory buffer lines
 	call delete("/tmp/vimgdb_memory")
 	call vimgdb#util#cmd("memory get /tmp/vimgdb_memory")
-	let l:line_lst = vimgdb#util#file_read("/tmp/vimgdb_memory", 5)
+	let l:line_lst = split(vimgdb#util#file_read("/tmp/vimgdb_memory", 5), '<addr>')[0]
+
+	return l:line_lst
+endfunction
+
+" \brief	complete vimgdb memory addresses
+"
+" \param	subcmd	current argument supplied in command line
+function! vimgdb#memory#complete_addr(subcmd)
+	" get list of gdb memory buffer lines
+	call delete("/tmp/vimgdb_memory")
+	call vimgdb#util#cmd("memory get /tmp/vimgdb_memory")
+	let l:line_lst = split(vimgdb#util#file_read("/tmp/vimgdb_memory", 5), '<addr>')[1]
 
 	return l:line_lst
 endfunction
