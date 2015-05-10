@@ -1,5 +1,6 @@
 #include <common/log.h>
 #include <common/list.h>
+#include <common/map.h>
 #include <gdb/gdb.h>
 #include <gui/gui.h>
 #include <gdb/breakpoint.h>
@@ -56,11 +57,18 @@ int cmd_break_exec(int argc, char** argv){
 			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
 			else					snprintf(key, 256, "%s", bkpt->at);
 
-			breakpt_lst[key] = bkpt;
-			breakpt_print();
-			ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
+			// check if breakpoint already exists - gdb doesn't check this
+			if(MAP_LOOKUP(breakpt_lst, key) == 0){
+				breakpt_lst[key] = bkpt;
+				breakpt_print();
+				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 
-			USER("add break-point \"%s\"\n", key);
+				USER("add break-point \"%s\"\n", key);
+			}
+			else{
+				gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, 0, "%d", bkpt->num);
+				delete bkpt;
+			}
 		}
 
 		break;
@@ -80,7 +88,7 @@ int cmd_break_exec(int argc, char** argv){
 		switch(scmd->id){
 		case DELETE:
 			if(gdb->mi_issue_cmd((char*)"break-delete", RC_DONE, 0, 0, "%d", bkpt->num) == 0){
-				USER("delet break-point \"%s\"\n", it->first.c_str());
+				USER("delete break-point \"%s\"\n", it->first.c_str());
 				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
 
 				delete bkpt;
