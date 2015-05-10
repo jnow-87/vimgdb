@@ -43,7 +43,13 @@ function! vimgdb#callstack#init()
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_variable |
-		\ nnoremap <buffer> <c-f> :silent exec \"Callstack fold \" . line('.')<cr>
+		\ nnoremap <buffer> <silent> <c-f> :exec 'Callstack fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> + :exec 'Callstack fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> - :exec 'Callstack fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> u :exec 'Callstack view'<cr>|
+		\ nnoremap <buffer> i :Callstack set <c-r>=line('.')<cr>|
+		\ nnoremap <buffer> s :Callstack set <c-r>=line('.')<cr>|
+		\ nnoremap <buffer> f :Callstack format <c-r>=line('.')<cr>
 		\ "
 endfunction
 

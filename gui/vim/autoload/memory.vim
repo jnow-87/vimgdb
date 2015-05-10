@@ -35,6 +35,12 @@ function! vimgdb#memory#init()
 		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_memory |
 		\ nnoremap <buffer> <silent> <c-f> :exec 'Memory fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> + :exec 'Memory fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> - :exec 'Memory fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> dd :exec 'Memory delete ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> u :exec 'Memory view'<cr>|
+		\ nnoremap <buffer> i :Memory set <c-r>=split(getline('.'))[0]<cr>|
+		\ nnoremap <buffer> s :Memory set <c-r>=split(getline('.'))[0]<cr>
 		\ "
 endfunction
 

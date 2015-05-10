@@ -105,6 +105,8 @@ function vimgdb#config#init()
 	" assign key mappings
 	call s:map_key("b", "n", ":exec 'Break add ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("B", "n", ":exec 'Break delete ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("j", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("<F2>", "n", ":silent Step<cr>")
 	call s:map_key("<F3>", "n",  ":silent Nnext<cr>")
 	call s:map_key("<F5>", "n",  ":silent Return<cr>")

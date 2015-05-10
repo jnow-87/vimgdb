@@ -48,7 +48,14 @@ function! vimgdb#variable#init()
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_variable |
-		\ nnoremap <buffer> <c-f> :silent exec \"Variable fold \" . line('.')<cr>
+		\ nnoremap <buffer> <silent> <c-f> :exec 'Variable fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> + :exec 'Variable fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> - :exec 'Variable fold ' . line('.')<cr>|
+		\ nnoremap <buffer> <silent> u :exec 'Variable view'<cr>|
+		\ nnoremap <buffer> <silent> dd :exec 'Variable delete ' . line('.')<cr>|
+		\ nnoremap <buffer> i :Variable set <c-r>=line('.')<cr>|
+		\ nnoremap <buffer> s :Variable set <c-r>=line('.')<cr>|
+		\ nnoremap <buffer> f :Variable format <c-r>=line('.')<cr>
 		\ "
 endfunction
 

@@ -34,7 +34,12 @@ function! vimgdb#break#init()
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
-		\ setlocal nowrap
+		\ setlocal nowrap |
+		\ nnoremap <buffer> <silent> e :exec 'Break enable ' . getline('.')<cr>|
+		\ nnoremap <buffer> <silent> E :exec 'Break disable ' . getline('.')<cr>|
+		\ nnoremap <buffer> <silent> dd :exec 'Break delete ' . getline('.')<cr>|
+		\ nnoremap <buffer> <silent> u :exec 'Break view'<cr>|
+		\ nnoremap <buffer> <silent> <return> :call vimgdb#window#open_src(getline('.'))<cr>
 		\ "
 endfunction
 

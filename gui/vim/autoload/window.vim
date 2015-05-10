@@ -290,6 +290,31 @@ function! vimgdb#window#focus(winnr)
 	exec a:winnr . " wincmd w"
 endfunction
 
+function! vimgdb#window#open_src(line)
+	" assumed format: <filename>:<line number>
+	let l:tgt = split(a:line, ':')
+
+	if l:tgt != []
+		" focus first window, which is assumed to be the source window
+		call vimgdb#window#focus(1)
+
+		" remove leading spaces from <filename>
+		let l:tgt[0] = split(l:tgt[0])[0]
+
+		if bufwinnr(l:tgt[0]) != 1
+			" open file
+			exec "edit " . l:tgt[0]
+
+			" wait for buffer to become available, otherwise jump to line
+			" doesn't work
+			sleep 10m
+		endif
+
+		" jump to line
+		exec ":" . l:tgt[1]
+	endif
+endfunction
+
 
 """""""""""""""""""
 " local functions "
