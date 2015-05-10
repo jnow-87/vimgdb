@@ -79,8 +79,8 @@ int cmd_var_exec(int argc, char** argv){
 		while(var->parent != 0)
 			var = var->parent;
 
-		if(gdb_variable_t::release(var) == 0)
-			USER("delete variable \"%s\"\n", var->name);
+		USER("delete variable \"%s\"\n", var->name);
+		gdb_variable_t::release(var);
 
 		cmd_var_print();
 		break;
