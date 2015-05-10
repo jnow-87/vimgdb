@@ -68,14 +68,14 @@ int cmd_memory_exec(int argc, char** argv){
 		mem = MAP_LOOKUP(line_map, atoi(argv[2]));
 
 		if(mem == 0){
-			USER("no memory memment at line %s\n", argv[2]);
+			USER("no memory segment at line %s\n", argv[2]);
 			return 0;
 		}
 
 		list_rm(&mem_lst, mem);
 		delete mem;
 
-		USER("delete memory memment\n");
+		USER("delete memory segment\n");
 
 		cmd_memory_update();
 		break;
@@ -124,7 +124,7 @@ int cmd_memory_update(){
 	int win_id;
 	char c;
 	char* content_old;
-	unsigned int i, j;
+	unsigned int i, j, line;
 	long long addr, displ;
 	gdb_memory_t* mem;
 
@@ -135,6 +135,7 @@ int cmd_memory_update(){
 		return 0;
 
 	line_map.clear();
+	line = 1;
 
 	ui->atomic(true);
 	ui->win_clear(win_id);
@@ -153,6 +154,7 @@ int cmd_memory_update(){
 
 		/* print header */
 		ui->win_print(win_id, "memory dump: %#0*p (%u bytes)\n", sizeof(void*) * 2 + 2, addr, mem->length);
+		line_map[line++] = mem;
 
 		/* print preceding bytes, that are not part of content, to align the output to 8 bytes per line */
 		j = 0;
@@ -178,6 +180,7 @@ int cmd_memory_update(){
 				ascii[j] = 0;
 				j = 0;
 				ui->win_print(win_id, "    %s\n", strescape(ascii, &ascii, &len));
+				line_map[line++] = mem;
 
 				if(i + 1 < mem->length)
 					ui->win_print(win_id, " %#0*p    ", sizeof(void*) * 2 + 2, 10 + 1);
@@ -194,9 +197,12 @@ int cmd_memory_update(){
 
 		ascii[j] = 0;
 		ui->win_print(win_id, "    %s\n", strescape(ascii, &ascii, &len));
+		line_map[line++] = mem;
 
-		if(j != 0)
+		if(j != 0){
 			ui->win_print(win_id, "\n");
+			line++;
+		}
 	}
 
 	ui->atomic(false);
