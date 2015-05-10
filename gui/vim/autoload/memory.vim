@@ -5,8 +5,9 @@
 let s:cmd_dict = {
 	\ "Memory":{
 		\ "add":{},
-		\ "delete":{},
+		\ "delete":{"__nested__":"vimgdb#memory#complete"},
 		\ "set":{},
+		\ "fold":{"__nested__":"vimgdb#memory#complete"},
 		\ "view":{},
 		\ "open":{},
 	\ }
@@ -32,7 +33,8 @@ function! vimgdb#memory#init()
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
-		\ setlocal syntax=vimgdb_memory
+		\ setlocal syntax=vimgdb_memory |
+		\ nnoremap <buffer> <silent> <c-f> :exec 'Memory fold ' . line('.')<cr>|
 		\ "
 endfunction
 
