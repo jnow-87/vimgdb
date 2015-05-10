@@ -18,6 +18,7 @@ public:
 		 *content;
 
 	unsigned int length;
+	bool expanded;
 
 	gdb_memory_t *next,
 			     *prev;

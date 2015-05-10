@@ -47,7 +47,7 @@ int cmd_memory_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == DELETE || scmd->id == GET) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
+	if(((scmd->id == DELETE || scmd->id == GET || scmd->id == FOLD) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_memory_help(2, argv);
 		return 0;
@@ -89,6 +89,19 @@ int cmd_memory_exec(int argc, char** argv){
 		cmd_memory_update();
 		cmd_var_print();
 		cmd_callstack_print();
+		break;
+
+	case FOLD:
+		mem = MAP_LOOKUP(line_map, atoi(argv[2]));
+
+		if(mem == 0){
+			USER("no memory segment at line %s\n", argv[2]);
+			return 0;
+		}
+
+		mem->expanded = mem->expanded ? false : true;
+
+		cmd_memory_update();
 		break;
 
 	case GET:
@@ -153,8 +166,14 @@ int cmd_memory_update(){
 			break;
 
 		/* print header */
-		ui->win_print(win_id, "memory dump: %#0*p (%u bytes)\n", sizeof(void*) * 2 + 2, addr, mem->length);
+		ui->win_print(win_id, "[%c] memory dump: %#0*p (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
 		line_map[line++] = mem;
+
+		if(!mem->expanded){
+			ui->win_print(win_id, "\n");
+			line++;
+			continue;
+		}
 
 		/* print preceding bytes, that are not part of content, to align the output to 8 bytes per line */
 		j = 0;
