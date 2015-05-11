@@ -9,6 +9,7 @@
 #include <user_cmd/callstack.h>
 #include <user_cmd/register.h>
 #include <user_cmd/memory.h>
+#include <user_cmd/evaluate.h>
 #include <user_cmd/help.h>
 #include <user_cmd/test.h>
 
