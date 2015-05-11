@@ -36,6 +36,7 @@ function! s:vimgdb(state, ...)
 		call vimgdb#callstack#init()
 		call vimgdb#register#init()
 		call vimgdb#memory#init()
+		call vimgdb#evaluate#init()
 
 		" start netbeans
 		exec ":nbstart :127.0.0.1:1235:"
@@ -76,6 +77,7 @@ function! s:vimgdb(state, ...)
 		call vimgdb#callstack#cleanup()
 		call vimgdb#register#cleanup()
 		call vimgdb#memory#cleanup()
+		call vimgdb#evaluate#cleanup()
 		call vimgdb#config#cleanup()
 
 		" close windows
