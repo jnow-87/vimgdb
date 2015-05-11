@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
@@ -26,5 +27,6 @@ void cmd_test_help(int argc, char** argv){
 	USER("   test prints all arguments to demonstrate the user_cmd interface functionality\n");
 	USER("\n");
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }

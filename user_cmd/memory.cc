@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/list.h>
 #include <common/map.h>
 #include <common/log.h>
@@ -134,6 +135,77 @@ int cmd_memory_exec(int argc, char** argv){
 }
 
 void cmd_memory_help(int argc, char** argv){
+	int i;
+	const struct user_subcmd_t* scmd;
+
+
+	ui->atomic(true);
+
+	if(argc == 1){
+		USER("usage: %s [sub-command] <args>...\n", argv[0]);
+		USER("   sub-commands:\n");
+		USER("      add <addr> <bytes>           add memory segment\n");
+		USER("      delete <line>               delete memory segment\n");
+		USER("      fold <line>                 fold/unfold memory segment\n");
+		USER("      set <addr> <value> [<cnt>]  set memory\n");
+		USER("      get <filename>              get list of memory segments and addresses\n");
+		USER("      view                        update memory window\n");
+		USER("\n");
+	}
+	else{
+		for(i=1; i<argc; i++){
+			scmd = user_subcmd::lookup(argv[i], strlen(argv[i]));
+
+			if(scmd == 0){
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+				continue;
+			}
+
+			switch(scmd->id){
+			case ADD:
+				USER("usage %s %s <addr> <bytes>\n", argv[0], argv[i]);
+				USER("   add memory segment of size <bytes> starting at address <addr>\n");
+				USER("\n");
+				break;
+
+			case DELETE:
+				USER("usage %s %s <line>\n", argv[0], argv[i]);
+				USER("   delete memory segment at line <line>\n");
+				USER("\n");
+				break;
+
+			case FOLD:
+				USER("usage %s %s <line>\n", argv[0], argv[i]);
+				USER("   fold memory segment at line <line>\n");
+				USER("\n");
+				break;
+
+			case SET:
+				USER("usage %s %s <addr> <value> [<count>]\n", argv[0], argv[i]);
+				USER("   set memory at address <addr> to <value>\n");
+				USER("    optionally define the number of bytes to write as <count>, if count is greater than the content length <value> will be written repeatedly\n");
+				USER("\n");
+				break;
+
+			case GET:
+				USER("usage %s %s <filename>\n", argv[0], argv[i]);
+				USER("   print list of line numbers and addresses to file <filename>\n");
+				USER("   both lists are separated by '<addr>'\n");
+				USER("   the items of each list are '\\n' separated\n");
+				USER("\n");
+				break;
+
+			case VIEW:
+				break;
+
+			default:
+				USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[i], argv[0]);
+			};
+		}
+	}
+
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
+	ui->atomic(false);
 }
 
 int cmd_memory_update(){
@@ -147,7 +219,7 @@ int cmd_memory_update(){
 	gdb_memory_t* mem;
 
 
-	win_id = ui->win_getid("memory");
+	win_id = ui->win_getid(MEMORY_NAME);
 
 	if(win_id < 0)
 		return 0;

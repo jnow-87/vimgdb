@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <common/map.h>
 #include <gui/gui.h>
@@ -222,6 +223,7 @@ void cmd_register_help(int argc, char** argv){
 		}
 	}
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }
 
@@ -231,7 +233,7 @@ int cmd_register_print(){
 	map<string, gdb_variable_t*>::iterator it;
 
 
-	win_id = ui->win_getid("registers");
+	win_id = ui->win_getid(REGISTERS_NAME);
 
 	if(win_id < 0)
 		return 0;

@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/list.h>
 #include <common/log.h>
 #include <common/map.h>
@@ -192,6 +193,7 @@ void cmd_callstack_help(int argc, char** argv){
 		}
 	}
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }
 
@@ -205,7 +207,7 @@ int cmd_callstack_update(){
 
 
 	varlst = 0;
-	win_id = ui->win_getid("callstack");
+	win_id = ui->win_getid(CALLSTACK_NAME);
 
 	if(win_id < 0)
 		return 0;
@@ -303,7 +305,7 @@ int cmd_callstack_print(){
 	gdb_variable_t* var;
 
 
-	win_id = ui->win_getid("callstack");
+	win_id = ui->win_getid(CALLSTACK_NAME);
 
 	if(win_id < 0)
 		return 0;

@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <gui/gui.h>
 #include <stdarg.h>
@@ -52,7 +53,7 @@ int log::init(const char* file_name, log_level_t lvl){
 #ifdef GUI_CURSES
 
 err_2:
-	ui->win_destroy(ui->win_getid("user-log"));
+	ui->win_destroy(ui->win_getid(USERLOG_NAME));
 
 err_1:
 	fclose(log_file);
@@ -75,10 +76,10 @@ void log::cleanup(){
 	// ensure that only creating process is closing the windows
 	// otherwise any forked process would destroy them
 	if(ui && creator == getpid()){
-		ui->win_destroy(ui->win_getid("user-log"));
+		ui->win_destroy(ui->win_getid(USERLOG_NAME));
 
 #ifdef GUI_CURSES
-		ui->win_destroy(ui->win_getid("debug-log"));
+		ui->win_destroy(ui->win_getid(DEBUGLOG_NAME));
 #endif
 	}
 }
@@ -106,10 +107,10 @@ void log::print(log_level_t lvl, const char* msg, ...){
 			va_start(lst, msg);
 
 #ifdef GUI_CURSES
-			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid("user-log"), msg, lst);
-			else					ui->win_vprint(ui->win_getid("debug-log"), msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid(USERLOG_NAME), msg, lst);
+			else					ui->win_vprint(ui->win_getid(DEBUGLOG_NAME), msg, lst);
 #else
-			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid("user-log"), msg, lst);
+			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid(USERLOG_NAME), msg, lst);
 			else					vprintf(msg, lst);
 #endif
 

@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <common/list.h>
 #include <common/map.h>
@@ -216,6 +217,7 @@ void cmd_break_help(int argc, char** argv){
 		}
 	}
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }
 
@@ -235,7 +237,7 @@ void breakpt_print(char* filename){
 			return;
 	}
 	else{
-		win_id_break = ui->win_getid("breakpoints");
+		win_id_break = ui->win_getid(BREAKPOINTS_NAME);
 
 		if(win_id_break < 0)
 			return;

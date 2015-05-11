@@ -414,10 +414,19 @@ err:
 
 int vimui::win_cursor_set(int win, int line){
 	int r;
-
+	buffer_t* buf;
 
 	pthread_mutex_lock(&ui_mtx);
-	r = action(CMD, "setDot", win, 0, 0, "%d/0", line);
+
+	if(line == -1){
+		buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
+
+		if(buf != 0)	r = action(CMD, "setDot", win, 0, 0, "%d", buf->len - 1);
+		else			r = -1;
+	}
+	else
+		r = action(CMD, "setDot", win, 0, 0, "%d/0", line);
+
 	pthread_mutex_unlock(&ui_mtx);
 
 	return r;

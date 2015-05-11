@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/map.h>
 #include <common/log.h>
 #include <common/list.h>
@@ -198,7 +199,7 @@ void cmd_var_help(int argc, char** argv){
 
 			case GET:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("          print '\\n' seprated list of line numbers that contain variables to file <filename>\n");
+				USER("   print '\\n' separated list of line numbers that contain variables to file <filename>\n");
 				USER("\n");
 				break;
 
@@ -211,6 +212,7 @@ void cmd_var_help(int argc, char** argv){
 		}
 	}
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }
 
@@ -220,7 +222,7 @@ int cmd_var_print(){
 	map<string, gdb_variable_t*>::iterator it;
 
 
-	win_id = ui->win_getid("variables");
+	win_id = ui->win_getid(VARIABLES_NAME);
 
 	if(win_id < 0)
 		return 0;

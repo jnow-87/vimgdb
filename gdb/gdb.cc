@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <common/pty.h>
 #include <common/string.h>
@@ -376,12 +377,12 @@ void* gdbif::readline_thread(void* arg){
 				line[i] = 0;
 
 				GDB("parse gdb string \"%.10s\"\n", line);
-				ui->win_print(ui->win_getid("gdb-log"), "%s", line);		// use "%s" to avoid issues with '%' within line
+				ui->win_print(ui->win_getid(GDBLOG_NAME), "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
 
 				GDB("parser return value: %d\n", i);
-				ui->win_print(ui->win_getid("gdb-log"), "parser return value: %d\n", i);
+				ui->win_print(ui->win_getid(GDBLOG_NAME), "parser return value: %d\n", i);
 
 				i = 0;
 			}
@@ -393,7 +394,7 @@ void* gdbif::readline_thread(void* arg){
 	}
 
 err_2:
-	ui->win_destroy(ui->win_getid("gdb-log"));
+	ui->win_destroy(ui->win_getid(GDBLOG_NAME));
 
 #ifdef GUI_CURSES
 err_1:

@@ -1,3 +1,4 @@
+#include <common/defaults.h>
 #include <common/log.h>
 #include <common/pty.h>
 #include <common/list.h>
@@ -190,6 +191,7 @@ void cmd_inferior_help(int argc, char** argv){
 		}
 	}
 
+	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 	ui->atomic(false);
 }
 
@@ -225,10 +227,10 @@ void* thread_inferior_output(void* arg){
 			if(c == '\n'){
 				line[i] = 0;
 
-				while(ui->win_getid("inferior") == -1)
+				while(ui->win_getid(INFERIOR_NAME) == -1)
 					usleep(100000);
 
-				ui->win_print(ui->win_getid("inferior"), line);
+				ui->win_print(ui->win_getid(INFERIOR_NAME), line);
 				i = 0;
 			}
 
@@ -236,7 +238,7 @@ void* thread_inferior_output(void* arg){
 		else{
 			DEBUG("inferior read shutdown\n");
 
-			ui->win_destroy(ui->win_getid("inferior"));
+			ui->win_destroy(ui->win_getid(INFERIOR_NAME));
 			return 0;
 		}
 	}
