@@ -3,7 +3,13 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Evaluate":{}
+	\ "Evaluate":{
+		\ "<expr>":{
+			\ "<value>":{
+				\ "<count>":{}
+			\ }
+		\ }
+	\}
 \ }
 
 

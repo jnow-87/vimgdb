@@ -7,7 +7,7 @@ let s:cmd_dict = {
 		\ "__nested__":"vimgdb#inferior#complete",
 		\ "bin":{"__nested__":"vimgdb#complete#file"},
 		\ "sym":{"__nested__":"vimgdb#complete#file"},
-		\ "args":{},
+		\ "args":{"<args>":{}},
 		\ "tty":{"__nested__":"vimgdb#complete#pts"},
 		\ "view":{},
 		\ "open":{},

@@ -15,8 +15,10 @@ let s:cmd_dict = {
 				\ "natural":{},
 			\ },
 		\ },
-		\
-		\ "set":{"__nested__":"vimgdb#register#complete"},
+		\ "set":{
+			\ "__nested__":"vimgdb#register#complete",
+			\ "__nested1__":{"<value>":{}}
+		\ },
 		\ "view":{},
 		\ "open":{},
 	\ }
