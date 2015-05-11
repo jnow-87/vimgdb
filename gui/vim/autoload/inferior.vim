@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Inferior": {
+	\ "inferior": {
 		\ "__nested__":"vimgdb#inferior#complete",
 		\ "bin":{"__nested__":"vimgdb#complete#file"},
 		\ "sym":{"__nested__":"vimgdb#complete#file"},
@@ -22,7 +22,7 @@ let s:cmd_dict = {
 " \brief	init inferior command
 function! vimgdb#inferior#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Inferior call s:inferior(<f-args>)

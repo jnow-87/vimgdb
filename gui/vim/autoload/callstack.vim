@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Callstack":{
+	\ "callstack":{
 		\ "fold":{"__nested__":"vimgdb#callstack#complete"},
 		\ "format":{
 			\ "__nested__":"vimgdb#callstack#complete",
@@ -32,7 +32,7 @@ let s:cmd_dict = {
 " \brief	init callstack command
 function! vimgdb#callstack#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Callstack call s:callstack(<f-args>)

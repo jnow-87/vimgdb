@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Variable":{
+	\ "variable":{
 		\ "add":{"__nested__":"vimgdb#complete#sym_variable"},
 		\ "delete":{"__nested__":"vimgdb#variable#complete"},
 		\ "fold":{"__nested__":"vimgdb#variable#complete"},
@@ -37,7 +37,7 @@ let s:var_lst = ""
 " \brief	init variable command
 function! vimgdb#variable#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Variable call s:variable(<f-args>)

@@ -69,7 +69,7 @@ int cmd_exec_exec(int argc, char** argv){
 				
 			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 		}
-		else if(scmd->id == JUMP){
+		else if(scmd->id == SETPC){
 			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;
 				
@@ -107,14 +107,14 @@ void cmd_exec_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("      run              (re)start inferior execution\n");
-		USER("      continue         continue execution\n");
-		USER("      next             execute next line\n");
-		USER("      step             execute next line, enter functions\n");
-		USER("      return           execute until end of current function\n");
-		USER("      break            interrupt execution\n");
-		USER("      jump <location>  set PC to <location>\n");
-		USER("      goto <location>  execute until <location>\n");
+		USER("      run               (re)start inferior execution\n");
+		USER("      continue          continue execution\n");
+		USER("      next              execute next line\n");
+		USER("      step              execute next line, enter functions\n");
+		USER("      return            execute until end of current function\n");
+		USER("      break             interrupt execution\n");
+		USER("      setpc <location>  set PC to <location>\n");
+		USER("      goto <location>   execute until <location>\n");
 		USER("\n");
 	}
 	else{
@@ -127,7 +127,7 @@ void cmd_exec_help(int argc, char** argv){
 			}
 
 			switch(scmd->id){
-			case JUMP:
+			case SETPC:
 			case GOTO:
 				USER("usage %s %s <location>\n", argv[0], argv[i]);
 				USER("   <location> can be any of the following\n");

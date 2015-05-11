@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Break": {
+	\ "break": {
 		\ "add":{"__nested__":"vimgdb#complete#sym_location"},
 		\ "delete":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "enable":{"__nested__":"vimgdb#break#complete_bkpt"},
@@ -23,7 +23,7 @@ let s:breakpt_lst = ""
 " \brief	init breakpoint command
 function! vimgdb#break#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Break call s:break(<f-args>)

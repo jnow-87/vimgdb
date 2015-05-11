@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Memory":{
+	\ "memory":{
 		\ "add":{
 			\ "<addr>":{
 				\ "<bytes>":{}
@@ -32,7 +32,7 @@ let s:cmd_dict = {
 " \brief	init memory command
 function! vimgdb#memory#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Memory call s:memory(<f-args>)

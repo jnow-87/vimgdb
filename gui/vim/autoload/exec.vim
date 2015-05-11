@@ -3,14 +3,14 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Run":{},
-	\ "Next":{},
-	\ "Step":{},
-	\ "Return":{},
-	\ "Setpc":{"__nested__":"vimgdb#complete#sym_location"},
-	\ "Goto":{"__nested__":"vimgdb#complete#sym_location"},
-	\ "Continue":{},
-	\ "Int":{},
+	\ "run":{},
+	\ "next":{},
+	\ "step":{},
+	\ "return":{},
+	\ "setpc":{"__nested__":"vimgdb#complete#sym_location"},
+	\ "goto":{"__nested__":"vimgdb#complete#sym_location"},
+	\ "continue":{},
+	\ "int":{},
 \ }
 
 
@@ -21,7 +21,7 @@ let s:cmd_dict = {
 " \brief	init exec command
 function! vimgdb#exec#init()
 	" update vimgdb completion
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, {'exec':s:cmd_dict}, {'exec':s:cmd_dict})
 
 	" commands
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Run call s:exec("run", <f-args>)

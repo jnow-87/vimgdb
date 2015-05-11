@@ -40,7 +40,7 @@ next,		NEXT
 step,		STEP
 return,		RETURN
 break,		BREAK
-jump,		JUMP
+setpc,		SETPC
 goto,		GOTO
 fold,		FOLD
 set,		SET

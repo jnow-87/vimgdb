@@ -18,7 +18,7 @@ typedef enum{
 	STEP,
 	RETURN,
 	BREAK,
-	JUMP,
+	SETPC,
 	GOTO,
 	FOLD,
 	SET,

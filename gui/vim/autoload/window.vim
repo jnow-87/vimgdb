@@ -3,7 +3,7 @@
 """""""""""""""""""
 
 let s:cmd_dict = {
-	\ "Window": {
+	\ "window": {
 		\ "view":{"__nested__":"vimgdb#window#complete"},
 		\ "open":{"__nested__":"vimgdb#window#complete"},
 		\ "close":{"__nested__":"vimgdb#window#complete"},
@@ -92,7 +92,7 @@ function! vimgdb#window#init()
 		\ . g:vimgdb_memory_name
 		\ . "\""
 
-	call extend(g:vimgdb_cmd_dict, s:cmd_dict)
+	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Window call s:window(<f-args>)
