@@ -18,7 +18,9 @@ public:
 	unsigned int line;
 	char *filename,
 		 *fullname,
-		 *at;
+		 *at,
+		 *condition,
+		 *ignore_cnt;
 
 	bool enabled;
 };

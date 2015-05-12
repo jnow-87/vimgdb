@@ -54,7 +54,7 @@ int cmd_break_exec(int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, gdb_breakpoint_t::result_to_brkpt, (void**)&bkpt, "%s", argv[2]) == 0){
+		if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, gdb_breakpoint_t::result_to_brkpt, (void**)&bkpt, "%ssq %d", argv + 2, argc - 2) == 0){
 			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
 			else					snprintf(key, 256, "%s", bkpt->at);
 
@@ -156,12 +156,12 @@ void cmd_break_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage %s <sub-command> <arg>\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("       add <location>       add breakpoint\n");
-		USER("       delete <location>    delete breakpoint\n");
-		USER("       enable <location>    enable breakpoint\n");
-		USER("       disable <location>   disable breakpoint\n");
-		USER("       view                 update breakpoint window\n");
-		USER("       get <filename>       get list of breakpoints\n");
+		USER("       add [opt] <location>   add breakpoint\n");
+		USER("       delete <location>      delete breakpoint\n");
+		USER("       enable <location>      enable breakpoint\n");
+		USER("       disable <location>     disable breakpoint\n");
+		USER("       view                   update breakpoint window\n");
+		USER("       get <filename>         get list of breakpoints\n");
 		USER("\n");
 	}
 	else{
@@ -175,12 +175,17 @@ void cmd_break_help(int argc, char** argv){
 
 			switch(scmd->id){
 			case ADD:
-				USER("usage %s %s <location>\n", argv[0], argv[i]);
-				USER("   add new breakpoint, with location being any of\n");
+				USER("usage %s %s [-i <count> -c <condition>] <location>\n", argv[0], argv[i]);
+				USER("   add new breakpoint, with <location> being any of\n");
 				USER("      - function\n");
 				USER("      - filename:linenum\n");
 				USER("      - filename:function\n");
-				USER("      - *address\n");
+				USER("      - *address\n\n");
+				USER("   options\n");
+				USER("      -i <count>       set ignore count to <count>\n");
+				USER("      -c <condition>   only break if <condition> is met\n");
+				USER("      -t               add temporary breakpoint\n");
+				USER("      -h               add hardware breakpoint\n");
 				USER("\n");
 				break;
 
@@ -254,14 +259,14 @@ void breakpt_print(char* filename){
 				else					fprintf(fp, "%s\\n", bkpt->at);
 		}
 		else{
-			if(bkpt->enabled){
-				if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d\n", bkpt->filename, bkpt->line);
-				else					ui->win_print(win_id_break, "   %s\n", bkpt->at);
-			}
-			else{
-				if(bkpt->filename != 0)	ui->win_print(win_id_break, "   %s:%d [disabled]\n", bkpt->filename, bkpt->line);
-				else					ui->win_print(win_id_break, "   %s [disabled]\n", bkpt->at);
-			}
+			if(bkpt->filename != 0)	ui->win_print(win_id_break, "%s:%d", bkpt->filename, bkpt->line);
+			else					ui->win_print(win_id_break, "%s", bkpt->at);
+
+			ui->win_print(win_id_break, "%s%s%s%s%s\n",
+				(bkpt->enabled ? "" : " [disabled]"),
+				(bkpt->ignore_cnt ? " after " : ""), (bkpt->ignore_cnt ? bkpt->ignore_cnt : ""),
+				(bkpt->condition ? " if " : ""), (bkpt->condition ? bkpt->condition : "")
+			);
 		}
 	}
 

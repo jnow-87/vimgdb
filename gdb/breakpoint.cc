@@ -9,12 +9,16 @@ gdb_breakpoint_t::gdb_breakpoint_t(){
 	filename = 0;
 	fullname = 0;
 	at = 0;
+	condition = 0;
+	ignore_cnt = 0;
 }
 
 gdb_breakpoint_t::~gdb_breakpoint_t(){
 	delete filename;
 	delete fullname;
 	delete at;
+	delete condition;
+	delete ignore_cnt;
 }
 
 int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
@@ -60,6 +64,18 @@ int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
 		case IDV_AT:
 			delete bkpt->at;
 			bkpt->at = (char*)r->value->value;
+			r->value->value = 0;
+			break;
+
+		case IDV_CONDITION:
+			delete bkpt->condition;
+			bkpt->condition = (char*)r->value->value;
+			r->value->value = 0;
+			break;
+		
+		case IDV_IGNORE:
+			delete bkpt->ignore_cnt;
+			bkpt->ignore_cnt = (char*)r->value->value;
 			r->value->value = 0;
 			break;
 
