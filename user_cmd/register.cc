@@ -96,7 +96,7 @@ int cmd_register_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == FOLD || scmd->id == GET) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
+	if(((scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_register_help(2, argv);
 		return 0;
@@ -145,7 +145,7 @@ int cmd_register_exec(int argc, char** argv){
 		cmd_register_print();
 		break;
 
-	case GET:
+	case COMPLETE:
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
@@ -181,7 +181,7 @@ void cmd_register_help(int argc, char** argv){
 		USER("      fold <line>          fold/unfold variable/frame\n");
 		USER("      format <line> <fmt>  change variable output format\n");
 		USER("      set <line> <value>   set variable\n");
-		USER("      get <filename>       get list of variables/frames\n");
+		USER("      complete <filename>  get list of variables/frames\n");
 		USER("      view                 update register window\n");
 		USER("\n");
 	}
@@ -214,7 +214,7 @@ void cmd_register_help(int argc, char** argv){
 				USER("\n");
 				break;
 
-			case GET:
+			case COMPLETE:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
 				USER("          print '\\n' seprated list of line numbers that contain variables or frames to file <filename>\n");
 				USER("\n");

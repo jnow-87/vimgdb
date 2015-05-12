@@ -71,7 +71,7 @@ endfunction
 function! vimgdb#register#complete(subcmd)
 	" get list of gdb register buffer lines
 	call delete("/tmp/vimgdb_register")
-	call vimgdb#util#cmd("register get /tmp/vimgdb_register")
+	call vimgdb#util#cmd("register complete /tmp/vimgdb_register")
 	let l:line_lst = vimgdb#util#file_read("/tmp/vimgdb_register", 5)
 
 	return l:line_lst

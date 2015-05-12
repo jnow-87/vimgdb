@@ -71,7 +71,7 @@ endfunction
 function! vimgdb#callstack#complete(subcmd)
 	" get list of gdb callstack buffer lines
 	call delete("/tmp/vimgdb_callstack")
-	call vimgdb#util#cmd("callstack get /tmp/vimgdb_callstack")
+	call vimgdb#util#cmd("callstack complete /tmp/vimgdb_callstack")
 	let l:line_lst = vimgdb#util#file_read("/tmp/vimgdb_callstack", 5)
 
 	return l:line_lst

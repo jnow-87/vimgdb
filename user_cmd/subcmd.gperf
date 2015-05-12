@@ -44,6 +44,6 @@ setpc,		SETPC
 goto,		GOTO
 fold,		FOLD
 set,		SET
-get,		GET
+complete,	COMPLETE
 view,		VIEW
 format,		FORMAT

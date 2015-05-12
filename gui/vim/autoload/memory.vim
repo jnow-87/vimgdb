@@ -71,7 +71,7 @@ endfunction
 function! vimgdb#memory#complete_lines(subcmd)
 	" get list of gdb memory buffer lines
 	call delete("/tmp/vimgdb_memory")
-	call vimgdb#util#cmd("memory get /tmp/vimgdb_memory")
+	call vimgdb#util#cmd("memory complete /tmp/vimgdb_memory")
 	let l:line_lst = split(vimgdb#util#file_read("/tmp/vimgdb_memory", 5), '<addr>')
 
 	if l:line_lst == []
@@ -87,7 +87,7 @@ endfunction
 function! vimgdb#memory#complete_addr(subcmd)
 	" get list of gdb memory buffer lines
 	call delete("/tmp/vimgdb_memory")
-	call vimgdb#util#cmd("memory get /tmp/vimgdb_memory")
+	call vimgdb#util#cmd("memory complete /tmp/vimgdb_memory")
 	let l:line_lst = split(vimgdb#util#file_read("/tmp/vimgdb_memory", 5), '<addr>')
 
 	if l:line_lst == []

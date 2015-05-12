@@ -100,6 +100,6 @@ function! s:variable(...)
 
 	" get list of gdb variable buffer lines
 	call delete("/tmp/vimgdb_variable")
-	call vimgdb#util#cmd("variable get /tmp/vimgdb_variable")
+	call vimgdb#util#cmd("variable complete /tmp/vimgdb_variable")
 	let s:var_lst = vimgdb#util#file_read("/tmp/vimgdb_variable", 5)
 endfunction

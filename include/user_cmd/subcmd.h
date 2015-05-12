@@ -22,7 +22,7 @@ typedef enum{
 	GOTO,
 	FOLD,
 	SET,
-	GET,
+	COMPLETE,
 	VIEW,
 	FORMAT,
 } user_subcmd_id_t;

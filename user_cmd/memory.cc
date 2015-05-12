@@ -48,7 +48,7 @@ int cmd_memory_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == DELETE || scmd->id == GET || scmd->id == FOLD) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
+	if(((scmd->id == DELETE || scmd->id == COMPLETE || scmd->id == FOLD) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_memory_help(2, argv);
 		return 0;
@@ -105,7 +105,7 @@ int cmd_memory_exec(int argc, char** argv){
 		cmd_memory_update();
 		break;
 
-	case GET:
+	case COMPLETE:
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
@@ -148,7 +148,7 @@ void cmd_memory_help(int argc, char** argv){
 		USER("      delete <line>               delete memory segment\n");
 		USER("      fold <line>                 fold/unfold memory segment\n");
 		USER("      set <addr> <value> [<cnt>]  set memory\n");
-		USER("      get <filename>              get list of memory segments and addresses\n");
+		USER("      complete <filename>         get list of memory segments and addresses\n");
 		USER("      view                        update memory window\n");
 		USER("\n");
 	}
@@ -187,7 +187,7 @@ void cmd_memory_help(int argc, char** argv){
 				USER("\n");
 				break;
 
-			case GET:
+			case COMPLETE:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
 				USER("   print list of line numbers and addresses to file <filename>\n");
 				USER("   both lists are separated by '<addr>'\n");

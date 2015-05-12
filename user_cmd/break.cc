@@ -46,7 +46,7 @@ int cmd_break_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == GET) && argc < 3){
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == COMPLETE) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -131,7 +131,7 @@ int cmd_break_exec(int argc, char** argv){
 
 		break;
 
-	case GET:
+	case COMPLETE:
 		breakpt_print(argv[2]);
 		break;
 
@@ -161,7 +161,7 @@ void cmd_break_help(int argc, char** argv){
 		USER("       enable <location>      enable breakpoint\n");
 		USER("       disable <location>     disable breakpoint\n");
 		USER("       view                   update breakpoint window\n");
-		USER("       get <filename>         get list of breakpoints\n");
+		USER("       complete <filename>    get list of breakpoints\n");
 		USER("\n");
 	}
 	else{
@@ -207,7 +207,7 @@ void cmd_break_help(int argc, char** argv){
 				USER("\n");
 				break;
 
-			case GET:
+			case COMPLETE:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
 				USER("          print '\\n' seprated list of breakpoint to file <filename>\n");
 				USER("\n");
