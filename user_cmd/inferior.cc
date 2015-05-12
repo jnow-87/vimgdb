@@ -59,8 +59,7 @@ int cmd_inferior_exec(int argc, char** argv){
 				USER("load binary file \"%s\"\n", argv[2]);
 		}
 		else if(scmd->id == ARGS){
-			TODO("implement arguments with spaces\n");
-			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) == 0)
+			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, 0, 0, "%ssq %d", argv + 2, argc - 2) == 0)
 				USER("set program arguments\n");
 		}
 		else if(scmd->id == TTY){

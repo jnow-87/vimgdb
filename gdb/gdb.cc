@@ -176,6 +176,18 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 
 					i += 4;
 				}
+				else if(strncmp(fmt + i + 2, "sq %d", 5) == 0){
+					argv = va_arg(lst, char**);
+					argc = va_arg(lst, int);
+
+					for(j=0; j<argc; j++){
+						gdb->write((char*)"\"");
+						gdb->write(argv[j]);
+						gdb->write((char*)"\" ");
+					}
+
+					i += 5;
+				}
 				else
 					gdb->write(va_arg(lst, char*));
 
