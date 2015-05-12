@@ -14,6 +14,7 @@ let s:cmd_dict = {
 		\ "delete":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "enable":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "disable":{"__nested__":"vimgdb#break#complete_bkpt"},
+		\ "export":{"__nested__":"vimgdb#complete#file"},
 		\ "view":{},
 		\ "open":{},
 	\ }

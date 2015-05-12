@@ -9,6 +9,7 @@ let s:cmd_dict = {
 		\ "sym":{"__nested__":"vimgdb#complete#file"},
 		\ "args":{"<args>":{}},
 		\ "tty":{"__nested__":"vimgdb#complete#pts"},
+		\ "export":{"__nested__":"vimgdb#complete#file"},
 		\ "view":{},
 		\ "open":{},
 	\ }
