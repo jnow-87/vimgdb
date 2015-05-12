@@ -1,6 +1,3 @@
-" TODO: add comments to .vim files
-" TODO: add key-map safe and restore
-
 """""""""""""""""""
 " local variables "
 """""""""""""""""""

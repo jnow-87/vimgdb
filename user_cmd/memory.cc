@@ -233,7 +233,6 @@ int cmd_memory_update(){
 	list_for_each(mem_lst, mem){
 		addr = strtoll(mem->begin, 0, 16);
 
-		// TODO handle update highlighting
 		/* safe old content value */
 		content_old = mem->content;
 		mem->content = 0;
