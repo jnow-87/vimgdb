@@ -100,7 +100,7 @@ function! vimgdb#complete#lookup(arg, line, pos)
 	endif
 
 	" create string of keys in l:dict, removing '__nested__'
-	return substitute(join(keys(l:dict), "\n"), "__nested__\n*", "", "") . l:user
+	return substitute(join(keys(l:dict), "\n"), "__nested1*__\n*", "", "g") . l:user
 endfunction
 
 " \brief	complete file name
