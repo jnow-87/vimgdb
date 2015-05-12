@@ -9,7 +9,8 @@ let s:cmd_dict = {
 		\ "start":{},
 		\ "stop":{},
 		\ "direct":{"<mi-command>":{}},
-		\ "help":{}
+		\ "help":{},
+		\ "__nested__":"vimgdb#complete#file",
 	\ }
 \ }
 
@@ -21,22 +22,28 @@ let s:cmd_dict = {
 
 " \brief	vimgdb init and cleanup function
 "
-" \param	cmd		command to execute
-function! s:vimgdb(cmd, ...)
-	if a:cmd == "" || a:cmd == "start"
+" \param	first		first argument
+function! s:vimgdb(first, ...)
+	if a:first == "start"
 		call s:init()
 
-	elseif a:cmd == "stop"
+	elseif a:first == "stop"
 		call s:cleanup()
 
-	elseif a:cmd == "help"
+	elseif a:first == "help"
 		call s:help(join(a:000))
 
-	elseif a:cmd == "direct"
+	elseif a:first == "direct"
 		call vimgdb#util#cmd(join(a:000))
 
 	else
-		echoerr "invalid state"
+		if s:initialised == 0
+			call s:init()
+		endif
+
+		exec "Inferior " . a:first
+		exec "Inferior tty internal"
+		exec "Inferior args " . join(a:000)
 	endif
 endfunction
 
