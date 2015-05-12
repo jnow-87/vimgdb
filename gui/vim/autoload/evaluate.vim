@@ -28,7 +28,7 @@ function! vimgdb#evaluate#init()
 endfunction
 
 " \brief	cleanup memory command
-function! vimgdb#memory#cleanup()
+function! vimgdb#evaluate#cleanup()
 	" command
 	unabbrev evaluate
 	delcommand Evaluate
