@@ -4,7 +4,13 @@
 
 let s:cmd_dict = {
 	\ "break": {
-		\ "add":{"__nested__":"vimgdb#complete#sym_location"},
+		\ "add":{
+			\ "__nested__":"vimgdb#complete#sym_location",
+			\ "-i":{"<count>":{}},
+			\ "-c":{"<condition>":{}},
+			\ "-t":{},
+			\ "-h":{},
+		\ },
 		\ "delete":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "enable":{"__nested__":"vimgdb#break#complete_bkpt"},
 		\ "disable":{"__nested__":"vimgdb#break#complete_bkpt"},
@@ -12,6 +18,11 @@ let s:cmd_dict = {
 		\ "open":{},
 	\ }
 \ }
+
+let s:cmd_dict["break"]["add"]["-i"]["<count>"] = s:cmd_dict["break"]["add"]
+let s:cmd_dict["break"]["add"]["-c"]["<condition>"] = s:cmd_dict["break"]["add"]
+let s:cmd_dict["break"]["add"]["-t"] = s:cmd_dict["break"]["add"]
+let s:cmd_dict["break"]["add"]["-h"] = s:cmd_dict["break"]["add"]
 
 let s:breakpt_lst = ""
 

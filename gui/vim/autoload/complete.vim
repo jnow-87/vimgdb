@@ -92,13 +92,15 @@ function! vimgdb#complete#lookup(arg, line, pos)
 		let l:i += 1
 	endwhile
 
+	let l:user = ""
+
 	if has_key(l:dict, "__nested__")
-		" nesting is defined use the given function to compute the completion
-		exec "return " . l:dict["__nested__"] . "(\"" . a:arg . "\")"
+		" call used-defined function to compute the completion string
+		exec "let l:user = " . l:dict["__nested__"] . "(\"" . a:arg . "\")"
 	endif
 
-	" create string of keys in l:dict
-	return join(keys(l:dict), "\n")
+	" create string of keys in l:dict, removing '__nested__'
+	return substitute(join(keys(l:dict), "\n"), "__nested__\n*", "", "") . l:user
 endfunction
 
 " \brief	complete file name
