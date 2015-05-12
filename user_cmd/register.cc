@@ -20,11 +20,17 @@ static map<unsigned int, gdb_variable_t*> line_map;
 
 /* global functions */
 int cmd_register_init(){
+	static bool initialised = false;
 	gdb_result_t* r;
 	gdb_value_t* val;
 	gdb_variable_t* var;
 	map<string, gdb_variable_t*>::iterator it;
 
+
+	if(initialised)
+		return 0;
+
+	initialised = true;
 
 	/* clear register variables if present */
 	for(it=gdb_register_var.begin(); it!=gdb_register_var.end(); it++)
