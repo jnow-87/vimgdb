@@ -14,6 +14,10 @@ let s:cmd_dict = {
 	\ }
 \ }
 
+let g:vimgdb_inferior_files = ""
+let g:vimgdb_inferior_vars = ""
+let g:vimgdb_inferior_functions = ""
+
 
 """"""""""""""""""""
 " global functions "
