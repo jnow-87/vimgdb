@@ -28,6 +28,7 @@ void breakpt_print(char* filename = 0);
 int cmd_break_exec(int argc, char** argv){
 	char key[256];
 	const struct user_subcmd_t* scmd;
+	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
 	gdb_breakpoint_t* bkpt;
 
@@ -46,7 +47,7 @@ int cmd_break_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == COMPLETE) && argc < 3){
+	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -135,6 +136,32 @@ int cmd_break_exec(int argc, char** argv){
 		breakpt_print(argv[2]);
 		break;
 
+	case EXPORT:
+		fp = fopen(argv[2], "a+");
+
+		if(fp == 0){
+			DEBUG("unable to open file \"%s\"\n", argv[2]);
+			return 0;
+		}
+
+		for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
+			bkpt = it->second;
+
+			fprintf(fp, "Break add ");
+
+			if(bkpt->condition)		fprintf(fp, "-c %s ", bkpt->condition);
+			if(bkpt->ignore_cnt)	fprintf(fp, "-i %s ", bkpt->ignore_cnt);
+			if(bkpt->temporary)		fprintf(fp, "-t ");
+
+			if(bkpt->filename)		fprintf(fp, "%s:%d", bkpt->filename, bkpt->line);
+			else					fprintf(fp, "%s", bkpt->at);
+
+			fprintf(fp, "\n");
+		}
+
+		fclose(fp);
+		break;
+
 	case VIEW:
 		breakpt_print();
 		break;
@@ -162,6 +189,7 @@ void cmd_break_help(int argc, char** argv){
 		USER("       disable <location>     disable breakpoint\n");
 		USER("       view                   update breakpoint window\n");
 		USER("       complete <filename>    get list of breakpoints\n");
+		USER("       export <filename>      export breakpoints to vim script\n");
 		USER("\n");
 	}
 	else{
@@ -210,6 +238,12 @@ void cmd_break_help(int argc, char** argv){
 			case COMPLETE:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
 				USER("          print '\\n' seprated list of breakpoint to file <filename>\n");
+				USER("\n");
+				break;
+
+			case EXPORT:
+				USER("usage %s %s <filename>\n", argv[0], argv[1]);
+				USER("         export breakpoints to vim script <filename>\n");
 				USER("\n");
 				break;
 

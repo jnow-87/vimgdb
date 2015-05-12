@@ -14,6 +14,7 @@ public:
 
 
 	unsigned int num;
+	bool temporary;
 
 	unsigned int line;
 	char *filename,

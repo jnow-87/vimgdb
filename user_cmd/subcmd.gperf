@@ -47,3 +47,4 @@ set,		SET
 complete,	COMPLETE
 view,		VIEW
 format,		FORMAT
+export,		EXPORT

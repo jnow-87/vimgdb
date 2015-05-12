@@ -11,6 +11,7 @@ gdb_breakpoint_t::gdb_breakpoint_t(){
 	at = 0;
 	condition = 0;
 	ignore_cnt = 0;
+	temporary = false;
 }
 
 gdb_breakpoint_t::~gdb_breakpoint_t(){
@@ -79,8 +80,12 @@ int gdb_breakpoint_t::result_to_brkpt(gdb_result_t* result, void** _bkpt){
 			r->value->value = 0;
 			break;
 
-		case IDV_TYPE:
 		case IDV_DISPOSITION:
+			if(strcmp((char*)r->value->value, "del") == 0)	bkpt->temporary = true;
+			else											bkpt->temporary = false;
+			break;
+
+		case IDV_TYPE:
 		case IDV_ADDRESS:
 		case IDV_FUNCTION:
 		case IDV_ORIG_LOCATION:
