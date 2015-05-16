@@ -79,7 +79,7 @@ int cmd_exec_exec(int argc, char** argv){
 			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 
 			if(r != 0){
-				USER("error executing \"%s\", trying to start first inferior\n", argv[1]);
+				USER("error executing \"%s\", trying to start inferior first\n", argv[1]);
 				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 			}
 		}
