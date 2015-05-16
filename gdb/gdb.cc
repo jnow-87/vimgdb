@@ -175,12 +175,15 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 	unsigned int i, j, argc;
 	char** argv;
+	bool quoted;
 	va_list lst;
 
 
 	pthread_mutex_lock(&m);
 
 	va_start(lst, fmt);
+
+	GDB("issue: %s\n", cmd);
 
 	gdb_term->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
 	gdb_term->write((char*)"-");
@@ -204,28 +207,21 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 				break;
 
 			case 's':
-				if(strncmp(fmt + i + 2, "s %d", 4) == 0){
+				if(strncmp(fmt + i + 2, "s %d", 4) == 0 || strncmp(fmt + i + 2, "sq %d", 5) == 0){
 					argv = va_arg(lst, char**);
 					argc = va_arg(lst, int);
+					quoted = fmt[i + 3] == 'q' ? true : false;
 
 					for(j=0; j<argc; j++){
+						if(j != 0)	gdb_term->write((char*)" ");
+						if(quoted)	gdb_term->write((char*)"\"");
+
 						gdb_term->write(argv[j]);
-						gdb_term->write((char*)" ");
+
+						if(quoted)	gdb_term->write((char*)"\"");
 					}
 
-					i += 4;
-				}
-				else if(strncmp(fmt + i + 2, "sq %d", 5) == 0){
-					argv = va_arg(lst, char**);
-					argc = va_arg(lst, int);
-
-					for(j=0; j<argc; j++){
-						gdb_term->write((char*)"\"");
-						gdb_term->write(argv[j]);
-						gdb_term->write((char*)"\" ");
-					}
-
-					i += 5;
+					i += quoted ? 5 : 4;
 				}
 				else
 					gdb_term->write(va_arg(lst, char*));
