@@ -29,8 +29,9 @@ public:
 	~gdbif();
 
 	/* init gdb interface */
-	int init(pthread_t main_tid);
+	int init();
 	void on_stop(int (*hdlr)(void));
+	void on_exit(int (*hdlr)(void));
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...);
@@ -59,12 +60,12 @@ private:
 						   * volatile prev;
 	} response_t;
 
-	typedef struct _stop_hdlr_t{
+	typedef struct _event_hdlr_t{
 		int (*hdlr)(void);
 
-		struct _stop_hdlr_t *next,
-							*prev;
-	} stop_hdlr_t;
+		struct _event_hdlr_t *next,
+							 *prev;
+	} event_hdlr_t;
 
 	/* gdb child data */
 	pty* gdb;
@@ -94,10 +95,8 @@ private:
 	int evt_running(gdb_result_t* result);
 	int evt_stopped(gdb_result_t* result);
 
-	stop_hdlr_t* stop_hdlr;
-
-	/* main thread data */
-	pthread_t main_tid;
+	event_hdlr_t *stop_hdlr_lst,
+				 *exit_hdlr_lst;
 };
 
 

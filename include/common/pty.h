@@ -31,9 +31,6 @@ private:
 
 	/* make given file descriptor the controlling terminal */
 	int login(int fd);
-
-	/* signal handler */
-	static void sig_hdlr_chld(int signum);
 };
 
 

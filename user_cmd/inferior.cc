@@ -298,7 +298,7 @@ void* thread_inferior_output(void* arg){
 				line = (char*)realloc(line, len * sizeof(char));
 
 				if(line == 0)
-					return 0;
+					pthread_exit(0);
 			}
 
 			if(c == '\n'){
@@ -316,7 +316,7 @@ void* thread_inferior_output(void* arg){
 			DEBUG("inferior read shutdown\n");
 
 			ui->win_destroy(ui->win_getid(INFERIOR_NAME));
-			return 0;
+			pthread_exit(0);
 		}
 	}
 }

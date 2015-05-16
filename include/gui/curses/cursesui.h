@@ -23,7 +23,7 @@ public:
 	cursesui();
 	~cursesui();
 
-	int init(pthread_t main_tid);
+	int init();
 	void destroy();
 
 	/* user input */

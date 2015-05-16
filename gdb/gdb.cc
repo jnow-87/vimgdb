@@ -26,13 +26,13 @@ gdbif* gdb = 0;
  * \brief	standard constructor
  */
 gdbif::gdbif(){
-	main_tid = 0;
 	read_tid = 0;
 	gdb = 0;
 	token = 1;
 	is_running = false;
 	event_lst = 0;
-	stop_hdlr = 0;
+	stop_hdlr_lst = 0;
+	exit_hdlr_lst = 0;
 	cur_thread = 0;
 
 	pthread_mutex_init(&resp_mtx, 0);
@@ -45,17 +45,37 @@ gdbif::gdbif(){
  * \brief	standard desctructor
  */
 gdbif::~gdbif(){
-	// close gdb terminal
-	delete this->gdb;
+	event_hdlr_t* e;
 
+
+	/* close gdb terminal */
+	delete gdb;
+	gdb = 0;
+
+	/* join readline-thread
+	 *	terminated once the gdb terminal is closed
+	 */
 	if(read_tid != 0)
 		pthread_join(read_tid, 0);
 
-	if(event_tid != 0){
-		pthread_cancel(event_tid);
+	/* join event-thread
+	 *	terminated through 'RC_EXIT' event issued by readline-thread
+	 */
+	if(event_tid != 0)
 		pthread_join(event_tid, 0);
+
+	/* clear event handler lists */
+	list_for_each(stop_hdlr_lst, e){
+		list_rm(&stop_hdlr_lst, e);
+		delete e;
 	}
 
+	list_for_each(exit_hdlr_lst, e){
+		list_rm(&exit_hdlr_lst, e);
+		delete e;
+	}
+
+	/* clear pthread structures */
 	pthread_cond_destroy(&resp_avail);
 	pthread_cond_destroy(&event_avail);
 	pthread_mutex_destroy(&resp_mtx);
@@ -68,9 +88,7 @@ gdbif::~gdbif(){
  * \return	0	on success
  * 			-1	on error (check errno)
  */
-int gdbif::init(pthread_t main_tid){
-	this->main_tid = main_tid;
-
+int gdbif::init(){
 	// initialise pseudo terminal
 	this->gdb = new pty();
 
@@ -103,13 +121,23 @@ int gdbif::init(pthread_t main_tid){
 }
 
 void gdbif::on_stop(int (*hdlr)(void)){
-	stop_hdlr_t* e;
+	event_hdlr_t* e;
 
 
-	e = new stop_hdlr_t;
+	e = new event_hdlr_t;
 	e->hdlr = hdlr;
 
-	list_add_tail(&stop_hdlr, e);
+	list_add_tail(&stop_hdlr_lst, e);
+}
+
+void gdbif::on_exit(int (*hdlr)(void)){
+	event_hdlr_t* e;
+
+
+	e = new event_hdlr_t;
+	e->hdlr = hdlr;
+
+	list_add_tail(&exit_hdlr_lst, e);
 }
 
 /**
@@ -273,6 +301,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 	pthread_mutex_lock(&event_mtx);
 
 	switch(rclass){
+	case RC_EXIT:
 	case RC_STOPPED:
 	case RC_RUNNING:
 		e = new response_t;
@@ -347,7 +376,6 @@ void* gdbif::readline_thread(void* arg){
 	char c, *line;
 	unsigned int i, len;
 	gdbif* gdb;
-	sigval v;
 
 
 	i = 0;
@@ -400,7 +428,7 @@ void* gdbif::readline_thread(void* arg){
 			}
 		}
 		else{
-			DEBUG("gdb read shutdown\n");
+			GDB("gdb read shutdown\n");
 			break;
 		}
 	}
@@ -415,7 +443,11 @@ err_1:
 	free(line);
 
 err_0:
-	pthread_sigqueue(gdb->main_tid, SIGTERM, v);
+	/* trigger shutdown */
+	// force event-thread to exit
+	gdb->mi_proc_async(RC_EXIT, 0, 0);
+
+	// exit
 	pthread_exit(0);
 }
 
@@ -423,6 +455,7 @@ void* gdbif::event_thread(void* arg){
 	int r;
 	gdbif* gdb;
 	response_t* e;
+	event_hdlr_t* ehdlr;
 
 
 	gdb = (gdbif*)arg;
@@ -439,6 +472,17 @@ void* gdbif::event_thread(void* arg){
 		pthread_mutex_unlock(&gdb->event_mtx);
 
 		switch(e->rclass){
+		case RC_EXIT:
+			list_for_each(gdb->exit_hdlr_lst, ehdlr){
+				if(ehdlr->hdlr() != 0)
+					USER("error executing on-stop handler\n");
+			}
+
+			gdb_result_free(e->result);
+			delete e;
+
+			pthread_exit(0);
+
 		case RC_STOPPED:
 			GDB("handle event STOPPED\n");
 			r = gdb->evt_stopped(e->result);
@@ -459,8 +503,6 @@ void* gdbif::event_thread(void* arg){
 		gdb_result_free(e->result);
 		delete e;
 	}
-
-	return 0;
 }
 
 int gdbif::evt_running(gdb_result_t* result){
@@ -472,7 +514,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 	char* reason;
 	gdb_result_t* r;
 	gdb_frame_t* frame;
-	stop_hdlr_t* e;
+	event_hdlr_t* e;
 
 
 	reason = 0;
@@ -521,7 +563,7 @@ int gdbif::evt_stopped(gdb_result_t* result){
 	gdb_variable_t::get_changed();
 
 	/* execute callbacks */
-	list_for_each(stop_hdlr, e){
+	list_for_each(stop_hdlr_lst, e){
 		if(e->hdlr() != 0)
 			USER("error executing on-stop handler\n");
 	}

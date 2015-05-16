@@ -20,7 +20,6 @@ vimui::vimui(){
 	pthread_mutexattr_t attr;
 
 
-	main_tid = 0;
 	read_tid = 0;
 	nbserver = 0;
 	nbclient = 0;
@@ -54,11 +53,9 @@ vimui::~vimui(){
 	pthread_mutex_destroy(&ui_mtx);
 }
 
-int vimui::init(pthread_t main_tid){
+int vimui::init(){
 	char* s;
 
-
-	this->main_tid = main_tid;
 
 	ostr_len = 255;
 	ostr = new char[ostr_len];
@@ -117,17 +114,24 @@ void vimui::destroy(){
 	response_t* e;
 
 
+	/* trigger shutdown of main thread */
+	event(0, 0, E_DISCONNECT, 0);
+
+	/* cancel readline-thread */
 	if(read_tid != 0){
 		pthread_cancel(read_tid);
 		pthread_join(read_tid, 0);
 	}
 
+	/* close sockets */
+	delete nbclient;
+	delete nbserver;
+
+	/* free memory */
 	list_for_each(event_lst, e)
 		list_rm(&event_lst, e);
 
 	delete ostr;
-	delete nbclient;
-	delete nbserver;
 }
 
 char* vimui::readline(){
@@ -137,7 +141,7 @@ char* vimui::readline(){
 
 
 	while(1){
-		/* wait for data being read by readline_thread */
+		/* wait for data being read by readline-thread */
 		pthread_mutex_lock(&event_mtx);
 
 		if(list_empty(event_lst))
@@ -180,6 +184,8 @@ char* vimui::readline(){
 			break;
 
 		case E_DISCONNECT:
+			VIM("handle DISCONNECT event\n");
+
 			line = 0;
 			goto end;
 
@@ -543,16 +549,16 @@ int vimui::reply(int seq_num, vim_result_t* rlst){
 	return 0;
 }
 
-int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* rlst){
+int vimui::event(int buf_id, int seq_num, vim_event_id_t evt_id, vim_result_t* rlst){
 	response_t* e;
 
 
 	pthread_mutex_lock(&event_mtx);
 
 	/* check event type */
-	if(evt->id & (E_KEYATPOS | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
+	if(evt_id & (E_KEYATPOS | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
 		e = new response_t;
-		e->evt_id = evt->id;
+		e->evt_id = evt_id;
 		e->buf_id = buf_id;
 		e->result = rlst;
 		list_add_tail(&event_lst, e);
@@ -561,7 +567,7 @@ int vimui::event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* 
 	}
 	else{
 		// drop the result otherwise
-		VIM("drop vim event %d for buffer %d, sequence number %d\n", evt->id, buf_id, seq_num);
+		VIM("drop vim event %d for buffer %d, sequence number %d\n", evt_id, buf_id, seq_num);
 		vim_result_free(rlst);
 	}
 
@@ -713,7 +719,6 @@ void* vimui::readline_thread(void* arg){
 	char* line;
 	unsigned int i, line_len;
 	vimui* vim;
-	sigval v;
 
 
 	vim = (vimui*)arg;
@@ -748,6 +753,8 @@ void* vimui::readline_thread(void* arg){
 		}
 	}
 
-	pthread_sigqueue(vim->main_tid, SIGTERM, v);
+	/* trigger shutdown of main thread */
+	vim->event(0, 0, E_DISCONNECT, 0);
+
 	pthread_exit(0);
 }

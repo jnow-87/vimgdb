@@ -48,9 +48,9 @@
 %%
 
 
-line :	NUMBER arg-list NEWLINE											{ return vim->reply($1, $2); }			/* reply */
-	 |	NUMBER ':' EVENT '=' NUMBER arg-list NEWLINE					{ return vim->event($1, $5, $3, $6); }	/* event */
-	 |	EVENT arg-list NEWLINE											{ return vim->event(0, 0, $1, $2); }	/* special messages */
+line :	NUMBER arg-list NEWLINE											{ return vim->reply($1, $2); }				/* reply */
+	 |	NUMBER ':' EVENT '=' NUMBER arg-list NEWLINE					{ return vim->event($1, $5, $3->id, $6); }	/* event */
+	 |	EVENT arg-list NEWLINE											{ return vim->event(0, 0, $1->id, $2); }	/* special messages */
 	 ;
 
 arg-list :	%empty														{ $$ = 0; }

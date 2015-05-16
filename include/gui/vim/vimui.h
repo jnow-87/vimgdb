@@ -21,7 +21,7 @@ public:
 	vimui();
 	~vimui();
 
-	int init(pthread_t main_tid);
+	int init();
 	void destroy();
 
 	/* user input */
@@ -44,7 +44,7 @@ public:
 
 	/* netbeans message handling */
 	int reply(int seq_num, vim_result_t* rlst);
-	int event(int buf_id, int seq_num, const vim_event_t* evt, vim_result_t* rlst);
+	int event(int buf_id, int seq_num, vim_event_id_t evt_id, vim_result_t* rlst);
 
 private:
 	/* types */
@@ -105,9 +105,6 @@ private:
 	pthread_cond_t resp_avail;
 	pthread_mutex_t resp_mtx;
 	response_t resp;
-
-	// main thread data
-	pthread_t main_tid;
 };
 
 

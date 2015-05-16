@@ -46,9 +46,6 @@ pty::pty(struct termios* termp, struct winsize* win_size){
 pty::~pty(){
 	// killing gdb child process
 	if(forkee_pid != -1){
-		// prevent SIGCLD from being triggered
-		signal(SIGCHLD, 0);
-
 		kill(forkee_pid, SIGTERM);
 		waitpid(forkee_pid, 0, 0);
 		forkee_pid = -1;
@@ -95,14 +92,6 @@ int pty::fork(){
 	// parent
 	default:
 		libc::close(fd_slave);
-
-		// register signal handler for SIGCHLD
-		if(signal(SIGCHLD, pty::sig_hdlr_chld) == SIG_ERR){
-			ERROR("register sig_hdlr_chld() failed\n");
-			return -1;
-		}
-
-
 		return forkee_pid;
 	}
 }
@@ -196,16 +185,4 @@ int pty::login(int fd){
 		libc::close(fd);
 
 	return 0;
-}
-
-/**
- * \brief	signal handler
- *
- * \param	signal number
- */
-void pty::sig_hdlr_chld(int signum){
-	DEBUG("caught child signal %d, initialising cleanup\n", signum);
-
-	// kill self
-	kill(libc::getpid(), SIGTERM);
 }

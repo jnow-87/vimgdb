@@ -16,11 +16,11 @@
 
 /* static prototypes */
 void cleanup(int signum);
+int cleanup();
 
 
 int main(int argc, char** argv){
 	char* line;
-	sigval v;
 
 
 	/* initialise */
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
 	#error "invalid gui defined"
 #endif
 
-	if(ui->init(pthread_self()) != 0)
+	if(ui->init() != 0)
 		return 1;
 
 	// logging
@@ -54,13 +54,14 @@ int main(int argc, char** argv){
 	gdb = new gdbif;
 
 	DEBUG("initialising gdb interface\n");
-	if(gdb->init(pthread_self()) != 0)
+	if(gdb->init() != 0)
 		return 2;
 
 	gdb->on_stop(cmd_var_print);
 	gdb->on_stop(cmd_callstack_update);
 	gdb->on_stop(cmd_register_print);
 	gdb->on_stop(cmd_memory_update);
+	gdb->on_exit(cleanup);
 
 	/* main loop */
 	while(1){
@@ -77,17 +78,36 @@ int main(int argc, char** argv){
 end:
 	// call cleanup() through signal to prevent nested signals
 	// from other threads like closing ui and gdb
-	pthread_sigqueue(pthread_self(), SIGTERM, v);
+	cleanup();
 }
 
 
 /* static functions */
 void cleanup(int signum){
+	cleanup();
+}
+
+int cleanup(){
+	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+
+
+	/* ensure cleanup is only executed once */
+	if(pthread_mutex_trylock(&m) != 0)
+		return 0;
+
+	/* destroy gdb */
 	delete gdb;
+	gdb = 0;
+
+	/* close log */
 	log::cleanup();
+
+	/* close gui */
 	ui->destroy();
-
 	delete ui;
+	ui = 0;
+	
+	pthread_mutex_unlock(&m);
 
-	exit(1);
+	return 0;
 }

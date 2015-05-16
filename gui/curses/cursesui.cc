@@ -30,7 +30,7 @@ cursesui::~cursesui(){
 	endwin();
 }
 
-int cursesui::init(pthread_t main_tid){
+int cursesui::init(){
 	windows = (window_t**)malloc(sizeof(window_t*) * max_win);
 
 	if(windows == 0)
