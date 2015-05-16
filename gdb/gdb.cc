@@ -177,6 +177,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	char** argv;
 	bool quoted;
 	va_list lst;
+	response_t resp;
 
 
 	pthread_mutex_lock(&m);
@@ -251,12 +252,20 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	memset((void*)&resp, 0x0, sizeof(response_t));
 
 	gdb_term->write((char*)"\n");	// ensure that response cannot arrive
-								// before it is expected
+									// before it is expected
 
 	pthread_cond_wait(&resp_avail, &resp_mtx);
 
+	// make local copy to allow unlocking mutex
+	resp = this->resp;
 	token++;
 
+	pthread_mutex_unlock(&resp_mtx);
+	pthread_mutex_unlock(&m);
+
+	va_end(lst);
+
+	/* process response */
 	if((resp.rclass & ok_mask)){
 		if(resp.result){
 			if(process){
@@ -275,11 +284,6 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? resp.result->value->value : "gdb implementation error"));
 
 	gdb_result_free(resp.result);
-
-	pthread_mutex_unlock(&resp_mtx);
-	pthread_mutex_unlock(&m);
-
-	va_end(lst);
 
 	if(resp.rclass & ok_mask)
 		return 0;
