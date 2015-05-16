@@ -55,6 +55,9 @@ vimui::~vimui(){
 }
 
 int vimui::init(pthread_t main_tid){
+	char* s;
+
+
 	this->main_tid = main_tid;
 
 	ostr_len = 255;
@@ -85,7 +88,15 @@ int vimui::init(pthread_t main_tid){
 	thread_name[read_tid] = "vim-readline";
 
 	// wait for vim to finish init
-	while(strcmp(readline(), "init-done") != 0);
+	while(1){
+		s = readline();
+
+		if(s == 0)
+			return -1;
+		
+		if(strcmp(s, "init-done") == 0)
+			break;
+	}
 
 	return 0;
 
