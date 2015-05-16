@@ -7,6 +7,7 @@ namespace libc{
 	#include <sys/stat.h>
 	#include <fcntl.h>
 	#include <unistd.h>
+	#include <stdio.h>
 }
 
 
@@ -34,11 +35,7 @@ tty::tty(const char* in_file, const char* out_file){
  * \brief	destructor
  */
 tty::~tty(){
-	if(this->fd_in > 1)
-		libc::close(this->fd_in);
-
-	if(this->fd_out > 1)
-		libc::close(this->fd_out);
+	close();
 }
 
 /**
@@ -69,4 +66,15 @@ int tty::write(void* buf, unsigned int nbytes){
 
 int tty::write(char* s){
 	return libc::write(fd_out, s, strlen(s));
+}
+
+void tty::close(){
+	if(fd_in > 1)
+		libc::close(fd_in);
+
+	if(fd_out > 1)
+		libc::close(fd_out);
+
+	fd_in = -1;
+	fd_out = -1;
 }

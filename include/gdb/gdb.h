@@ -68,7 +68,7 @@ private:
 	} event_hdlr_t;
 
 	/* gdb child data */
-	pty* gdb;
+	pty* gdb_term;
 	pid_t gdb_pid;
 	bool volatile is_running;
 	unsigned int cur_thread;

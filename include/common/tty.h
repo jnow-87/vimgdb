@@ -15,9 +15,12 @@ public:
 	int write(void* buf, unsigned int nbytes);
 	int write(char* s);
 
+	/* close file descriptors */
+	void close();
+
 protected:
-	int fd_in,		// file descriptor used for reading
-		fd_out;		// file descriptor used for writing
+	volatile int fd_in,		// file descriptor used for reading
+				 fd_out;	// file descriptor used for writing
 };
 
 

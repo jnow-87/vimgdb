@@ -46,23 +46,34 @@ gdbif::gdbif(){
  */
 gdbif::~gdbif(){
 	event_hdlr_t* e;
+	sigval v;
 
 
-	/* close gdb terminal */
-	delete gdb;
-	gdb = 0;
+	gdb_term->close();
 
 	/* join readline-thread
 	 *	terminated once the gdb terminal is closed
 	 */
-	if(read_tid != 0)
-		pthread_join(read_tid, 0);
+	if(read_tid != 0){
+		do{
+			pthread_sigqueue(read_tid, SIGINT, v);
+			usleep(1000);
+		}while(pthread_tryjoin_np(read_tid, 0) != 0);
+	}
 
 	/* join event-thread
 	 *	terminated through 'RC_EXIT' event issued by readline-thread
 	 */
-	if(event_tid != 0)
-		pthread_join(event_tid, 0);
+	if(event_tid != 0){
+		do{
+			pthread_sigqueue(event_tid, SIGINT, v);
+			usleep(1000);
+		}while(pthread_tryjoin_np(event_tid, 0) != 0);
+	}
+
+	/* close gdb terminal */
+	delete gdb_term;
+	gdb_term = 0;
 
 	/* clear event handler lists */
 	list_for_each(stop_hdlr_lst, e){
@@ -90,10 +101,10 @@ gdbif::~gdbif(){
  */
 int gdbif::init(){
 	// initialise pseudo terminal
-	this->gdb = new pty();
+	gdb_term = new pty();
 
 	// fork child process
-	gdb_pid = gdb->fork();
+	gdb_pid = gdb_term->fork();
 
 	if(gdb_pid == 0){
 		/* child */
@@ -103,12 +114,12 @@ int gdbif::init(){
 	}
 	else if(gdb_pid > 0){
 		/* parent */
-		if(pthread_create(&read_tid, 0, readline_thread, this) != 0)
+		if(pthread_create(&read_tid, 0, readline_thread, 0) != 0)
 			return -1;
 
 		thread_name[read_tid] = "gdb-readline";
 
-		if(pthread_create(&event_tid, 0, event_thread, this) != 0)
+		if(pthread_create(&event_tid, 0, event_thread, 0) != 0)
 			return -1;
 
 		thread_name[event_tid] = "gdb-event";
@@ -171,24 +182,24 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 
 	va_start(lst, fmt);
 
-	gdb->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
-	gdb->write((char*)"-");
-	gdb->write(cmd);
+	gdb_term->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
+	gdb_term->write((char*)"-");
+	gdb_term->write(cmd);
 
 	if(*fmt != 0)
-		gdb->write((char*)" ");
+		gdb_term->write((char*)" ");
 
 	for(i=0; i<strlen(fmt); i++){
 		switch(fmt[i]){
 		case '%':
 			switch(fmt[i + 1]){
 			case 'd':
-				gdb->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				gdb_term->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
 				i++;
 				break;
 
 			case 'u':
-				gdb->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
+				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
 				i++;
 				break;
 
@@ -198,8 +209,8 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 					argc = va_arg(lst, int);
 
 					for(j=0; j<argc; j++){
-						gdb->write(argv[j]);
-						gdb->write((char*)" ");
+						gdb_term->write(argv[j]);
+						gdb_term->write((char*)" ");
 					}
 
 					i += 4;
@@ -209,15 +220,15 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 					argc = va_arg(lst, int);
 
 					for(j=0; j<argc; j++){
-						gdb->write((char*)"\"");
-						gdb->write(argv[j]);
-						gdb->write((char*)"\" ");
+						gdb_term->write((char*)"\"");
+						gdb_term->write(argv[j]);
+						gdb_term->write((char*)"\" ");
 					}
 
 					i += 5;
 				}
 				else
-					gdb->write(va_arg(lst, char*));
+					gdb_term->write(va_arg(lst, char*));
 
 				i++;
 				break;
@@ -233,7 +244,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 			break;
 
 		default:
-			gdb->write((void*)(fmt + i), 1);
+			gdb_term->write((void*)(fmt + i), 1);
 			break;
 		};
 	}
@@ -243,7 +254,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 
 	memset((void*)&resp, 0x0, sizeof(response_t));
 
-	gdb->write((char*)"\n");	// ensure that response cannot arrive
+	gdb_term->write((char*)"\n");	// ensure that response cannot arrive
 								// before it is expected
 
 	pthread_cond_wait(&resp_avail, &resp_mtx);
@@ -338,7 +349,7 @@ int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
  * 			-1 on error
  */
 int gdbif::read(void* buf, unsigned int nbytes){
-	return gdb->read(buf, nbytes);
+	return gdb_term->read(buf, nbytes);
 }
 
 /**
@@ -351,7 +362,7 @@ int gdbif::read(void* buf, unsigned int nbytes){
  * 			-1 on error
  */
 int gdbif::write(void* buf, unsigned int nbytes){
-	return gdb->write(buf, nbytes);
+	return gdb_term->write(buf, nbytes);
 }
 
 int gdbif::sigsend(int sig){
@@ -375,11 +386,9 @@ unsigned int gdbif::threadid(){
 void* gdbif::readline_thread(void* arg){
 	char c, *line;
 	unsigned int i, len;
-	gdbif* gdb;
 
 
 	i = 0;
-	gdb = (gdbif*)arg;
 
 	len = 255;
 	line = (char*)malloc(len * sizeof(char));
@@ -453,12 +462,9 @@ err_0:
 
 void* gdbif::event_thread(void* arg){
 	int r;
-	gdbif* gdb;
 	response_t* e;
 	event_hdlr_t* ehdlr;
 
-
-	gdb = (gdbif*)arg;
 
 	while(1){
 		pthread_mutex_lock(&gdb->event_mtx);
