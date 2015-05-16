@@ -141,11 +141,14 @@ function! vimgdb#window#initial(name)
 
 	if l:bname == ""
 		" if current buffer is empty, create new one
-		setlocal bufhidden=delete
 		exec "autocmd! BufWinLeave " . a:name . " silent call vimgdb#window#close(\"" . a:name . "\")"
 
 		exec "edit " . a:name
+		setlocal bufhidden=delete
+		setlocal noswapfile
+
 		let l:bnr = bufnr(a:name)
+
 	else
 		if &modified == 1
 			call vimgdb#util#error("buffer " . l:bname . " is modified, please safe changes and try again")

@@ -113,9 +113,6 @@ function! s:cleanup()
 		return
 	endif
 
-	" close netbeans
-	nbclose
-
 	" close windows
 	call vimgdb#window#close(g:vimgdb_initial_name)
 	call vimgdb#window#close(g:vimgdb_userlog_name)
@@ -126,6 +123,9 @@ function! s:cleanup()
 	call vimgdb#window#close(g:vimgdb_callstack_name)
 	call vimgdb#window#close(g:vimgdb_register_name)
 	call vimgdb#window#close(g:vimgdb_memory_name)
+
+	" close netbeans
+	nbclose
 
 	" cleanup
 	call vimgdb#complete#cleanup(s:cmd_dict)
