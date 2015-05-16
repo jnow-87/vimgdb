@@ -72,8 +72,14 @@ int cmd_var_exec(int argc, char** argv){
 		if(var == 0)
 			return -1;
 
-		USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
-		cmd_var_print();
+		if(var->refcnt == 1){
+			USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
+			cmd_var_print();
+		}
+		else
+			// never reference a user-variable more than once
+			var->refcnt = 1;
+
 		break;
 	
 	case DELETE:
