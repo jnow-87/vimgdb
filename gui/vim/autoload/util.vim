@@ -30,6 +30,9 @@ function! vimgdb#util#error(msg)
 	echohl Error
 	echom a:msg
 	echohl None
+
+	" let user see the message in case other commands follow
+	sleep 1
 endfunction
 
 " \brief	execute netbeans command

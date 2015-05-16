@@ -137,7 +137,9 @@ endfunction
 "
 " \param	name	default name of initial buffer
 function! vimgdb#window#initial(name)
-	if bufname(bufnr("%")) == ""
+	let l:bname = bufname(bufnr("%"))
+
+	if l:bname == ""
 		" if current buffer is empty, create new one
 		setlocal bufhidden=delete
 		exec "autocmd! BufWinLeave " . a:name . " silent call vimgdb#window#close(\"" . a:name . "\")"
@@ -145,11 +147,19 @@ function! vimgdb#window#initial(name)
 		exec "edit " . a:name
 		let l:bnr = bufnr(a:name)
 	else
+		if &modified == 1
+			call vimgdb#util#error("buffer " . l:bname . " is modified, please safe changes and try again")
+			return -1
+		endif
+
+		exec "edit! " . l:bname
 		let l:bnr = bufnr("%")
 	endif
 
 	" add buffer to list
 	let s:win_lst_hor[l:bnr] = 1
+
+	return 0
 endfunction
 
 " \brief	open a window and add to window list

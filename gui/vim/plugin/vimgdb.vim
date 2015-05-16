@@ -83,10 +83,14 @@ function! s:init()
 	call vimgdb#evaluate#init()
 
 	" start netbeans
-	exec ":nbstart :127.0.0.1:1235:"
+	exec "nbstart :127.0.0.1:1235:"
 
 	" init windows
-	call vimgdb#window#initial(g:vimgdb_initial_name)
+	if vimgdb#window#initial(g:vimgdb_initial_name) != 0
+		exec "nbclose"
+		return
+	endif
+
 	call vimgdb#window#open(g:vimgdb_userlog_name, 0)
 	call vimgdb#window#open(g:vimgdb_gdblog_name, 0)
 	call vimgdb#window#open(g:vimgdb_callstack_name, 0)
