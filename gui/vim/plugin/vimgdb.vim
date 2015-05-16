@@ -128,7 +128,7 @@ function! s:cleanup()
 	call vimgdb#window#close(g:vimgdb_memory_name)
 
 	" cleanup
-	call vimgdb#complete#cleanup()
+	call vimgdb#complete#cleanup(s:cmd_dict)
 	call vimgdb#window#cleanup()
 	call vimgdb#variable#cleanup()
 	call vimgdb#exec#cleanup()

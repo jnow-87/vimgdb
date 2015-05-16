@@ -7,12 +7,12 @@ let s:cmd_dict = {}
 
 " \brief	init completion
 function! vimgdb#complete#init(dict)
-	let s:cmd_dict = a:dict
+	let s:cmd_dict = deepcopy(a:dict)
 endfunction
 
 " \brief	clean completion
-function! vimgdb#complete#cleanup()
-	let s:cmd_dict = {}
+function! vimgdb#complete#cleanup(dict)
+	let s:cmd_dict = deepcopy(a:dict)
 endfunction
 
 function! vimgdb#complete#expand(main, vg_sub, vg_help)
