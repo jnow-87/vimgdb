@@ -277,7 +277,11 @@ int cmd_callstack_update(){
 			var = gdb_variable_t::acquire(vartmp->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
 	
 			if(var != 0){
-				var->refcnt++;	// avoid variable being deleted once deleting the frame
+				// increment the reference counter of new variables to avoid
+				// variable from being delete once deleting the frame
+				if(var->refcnt == 1)
+					var->refcnt++;
+
 				var->argument = vartmp->argument;
 
 				list_add_tail((var->argument == true ? &frame->args : &frame->locals), var);
