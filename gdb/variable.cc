@@ -215,7 +215,25 @@ int gdb_variable_t::result_to_variable(gdb_result_t* result, void** _var){
 			break;
 
 		case IDV_INSCOPE:
-			var->inscope = ((char*)(r->value->value))[0] == 't' ? true : false;
+			switch(((char*)(r->value->value))[0]){
+			case 't':
+				var->inscope = true;
+				break;
+
+			case 'f':
+				var->inscope = false;
+				break;
+
+			case 'i':
+				ERROR("variable marked as \"scope == invalid\"\n" \
+					  "an invalid scope indicates a modified binary (re-compile)\n" \
+					  "such cases should be handled within gdbif::get_changed()\n" \
+					  "hence this error is not supposed to occur\n"
+				);
+
+				var->inscope = false;
+				break;
+			};
 			break;
 
 		case IDV_CHILDS:
@@ -266,8 +284,7 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 
 	list_for_each((gdb_value_t*)result->value->value, v){
 		list_for_each((gdb_result_t*)v->value, r){
-			switch(r->var_id){
-			case IDV_NAME:
+			if(r->var_id == IDV_NAME){
 				var = MAP_LOOKUP(gdb_var_lst, (char*)r->value->value);
 
 				if(var == 0){
@@ -277,22 +294,39 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 
 				if(var->parent == 0 || var->parent->childs_visible)
 					var->modified = true;
+			}
+			else if(var != 0){
+				switch(r->var_id){
+				case IDV_INSCOPE:
+					if(var != 0){
+						switch(((char*)(r->value->value))[0]){
+						case 't':
+							var->inscope = true;
+							break;
 
-				break;
+						case 'f':
+							var->inscope = false;
+							break;
 
-			case IDV_INSCOPE:
-				if(var != 0)
-					var->inscope = ((char*)(r->value->value))[0] == 't' ? true : false;
-				break;
+						case 'i':
+							gdb_variable_t::release(var);
+							var = 0;
+							break;
+						};
+					}
+		
+					break;
 
-			case IDV_HAS_MORE:
-			case IDV_TYPE_CHANGED:
-				break;
+				case IDV_NAME:
+				case IDV_HAS_MORE:
+				case IDV_TYPE_CHANGED:
+					break;
 
-			default:
-				DEBUG("unhandled identifier %d\n", r->var_id);
-				break;
-			};
+				default:
+					DEBUG("unhandled identifier %d\n", r->var_id);
+					break;
+				};
+			}
 		}
 	}
 
