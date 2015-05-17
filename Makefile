@@ -67,6 +67,33 @@ include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 .PHONY: all
 all: check_config $(lib) $(bin)
 
+.PHONY: install-user
+install-user:
+	mkdir -p ~/.vim/plugin ~/.vim/syntax ~/.vim/autoload/vimgdb ~/bin
+	cp -au built/main/vimgdb ~/bin/
+	cp -au gui/vim/plugin/* ~/.vim/plugin;
+	cp -au gui/vim/syntax/* ~/.vim/syntax;
+	cp -au gui/vim/autoload/* ~/.vim/autoload/vimgdb/
+
+.PHONY: install-system
+install-system:
+	mkdir -p /usr/share/vim/vim74/plugin /usr/share/vim/vim74/syntax /usr/share/vim/vim74/autoload/vimgdb /usr/bin
+	cp -au built/main/vimgdb /usr/bin/
+	cp -au gui/vim/plugin/* /usr/share/vim/vim74/plugin
+	cp -au gui/vim/syntax/* /usr/share/vim/vim74/syntax
+	cp -au gui/vim/autoload/* /usr/share/vim/vim74/autoload/vimgdb/
+
+.PHONY: uninstall
+uninstall:
+	rm -f /usr/bin/vimgdb
+	rm -f /usr/share/vim/vim74/plugin/vimgdb.vim
+	rm -f /usr/share/vim/vim74/syntax/vimgdb*.vim
+	rm -rf /usr/share/vim/vim74/autoload/vimgdb
+	rm -f ~/bin/vimgdb
+	rm -f ~/.vim/plugin/vimgdb.vim
+	rm -f ~/.vim/syntax/vimgdb*.vim
+	rm -rf ~/.vim/autoload/vimgdb
+
 .PHONY: clean
 clean:
 	$(rm) $(built_tree)
