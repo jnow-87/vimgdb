@@ -161,6 +161,9 @@ function! s:export(file)
 	
 	" export breakpoints
 	call vimgdb#util#cmd("break export " . l:fullname)
+
+	" export variables
+	call vimgdb#util#cmd("variable export " . l:fullname)
 endfunction
 
 function! s:help(line)

@@ -24,7 +24,8 @@ int cmd_var_exec(int argc, char** argv){
 	gdb_variable_t *var;
 	const struct user_subcmd_t* scmd;
 	FILE* fp;
-	map<unsigned int, gdb_variable_t*>::iterator it;
+	map<unsigned int, gdb_variable_t*>::iterator lit;
+	map<string, gdb_variable_t*>::iterator sit;
 
 
 	if(argc < 2){
@@ -41,7 +42,7 @@ int cmd_var_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
+	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -126,8 +127,22 @@ int cmd_var_exec(int argc, char** argv){
 		if(fp == 0)
 			return -1;
 
-		for(it=line_map.begin(); it!=line_map.end(); it++)
-			fprintf(fp, "%d\\n", it->first);
+		for(lit=line_map.begin(); lit!=line_map.end(); lit++)
+			fprintf(fp, "%d\\n", lit->first);
+
+		fclose(fp);
+		break;
+
+	case EXPORT:
+		fp = fopen(argv[2], "a+");
+
+		if(fp == 0){
+			DEBUG("unable to open file \"%s\"\n", argv[2]);
+			return 0;
+		}
+
+		for(sit=gdb_user_var.begin(); sit!=gdb_user_var.end(); sit++)
+			fprintf(fp, "Variable add %s\n", sit->second->exp);
 
 		fclose(fp);
 		break;
@@ -159,6 +174,7 @@ void cmd_var_help(int argc, char** argv){
 		USER("      format <line> <fmt>  change variable output format\n");
 		USER("      set <line> <value>   set variable\n");
 		USER("      complete <filename>  get list of variables\n");
+		USER("      export <filename>    export user variables to vim script\n");
 		USER("      view                 update variable window\n");
 		USER("\n");
 	}
@@ -206,6 +222,13 @@ void cmd_var_help(int argc, char** argv){
 			case COMPLETE:
 				USER("usage %s %s <filename>\n", argv[0], argv[i]);
 				USER("   print '\\n' separated list of line numbers that contain variables to file <filename>\n");
+				USER("\n");
+				break;
+
+			case EXPORT:
+				USER("usage %s %s <filename>\n", argv[0], argv[1]);
+				USER("   export user variables to vim script <filename>\n");
+				USER("   note: restore of variables only works for global variables\n");
 				USER("\n");
 				break;
 
