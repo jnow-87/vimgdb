@@ -196,7 +196,7 @@ int gdb_variable_t::result_to_variable(gdb_result_t* result, void** _var){
 
 		case IDV_VALUE:
 			delete var->value;
-			var->value = (char*)r->value->value;
+			var->value = strdeescape((char*)r->value->value);
 			r->value->value = 0;
 			break;
 
@@ -368,7 +368,7 @@ int gdb_variable_t::print(int win_id, unsigned int* line, map<unsigned int, gdb_
 		if(update() != 0)
 			return -1;
 
-		ui->win_print(win_id, "%s%s = %s", (modified ? "`" : ""), exp, strdeescape(value));
+		ui->win_print(win_id, "%s%s = %s", (modified ? "`" : ""), exp, value);
 		modified = false;
 
 		return 0;
@@ -411,7 +411,7 @@ int gdb_variable_t::print(int win_id, int rec_lvl, unsigned int* line, map<unsig
 		return -1;
 
 	/* update UI */
-	ui->win_print(win_id, "%s%s%s%s = %s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "`" : " "), exp, strdeescape(value));
+	ui->win_print(win_id, "%s%s%s%s = %s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "`" : " "), exp, value);
 
 	/* update variable structs */
 	modified = false;
