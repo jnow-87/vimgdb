@@ -51,6 +51,9 @@ let s:keymap = {}
 
 " \brief	apply configuration
 function vimgdb#config#init()
+	" assign vimgdb command
+	call vimgdb#util#cond_assign("g:vimgdb_bin", "/usr/bin/vimgdb")
+
 	" assign window parameter
 	let g:vimgdb_initial_name = "source"
 
