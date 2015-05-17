@@ -115,6 +115,7 @@ int cmd_register_exec(int argc, char** argv){
 		break;
 
 	default:
+		var = 0;
 		break;
 	};
 

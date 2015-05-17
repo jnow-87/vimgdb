@@ -33,6 +33,8 @@ int strsplit(char* line, int* _argc, char*** _argv){
 
 	/* identify number of arguments within cmdline */
 	i = 0;
+	argc = 0;
+
 	while(i < len){
 		/* skip blanks */
 		if(line[i] == ' '){

@@ -269,13 +269,15 @@ void breakpt_print(char* filename){
 	gdb_breakpoint_t* bkpt;
 
 
-	if(filename != 0){
+	if(filename){
+		win_id_break = 0;
 		fp = fopen(filename, "w");
 
 		if(fp == 0)
 			return;
 	}
 	else{
+		fp = 0;
 		win_id_break = ui->win_getid(BREAKPOINTS_NAME);
 
 		if(win_id_break < 0)
@@ -288,7 +290,7 @@ void breakpt_print(char* filename){
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
 		bkpt = it->second;
 
-		if(filename != 0){
+		if(filename){
 				if(bkpt->filename != 0)	fprintf(fp, "%s:%d\\n", bkpt->filename, bkpt->line);
 				else					fprintf(fp, "%s\\n", bkpt->at);
 		}
@@ -304,7 +306,7 @@ void breakpt_print(char* filename){
 		}
 	}
 
-	if(filename != 0)
+	if(filename)
 		fclose(fp);
 	else
 		ui->atomic(false);

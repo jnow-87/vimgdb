@@ -59,6 +59,7 @@ int cmd_callstack_exec(int argc, char** argv){
 		break;
 
 	default:
+		var = 0;
 		break;
 	};
 

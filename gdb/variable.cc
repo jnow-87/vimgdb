@@ -282,6 +282,8 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 	if(result->var_id != IDV_CHANGELIST)
 		return -1;
 
+	var = 0;
+
 	list_for_each((gdb_value_t*)result->value->value, v){
 		list_for_each((gdb_result_t*)v->value, r){
 			if(r->var_id == IDV_NAME){

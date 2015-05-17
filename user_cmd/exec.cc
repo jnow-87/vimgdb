@@ -59,34 +59,56 @@ int cmd_exec_exec(int argc, char** argv){
 
 		delete loc;
 
-		if(scmd->id == RUN)				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == NEXT)		r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == STEP)		r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		else if(scmd->id == RETURN)		r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "--thread %u --frame 0", gdb->threadid());
-		else if(scmd->id == GOTO){
+		switch(scmd->id){
+		case RUN:
+			r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+			break;
+
+		case NEXT:
+			r = gdb->mi_issue_cmd((char*)"exec-next", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+			break;
+
+		case STEP:
+			r = gdb->mi_issue_cmd((char*)"exec-step", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
+			break;
+
+		case RETURN:
+			r = gdb->mi_issue_cmd((char*)"exec-finish", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "--thread %u --frame 0", gdb->threadid());
+			break;
+
+		case GOTO:
 			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;
 				
 			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
-		}
-		else if(scmd->id == SETPC){
+			break;
+
+		case SETPC:
 			if(gdb->mi_issue_cmd((char*)"break-insert", RC_DONE, 0, 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;
 				
 			r = gdb->mi_issue_cmd((char*)"exec-jump", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "%ss %d", argv + 2, argc - 2);
-		}
-		else if(scmd->id == CONTINUE){
+			break;
+
+		case CONTINUE:
 			r = gdb->mi_issue_cmd((char*)"exec-continue", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 
 			if(r != 0){
 				USER("error executing \"%s\", trying to start inferior first\n", argv[1]);
 				r = gdb->mi_issue_cmd((char*)"exec-run", (gdb_result_class_t)(RC_DONE | RC_RUNNING), 0, 0, "");
 			}
-		}
-		else if(scmd->id == BREAK){
+
+			break;
+
+		case BREAK:
 			USER("error executing \"%s\" - inferior is not running\n", argv[1]);
 			return 0;
-		}
+
+		default:
+			r = 0;
+			USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
+			break;
+		};
 
 		if(r != 0)
 			return -1;
