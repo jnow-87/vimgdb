@@ -1,0 +1,79 @@
+What is vimgdb
+--------------
+
+	vimgdb is a bridge between gdb and vim using vim's netbeans interface. It
+	supports the following features:
+		- stepping
+		- breakpoints
+		- callstack including arguments and locals
+		- user defined variables
+		- register
+		- memory display
+		- vim command line completion
+
+
+Prerequisites
+-------------
+
+	For building vimgdb the following tools are required
+		- gcc
+		- make
+		- bison
+		- flex
+		- gperf
+
+
+Build and Install
+----------------
+	
+	To build vimgdb use the following commands:
+		$make menuconfig
+		$make
+
+	To install vimgdb to system directories run the following command as root:
+		$make install-system
+
+	To perform a user-local installation execute:
+		$make install-user
+
+	To uninstall everything run:
+		$make uninstall
+
+
+Help
+----
+
+	vimgdb has a build in help for its commands. To access them use the
+	following vim command:
+		:Vimgdb help
+
+	To get list of all commands use:
+		:Vimgdb help <C-D>
+
+	A vim help page describing the available commands will follow...
+
+
+License
+-------
+
+	This software is licensed under the MIT License (MIT)
+
+Copyright (c) 2014 Jan Nowotsch <jan.nowotsch@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
