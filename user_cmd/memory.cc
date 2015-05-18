@@ -264,7 +264,7 @@ int cmd_memory_update(){
 
 		/* print actual memory content */
 		for(i=0; i<mem->length; i++, addr++){
-			ui->win_print(win_id, "%c%2.2s", (memcmp(content_old + i * 2, mem->content + i * 2, 2) == 0 ? ' ' : '`'), mem->content + i * 2);
+			ui->win_print(win_id, " %s%2.2s", (memcmp(content_old + i * 2, mem->content + i * 2, 2) == 0 ? "" : "`"), mem->content + i * 2);
 
 			// update ascii string
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));

@@ -45,6 +45,8 @@ function! vimgdb#memory#init()
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_memory |
+		\ setlocal conceallevel=3 |
+		\ setlocal concealcursor=nivc |
 		\ nnoremap <buffer> <silent> <c-f> :exec 'Memory fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> + :exec 'Memory fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> - :exec 'Memory fold ' . line('.')<cr>|

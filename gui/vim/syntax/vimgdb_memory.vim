@@ -3,7 +3,7 @@ syn region 	vimgdb_content_changed start="`" end=" " contains=vimgdb_hidden
 syn match	vimgdb_memory_unknown	"?? "
 
 " hide content-changed indicator '`'
-syn match	vimgdb_hidden			"`" contained
+syn match	vimgdb_hidden			"`" contained conceal
 
 " navigation item [+] or [-]
 syn match	vimgdb_navigation		"^ *\zs\[[+-]\]\ze"

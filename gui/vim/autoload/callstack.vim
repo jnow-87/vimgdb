@@ -45,6 +45,8 @@ function! vimgdb#callstack#init()
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
 		\ setlocal syntax=vimgdb_variable |
+		\ setlocal conceallevel=3 |
+		\ setlocal concealcursor=nivc |
 		\ nnoremap <buffer> <silent> <c-f> :exec 'Callstack fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> + :exec 'Callstack fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> - :exec 'Callstack fold ' . line('.')<cr>|

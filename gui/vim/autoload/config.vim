@@ -14,33 +14,77 @@ if !hlexists("vimgdb_warn")
 	highlight default vimgdb_warn ctermfg=3
 endif
 
-if !hlexists("vimgdb_hidden")
-	highlight default vimgdb_hidden ctermfg=0
-endif
-
 if !hlexists("vimgdb_content_changed")
 	highlight default vimgdb_content_changed ctermfg=202
 endif
 
-if !hlexists("vimgdb_micmd")
-	highlight default vimgdb_micmd ctermfg=27
+if !hlexists("vimgdb_mi_cmd")
+	highlight default vimgdb_mi_cmd ctermfg=27
 endif
 
 if !hlexists("vimgdb_navigation")
 	highlight default vimgdb_navigation ctermfg=56
 endif
 
-if !hlexists("vimgdb_functionname")
-	highlight default vimgdb_functionname ctermfg=27
+if !hlexists("vimgdb_function_name")
+	highlight default vimgdb_function_name ctermfg=27
 endif
 
 if !hlexists("vimgdb_memory_unknown")
 	highlight default vimgdb_memory_unknown ctermfg=88
 endif
 
-""""""""""
-" keymap "
-""""""""""
+
+""""""""""""""""""
+" user-variables "
+"""""""""""""""""" 
+
+call vimgdb#util#cond_assign("g:vimgdb_bin", "vimgdb")
+
+call vimgdb#util#cond_assign("g:vimgdb_userlog_show", 1)
+call vimgdb#util#cond_assign("g:vimgdb_userlog_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_userlog_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_userlog_vertical", 0)
+
+call vimgdb#util#cond_assign("g:vimgdb_gdblog_show", 1)
+call vimgdb#util#cond_assign("g:vimgdb_gdblog_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_gdblog_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_gdblog_vertical", 0)
+
+call vimgdb#util#cond_assign("g:vimgdb_break_show", 0)
+call vimgdb#util#cond_assign("g:vimgdb_break_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_break_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_break_vertical", 1)
+
+call vimgdb#util#cond_assign("g:vimgdb_inferior_show", 1)
+call vimgdb#util#cond_assign("g:vimgdb_inferior_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_inferior_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_inferior_vertical", 1)
+
+call vimgdb#util#cond_assign("g:vimgdb_variables_show", 0)
+call vimgdb#util#cond_assign("g:vimgdb_variables_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_variables_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_variables_vertical", 1)
+
+call vimgdb#util#cond_assign("g:vimgdb_callstack_show", 1)
+call vimgdb#util#cond_assign("g:vimgdb_callstack_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_callstack_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_callstack_vertical", 0)
+
+call vimgdb#util#cond_assign("g:vimgdb_register_show", 0)
+call vimgdb#util#cond_assign("g:vimgdb_register_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_register_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_register_vertical", 1)
+
+call vimgdb#util#cond_assign("g:vimgdb_memory_show", 0)
+call vimgdb#util#cond_assign("g:vimgdb_memory_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_memory_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_memory_vertical", 0)
+
+
+"""""""""""""""""""
+" local variables "
+"""""""""""""""""""
 
 let s:keymap = {}
 
@@ -51,60 +95,6 @@ let s:keymap = {}
 
 " \brief	apply configuration
 function vimgdb#config#init()
-	" assign vimgdb command
-	call vimgdb#util#cond_assign("g:vimgdb_bin", "/usr/bin/vimgdb")
-
-	" assign window parameter
-	let g:vimgdb_initial_name = "source"
-
-	let g:vimgdb_userlog_name = "user-log"
-	call vimgdb#util#cond_assign("g:vimgdb_userlog_show", 1)
-	call vimgdb#util#cond_assign("g:vimgdb_userlog_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_userlog_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_userlog_vertical", 0)
-
-	let g:vimgdb_gdblog_name = "gdb-log"
-	call vimgdb#util#cond_assign("g:vimgdb_gdblog_show", 1)
-	call vimgdb#util#cond_assign("g:vimgdb_gdblog_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_gdblog_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_gdblog_vertical", 0)
-
-	let g:vimgdb_break_name = "breakpoints"
-	call vimgdb#util#cond_assign("g:vimgdb_break_show", 0)
-	call vimgdb#util#cond_assign("g:vimgdb_break_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_break_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_break_vertical", 1)
-
-	let g:vimgdb_inferior_name = "inferior"
-	call vimgdb#util#cond_assign("g:vimgdb_inferior_show", 1)
-	call vimgdb#util#cond_assign("g:vimgdb_inferior_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_inferior_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_inferior_vertical", 1)
-
-	let g:vimgdb_variables_name = "variables"
-	call vimgdb#util#cond_assign("g:vimgdb_variables_show", 0)
-	call vimgdb#util#cond_assign("g:vimgdb_variables_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_variables_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_variables_vertical", 1)
-
-	let g:vimgdb_callstack_name = "callstack"
-	call vimgdb#util#cond_assign("g:vimgdb_callstack_show", 1)
-	call vimgdb#util#cond_assign("g:vimgdb_callstack_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_callstack_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_callstack_vertical", 0)
-
-	let g:vimgdb_register_name = "registers"
-	call vimgdb#util#cond_assign("g:vimgdb_register_show", 0)
-	call vimgdb#util#cond_assign("g:vimgdb_register_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_register_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_register_vertical", 1)
-
-	let g:vimgdb_memory_name = "memory"
-	call vimgdb#util#cond_assign("g:vimgdb_memory_show", 0)
-	call vimgdb#util#cond_assign("g:vimgdb_memory_width", 40)
-	call vimgdb#util#cond_assign("g:vimgdb_memory_height", 10)
-	call vimgdb#util#cond_assign("g:vimgdb_memory_vertical", 0)
-
 	" assign key mappings
 	call s:map_key("b", "n", ":exec 'Break add ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("B", "n", ":exec 'Break delete ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")

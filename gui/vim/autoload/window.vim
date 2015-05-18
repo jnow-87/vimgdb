@@ -1,3 +1,18 @@
+""""""""""""""""
+" window names "
+""""""""""""""""
+
+let g:vimgdb_initial_name = "source"
+let g:vimgdb_userlog_name = "user-log"
+let g:vimgdb_gdblog_name = "gdb-log"
+let g:vimgdb_break_name = "breakpoints"
+let g:vimgdb_inferior_name = "inferior"
+let g:vimgdb_variables_name = "variables"
+let g:vimgdb_callstack_name = "callstack"
+let g:vimgdb_register_name = "registers"
+let g:vimgdb_memory_name = "memory"
+
+
 """""""""""""""""""
 " local variables "
 """""""""""""""""""

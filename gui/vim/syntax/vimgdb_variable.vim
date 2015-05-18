@@ -4,9 +4,9 @@
 syn region 	vimgdb_content_changed start="`" matchgroup=None end=",\|)\|$" contains=vimgdb_hidden
 
 " hide content-changed indicator '`'
-syn match	vimgdb_hidden			"`" contained
+syn match	vimgdb_hidden			"`" contained conceal
 
 " navigation item [+] or [-]
 syn match	vimgdb_navigation		"^ *\zs\[[+-]\]\ze"
-syn match	vimgdb_functionname		"[\[\] +-]*\zs[0-9a-zA-Z-_]\+\ze(.*)\?$"
+syn match	vimgdb_function_name	"[\[\] +-]*\zs[0-9a-zA-Z-_]\+\ze(.*)\?$"
 
