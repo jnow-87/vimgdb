@@ -98,6 +98,8 @@ function vimgdb#config#init()
 	" assign key mappings
 	call s:map_key("b", "n", ":exec 'Break add ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("B", "n", ":exec 'Break delete ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("e", "n", ":exec 'Break enable ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("E", "n", ":exec 'Break disable ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("j", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("<F2>", "n", ":silent Step<cr>")
