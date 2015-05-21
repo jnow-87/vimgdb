@@ -1,0 +1,597 @@
+*vimgdb.txt*					Interface to vimgdb binary
+*vimgdb*
+
+Author: Jan Nowotsch
+Last Change: 17 Mai. 2015
+
+==============================================================================
+
+1. Introduction						|vimgdb-introduction|
+2. Installation						|vimgdb-installation|
+3. General Usage					|vimgdb-general-usage|
+4. Commands						|vimgdb-commands|
+5. Mappings						|vimgdb-mappings|
+6. Customisation					|vimgdb-customisation|
+7. License						|vimgdb-license|
+
+==============================================================================
+							*vimgdb-introduction*
+1. Introduction~
+
+|vimgdb| is a plugin that provides an interface to the vimgdb program. The
+vimgdb program implements a bridge between gdb and vim.
+The |vimgdb| plugin provides controls and instance of the vimgdb program,
+providing vim commands, mappings and syntax highlighting. The vimgdb program
+controls gdb-specific windows displayed in vim.
+
+==============================================================================
+							*vimgdb-installation*
+2. Installation~
+
+Installation is straight forward: acquire the sources, build the vimgdb
+program and install vimgdb plugin and program.
+To build the project the following tools are required:
+	- gcc
+	- make
+	- bison
+	- flex
+	- gperf
+
+You can download the sources through
+	git@github.com:jnow-87/vimgdb.git
+
+For building the project execute the following commands:
+	$make defconfig_vim
+    or	$make menuconfig
+
+	$make
+
+You can either install system-wide, using:
+	$make install-system
+	$vim
+		:helptags /usr/share/vim/vim74/doc
+
+or user-local, using:
+	$make install-user
+	$vim
+		:helptags ~/.vim/doc
+
+To uninstall everything run:
+	$make uninstall
+
+==============================================================================
+							*vimgdb-general-usage*
+3. General Usage~
+
+When vim is started only the |Vimgdb| command is available. It can be used to
+start and stop the |vimgdb| plugin. Once the plugin has been started all
+|vimgdb| user-commands and mappings are loaded. When stopping |vimgdb| all
+commands and mappings are removed.
+
+The available commands are described in the next section |vimgdb-commands|.
+
+							*vimgdb-buffers*
+The following vim buffers are used to display gdb information:
+	* userlog
+	* gdblog
+	* callstack
+	* variables
+	* registers
+	* memory
+	* inferior
+	* breakpoints
+
+Commands and mappings associated to each of the buffers can be found in
+|vimgdb-commands| and |vimgdb-mappings| respectively.
+
+==============================================================================
+							*vimgdb-commands*
+4. Commands~
+
+This section describes the available |vimgdb| user-commands. Each command
+supports tab-completion for all of its arguments.
+
+The following argument types are used regularly:
+							*vimgdb-location*
+{location}
+	can be any of the following:
+	   * {function}
+	   * {filename}:{line}
+	   * {filename}:{function}
+	   * *{address}
+
+{bname}
+	can be any of the |vimgdb-buffers|
+
+							*:Vimgdb* *:vg*
+:[vV]imgdb | vg {args}
+	|:Vimgdb| is the command for controlling |vimgdb|. It argument
+	{args} can be any of the following:
+
+	<start>
+		Initialises |vimgdb|, i.e.
+		   * starts the vimgdb program
+		   * establishes a |netbeans| to the vimgdb program
+		   * opens the defined |vimgdb| windows, cf.
+		     |vimgdb-customisation|
+
+	<stop>
+		De-initialises |vimgdb|, i.e.
+		   * closing the |netbeans| socket
+		   * closing vimgdb program
+		   * closing open |vimgdb| windows
+
+	<direct> {mi-cmd}
+		Send a gdb-MI (machine interface) command to the vimgdb
+		program, check the gdb documentation for the format of
+		{mi-cmd}
+
+	<export> {file}
+		Export the current debugging session to vim-script file {file}
+		the following configurations are exported:
+		   * inferior binary
+		   * inferior arguments
+		   * inferior tty
+		   * breakpoints
+		   * user-defined variables
+		
+		See {vim-script} argument below for how to use the file to
+		restore the settings.
+
+	<help> {vimgdb-cmd}
+		Prints the help message for the supplied vimgdb commands
+		{vimgdb-cmd} to the user-log buffer.
+		{vimgdb-cmd} can be any vimgdb command and its subcommands, e.g. >
+			:Vimgdb help inferior tty
+<
+	{vim-script}
+		If {vim-script} is a valid vim-script (e.g. file.vim), |vimgdb|
+		is initialised, cf. <start>, while afterwards the supplied
+		script is sourced
+		This can be used to restore a previously exported |vimgdb|
+		session.
+
+	{binary} {args}...
+		If the first argument to Vimgdb is none of the above it is
+		assumed to be a target binary followed by its arguments. Hence
+		|vimgdb| is initialised as described for <start> and
+		afterwards the binary and its arguments are loaded.
+
+							*:Inferior* *:inferior*
+:[iI]nferior {args}
+	Control the target binary file, symbol file, tty and arguments. It
+	also provides control over the inferior output window.
+	{args} can be any of the following:
+
+	<bin> {binary}
+		Loads the specified binary {binary} as target.
+
+	<sym> {sym-file}
+		Loads debug symbol information form {sym-file}
+
+	<args>...
+		Sets the inferior arguments to <args>...
+
+	<tty> {terminal}
+		Sets the inferior output terminal to {terminal}. {terminal}
+		can either be <internal> or a pseudo-terminal at /dev/pts. If
+		<internal> is defined as target a vim buffer is used.
+
+	<export> {file}
+		Exports the so far supplied inferior settings including binary
+		file, symbol file and arguments to file {file}
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+
+	{binary}
+		If the supplied argument is none of the above, it is assumed
+		to be a target binary containing debug symbol information
+
+							*:Break* *:break*
+:[bB]reak {args}
+	Controls the breakpoints applied to the target.
+	{args} can be any of the following:
+
+	<add> [opt] {location}
+		Add a breakpoint for location {location} |vimgdb-location|.
+		The following options are valid for {opt}:
+		   -c {condition}
+		   	triggers the breakpoint only if condition is fulfilled
+
+		   -i {ignore-count}
+		   	triggers the breakpoint once it has been passed
+			{ignore-count} times
+
+		   -h 	creates a hardware breakpoint
+		   -t	creates a temporary breakpoint
+
+	<delete> {location}
+		Deletes breakpoint at location {location} |vimgdb-location|.
+
+	<enable> {location}
+		Enables breakpoint at location {location} |vimgdb-location|.
+
+	<disable> {location}
+		Disables breakpoint at location {location} |vimgdb-location|.
+
+	<export> {file}
+		Exports the define breakpoints to file {file}.
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+
+							*:Callstack* *:callstack*
+:[cC]allstack {args}
+	Controls the variables on the callstack.
+	{args} can be any of the following, {line} arguments refer to the
+	respective line in the callstack buffer:
+
+	<fold> {line}
+		Toggle fold state of line {line}.
+
+	<format> {line} {fmt}
+		Set format of content on line {line} to format {fmt}. {fmt}
+		can be <binary> | <decimal> | <hexadecimal> | <octal> |
+		<neutral>
+
+	<set> {line} {value}
+		Set value of content on line {line} to {value}. {value} can be
+		space separated.
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+	
+							*:Variable* *:variable*
+:[vV]ariable {args}
+	Controls the user-defined variables in the variables buffer.
+	{args} can be any of the following, {line} arguments refer to the
+	respective line in the variables buffer:
+
+	<add> {sym}
+		Add user-defined variable for symbol {sym}.
+
+	<delete> {line}
+		Delete variable at line {line}.
+
+	<fold> {line}
+		Toggle fold state of variable at line {line}.
+
+	<format> {line} {fmt}
+		Set format of variable at line {line} to format {fmt}. {fmt}
+		can be <binary> | <decimal> | <hexadecimal> | <octal> |
+		<neutral>
+
+	<set> {line} {value}
+		Set value of variable at line {line} to {value}. {value} can
+		be space separated.
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+		
+							*:Memory* *:memory*
+:[mM]emory {args}
+	Controls the memory segments displayed in memory buffer buffer.
+	{args} can be any of the following, {line} arguments refer to the
+	respective line in the memory buffer:
+
+	<add> {addr} {nbytes}
+		Add memory segment of size {nbytes} starting at address
+		{addr}.
+
+	<delete> {line}
+		Delete memory segment at line {line}.
+
+	<fold> {line}
+		Toggle fold state of memory segment at line {line}.
+
+	<set> {addr} {value} [{count}]
+		Set memory content at address {addr} to {value}. Optionally
+		define the number of bytes to be written as {count}. If
+		{count} is greater than the length of {value}, the value will
+		be written repeatedly
+		
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+							*:Register* *:register*
+:[rR]egister {args}
+	Control the registers shown in the registers buffer.
+	{args} can be any of the following, {line} arguments refer to the
+	respective line in the registers buffer:
+
+	<fold> {line}
+		Toggle fold state of register at line {line}.
+
+	<format> {line} {fmt}
+		Set format of register at line {line} to format {fmt}. {fmt}
+		can be <binary> | <decimal> | <hexadecimal> | <octal> |
+		<neutral>
+
+	<set> {line} {value}
+		Set value of register at line {line} to {value}. {value} can
+		be space separated.
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+
+							*:Window* *:window*
+:[wW]indow {args}
+	Control the displayer |vimgdb| windows.
+	{args} can be any of the following:
+
+	<open> {bname}
+		Open the specified window according to its parameters, cf.
+		|vimgdb-user-variables|. <open> simply opens the window but
+		does not update its content. To update the content use the
+		associated <open> command of that window, e.g. >
+			:Variables open
+<
+	<view> {bname}
+		Loads the buffer specified by {win} in the current window.
+		This does not update the buffer content. To update the buffer
+		content use the associated <view> command of that window, e.g. >
+			:Variables view
+<
+	<close> {bname}
+		Close the window containing the buffer {bname}
+
+							*:Run* *:run*
+:[rR]un
+	Start the target program.
+
+							*:Continue* *:continue*
+:[cC]ontinue
+	Continues execution of the target until the next breakpoint, end of
+	program or any other interruption.
+
+							*:Int* *:int*
+:[iI]nt
+	Sends signal SIGINT to the target.
+
+							*:Nnext* *:next*
+:{N}next
+	Executes a source line, If the line contains a jump execution
+	continues until the program returns from the jump.
+
+							*:Step* *:step*
+:[sS]tep
+	Executes a source line. If the line contains a jump it follows the
+	jump, stopping at the target address.
+
+							*:Return* *:return*
+:[rR]eturn
+	Continues execution until the end of the current function, a
+	breakpoint or an signal.
+
+							*:Setpc* *:setpc*
+:[sS]etpc {location}
+	Sets the program counter (PC) to location {location}
+	|vimgdb-location|.
+
+							*:Goto* *:goto*
+:[gG]oto {location}
+	Continues execution of the target until it reaches location
+	{location} |vimgdb-location|, a breakpoint or is interrupted by a
+	signal.
+
+							*:Evaluate* *:evaluate*
+:[eE]valuate {expr}
+	Prints the result of evaluating expression {expr} to the user-log
+	buffer.
+
+
+==============================================================================
+							*vimgdb-mappings*
+5. Mappings~
+
+This section describes the default global and buffer-local mappings.
+
+							*vimgdb-mappings-global*
+5.1 Global Mappings~
+
+Global mappings are applied when initialising |vimgdb|. Before applying them
+existing mappings are saved. When de-initialising |vimgdb| the saved mappings
+are restored.
+
+	b	add a breakpoint at the current line
+	B	delete breakpoint at the current line
+	e	enable breakpoint at the current line
+	E	disable breakpoint at the current line
+	j	set PC to current line
+	g	continue execution until current line
+	<F2>	step
+	<F3>	next
+	<F5>	return
+	<F6>	run
+	<F7>	continue
+	<F8>	interrupt
+
+							*vimgdb-mappings-local*
+5.2 Buffer-local Mappings~
+
+Buffer-local mappings only apply to the mentioned |vimgdb-buffers|.
+
+registers
+	<c-f>, +, -	fold current line
+	u		update buffer content
+	i, s		set value of register
+	f		set format of register
+
+callstack
+	<c-f>, +, -	fold current line
+	u		update buffer content
+	i, s		set value of variable
+	f		set format of variable
+
+memory
+	<c-f>, +, -	fold current line
+	u		update buffer content
+	i, s		set value of memory
+	dd		delete memory segment from list
+
+variable
+	<c-f>, +, -	fold current line
+	u		update buffer content
+	i, s		set value of variable
+	f		set format of variable
+	dd
+
+break
+	e		enable breakpoint
+	E		disable breakpoint
+	dd		delete breakpoint
+	u		update buffer content
+	<cr>		jump to breakpoint
+
+==============================================================================
+							*vimgdb-customisation*
+6. Customisation~
+
+This section describes the variables and highlighting groups that can be used
+to customise |vimgdb|.
+
+							*vimgdb-user-variables*
+6.1 User-variables~
+
+							*'vimgdb_bin'*
+'vimgdb_bin'		string (default "vimgdb")
+			global
+	This variable defines how to start the vimgdb program.
+
+							*'vimgdb_{bname}_show'*
+							*'vimgdb_break_show'*
+							*'vimgdb_callstack_show'*
+							*'vimgdb_gdblog_show'*
+							*'vimgdb_inferior_show'*
+							*'vimgdb_memory_show'*
+							*'vimgdb_register_show'*
+							*'vimgdb_userlog_show'*
+							*'vimgdb_variables_show'*
+'vimgdb_{bname}_show'	number (default 1)
+			global
+	This option defines whether the |vimgdb| buffer {bname} is opened when
+	|vimgdb| is initialised.
+
+							*'vimgdb_{bname}_width'*
+							*'vimgdb_break_width'*
+							*'vimgdb_callstack_width'*
+							*'vimgdb_gdblog_width'*
+							*'vimgdb_inferior_width'*
+							*'vimgdb_memory_width'*
+							*'vimgdb_register_width'*
+							*'vimgdb_userlog_width'*
+							*'vimgdb_variables_width'*
+'vimgdb_{bname}_width'	number (default 40)
+	This option specifies the width of |vimgdb| buffer {bname} if it is
+	defined as vertically split buffer, i.e. |vimgdb_{bname}_vertical|
+	equal 1.
+
+							*'vimgdb_{bname}_height'*
+							*'vimgdb_break_height'*
+							*'vimgdb_callstack_height'*
+							*'vimgdb_gdblog_height'*
+							*'vimgdb_inferior_height'*
+							*'vimgdb_memory_height'*
+							*'vimgdb_register_height'*
+							*'vimgdb_userlog_height'*
+							*'vimgdb_variables_height'*
+'vimgdb_{bname}_height'	number (default 10)
+	This option specifies the height of |vimgdb| buffer {bname} if it is
+	defined as horizontally split buffer, i.e. |vimgdb_{bname}_vertical|
+	equals 0.
+
+							*'vimgdb_{bname}_vertical'*
+							*'vimgdb_break_vertical'*
+							*'vimgdb_callstack_vertical'*
+							*'vimgdb_gdblog_vertical'*
+							*'vimgdb_inferior_vertical'*
+							*'vimgdb_memory_vertical'*
+							*'vimgdb_register_vertical'*
+							*'vimgdb_userlog_vertical'*
+							*'vimgdb_variables_vertical'*
+'vimgdb_{bname}_vertical'	number
+				global
+	This option defines whether the |vimgdb| buffer {bname} shall be
+	vertically or horizontally split.
+
+							*vimgdb-highlight-groups*
+6.2 Highlight Groups~
+
+							*hl-vimgdb_ok*
+vimgdb_ok
+	Successfully performed gdb commands.
+
+							*hl-vimgdb_error*
+vimgdb_error
+	|vimgdb| errors.
+
+							*hl-vimgdb_warn*
+vimgdb_warn
+	|vimgdb| warnings.
+
+							*hl-vimgdb_content_changed*
+vimgdb_content_changed
+	Modified |vimgdb| content, e.g. variables and memory.
+
+							*hl-vimgdb_mi_cmd*
+vimgdb_mi_cmd
+	gdb machine interface (MI) command.
+
+							*hl-vimgdb_navigation*
+vimgdb_navigation
+	|vimgdb| navigation items.
+
+							*hl-vimgdb_function_name*
+vimgdb_function_name
+	Function names in the |vimgdb| callstack buffer.
+
+							*hl-vimgdb_memory_unknown*
+vimgdb_memory_unknown
+	Unknown/unlisted memory in the |vimgdb| memory buffer.
+
+==============================================================================
+							*vimgdb-license*
+7. License~
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Jan Nowotsch <jan.nowotsch@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+
+==============================================================================
+ vim:tw=78:fo=tcq2:isk=!-~,^*,^\|,^\":ts=8:ft=help:norl:

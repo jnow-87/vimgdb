@@ -27,14 +27,20 @@ Build and Install
 ----------------
 	
 	To build vimgdb use the following commands:
-		$make menuconfig
+		$make defconfig_vim
+    or	$make menuconfig
+
 		$make
 
 	To install vimgdb to system directories run the following command as root:
 		$make install-system
+		$vim
+			:helptags /usr/share/vim/vim74/doc
 
 	To perform a user-local installation execute:
 		$make install-user
+		$vim
+			:helptags ~/.vim/doc
 
 	To uninstall everything run:
 		$make uninstall
