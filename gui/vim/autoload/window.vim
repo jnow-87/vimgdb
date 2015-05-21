@@ -111,7 +111,7 @@ function! vimgdb#window#init()
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Window call s:window(<f-args>)
-	call vimgdb#util#execabbrev("win", "Window")
+	call vimgdb#util#execabbrev("window", "Window")
 
 	" autocmd for user-log
 	exec "autocmd! BufWinEnter " . g:vimgdb_userlog_name . " silent
@@ -320,26 +320,26 @@ endfunction
 
 function! vimgdb#window#open_src(line)
 	" assumed format: <filename>:<line number>
-	let l:tgt = split(a:line, ':')
+	let l:lst = split(a:line, ' ')
 
-	if l:tgt != []
+	if l:lst != []
+		let l:file = split(l:lst[0], ':')[0]
+		let l:line = split(l:lst[0], ':')[1]
+
 		" focus first window, which is assumed to be the source window
 		call vimgdb#window#focus(1)
 
-		" remove leading spaces from <filename>
-		let l:tgt[0] = split(l:tgt[0])[0]
-
-		if bufwinnr(l:tgt[0]) != 1
+		if bufwinnr(l:file) != 1
 			" open file
-			exec "edit " . l:tgt[0]
+			exec "edit " . l:file
 
 			" wait for buffer to become available, otherwise jump to line
 			" doesn't work
-			sleep 10m
+"			sleep 10m
 		endif
 
 		" jump to line
-		exec ":" . l:tgt[1]
+		exec ":" . l:line
 	endif
 endfunction
 
