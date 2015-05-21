@@ -31,7 +31,7 @@ function! vimgdb#inferior#init()
 
 	" command
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Inferior call s:inferior(<f-args>)
-	call vimgdb#util#execabbrev("inf", "Inferior")
+	call vimgdb#util#execabbrev("inferior", "Inferior")
 
 	" autocmd for inferior window
 	exec "autocmd! BufWinEnter " . g:vimgdb_inferior_name . " silent
