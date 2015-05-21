@@ -27,6 +27,7 @@ gdbif* gdb = 0;
  */
 gdbif::gdbif(){
 	read_tid = 0;
+	event_tid = 0;
 	gdb = 0;
 	token = 1;
 	is_running = false;
@@ -34,6 +35,7 @@ gdbif::gdbif(){
 	stop_hdlr_lst = 0;
 	exit_hdlr_lst = 0;
 	cur_thread = 0;
+	gdb_term = 0;
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
@@ -49,7 +51,8 @@ gdbif::~gdbif(){
 	sigval v;
 
 
-	gdb_term->close();
+	if(gdb_term)
+		gdb_term->close();
 
 	/* join readline-thread
 	 *	terminated once the gdb terminal is closed
