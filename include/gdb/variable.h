@@ -23,6 +23,7 @@ typedef enum{
 /* class */
 class gdb_variable_t{
 public:
+	static gdb_variable_t* acquire();
 	static gdb_variable_t* acquire(char* expr, gdb_origin_t origin, char* context = 0, unsigned int frame = 0);
 	static int release(gdb_variable_t* v);
 	static int get_changed();
@@ -42,9 +43,9 @@ public:
 		 *type,
 		 *value;
 
+	char inscope;
 	bool modified,
 		 childs_visible,
-		 inscope,
 		 argument;
 
 	unsigned int nchilds,

@@ -6,7 +6,7 @@
 #include <common/list.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
-#include <gdb/frame.h>
+#include <gdb/types.h>
 #include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>

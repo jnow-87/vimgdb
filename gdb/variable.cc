@@ -34,7 +34,7 @@ gdb_variable_t::gdb_variable_t(){
 	childs = 0;
 	modified = true;
 	childs_visible = false;
-	inscope = true;
+	inscope = 't';
 	argument = false;
 	nchilds = 0;
 	origin = O_UNKNOWN;
@@ -74,6 +74,10 @@ gdb_variable_t::~gdb_variable_t(){
 		list_rm(&childs, c);
 		delete c;
 	}
+}
+
+gdb_variable_t* gdb_variable_t::acquire(){
+	return new gdb_variable_t;
 }
 
 gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* context, unsigned int frame){
@@ -338,7 +342,7 @@ int gdb_variable_t::result_to_change_list(gdb_result_t* result, void** unused){
 int gdb_variable_t::set(int argc, char** argv){
 	if(gdb->mi_issue_cmd((char*)"var-assign",  RC_DONE, 0, 0, "\"%s\" \"%ss %d\"", name, argv, argc) != 0)
 		return -1;
-
+		
 	modified = true;
 	return 0;
 }
@@ -355,7 +359,7 @@ int gdb_variable_t::update(){
 	gdb_variable_t* v;
 
 
-	if(modified && inscope){
+	if(modified && inscope == 't'){
 		v = this;
 
 		if(gdb->mi_issue_cmd((char*)"var-evaluate-expression", RC_DONE, gdb_variable_t::result_to_variable, (void**)&v, "\"%s\"", name) != 0)
