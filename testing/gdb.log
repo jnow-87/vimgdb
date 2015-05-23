@@ -1,0 +1,1413 @@
+1-file-exec-and-symbols /home/jan/temp/a.out
+=thread-group-added,id="i1"
+(gdb) 
+1^done
+(gdb) 
+2-file-list-exec-source-file
+2^done,line="5",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+3-data-list-register-names
+3^done,register-names=["rax","rbx","rcx","rdx","rsi","rdi","rbp","rsp","r8","r9","r10","r11","r12","r13","r14","r15","rip","eflags","cs","ss","ds","es","fs","gs","st0","st1","st2","st3","st4","st5","st6","st7","fctrl","fstat","ftag","fiseg","fioff","foseg","fooff","fop","xmm0","xmm1","xmm2","xmm3","xmm4","xmm5","xmm6","xmm7","xmm8","xmm9","xmm10","xmm11","xmm12","xmm13","xmm14","xmm15","mxcsr","","","","","","","","","","","","","","","","","orig_rax","al","bl","cl","dl","sil","dil","bpl","spl","r8l","r9l","r10l","r11l","r12l","r13l","r14l","r15l","ah","bh","ch","dh","ax","bx","cx","dx","si","di","bp","","r8w","r9w","r10w","r11w","r12w","r13w","r14w","r15w","eax","ebx","ecx","edx","esi","edi","ebp","esp","r8d","r9d","r10d","r11d","r12d","r13d","r14d","r15d"]
+(gdb) 
+4-var-create "r:rax" * $rax
+4^done,name="r:rax",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+5-var-info-expression "r:rax"
+5^done,lang="C++",exp="$rax"
+(gdb) 
+6-var-set-format "r:rax" hexadecimal
+6^done,format="hexadecimal",value=""
+(gdb) 
+7-var-create "r:rbx" * $rbx
+7^done,name="r:rbx",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+8-var-info-expression "r:rbx"
+8^done,lang="C++",exp="$rbx"
+(gdb) 
+9-var-set-format "r:rbx" hexadecimal
+9^done,format="hexadecimal",value=""
+(gdb) 
+10-var-create "r:rcx" * $rcx
+10^done,name="r:rcx",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+11-var-info-expression "r:rcx"
+11^done,lang="C++",exp="$rcx"
+(gdb) 
+12-var-set-format "r:rcx" hexadecimal
+12^done,format="hexadecimal",value=""
+(gdb) 
+13-var-create "r:rdx" * $rdx
+13^done,name="r:rdx",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+14-var-info-expression "r:rdx"
+14^done,lang="C++",exp="$rdx"
+(gdb) 
+15-var-set-format "r:rdx" hexadecimal
+15^done,format="hexadecimal",value=""
+(gdb) 
+16-var-create "r:rsi" * $rsi
+16^done,name="r:rsi",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+17-var-info-expression "r:rsi"
+17^done,lang="C++",exp="$rsi"
+(gdb) 
+18-var-set-format "r:rsi" hexadecimal
+18^done,format="hexadecimal",value=""
+(gdb) 
+19-var-create "r:rdi" * $rdi
+19^done,name="r:rdi",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+20-var-info-expression "r:rdi"
+20^done,lang="C++",exp="$rdi"
+(gdb) 
+21-var-set-format "r:rdi" hexadecimal
+21^done,format="hexadecimal",value=""
+(gdb) 
+22-var-create "r:rbp" * $rbp
+22^done,name="r:rbp",numchild="0",value="",type="void *",has_more="0"
+(gdb) 
+23-var-info-expression "r:rbp"
+23^done,lang="C++",exp="$rbp"
+(gdb) 
+24-var-set-format "r:rbp" hexadecimal
+24^done,format="hexadecimal",value=""
+(gdb) 
+25-var-create "r:rsp" * $rsp
+25^done,name="r:rsp",numchild="0",value="",type="void *",has_more="0"
+(gdb) 
+26-var-info-expression "r:rsp"
+26^done,lang="C++",exp="$rsp"
+(gdb) 
+27-var-set-format "r:rsp" hexadecimal
+27^done,format="hexadecimal",value=""
+(gdb) 
+28-var-create "r:r8" * $r8
+28^done,name="r:r8",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+29-var-info-expression "r:r8"
+29^done,lang="C++",exp="$r8"
+(gdb) 
+30-var-set-format "r:r8" hexadecimal
+30^done,format="hexadecimal",value=""
+(gdb) 
+31-var-create "r:r9" * $r9
+31^done,name="r:r9",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+32-var-info-expression "r:r9"
+32^done,lang="C++",exp="$r9"
+(gdb) 
+33-var-set-format "r:r9" hexadecimal
+33^done,format="hexadecimal",value=""
+(gdb) 
+34-var-create "r:r10" * $r10
+34^done,name="r:r10",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+35-var-info-expression "r:r10"
+35^done,lang="C++",exp="$r10"
+(gdb) 
+36-var-set-format "r:r10" hexadecimal
+36^done,format="hexadecimal",value=""
+(gdb) 
+37-var-create "r:r11" * $r11
+37^done,name="r:r11",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+38-var-info-expression "r:r11"
+38^done,lang="C++",exp="$r11"
+(gdb) 
+39-var-set-format "r:r11" hexadecimal
+39^done,format="hexadecimal",value=""
+(gdb) 
+40-var-create "r:r12" * $r12
+40^done,name="r:r12",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+41-var-info-expression "r:r12"
+41^done,lang="C++",exp="$r12"
+(gdb) 
+42-var-set-format "r:r12" hexadecimal
+42^done,format="hexadecimal",value=""
+(gdb) 
+43-var-create "r:r13" * $r13
+43^done,name="r:r13",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+44-var-info-expression "r:r13"
+44^done,lang="C++",exp="$r13"
+(gdb) 
+45-var-set-format "r:r13" hexadecimal
+45^done,format="hexadecimal",value=""
+(gdb) 
+46-var-create "r:r14" * $r14
+46^done,name="r:r14",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+47-var-info-expression "r:r14"
+47^done,lang="C++",exp="$r14"
+(gdb) 
+48-var-set-format "r:r14" hexadecimal
+48^done,format="hexadecimal",value=""
+(gdb) 
+49-var-create "r:r15" * $r15
+49^done,name="r:r15",numchild="0",value="",type="int64_t",has_more="0"
+(gdb) 
+50-var-info-expression "r:r15"
+50^done,lang="C++",exp="$r15"
+(gdb) 
+51-var-set-format "r:r15" hexadecimal
+51^done,format="hexadecimal",value=""
+(gdb) 
+52-var-create "r:rip" * $rip
+52^done,name="r:rip",numchild="0",value="",type="void (*)(void)",has_more="0"
+(gdb) 
+53-var-info-expression "r:rip"
+53^done,lang="C++",exp="$rip"
+(gdb) 
+54-var-set-format "r:rip" hexadecimal
+54^done,format="hexadecimal",value=""
+(gdb) 
+55-var-create "r:eflags" * $eflags
+55^done,name="r:eflags",numchild="0",value="",type="i386_eflags",has_more="0"
+(gdb) 
+56-var-info-expression "r:eflags"
+56^done,lang="C++",exp="$eflags"
+(gdb) 
+57-var-set-format "r:eflags" hexadecimal
+57^done,format="hexadecimal",value=""
+(gdb) 
+58-var-create "r:cs" * $cs
+58^done,name="r:cs",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+59-var-info-expression "r:cs"
+59^done,lang="C++",exp="$cs"
+(gdb) 
+60-var-set-format "r:cs" hexadecimal
+60^done,format="hexadecimal",value=""
+(gdb) 
+61-var-create "r:ss" * $ss
+61^done,name="r:ss",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+62-var-info-expression "r:ss"
+62^done,lang="C++",exp="$ss"
+(gdb) 
+63-var-set-format "r:ss" hexadecimal
+63^done,format="hexadecimal",value=""
+(gdb) 
+64-var-create "r:ds" * $ds
+64^done,name="r:ds",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+65-var-info-expression "r:ds"
+65^done,lang="C++",exp="$ds"
+(gdb) 
+66-var-set-format "r:ds" hexadecimal
+66^done,format="hexadecimal",value=""
+(gdb) 
+67-var-create "r:es" * $es
+67^done,name="r:es",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+68-var-info-expression "r:es"
+68^done,lang="C++",exp="$es"
+(gdb) 
+69-var-set-format "r:es" hexadecimal
+69^done,format="hexadecimal",value=""
+(gdb) 
+70-var-create "r:fs" * $fs
+70^done,name="r:fs",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+71-var-info-expression "r:fs"
+71^done,lang="C++",exp="$fs"
+(gdb) 
+72-var-set-format "r:fs" hexadecimal
+72^done,format="hexadecimal",value=""
+(gdb) 
+73-var-create "r:gs" * $gs
+73^done,name="r:gs",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+74-var-info-expression "r:gs"
+74^done,lang="C++",exp="$gs"
+(gdb) 
+75-var-set-format "r:gs" hexadecimal
+75^done,format="hexadecimal",value=""
+(gdb) 
+76-var-create "r:st0" * $st0
+76^done,name="r:st0",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+77-var-info-expression "r:st0"
+77^done,lang="C++",exp="$st0"
+(gdb) 
+78-var-set-format "r:st0" hexadecimal
+78^done,format="hexadecimal",value=""
+(gdb) 
+79-var-create "r:st1" * $st1
+79^done,name="r:st1",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+80-var-info-expression "r:st1"
+80^done,lang="C++",exp="$st1"
+(gdb) 
+81-var-set-format "r:st1" hexadecimal
+81^done,format="hexadecimal",value=""
+(gdb) 
+82-var-create "r:st2" * $st2
+82^done,name="r:st2",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+83-var-info-expression "r:st2"
+83^done,lang="C++",exp="$st2"
+(gdb) 
+84-var-set-format "r:st2" hexadecimal
+84^done,format="hexadecimal",value=""
+(gdb) 
+85-var-create "r:st3" * $st3
+85^done,name="r:st3",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+86-var-info-expression "r:st3"
+86^done,lang="C++",exp="$st3"
+(gdb) 
+87-var-set-format "r:st3" hexadecimal
+87^done,format="hexadecimal",value=""
+(gdb) 
+88-var-create "r:st4" * $st4
+88^done,name="r:st4",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+89-var-info-expression "r:st4"
+89^done,lang="C++",exp="$st4"
+(gdb) 
+90-var-set-format "r:st4" hexadecimal
+90^done,format="hexadecimal",value=""
+(gdb) 
+91-var-create "r:st5" * $st5
+91^done,name="r:st5",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+92-var-info-expression "r:st5"
+92^done,lang="C++",exp="$st5"
+(gdb) 
+93-var-set-format "r:st5" hexadecimal
+93^done,format="hexadecimal",value=""
+(gdb) 
+94-var-create "r:st6" * $st6
+94^done,name="r:st6",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+95-var-info-expression "r:st6"
+95^done,lang="C++",exp="$st6"
+(gdb) 
+96-var-set-format "r:st6" hexadecimal
+96^done,format="hexadecimal",value=""
+(gdb) 
+97-var-create "r:st7" * $st7
+97^done,name="r:st7",numchild="0",value="",type="builtin_type_i387_ext",has_more="0"
+(gdb) 
+98-var-info-expression "r:st7"
+98^done,lang="C++",exp="$st7"
+(gdb) 
+99-var-set-format "r:st7" hexadecimal
+99^done,format="hexadecimal",value=""
+(gdb) 
+100-var-create "r:fctrl" * $fctrl
+100^done,name="r:fctrl",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+101-var-info-expression "r:fctrl"
+101^done,lang="C++",exp="$fctrl"
+(gdb) 
+102-var-set-format "r:fctrl" hexadecimal
+102^done,format="hexadecimal",value=""
+(gdb) 
+103-var-create "r:fstat" * $fstat
+103^done,name="r:fstat",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+104-var-info-expression "r:fstat"
+104^done,lang="C++",exp="$fstat"
+(gdb) 
+105-var-set-format "r:fstat" hexadecimal
+105^done,format="hexadecimal",value=""
+(gdb) 
+106-var-create "r:ftag" * $ftag
+106^done,name="r:ftag",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+107-var-info-expression "r:ftag"
+107^done,lang="C++",exp="$ftag"
+(gdb) 
+108-var-set-format "r:ftag" hexadecimal
+108^done,format="hexadecimal",value=""
+(gdb) 
+109-var-create "r:fiseg" * $fiseg
+109^done,name="r:fiseg",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+110-var-info-expression "r:fiseg"
+110^done,lang="C++",exp="$fiseg"
+(gdb) 
+111-var-set-format "r:fiseg" hexadecimal
+111^done,format="hexadecimal",value=""
+(gdb) 
+112-var-create "r:fioff" * $fioff
+112^done,name="r:fioff",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+113-var-info-expression "r:fioff"
+113^done,lang="C++",exp="$fioff"
+(gdb) 
+114-var-set-format "r:fioff" hexadecimal
+114^done,format="hexadecimal",value=""
+(gdb) 
+115-var-create "r:foseg" * $foseg
+115^done,name="r:foseg",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+116-var-info-expression "r:foseg"
+116^done,lang="C++",exp="$foseg"
+(gdb) 
+117-var-set-format "r:foseg" hexadecimal
+117^done,format="hexadecimal",value=""
+(gdb) 
+118-var-create "r:fooff" * $fooff
+118^done,name="r:fooff",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+119-var-info-expression "r:fooff"
+119^done,lang="C++",exp="$fooff"
+(gdb) 
+120-var-set-format "r:fooff" hexadecimal
+120^done,format="hexadecimal",value=""
+(gdb) 
+121-var-create "r:fop" * $fop
+121^done,name="r:fop",numchild="0",value="",type="int",has_more="0"
+(gdb) 
+122-var-info-expression "r:fop"
+122^done,lang="C++",exp="$fop"
+(gdb) 
+123-var-set-format "r:fop" hexadecimal
+123^done,format="hexadecimal",value=""
+(gdb) 
+124-var-create "r:xmm0" * $xmm0
+124^done,name="r:xmm0",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+125-var-info-expression "r:xmm0"
+125^done,lang="C++",exp="$xmm0"
+(gdb) 
+126-var-set-format "r:xmm0" hexadecimal
+126^done,format="hexadecimal",value="{...}"
+(gdb) 
+127-var-create "r:xmm1" * $xmm1
+127^done,name="r:xmm1",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+128-var-info-expression "r:xmm1"
+128^done,lang="C++",exp="$xmm1"
+(gdb) 
+129-var-set-format "r:xmm1" hexadecimal
+129^done,format="hexadecimal",value="{...}"
+(gdb) 
+130-var-create "r:xmm2" * $xmm2
+130^done,name="r:xmm2",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+131-var-info-expression "r:xmm2"
+131^done,lang="C++",exp="$xmm2"
+(gdb) 
+132-var-set-format "r:xmm2" hexadecimal
+132^done,format="hexadecimal",value="{...}"
+(gdb) 
+133-var-create "r:xmm3" * $xmm3
+133^done,name="r:xmm3",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+134-var-info-expression "r:xmm3"
+134^done,lang="C++",exp="$xmm3"
+(gdb) 
+135-var-set-format "r:xmm3" hexadecimal
+135^done,format="hexadecimal",value="{...}"
+(gdb) 
+136-var-create "r:xmm4" * $xmm4
+136^done,name="r:xmm4",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+137-var-info-expression "r:xmm4"
+137^done,lang="C++",exp="$xmm4"
+(gdb) 
+138-var-set-format "r:xmm4" hexadecimal
+138^done,format="hexadecimal",value="{...}"
+(gdb) 
+139-var-create "r:xmm5" * $xmm5
+139^done,name="r:xmm5",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+140-var-info-expression "r:xmm5"
+140^done,lang="C++",exp="$xmm5"
+(gdb) 
+141-var-set-format "r:xmm5" hexadecimal
+141^done,format="hexadecimal",value="{...}"
+(gdb) 
+142-var-create "r:xmm6" * $xmm6
+142^done,name="r:xmm6",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+143-var-info-expression "r:xmm6"
+143^done,lang="C++",exp="$xmm6"
+(gdb) 
+144-var-set-format "r:xmm6" hexadecimal
+144^done,format="hexadecimal",value="{...}"
+(gdb) 
+145-var-create "r:xmm7" * $xmm7
+145^done,name="r:xmm7",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+146-var-info-expression "r:xmm7"
+146^done,lang="C++",exp="$xmm7"
+(gdb) 
+147-var-set-format "r:xmm7" hexadecimal
+147^done,format="hexadecimal",value="{...}"
+(gdb) 
+148-var-create "r:xmm8" * $xmm8
+148^done,name="r:xmm8",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+149-var-info-expression "r:xmm8"
+149^done,lang="C++",exp="$xmm8"
+(gdb) 
+150-var-set-format "r:xmm8" hexadecimal
+150^done,format="hexadecimal",value="{...}"
+(gdb) 
+151-var-create "r:xmm9" * $xmm9
+151^done,name="r:xmm9",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+152-var-info-expression "r:xmm9"
+152^done,lang="C++",exp="$xmm9"
+(gdb) 
+153-var-set-format "r:xmm9" hexadecimal
+153^done,format="hexadecimal",value="{...}"
+(gdb) 
+154-var-create "r:xmm10" * $xmm10
+154^done,name="r:xmm10",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+155-var-info-expression "r:xmm10"
+155^done,lang="C++",exp="$xmm10"
+(gdb) 
+156-var-set-format "r:xmm10" hexadecimal
+156^done,format="hexadecimal",value="{...}"
+(gdb) 
+157-var-create "r:xmm11" * $xmm11
+157^done,name="r:xmm11",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+158-var-info-expression "r:xmm11"
+158^done,lang="C++",exp="$xmm11"
+(gdb) 
+159-var-set-format "r:xmm11" hexadecimal
+159^done,format="hexadecimal",value="{...}"
+(gdb) 
+160-var-create "r:xmm12" * $xmm12
+160^done,name="r:xmm12",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+161-var-info-expression "r:xmm12"
+161^done,lang="C++",exp="$xmm12"
+(gdb) 
+162-var-set-format "r:xmm12" hexadecimal
+162^done,format="hexadecimal",value="{...}"
+(gdb) 
+163-var-create "r:xmm13" * $xmm13
+163^done,name="r:xmm13",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+164-var-info-expression "r:xmm13"
+164^done,lang="C++",exp="$xmm13"
+(gdb) 
+165-var-set-format "r:xmm13" hexadecimal
+165^done,format="hexadecimal",value="{...}"
+(gdb) 
+166-var-create "r:xmm14" * $xmm14
+166^done,name="r:xmm14",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+167-var-info-expression "r:xmm14"
+167^done,lang="C++",exp="$xmm14"
+(gdb) 
+168-var-set-format "r:xmm14" hexadecimal
+168^done,format="hexadecimal",value="{...}"
+(gdb) 
+169-var-create "r:xmm15" * $xmm15
+169^done,name="r:xmm15",numchild="1",value="{...}",type="vec128",has_more="0"
+(gdb) 
+170-var-info-expression "r:xmm15"
+170^done,lang="C++",exp="$xmm15"
+(gdb) 
+171-var-set-format "r:xmm15" hexadecimal
+171^done,format="hexadecimal",value="{...}"
+(gdb) 
+172-var-create "r:mxcsr" * $mxcsr
+172^done,name="r:mxcsr",numchild="0",value="",type="i386_mxcsr",has_more="0"
+(gdb) 
+173-var-info-expression "r:mxcsr"
+173^done,lang="C++",exp="$mxcsr"
+(gdb) 
+174-var-set-format "r:mxcsr" hexadecimal
+174^done,format="hexadecimal",value=""
+(gdb) 
+175-var-create "r:orig_rax" * $orig_rax
+175^done,name="r:orig_rax",numchild="0",value="",type="long",has_more="0"
+(gdb) 
+176-var-info-expression "r:orig_rax"
+176^done,lang="C++",exp="$orig_rax"
+(gdb) 
+177-var-set-format "r:orig_rax" hexadecimal
+177^done,format="hexadecimal",value=""
+(gdb) 
+178-var-create "r:al" * $al
+178^done,name="r:al",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+179-var-info-expression "r:al"
+179^done,lang="C++",exp="$al"
+(gdb) 
+180-var-set-format "r:al" hexadecimal
+180^done,format="hexadecimal",value=""
+(gdb) 
+181-var-create "r:bl" * $bl
+181^done,name="r:bl",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+182-var-info-expression "r:bl"
+182^done,lang="C++",exp="$bl"
+(gdb) 
+183-var-set-format "r:bl" hexadecimal
+183^done,format="hexadecimal",value=""
+(gdb) 
+184-var-create "r:cl" * $cl
+184^done,name="r:cl",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+185-var-info-expression "r:cl"
+185^done,lang="C++",exp="$cl"
+(gdb) 
+186-var-set-format "r:cl" hexadecimal
+186^done,format="hexadecimal",value=""
+(gdb) 
+187-var-create "r:dl" * $dl
+187^done,name="r:dl",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+188-var-info-expression "r:dl"
+188^done,lang="C++",exp="$dl"
+(gdb) 
+189-var-set-format "r:dl" hexadecimal
+189^done,format="hexadecimal",value=""
+(gdb) 
+190-var-create "r:sil" * $sil
+190^done,name="r:sil",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+191-var-info-expression "r:sil"
+191^done,lang="C++",exp="$sil"
+(gdb) 
+192-var-set-format "r:sil" hexadecimal
+192^done,format="hexadecimal",value=""
+(gdb) 
+193-var-create "r:dil" * $dil
+193^done,name="r:dil",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+194-var-info-expression "r:dil"
+194^done,lang="C++",exp="$dil"
+(gdb) 
+195-var-set-format "r:dil" hexadecimal
+195^done,format="hexadecimal",value=""
+(gdb) 
+196-var-create "r:bpl" * $bpl
+196^done,name="r:bpl",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+197-var-info-expression "r:bpl"
+197^done,lang="C++",exp="$bpl"
+(gdb) 
+198-var-set-format "r:bpl" hexadecimal
+198^done,format="hexadecimal",value=""
+(gdb) 
+199-var-create "r:spl" * $spl
+199^done,name="r:spl",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+200-var-info-expression "r:spl"
+200^done,lang="C++",exp="$spl"
+(gdb) 
+201-var-set-format "r:spl" hexadecimal
+201^done,format="hexadecimal",value=""
+(gdb) 
+202-var-create "r:r8l" * $r8l
+202^done,name="r:r8l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+203-var-info-expression "r:r8l"
+203^done,lang="C++",exp="$r8l"
+(gdb) 
+204-var-set-format "r:r8l" hexadecimal
+204^done,format="hexadecimal",value=""
+(gdb) 
+205-var-create "r:r9l" * $r9l
+205^done,name="r:r9l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+206-var-info-expression "r:r9l"
+206^done,lang="C++",exp="$r9l"
+(gdb) 
+207-var-set-format "r:r9l" hexadecimal
+207^done,format="hexadecimal",value=""
+(gdb) 
+208-var-create "r:r10l" * $r10l
+208^done,name="r:r10l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+209-var-info-expression "r:r10l"
+209^done,lang="C++",exp="$r10l"
+(gdb) 
+210-var-set-format "r:r10l" hexadecimal
+210^done,format="hexadecimal",value=""
+(gdb) 
+211-var-create "r:r11l" * $r11l
+211^done,name="r:r11l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+212-var-info-expression "r:r11l"
+212^done,lang="C++",exp="$r11l"
+(gdb) 
+213-var-set-format "r:r11l" hexadecimal
+213^done,format="hexadecimal",value=""
+(gdb) 
+214-var-create "r:r12l" * $r12l
+214^done,name="r:r12l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+215-var-info-expression "r:r12l"
+215^done,lang="C++",exp="$r12l"
+(gdb) 
+216-var-set-format "r:r12l" hexadecimal
+216^done,format="hexadecimal",value=""
+(gdb) 
+217-var-create "r:r13l" * $r13l
+217^done,name="r:r13l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+218-var-info-expression "r:r13l"
+218^done,lang="C++",exp="$r13l"
+(gdb) 
+219-var-set-format "r:r13l" hexadecimal
+219^done,format="hexadecimal",value=""
+(gdb) 
+220-var-create "r:r14l" * $r14l
+220^done,name="r:r14l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+221-var-info-expression "r:r14l"
+221^done,lang="C++",exp="$r14l"
+(gdb) 
+222-var-set-format "r:r14l" hexadecimal
+222^done,format="hexadecimal",value=""
+(gdb) 
+223-var-create "r:r15l" * $r15l
+223^done,name="r:r15l",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+224-var-info-expression "r:r15l"
+224^done,lang="C++",exp="$r15l"
+(gdb) 
+225-var-set-format "r:r15l" hexadecimal
+225^done,format="hexadecimal",value=""
+(gdb) 
+226-var-create "r:ah" * $ah
+226^done,name="r:ah",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+227-var-info-expression "r:ah"
+227^done,lang="C++",exp="$ah"
+(gdb) 
+228-var-set-format "r:ah" hexadecimal
+228^done,format="hexadecimal",value=""
+(gdb) 
+229-var-create "r:bh" * $bh
+229^done,name="r:bh",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+230-var-info-expression "r:bh"
+230^done,lang="C++",exp="$bh"
+(gdb) 
+231-var-set-format "r:bh" hexadecimal
+231^done,format="hexadecimal",value=""
+(gdb) 
+232-var-create "r:ch" * $ch
+232^done,name="r:ch",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+233-var-info-expression "r:ch"
+233^done,lang="C++",exp="$ch"
+(gdb) 
+234-var-set-format "r:ch" hexadecimal
+234^done,format="hexadecimal",value=""
+(gdb) 
+235-var-create "r:dh" * $dh
+235^done,name="r:dh",numchild="0",value="",type="int8_t",has_more="0"
+(gdb) 
+236-var-info-expression "r:dh"
+236^done,lang="C++",exp="$dh"
+(gdb) 
+237-var-set-format "r:dh" hexadecimal
+237^done,format="hexadecimal",value=""
+(gdb) 
+238-var-create "r:ax" * $ax
+238^done,name="r:ax",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+239-var-info-expression "r:ax"
+239^done,lang="C++",exp="$ax"
+(gdb) 
+240-var-set-format "r:ax" hexadecimal
+240^done,format="hexadecimal",value=""
+(gdb) 
+241-var-create "r:bx" * $bx
+241^done,name="r:bx",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+242-var-info-expression "r:bx"
+242^done,lang="C++",exp="$bx"
+(gdb) 
+243-var-set-format "r:bx" hexadecimal
+243^done,format="hexadecimal",value=""
+(gdb) 
+244-var-create "r:cx" * $cx
+244^done,name="r:cx",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+245-var-info-expression "r:cx"
+245^done,lang="C++",exp="$cx"
+(gdb) 
+246-var-set-format "r:cx" hexadecimal
+246^done,format="hexadecimal",value=""
+(gdb) 
+247-var-create "r:dx" * $dx
+247^done,name="r:dx",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+248-var-info-expression "r:dx"
+248^done,lang="C++",exp="$dx"
+(gdb) 
+249-var-set-format "r:dx" hexadecimal
+249^done,format="hexadecimal",value=""
+(gdb) 
+250-var-create "r:si" * $si
+250^done,name="r:si",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+251-var-info-expression "r:si"
+251^done,lang="C++",exp="$si"
+(gdb) 
+252-var-set-format "r:si" hexadecimal
+252^done,format="hexadecimal",value=""
+(gdb) 
+253-var-create "r:di" * $di
+253^done,name="r:di",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+254-var-info-expression "r:di"
+254^done,lang="C++",exp="$di"
+(gdb) 
+255-var-set-format "r:di" hexadecimal
+255^done,format="hexadecimal",value=""
+(gdb) 
+256-var-create "r:bp" * $bp
+256^done,name="r:bp",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+257-var-info-expression "r:bp"
+257^done,lang="C++",exp="$bp"
+(gdb) 
+258-var-set-format "r:bp" hexadecimal
+258^done,format="hexadecimal",value=""
+(gdb) 
+259-var-create "r:r8w" * $r8w
+259^done,name="r:r8w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+260-var-info-expression "r:r8w"
+260^done,lang="C++",exp="$r8w"
+(gdb) 
+261-var-set-format "r:r8w" hexadecimal
+261^done,format="hexadecimal",value=""
+(gdb) 
+262-var-create "r:r9w" * $r9w
+262^done,name="r:r9w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+263-var-info-expression "r:r9w"
+263^done,lang="C++",exp="$r9w"
+(gdb) 
+264-var-set-format "r:r9w" hexadecimal
+264^done,format="hexadecimal",value=""
+(gdb) 
+265-var-create "r:r10w" * $r10w
+265^done,name="r:r10w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+266-var-info-expression "r:r10w"
+266^done,lang="C++",exp="$r10w"
+(gdb) 
+267-var-set-format "r:r10w" hexadecimal
+267^done,format="hexadecimal",value=""
+(gdb) 
+268-var-create "r:r11w" * $r11w
+268^done,name="r:r11w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+269-var-info-expression "r:r11w"
+269^done,lang="C++",exp="$r11w"
+(gdb) 
+270-var-set-format "r:r11w" hexadecimal
+270^done,format="hexadecimal",value=""
+(gdb) 
+271-var-create "r:r12w" * $r12w
+271^done,name="r:r12w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+272-var-info-expression "r:r12w"
+272^done,lang="C++",exp="$r12w"
+(gdb) 
+273-var-set-format "r:r12w" hexadecimal
+273^done,format="hexadecimal",value=""
+(gdb) 
+274-var-create "r:r13w" * $r13w
+274^done,name="r:r13w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+275-var-info-expression "r:r13w"
+275^done,lang="C++",exp="$r13w"
+(gdb) 
+276-var-set-format "r:r13w" hexadecimal
+276^done,format="hexadecimal",value=""
+(gdb) 
+277-var-create "r:r14w" * $r14w
+277^done,name="r:r14w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+278-var-info-expression "r:r14w"
+278^done,lang="C++",exp="$r14w"
+(gdb) 
+279-var-set-format "r:r14w" hexadecimal
+279^done,format="hexadecimal",value=""
+(gdb) 
+280-var-create "r:r15w" * $r15w
+280^done,name="r:r15w",numchild="0",value="",type="int16_t",has_more="0"
+(gdb) 
+281-var-info-expression "r:r15w"
+281^done,lang="C++",exp="$r15w"
+(gdb) 
+282-var-set-format "r:r15w" hexadecimal
+282^done,format="hexadecimal",value=""
+(gdb) 
+283-var-create "r:eax" * $eax
+283^done,name="r:eax",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+284-var-info-expression "r:eax"
+284^done,lang="C++",exp="$eax"
+(gdb) 
+285-var-set-format "r:eax" hexadecimal
+285^done,format="hexadecimal",value=""
+(gdb) 
+286-var-create "r:ebx" * $ebx
+286^done,name="r:ebx",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+287-var-info-expression "r:ebx"
+287^done,lang="C++",exp="$ebx"
+(gdb) 
+288-var-set-format "r:ebx" hexadecimal
+288^done,format="hexadecimal",value=""
+(gdb) 
+289-var-create "r:ecx" * $ecx
+289^done,name="r:ecx",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+290-var-info-expression "r:ecx"
+290^done,lang="C++",exp="$ecx"
+(gdb) 
+291-var-set-format "r:ecx" hexadecimal
+291^done,format="hexadecimal",value=""
+(gdb) 
+292-var-create "r:edx" * $edx
+292^done,name="r:edx",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+293-var-info-expression "r:edx"
+293^done,lang="C++",exp="$edx"
+(gdb) 
+294-var-set-format "r:edx" hexadecimal
+294^done,format="hexadecimal",value=""
+(gdb) 
+295-var-create "r:esi" * $esi
+295^done,name="r:esi",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+296-var-info-expression "r:esi"
+296^done,lang="C++",exp="$esi"
+(gdb) 
+297-var-set-format "r:esi" hexadecimal
+297^done,format="hexadecimal",value=""
+(gdb) 
+298-var-create "r:edi" * $edi
+298^done,name="r:edi",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+299-var-info-expression "r:edi"
+299^done,lang="C++",exp="$edi"
+(gdb) 
+300-var-set-format "r:edi" hexadecimal
+300^done,format="hexadecimal",value=""
+(gdb) 
+301-var-create "r:ebp" * $ebp
+301^done,name="r:ebp",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+302-var-info-expression "r:ebp"
+302^done,lang="C++",exp="$ebp"
+(gdb) 
+303-var-set-format "r:ebp" hexadecimal
+303^done,format="hexadecimal",value=""
+(gdb) 
+304-var-create "r:esp" * $esp
+304^done,name="r:esp",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+305-var-info-expression "r:esp"
+305^done,lang="C++",exp="$esp"
+(gdb) 
+306-var-set-format "r:esp" hexadecimal
+306^done,format="hexadecimal",value=""
+(gdb) 
+307-var-create "r:r8d" * $r8d
+307^done,name="r:r8d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+308-var-info-expression "r:r8d"
+308^done,lang="C++",exp="$r8d"
+(gdb) 
+309-var-set-format "r:r8d" hexadecimal
+309^done,format="hexadecimal",value=""
+(gdb) 
+310-var-create "r:r9d" * $r9d
+310^done,name="r:r9d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+311-var-info-expression "r:r9d"
+311^done,lang="C++",exp="$r9d"
+(gdb) 
+312-var-set-format "r:r9d" hexadecimal
+312^done,format="hexadecimal",value=""
+(gdb) 
+313-var-create "r:r10d" * $r10d
+313^done,name="r:r10d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+314-var-info-expression "r:r10d"
+314^done,lang="C++",exp="$r10d"
+(gdb) 
+315-var-set-format "r:r10d" hexadecimal
+315^done,format="hexadecimal",value=""
+(gdb) 
+316-var-create "r:r11d" * $r11d
+316^done,name="r:r11d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+317-var-info-expression "r:r11d"
+317^done,lang="C++",exp="$r11d"
+(gdb) 
+318-var-set-format "r:r11d" hexadecimal
+318^done,format="hexadecimal",value=""
+(gdb) 
+319-var-create "r:r12d" * $r12d
+319^done,name="r:r12d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+320-var-info-expression "r:r12d"
+320^done,lang="C++",exp="$r12d"
+(gdb) 
+321-var-set-format "r:r12d" hexadecimal
+321^done,format="hexadecimal",value=""
+(gdb) 
+322-var-create "r:r13d" * $r13d
+322^done,name="r:r13d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+323-var-info-expression "r:r13d"
+323^done,lang="C++",exp="$r13d"
+(gdb) 
+324-var-set-format "r:r13d" hexadecimal
+324^done,format="hexadecimal",value=""
+(gdb) 
+325-var-create "r:r14d" * $r14d
+325^done,name="r:r14d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+326-var-info-expression "r:r14d"
+326^done,lang="C++",exp="$r14d"
+(gdb) 
+327-var-set-format "r:r14d" hexadecimal
+327^done,format="hexadecimal",value=""
+(gdb) 
+328-var-create "r:r15d" * $r15d
+328^done,name="r:r15d",numchild="0",value="",type="int32_t",has_more="0"
+(gdb) 
+329-var-info-expression "r:r15d"
+329^done,lang="C++",exp="$r15d"
+(gdb) 
+330-var-set-format "r:r15d" hexadecimal
+330^done,format="hexadecimal",value=""
+(gdb) 
+331-inferior-tty-set /dev/pts/9
+331^done
+(gdb) 
+332-exec-arguments "1" "2 3" "4"
+=cmd-param-changed,param="args",value="\\"1\\" \\"2 3\\" \\"4\\""
+332^done
+(gdb) 
+333-break-insert "main"
+333^done,bkpt={number="1",type="breakpoint",disp="keep",enabled="y",addr="0x000000000040072c",func="main(int, char**)",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="14",thread-groups=["i1"],times="0",original-location="main"}
+(gdb) 
+334-file-list-exec-source-file
+334^done,line="5",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+335-exec-run
+=thread-group-started,id="i1",pid="2669"
+=thread-created,id="1",group-id="i1"
+335^running
+*running,thread-id="all"
+(gdb) 
+=library-loaded,id="/lib64/ld-linux-x86-64.so.2",target-name="/lib64/ld-linux-x86-64.so.2",host-name="/lib64/ld-linux-x86-64.so.2",symbols-loaded="0",thread-group="i1"
+=library-loaded,id="linux-vdso.so.1",target-name="linux-vdso.so.1",host-name="linux-vdso.so.1",symbols-loaded="0",thread-group="i1"
+&"warning: Could not load shared library symbols for linux-vdso.so.1.\nDo you need \"set solib-search-path\" or \"set sysroot\"?"
+&"\n"
+=library-loaded,id="/usr/lib/x86_64-linux-gnu/libstdc++.so.6",target-name="/usr/lib/x86_64-linux-gnu/libstdc++.so.6",host-name="/usr/lib/x86_64-linux-gnu/libstdc++.so.6",symbols-loaded="0",thread-group="i1"
+=library-loaded,id="/lib/x86_64-linux-gnu/libm.so.6",target-name="/lib/x86_64-linux-gnu/libm.so.6",host-name="/lib/x86_64-linux-gnu/libm.so.6",symbols-loaded="0",thread-group="i1"
+=library-loaded,id="/lib/x86_64-linux-gnu/libgcc_s.so.1",target-name="/lib/x86_64-linux-gnu/libgcc_s.so.1",host-name="/lib/x86_64-linux-gnu/libgcc_s.so.1",symbols-loaded="0",thread-group="i1"
+=library-loaded,id="/lib/x86_64-linux-gnu/libc.so.6",target-name="/lib/x86_64-linux-gnu/libc.so.6",host-name="/lib/x86_64-linux-gnu/libc.so.6",symbols-loaded="0",thread-group="i1"
+=breakpoint-modified,bkpt={number="1",type="breakpoint",disp="keep",enabled="y",addr="0x000000000040072c",func="main(int, char**)",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="14",thread-groups=["i1"],times="1",original-location="main"}
+*stopped,reason="breakpoint-hit",disp="keep",bkptno="1",frame={addr="0x000000000040072c",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="14"},thread-id="1",stopped-threads="all",core="1"
+(gdb) 
+336-var-update *
+336^done,changelist=[{name="r:r15d",in_scope="true",type_changed="false",has_more="0"},{name="r:r14d",in_scope="true",type_changed="false",has_more="0"},{name="r:r13d",in_scope="true",type_changed="false",has_more="0"},{name="r:r12d",in_scope="true",type_changed="false",has_more="0"},{name="r:r11d",in_scope="true",type_changed="false",has_more="0"},{name="r:r10d",in_scope="true",type_changed="false",has_more="0"},{name="r:r9d",in_scope="true",type_changed="false",has_more="0"},{name="r:r8d",in_scope="true",type_changed="false",has_more="0"},{name="r:esp",in_scope="true",type_changed="false",has_more="0"},{name="r:ebp",in_scope="true",type_changed="false",has_more="0"},{name="r:edi",in_scope="true",type_changed="false",has_more="0"},{name="r:esi",in_scope="true",type_changed="false",has_more="0"},{name="r:edx",in_scope="true",type_changed="false",has_more="0"},{name="r:ecx",in_scope="true",type_changed="false",has_more="0"},{name="r:ebx",in_scope="true",type_changed="false",has_more="0"},{name="r:eax",in_scope="true",type_changed="false",has_more="0"},{name="r:r15w",in_scope="true",type_changed="false",has_more="0"},{name="r:r14w",in_scope="true",type_changed="false",has_more="0"},{name="r:r13w",in_scope="true",type_changed="false",has_more="0"},{name="r:r12w",in_scope="true",type_changed="false",has_more="0"},{name="r:r11w",in_scope="true",type_changed="false",has_more="0"},{name="r:r10w",in_scope="true",type_changed="false",has_more="0"},{name="r:r9w",in_scope="true",type_changed="false",has_more="0"},{name="r:r8w",in_scope="true",type_changed="false",has_more="0"},{name="r:bp",in_scope="true",type_changed="false",has_more="0"},{name="r:di",in_scope="true",type_changed="false",has_more="0"},{name="r:si",in_scope="true",type_changed="false",has_more="0"},{name="r:dx",in_scope="true",type_changed="false",has_more="0"},{name="r:cx",in_scope="true",type_changed="false",has_more="0"},{name="r:bx",in_scope="true",type_changed="false",has_more="0"},{name="r:ax",in_scope="true",type_changed="false",has_more="0"},{name="r:dh",in_scope="true",type_changed="false",has_more="0"},{name="r:ch",in_scope="true",type_changed="false",has_more="0"},{name="r:bh",in_scope="true",type_changed="false",has_more="0"},{name="r:ah",in_scope="true",type_changed="false",has_more="0"},{name="r:r15l",in_scope="true",type_changed="false",has_more="0"},{name="r:r14l",in_scope="true",type_changed="false",has_more="0"},{name="r:r13l",in_scope="true",type_changed="false",has_more="0"},{name="r:r12l",in_scope="true",type_changed="false",has_more="0"},{name="r:r11l",in_scope="true",type_changed="false",has_more="0"},{name="r:r10l",in_scope="true",type_changed="false",has_more="0"},{name="r:r9l",in_scope="true",type_changed="false",has_more="0"},{name="r:r8l",in_scope="true",type_changed="false",has_more="0"},{name="r:spl",in_scope="true",type_changed="false",has_more="0"},{name="r:bpl",in_scope="true",type_changed="false",has_more="0"},{name="r:dil",in_scope="true",type_changed="false",has_more="0"},{name="r:sil",in_scope="true",type_changed="false",has_more="0"},{name="r:dl",in_scope="true",type_changed="false",has_more="0"},{name="r:cl",in_scope="true",type_changed="false",has_more="0"},{name="r:bl",in_scope="true",type_changed="false",has_more="0"},{name="r:al",in_scope="true",type_changed="false",has_more="0"},{name="r:orig_rax",in_scope="true",type_changed="false",has_more="0"},{name="r:mxcsr",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm15",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm14",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm13",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm12",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm11",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm10",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm9",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm8",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm7",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm6",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm5",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm4",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm3",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm2",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm1",in_scope="true",type_changed="false",has_more="0"},{name="r:xmm0",in_scope="true",type_changed="false",has_more="0"},{name="r:fop",in_scope="true",type_changed="false",has_more="0"},{name="r:fooff",in_scope="true",type_changed="false",has_more="0"},{name="r:foseg",in_scope="true",type_changed="false",has_more="0"},{name="r:fioff",in_scope="true",type_changed="false",has_more="0"},{name="r:fiseg",in_scope="true",type_changed="false",has_more="0"},{name="r:ftag",in_scope="true",type_changed="false",has_more="0"},{name="r:fstat",in_scope="true",type_changed="false",has_more="0"},{name="r:fctrl",in_scope="true",type_changed="false",has_more="0"},{name="r:st7",in_scope="true",type_changed="false",has_more="0"},{name="r:st6",in_scope="true",type_changed="false",has_more="0"},{name="r:st5",in_scope="true",type_changed="false",has_more="0"},{name="r:st4",in_scope="true",type_changed="false",has_more="0"},{name="r:st3",in_scope="true",type_changed="false",has_more="0"},{name="r:st2",in_scope="true",type_changed="false",has_more="0"},{name="r:st1",in_scope="true",type_changed="false",has_more="0"},{name="r:st0",in_scope="true",type_changed="false",has_more="0"},{name="r:gs",in_scope="true",type_changed="false",has_more="0"},{name="r:fs",in_scope="true",type_changed="false",has_more="0"},{name="r:es",in_scope="true",type_changed="false",has_more="0"},{name="r:ds",in_scope="true",type_changed="false",has_more="0"},{name="r:ss",in_scope="true",type_changed="false",has_more="0"},{name="r:cs",in_scope="true",type_changed="false",has_more="0"},{name="r:eflags",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:r15",in_scope="true",type_changed="false",has_more="0"},{name="r:r14",in_scope="true",type_changed="false",has_more="0"},{name="r:r13",in_scope="true",type_changed="false",has_more="0"},{name="r:r12",in_scope="true",type_changed="false",has_more="0"},{name="r:r11",in_scope="true",type_changed="false",has_more="0"},{name="r:r10",in_scope="true",type_changed="false",has_more="0"},{name="r:r9",in_scope="true",type_changed="false",has_more="0"},{name="r:r8",in_scope="true",type_changed="false",has_more="0"},{name="r:rsp",in_scope="true",type_changed="false",has_more="0"},{name="r:rbp",in_scope="true",type_changed="false",has_more="0"},{name="r:rdi",in_scope="true",type_changed="false",has_more="0"},{name="r:rsi",in_scope="true",type_changed="false",has_more="0"},{name="r:rdx",in_scope="true",type_changed="false",has_more="0"},{name="r:rcx",in_scope="true",type_changed="false",has_more="0"},{name="r:rbx",in_scope="true",type_changed="false",has_more="0"},{name="r:rax",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+337-stack-list-frames
+337^done,stack=[frame={level="0",addr="0x000000000040072c",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="14"}]
+(gdb) 
+338-stack-list-variables --thread 1 --frame 0 2
+338^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x0"},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+339-var-create --thread 1 --frame 0 "s:main:intargcchar **argv:s" * s
+339^done,name="s:main:intargcchar **argv:s",numchild="4",value="[4]",type="char [4]",thread-id="1",has_more="0"
+(gdb) 
+340-var-info-expression "s:main:intargcchar **argv:s"
+340^done,lang="C++",exp="s"
+(gdb) 
+341-var-create --thread 1 --frame 0 "s:main:intargcchar **argv:s1" * s1
+341^done,name="s:main:intargcchar **argv:s1",numchild="1",value="0x0",type="char *",thread-id="1",has_more="0"
+(gdb) 
+342-var-info-expression "s:main:intargcchar **argv:s1"
+342^done,lang="C++",exp="s1"
+(gdb) 
+343-var-create --thread 1 --frame 0 "s:main:intargcchar **argv:argc" * argc
+343^done,name="s:main:intargcchar **argv:argc",numchild="0",value="4",type="int",thread-id="1",has_more="0"
+(gdb) 
+344-var-info-expression "s:main:intargcchar **argv:argc"
+344^done,lang="C++",exp="argc"
+(gdb) 
+345-var-create --thread 1 --frame 0 "s:main:intargcchar **argv:argv" * argv
+345^done,name="s:main:intargcchar **argv:argv",numchild="1",value="0x7fffffffe468",type="char **",thread-id="1",has_more="0"
+(gdb) 
+346-var-info-expression "s:main:intargcchar **argv:argv"
+346^done,lang="C++",exp="argv"
+(gdb) 
+347-var-evaluate-expression "s:main:intargcchar **argv:argc"
+347^done,value="4"
+(gdb) 
+348-var-evaluate-expression "s:main:intargcchar **argv:argv"
+348^done,value="0x7fffffffe468"
+(gdb) 
+349-var-evaluate-expression "s:main:intargcchar **argv:s"
+349^done,value="[4]"
+(gdb) 
+350-var-evaluate-expression "s:main:intargcchar **argv:s1"
+350^done,value="0x0"
+(gdb) 
+351-var-list-children "s:main:intargcchar **argv:s"
+351^done,numchild="4",children=[child={name="s:main:intargcchar **argv:s.0",exp="0",numchild="0",type="char",thread-id="1"},child={name="s:main:intargcchar **argv:s.1",exp="1",numchild="0",type="char",thread-id="1"},child={name="s:main:intargcchar **argv:s.2",exp="2",numchild="0",type="char",thread-id="1"},child={name="s:main:intargcchar **argv:s.3",exp="3",numchild="0",type="char",thread-id="1"}],has_more="0"
+(gdb) 
+352-var-evaluate-expression "s:main:intargcchar **argv:s.0"
+352^done,value="96 '`'"
+(gdb) 
+353-var-evaluate-expression "s:main:intargcchar **argv:s.1"
+353^done,value="-28 '\\344'"
+(gdb) 
+354-var-evaluate-expression "s:main:intargcchar **argv:s.2"
+354^done,value="-1 '\\377'"
+(gdb) 
+355-var-evaluate-expression "s:main:intargcchar **argv:s.3"
+355^done,value="-1 '\\377'"
+(gdb) 
+356-file-list-exec-source-file
+356^done,line="14",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+357-exec-next
+357^running
+*running,thread-id="1"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x000000000040073a",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="15"},thread-id="1",stopped-threads="all",core="1"
+(gdb) 
+358-var-update *
+358^done,changelist=[{name="s:main:intargcchar **argv:s1",in_scope="true",type_changed="false",has_more="0"},{name="r:r11d",in_scope="true",type_changed="false",has_more="0"},{name="r:r10d",in_scope="true",type_changed="false",has_more="0"},{name="r:r9d",in_scope="true",type_changed="false",has_more="0"},{name="r:r8d",in_scope="true",type_changed="false",has_more="0"},{name="r:edi",in_scope="true",type_changed="false",has_more="0"},{name="r:esi",in_scope="true",type_changed="false",has_more="0"},{name="r:edx",in_scope="true",type_changed="false",has_more="0"},{name="r:ecx",in_scope="true",type_changed="false",has_more="0"},{name="r:eax",in_scope="true",type_changed="false",has_more="0"},{name="r:r11w",in_scope="true",type_changed="false",has_more="0"},{name="r:r10w",in_scope="true",type_changed="false",has_more="0"},{name="r:r9w",in_scope="true",type_changed="false",has_more="0"},{name="r:r8w",in_scope="true",type_changed="false",has_more="0"},{name="r:di",in_scope="true",type_changed="false",has_more="0"},{name="r:si",in_scope="true",type_changed="false",has_more="0"},{name="r:dx",in_scope="true",type_changed="false",has_more="0"},{name="r:cx",in_scope="true",type_changed="false",has_more="0"},{name="r:ax",in_scope="true",type_changed="false",has_more="0"},{name="r:dh",in_scope="true",type_changed="false",has_more="0"},{name="r:ch",in_scope="true",type_changed="false",has_more="0"},{name="r:ah",in_scope="true",type_changed="false",has_more="0"},{name="r:r11l",in_scope="true",type_changed="false",has_more="0"},{name="r:r10l",in_scope="true",type_changed="false",has_more="0"},{name="r:r9l",in_scope="true",type_changed="false",has_more="0"},{name="r:r8l",in_scope="true",type_changed="false",has_more="0"},{name="r:dil",in_scope="true",type_changed="false",has_more="0"},{name="r:sil",in_scope="true",type_changed="false",has_more="0"},{name="r:dl",in_scope="true",type_changed="false",has_more="0"},{name="r:cl",in_scope="true",type_changed="false",has_more="0"},{name="r:al",in_scope="true",type_changed="false",has_more="0"},{name="r:eflags",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:r11",in_scope="true",type_changed="false",has_more="0"},{name="r:r10",in_scope="true",type_changed="false",has_more="0"},{name="r:r9",in_scope="true",type_changed="false",has_more="0"},{name="r:r8",in_scope="true",type_changed="false",has_more="0"},{name="r:rdi",in_scope="true",type_changed="false",has_more="0"},{name="r:rsi",in_scope="true",type_changed="false",has_more="0"},{name="r:rdx",in_scope="true",type_changed="false",has_more="0"},{name="r:rcx",in_scope="true",type_changed="false",has_more="0"},{name="r:rax",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+359-stack-list-frames
+359^done,stack=[frame={level="0",addr="0x000000000040073a",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="15"}]
+(gdb) 
+360-stack-list-variables --thread 1 --frame 0 2
+360^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+361-var-evaluate-expression "s:main:intargcchar **argv:s1"
+361^done,value="0x601010 \"\""
+(gdb) 
+362-data-read-memory-bytes & s1
+362^error,msg="A syntax error in expression, near `'."
+(gdb) 
+363-data-read-memory-bytes &s1 2
+363^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+364-data-read-memory-bytes 0x00007fffffffe378 2
+364^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+365-file-list-exec-source-file
+365^done,line="15",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+366-exec-next
+366^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x0000000000400741",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="16"},thread-id="1",stopped-threads="all",core="0"
+(gdb) 
+367-var-update *
+367^done,changelist=[{name="s:main:intargcchar **argv:s.0",in_scope="true",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:s.1",in_scope="true",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:s.2",in_scope="true",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:s.3",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+368-stack-list-frames
+368^done,stack=[frame={level="0",addr="0x0000000000400741",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="16"}]
+(gdb) 
+369-stack-list-variables --thread 1 --frame 0 2
+369^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+370-var-evaluate-expression "s:main:intargcchar **argv:s.0"
+370^done,value="49 '1'"
+(gdb) 
+371-var-evaluate-expression "s:main:intargcchar **argv:s.1"
+371^done,value="50 '2'"
+(gdb) 
+372-var-evaluate-expression "s:main:intargcchar **argv:s.2"
+372^done,value="10 '\\n'"
+(gdb) 
+373-var-evaluate-expression "s:main:intargcchar **argv:s.3"
+373^done,value="0 '\\000'"
+(gdb) 
+374-data-read-memory-bytes 0x00007fffffffe378 2
+374^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+375-file-list-exec-source-file
+375^done,line="16",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+376-exec-next
+376^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x0000000000400751",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="18"},thread-id="1",stopped-threads="all",core="2"
+(gdb) 
+377-var-update *
+377^done,changelist=[{name="s:main:intargcchar **argv:s1",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+378-stack-list-frames
+378^done,stack=[frame={level="0",addr="0x0000000000400751",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="18"}]
+(gdb) 
+379-stack-list-variables --thread 1 --frame 0 2
+379^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"halo\\n\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+380-var-evaluate-expression "s:main:intargcchar **argv:s1"
+380^done,value="0x601010 \"halo\\n\""
+(gdb) 
+381-data-read-memory-bytes 0x00007fffffffe378 2
+381^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+382-file-list-exec-source-file
+382^done,line="18",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+383-exec-next
+383^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x0000000000400756",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="20"},thread-id="1",stopped-threads="all",core="0"
+(gdb) 
+384-var-update *
+384^done,changelist=[{name="r:r11d",in_scope="true",type_changed="false",has_more="0"},{name="r:r10d",in_scope="true",type_changed="false",has_more="0"},{name="r:r9d",in_scope="true",type_changed="false",has_more="0"},{name="r:r8d",in_scope="true",type_changed="false",has_more="0"},{name="r:edi",in_scope="true",type_changed="false",has_more="0"},{name="r:esi",in_scope="true",type_changed="false",has_more="0"},{name="r:edx",in_scope="true",type_changed="false",has_more="0"},{name="r:ecx",in_scope="true",type_changed="false",has_more="0"},{name="r:eax",in_scope="true",type_changed="false",has_more="0"},{name="r:r11w",in_scope="true",type_changed="false",has_more="0"},{name="r:r10w",in_scope="true",type_changed="false",has_more="0"},{name="r:r9w",in_scope="true",type_changed="false",has_more="0"},{name="r:r8w",in_scope="true",type_changed="false",has_more="0"},{name="r:di",in_scope="true",type_changed="false",has_more="0"},{name="r:si",in_scope="true",type_changed="false",has_more="0"},{name="r:dx",in_scope="true",type_changed="false",has_more="0"},{name="r:cx",in_scope="true",type_changed="false",has_more="0"},{name="r:ax",in_scope="true",type_changed="false",has_more="0"},{name="r:dh",in_scope="true",type_changed="false",has_more="0"},{name="r:ch",in_scope="true",type_changed="false",has_more="0"},{name="r:ah",in_scope="true",type_changed="false",has_more="0"},{name="r:r11l",in_scope="true",type_changed="false",has_more="0"},{name="r:r10l",in_scope="true",type_changed="false",has_more="0"},{name="r:r9l",in_scope="true",type_changed="false",has_more="0"},{name="r:r8l",in_scope="true",type_changed="false",has_more="0"},{name="r:dil",in_scope="true",type_changed="false",has_more="0"},{name="r:sil",in_scope="true",type_changed="false",has_more="0"},{name="r:dl",in_scope="true",type_changed="false",has_more="0"},{name="r:cl",in_scope="true",type_changed="false",has_more="0"},{name="r:al",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:r11",in_scope="true",type_changed="false",has_more="0"},{name="r:r10",in_scope="true",type_changed="false",has_more="0"},{name="r:r9",in_scope="true",type_changed="false",has_more="0"},{name="r:r8",in_scope="true",type_changed="false",has_more="0"},{name="r:rdi",in_scope="true",type_changed="false",has_more="0"},{name="r:rsi",in_scope="true",type_changed="false",has_more="0"},{name="r:rdx",in_scope="true",type_changed="false",has_more="0"},{name="r:rcx",in_scope="true",type_changed="false",has_more="0"},{name="r:rax",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+385-stack-list-frames
+385^done,stack=[frame={level="0",addr="0x0000000000400756",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="20"}]
+(gdb) 
+386-stack-list-variables --thread 1 --frame 0 2
+386^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"halo\\n\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+387-data-read-memory-bytes 0x00007fffffffe378 2
+387^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+388-file-list-exec-source-file
+388^done,line="20",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+389-exec-next
+389^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x0000000000400767",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="21"},thread-id="1",stopped-threads="all",core="2"
+(gdb) 
+390-var-update *
+390^done,changelist=[{name="r:r9d",in_scope="true",type_changed="false",has_more="0"},{name="r:esi",in_scope="true",type_changed="false",has_more="0"},{name="r:ecx",in_scope="true",type_changed="false",has_more="0"},{name="r:r9w",in_scope="true",type_changed="false",has_more="0"},{name="r:si",in_scope="true",type_changed="false",has_more="0"},{name="r:cx",in_scope="true",type_changed="false",has_more="0"},{name="r:ch",in_scope="true",type_changed="false",has_more="0"},{name="r:r9l",in_scope="true",type_changed="false",has_more="0"},{name="r:sil",in_scope="true",type_changed="false",has_more="0"},{name="r:cl",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:r9",in_scope="true",type_changed="false",has_more="0"},{name="r:rsi",in_scope="true",type_changed="false",has_more="0"},{name="r:rcx",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+391-stack-list-frames
+391^done,stack=[frame={level="0",addr="0x0000000000400767",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="21"}]
+(gdb) 
+392-stack-list-variables --thread 1 --frame 0 2
+392^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"halo\\n\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+393-data-read-memory-bytes 0x00007fffffffe378 2
+393^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+394-file-list-exec-source-file
+394^done,line="21",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+395-exec-next
+395^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x000000000040076e",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="22"},thread-id="1",stopped-threads="all",core="2"
+(gdb) 
+396-var-update *
+396^done,changelist=[{name="s:main:intargcchar **argv:s.0",in_scope="true",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:s.1",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+397-stack-list-frames
+397^done,stack=[frame={level="0",addr="0x000000000040076e",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="22"}]
+(gdb) 
+398-stack-list-variables --thread 1 --frame 0 2
+398^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"halo\\n\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+399-var-evaluate-expression "s:main:intargcchar **argv:s.0"
+399^done,value="48 '0'"
+(gdb) 
+400-var-evaluate-expression "s:main:intargcchar **argv:s.1"
+400^done,value="48 '0'"
+(gdb) 
+401-data-read-memory-bytes 0x00007fffffffe378 2
+401^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+402-file-list-exec-source-file
+402^done,line="22",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+403-exec-next
+403^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x000000000040077f",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="24"},thread-id="1",stopped-threads="all",core="2"
+(gdb) 
+404-var-update *
+404^done,changelist=[{name="r:rip",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+405-stack-list-frames
+405^done,stack=[frame={level="0",addr="0x000000000040077f",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="24"}]
+(gdb) 
+406-stack-list-variables --thread 1 --frame 0 2
+406^done,variables=[{name="s",type="char [4]"},{name="s1",type="char *",value="0x601010 \"halo\\n\""},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+407-data-read-memory-bytes 0x00007fffffffe378 2
+407^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+408-file-list-exec-source-file
+408^done,line="24",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+409-exec-next
+409^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x000000000040078e",func="main",args=[{name="argc",value="4"},{name="argv",value="0x7fffffffe468"}],file="mini.cc",fullname="/home/jan/temp/mini.cc",line="25"},thread-id="1",stopped-threads="all",core="2"
+(gdb) 
+410-var-update *
+410^done,changelist=[{name="s:main:intargcchar **argv:s1",in_scope="false",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:s",in_scope="false",type_changed="false",has_more="0"},{name="r:eax",in_scope="true",type_changed="false",has_more="0"},{name="r:ax",in_scope="true",type_changed="false",has_more="0"},{name="r:al",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:rax",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+411-stack-list-frames
+411^done,stack=[frame={level="0",addr="0x000000000040078e",func="main",file="mini.cc",fullname="/home/jan/temp/mini.cc",line="25"}]
+(gdb) 
+412-stack-list-variables --thread 1 --frame 0 2
+412^done,variables=[{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"}]
+(gdb) 
+413-data-read-memory-bytes 0x00007fffffffe378 2
+413^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+414-file-list-exec-source-file
+414^done,line="25",file="mini.cc",fullname="/home/jan/temp/mini.cc",macro-info="0"
+(gdb) 
+415-exec-next
+415^running
+*running,thread-id="all"
+(gdb) 
+*stopped,reason="end-stepping-range",frame={addr="0x00007ffff7232b45",func="__libc_start_main",args=[{name="main",value="0x40071d <main(int, char**)>"},{name="argc",value="4"},{name="argv",value="0x7fffffffe468"},{name="init",value="<optimized out>"},{name="fini",value="<optimized out>"},{name="rtld_fini",value="<optimized out>"},{name="stack_end",value="0x7fffffffe458"}],file="libc-start.c",fullname="/home/aurel32/glibc/glibc-2.19/csu/libc-start.c",line="321"},thread-id="1",stopped-threads="all",core="0"
+(gdb) 
+416-var-update *
+416^done,changelist=[{name="s:main:intargcchar **argv:argv",in_scope="false",type_changed="false",has_more="0"},{name="s:main:intargcchar **argv:argc",in_scope="false",type_changed="false",has_more="0"},{name="r:esp",in_scope="true",type_changed="false",has_more="0"},{name="r:ebp",in_scope="true",type_changed="false",has_more="0"},{name="r:bp",in_scope="true",type_changed="false",has_more="0"},{name="r:spl",in_scope="true",type_changed="false",has_more="0"},{name="r:bpl",in_scope="true",type_changed="false",has_more="0"},{name="r:rip",in_scope="true",type_changed="false",has_more="0"},{name="r:rsp",in_scope="true",type_changed="false",has_more="0"},{name="r:rbp",in_scope="true",type_changed="false",has_more="0"}]
+(gdb) 
+417-stack-list-frames
+417^done,stack=[frame={level="0",addr="0x00007ffff7232b45",func="__libc_start_main",file="libc-start.c",fullname="/home/aurel32/glibc/glibc-2.19/csu/libc-start.c",line="321"},frame={level="1",addr="0x0000000000400659",func="_start"}]
+(gdb) 
+418-stack-list-variables --thread 1 --frame 1 2
+418^done,variables=[]
+(gdb) 
+419-stack-list-variables --thread 1 --frame 0 2
+419^done,variables=[{name="main",arg="1",type="int (*)(int, char **, char **)",value="0x40071d <main(int, char**)>"},{name="argc",arg="1",type="int",value="4"},{name="argv",arg="1",type="char **",value="0x7fffffffe468"},{name="init",arg="1",type="int (*)(int, char **, char **)",value="<optimized out>"},{name="fini",arg="1",type="void (*)(void)",value="<optimized out>"},{name="rtld_fini",arg="1",type="void (*)(void)",value="<optimized out>"},{name="stack_end",arg="1",type="void *",value="0x7fffffffe458"},{name="result",type="int",value="0"},{name="unwind_buf",type="struct pthread_unwind_buf"},{name="not_first_call",type="int",value="<optimized out>"}]
+(gdb) 
+420-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:main" * main
+420^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:main",numchild="0",value="0x40071d <main(int, char**)>",type="int (*)(int, char **, char **)",thread-id="1",has_more="0"
+(gdb) 
+421-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:main"
+421^done,lang="C",exp="main"
+(gdb) 
+422-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argc" * argc
+422^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argc",numchild="0",value="4",type="int",thread-id="1",has_more="0"
+(gdb) 
+423-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argc"
+423^done,lang="C",exp="argc"
+(gdb) 
+424-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argv" * argv
+424^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argv",numchild="1",value="0x7fffffffe468",type="char **",thread-id="1",has_more="0"
+(gdb) 
+425-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argv"
+425^done,lang="C",exp="argv"
+(gdb) 
+426-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:init" * init
+426^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:init",numchild="0",value="<optimized out>",type="int (*)(int, char **, char **)",thread-id="1",has_more="0"
+(gdb) 
+427-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:init"
+427^done,lang="C",exp="init"
+(gdb) 
+428-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:fini" * fini
+428^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:fini",numchild="0",value="<optimized out>",type="void (*)(void)",thread-id="1",has_more="0"
+(gdb) 
+429-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:fini"
+429^done,lang="C",exp="fini"
+(gdb) 
+430-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:rtld_fini" * rtld_fini
+430^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:rtld_fini",numchild="0",value="<optimized out>",type="void (*)(void)",thread-id="1",has_more="0"
+(gdb) 
+431-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:rtld_fini"
+431^done,lang="C",exp="rtld_fini"
+(gdb) 
+432-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:stack_end" * stack_end
+432^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:stack_end",numchild="0",value="0x7fffffffe458",type="void *",thread-id="1",has_more="0"
+(gdb) 
+433-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:stack_end"
+433^done,lang="C",exp="stack_end"
+(gdb) 
+434-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:result" * result
+434^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:result",numchild="0",value="0",type="int",thread-id="1",has_more="0"
+(gdb) 
+435-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:result"
+435^done,lang="C",exp="result"
+(gdb) 
+436-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:unwind_buf" * unwind_buf
+436^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:unwind_buf",numchild="2",value="{...}",type="struct pthread_unwind_buf",thread-id="1",has_more="0"
+(gdb) 
+437-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:unwind_buf"
+437^done,lang="C",exp="unwind_buf"
+(gdb) 
+438-var-create --thread 1 --frame 0 "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:not_first_call" * not_first_call
+438^done,name="s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:not_first_call",numchild="0",value="<optimized out>",type="int",thread-id="1",has_more="0"
+(gdb) 
+439-var-info-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:not_first_call"
+439^done,lang="C",exp="not_first_call"
+(gdb) 
+440-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:main"
+440^done,value="0x40071d <main(int, char**)>"
+(gdb) 
+441-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argc"
+441^done,value="4"
+(gdb) 
+442-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:argv"
+442^done,value="0x7fffffffe468"
+(gdb) 
+443-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:init"
+443^done,value="<optimized out>"
+(gdb) 
+444-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:fini"
+444^done,value="<optimized out>"
+(gdb) 
+445-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:rtld_fini"
+445^done,value="<optimized out>"
+(gdb) 
+446-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:stack_end"
+446^done,value="0x7fffffffe458"
+(gdb) 
+447-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:result"
+447^done,value="0"
+(gdb) 
+448-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:unwind_buf"
+448^done,value="{...}"
+(gdb) 
+449-var-evaluate-expression "s:_start:__libc_start_main:int (*)(int, char **, char **)mainintargcchar **argvint (*)(int, char **, char **)initvoid (*)(void)finivoid (*)(void)rtld_finivoid *stack_end:not_first_call"
+449^done,value="<optimized out>"
+(gdb) 
+450-data-read-memory-bytes 0x00007fffffffe378 2
+450^done,memory=[{begin="0x00007fffffffe378",offset="0x0000000000000000",end="0x00007fffffffe37a",contents="1010"}]
+(gdb) 
+451-file-list-exec-source-file
+451^done,line="321",file="libc-start.c",fullname="/home/aurel32/glibc/glibc-2.19/csu/libc-start.c",macro-info="0"
+(gdb) 
+452-exec-next
+452^running
+*running,thread-id="all"
+(gdb) 
+=thread-exited,id="1",group-id="i1"
+=thread-group-exited,id="i1",exit-code="0"
+*stopped,reason="exited-normally"
+(gdb) 
+453-file-list-exec-source-file
+453^done,line="321",file="libc-start.c",fullname="/home/aurel32/glibc/glibc-2.19/csu/libc-start.c",macro-info="0"
+(gdb) 
+454-exec-next
+454^error,msg="The program is not being run."
+(gdb) 
+=thread-group-added,id="i1"
+(gdb) 
