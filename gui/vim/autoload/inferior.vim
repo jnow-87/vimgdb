@@ -4,7 +4,7 @@
 
 let s:cmd_dict = {
 	\ "inferior": {
-		\ "__nested__":"vimgdb#inferior#complete",
+		\ "__nested__":"vimgdb#complete#file",
 		\ "bin":{"__nested__":"vimgdb#complete#file"},
 		\ "sym":{"__nested__":"vimgdb#complete#file"},
 		\ "args":{"<args>":{}},
@@ -51,13 +51,6 @@ function! vimgdb#inferior#cleanup()
 
 	" rm autocmd
 	exec "autocmd! BufWinEnter " . g:vimgdb_inferior_name
-endfunction
-
-" \brief	complete inferior arguments
-"
-" \param	subcmd	current argument supplied in command line
-function! vimgdb#inferior#complete(subcmd)
-	return "bin\nsym\nargs\ntty\n" . vimgdb#complete#file(a:subcmd)
 endfunction
 
 " \brief	complete pseudo terminal under /dev/pts
