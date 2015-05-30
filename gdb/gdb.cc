@@ -7,6 +7,7 @@
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/types.h>
+#include <gdb/lexer.lex.h>
 #include <gdb/parser.tab.h>
 #include <user_cmd/cmd.hash.h>
 #include <user_cmd/subcmd.hash.h>
@@ -274,8 +275,8 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 		else	delete resp.result;
 	}
 	else{
-		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? (char*)resp.result : "gdb implementation error"));
-		delete [] (char*)resp.result;
+		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? ((gdb_strlist_t*)resp.result)->s : "gdb implementation error"));
+		delete resp.result;
 	}
 
 	if(resp.rclass != RC_ERROR)
@@ -286,13 +287,18 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	pthread_mutex_lock(&resp_mtx);
 
-	if(this->token != token)
+	if(this->token != token){
 		ERROR("result token (%d) doesn't match issued token (%d)\n", token, this->token);
 
-	resp.result = result;
-	resp.rclass = rclass;
+		delete result;
+	}
+	else{
+		resp.result = result;
+		resp.rclass = rclass;
 
-	pthread_cond_signal(&resp_avail);
+		pthread_cond_signal(&resp_avail);
+	}
+
 	pthread_mutex_unlock(&resp_mtx);
 
 	return 0;
@@ -329,7 +335,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 
 int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
 	USER("%s", strdeescape(stream));	// use "%s" to avoid issues with '%' within stream
-	delete stream;
+	delete [] stream;
 
 	return 0;
 }
@@ -385,8 +391,8 @@ void* gdbif::readline_thread(void* arg){
 
 	i = 0;
 
-	len = 255;
-	line = (char*)malloc(len * sizeof(char));
+	len = 256;
+	line = (char*)malloc(len);
 
 	if(line == 0)
 		goto err_0;
@@ -415,8 +421,8 @@ void* gdbif::readline_thread(void* arg){
 			// check for end of gdb line, a simple newline as separator
 			// doesn't work, since the parse would try to parse the line,
 			// detecting a syntax error
-			if(strncmp(line + i - 6, "(gdb)\n", 6) == 0 ||
-			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
+			if((i >= 6 && strncmp(line + i - 6, "(gdb)\n", 6) == 0) ||
+			   (i >= 7 && strncmp(line + i - 7, "(gdb) \n", 7) == 0)
 			  ){
 				line[i] = 0;
 
@@ -424,6 +430,7 @@ void* gdbif::readline_thread(void* arg){
 				ui->win_print(ui->win_getid(GDBLOG_NAME), "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
+				gdblex_destroy();
 
 				GDB("parser return value: %d\n", i);
 				ui->win_print(ui->win_getid(GDBLOG_NAME), "parser return value: %d\n", i);

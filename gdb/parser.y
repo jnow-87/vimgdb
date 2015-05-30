@@ -218,7 +218,7 @@ stream-record :				'~' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOL
 /* response */
 response :					response-res-class												{ $$.rclass = $1; $$.result = 0; }					/* result-class only */
 		 |					response-res-class ',' result									{ $$.rclass = $1; $$.result = $3; }					/* normal result */
-		 |					RC_TK_ERROR ',' VAR_MSG '=' string								{ $$.rclass = $1; $$.result = (gdb_result_t*)$5; }	/* error */
+		 |					RC_TK_ERROR ',' VAR_MSG '=' strlist								{ $$.rclass = $1; $$.result = $5; }					/* error */
 		 ;
 
 response-res-class :		RC_TK_DONE														{ $$ = $1; }
@@ -329,8 +329,8 @@ variable-body :				%empty															{ $$ = gdb_variable_t::acquire(); }
 			  |				variable-body con-com VAR_NUM_CHILD '=' string					{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
 			  |				variable-body con-com VAR_EXP '=' string						{ $$ = $1; $$->exp = $5; }
 			  |				variable-body con-com VAR_ARG '=' string-dummy					{ $$ = $1; $$->argument = true; }
-			  |				variable-body con-com VAR_INSCOPE '=' string					{ $$ = $1; $$->inscope = $5[0]; }
-			  |				variable-body con-com VAR_TYPE_CHANGED '=' string				{ $$ = $1; $$->type_changed = ($5[0] == 't' ? true : false); delete $5; }
+			  |				variable-body con-com VAR_INSCOPE '=' string					{ $$ = $1; $$->inscope = ($5[0] == 't' ? true : false); delete [] $5; }
+			  |				variable-body con-com VAR_TYPE_CHANGED '=' string				{ $$ = $1; $$->type_changed = ($5[0] == 't' ? true : false); delete [] $5; }
 			  |				variable-body con-com VAR_NEW_TYPE '=' string					{ $$ = $1; $$->type = $5; }
 			  |				variable-body con-com VAR_NEW_NUM_CHILD '=' string				{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
 			  |				variable-body con-com VAR_HAS_MORE '=' string-dummy				{ }

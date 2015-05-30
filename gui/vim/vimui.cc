@@ -8,6 +8,7 @@
 #include <gui/vim/result.h>
 #include <gui/vim/cursor.h>
 #include <gui/vim/length.h>
+#include <gui/vim/lexer.lex.h>
 #include <cmd.hash.h>
 #include <parser.tab.h>
 #include <signal.h>
@@ -57,7 +58,7 @@ int vimui::init(){
 	char* s;
 
 
-	ostr_len = 255;
+	ostr_len = 256;
 	ostr = new char[ostr_len];
 
 	if(ostr == 0)
@@ -104,7 +105,7 @@ err_2:
 	delete nbserver;
 
 err_1:
-	delete ostr;
+	delete [] ostr;
 
 err_0:
 	return -1;
@@ -131,7 +132,7 @@ void vimui::destroy(){
 	list_for_each(event_lst, e)
 		list_rm(&event_lst, e);
 
-	delete ostr;
+	delete [] ostr;
 }
 
 char* vimui::readline(){
@@ -286,7 +287,7 @@ int vimui::win_getid(const char* name){
 		len = strlen(name) + strlen(cwd) + 2;
 
 		if(slen < len){
-			delete s;
+			delete [] s;
 			s = new char[len];
 			slen = len;
 		}
@@ -325,7 +326,7 @@ int vimui::win_destroy(int win){
 
 	it_name = bufname_map.find(it_id->second->name);
 
-	delete it_id->second->name;
+	delete [] it_id->second->name;
 	delete it_id->second;
 
 	bufname_map.erase(it_name);
@@ -486,7 +487,7 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 
 		ostr_len *= 2;
 
-		delete ostr;
+		delete [] ostr;
 		ostr = new char[ostr_len];
 	}
 
@@ -722,8 +723,8 @@ void* vimui::readline_thread(void* arg){
 
 
 	vim = (vimui*)arg;
-	line_len = 255;
-	line = (char*)malloc(line_len * sizeof(char));
+	line_len = 256;
+	line = (char*)malloc(line_len);
 
 	i = 0;
 
@@ -748,6 +749,7 @@ void* vimui::readline_thread(void* arg){
 
 			// parse line
 			VIM("parser return value: %d\n", vimparse(line, vim));
+			vimlex_destroy();
 
 			i = 0;
 		}
@@ -756,5 +758,6 @@ void* vimui::readline_thread(void* arg){
 	/* trigger shutdown of main thread */
 	vim->event(0, 0, E_DISCONNECT, 0);
 
+	free(line);
 	pthread_exit(0);
 }

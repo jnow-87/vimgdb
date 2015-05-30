@@ -75,7 +75,7 @@ int cmd_exec(char* line){
 		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc, argv);
 
 	for(i=0; i<argc; i++)
-		delete argv[i];
+		delete [] argv[i];
 	delete [] argv;
 
 	return r;

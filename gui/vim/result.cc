@@ -32,7 +32,7 @@ vim_result_t* vim_result_free(vim_result_t* lst){
 		list_rm(&lst, r);
 
 		if(r->type == RT_STR)
-			delete r->sptr;
+			delete [] r->sptr;
 
 		delete r;
 	}

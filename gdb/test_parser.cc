@@ -2,6 +2,7 @@
 #include <common/log.h>
 #include <gdb/gdb.h>
 #include <gdb/types.h>
+#include <gdb/lexer.lex.h>
 #include <gdb/parser.tab.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -38,8 +39,8 @@ int main(int argc, char** argv){
 
 	i = 0;
 
-	len = 255;
-	line = (char*)malloc(len * sizeof(char));
+	len = 256;
+	line = (char*)malloc(len);
 
 	if(line == 0)
 		goto err_0;
@@ -64,8 +65,8 @@ int main(int argc, char** argv){
 			// check for end of gdb line, a simple newline as separator
 			// doesn't work, since the parse would try to parse the line,
 			// detecting a syntax error
-			if(strncmp(line + i - 6, "(gdb)\n", 6) == 0 ||
-			   strncmp(line + i - 7, "(gdb) \n", 7) == 0
+			if((i >= 6 && strncmp(line + i - 6, "(gdb)\n", 6) == 0) ||
+			   (i >= 7 && strncmp(line + i - 7, "(gdb) \n", 7) == 0)
 			  ){
 				line[i] = 0;
 
@@ -73,6 +74,7 @@ int main(int argc, char** argv){
 				printf("parse: \"%s\"\n\n", line);
 
 				i = gdbparse(line, gdb);
+				gdblex_destroy();
 
 				printf("parser return value: %d\n", i);
 				printf("----------------------------------------\n");

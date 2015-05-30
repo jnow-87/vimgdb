@@ -129,7 +129,7 @@ int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct 
 	if(unlockpt(fd_master))
 		goto err_0;
 
-	if(ptsname_r(fd_master, name, 255) != 0)
+	if(ptsname_r(fd_master, name, 256) != 0)
 		goto err_0;
 
 	// open terminal without making it the controlling terminal

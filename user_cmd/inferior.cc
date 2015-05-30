@@ -273,7 +273,7 @@ void* thread_inferior_output(void* arg){
 	unsigned int i, len = 256;
 
 
-	line = (char*)malloc(len * sizeof(char));
+	line = (char*)malloc(len);
 
 	if(line == 0)
 		return 0;
@@ -310,6 +310,7 @@ void* thread_inferior_output(void* arg){
 			DEBUG("inferior read shutdown\n");
 
 			ui->win_destroy(ui->win_getid(INFERIOR_NAME));
+			free(line);
 			pthread_exit(0);
 		}
 	}

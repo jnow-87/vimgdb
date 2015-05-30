@@ -43,7 +43,6 @@ gdb_variable_t::gdb_variable_t(){
 
 gdb_variable_t::~gdb_variable_t(){
 	if(name && origin != O_UNKNOWN){
-		printf("erase var %s\n", name);
 		MAP_ERASE(gdb_var_lst, name);
 
 		switch(origin){
@@ -124,8 +123,6 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 	}
 
 	var->origin = origin;
-
-	printf("add var %s\n", var->name);
 	gdb_var_lst[key] = var;
 
 	switch(origin){
@@ -158,10 +155,8 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 
 int gdb_variable_t::release(gdb_variable_t* v){
 	if(--v->refcnt == 0){
-		if(MAP_LOOKUP(gdb_var_lst, v->name) != 0){
-			if(gdb->mi_issue_cmd("var-delete", 0, "\"%s\"", v->name) != 0)
-				return -1;
-		}
+		if(v->name && MAP_LOOKUP(gdb_var_lst, v->name) != 0)
+			gdb->mi_issue_cmd("var-delete", 0, "\"%s\"", v->name);
 
 		delete v;
 	}

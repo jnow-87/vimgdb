@@ -225,7 +225,7 @@ char* strescape(char* s, char** _dst, unsigned int* max){
 	strcpy(src, s);
 
 	if(*max < len){
-		delete *_dst;
+		delete [] *_dst;
 
 		*max += len;
 		*_dst = new char[*max];
@@ -335,7 +335,7 @@ char* itoa(unsigned int v, char** s, unsigned int* max, bool neg){
 
 	if(*max < len){
 		*max += len;;
-		delete *s;
+		delete [] *s;
 		*s = new char[*max];
 	}
 
@@ -355,7 +355,7 @@ char* itoa(int v, char** s, unsigned int* max){
 char* stralloc(char* _s, unsigned int len){
 	char* s;
 
-	s = (char*)malloc(len + 1);
+	s = new char[len + 1];
 	if(s != 0)
 		strncpy(s, _s, len + 1);
 	return s;
