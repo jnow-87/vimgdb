@@ -191,6 +191,10 @@ int cmd_inferior_exec(int argc, char** argv){
 
 			/* signal data availability */
 			fp = fopen(argv[3], "w");
+
+			if(fp == 0)
+				return -1;
+
 			fprintf(fp, "1\n");
 			fclose(fp);
 			break;
