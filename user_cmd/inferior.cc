@@ -161,7 +161,7 @@ int cmd_inferior_exec(int argc, char** argv){
 			break;
 
 		case EXPORT:
-			fp = fopen(argv[2], "a+");
+			fp = fopen(argv[2], "w");
 
 			if(fp == 0)
 				return 0;

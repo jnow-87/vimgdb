@@ -6,7 +6,9 @@
 "
 " \param	filename	file to read
 " \param	timeout_s	number of seconds to wait for file to become readable
-function! vimgdb#util#file_read(filename, timeout_s)
+"
+" \return	file content as list
+function! vimgdb#util#file_read_list(filename, timeout_s)
 	let l:s = 0
 
 	while !filereadable(a:filename)
@@ -18,8 +20,17 @@ function! vimgdb#util#file_read(filename, timeout_s)
 		endif
 	endwhile
 
-	exec "let l:flst = \"" . join(readfile(a:filename)) . "\""
+	return readfile(a:filename)
+endfunction
 
+" \brief	read file if it exists, otherwise wait untils its readable with timeout
+"
+" \param	filename	file to read
+" \param	timeout_s	number of seconds to wait for file to become readable
+"
+" \return	file content as string
+function! vimgdb#util#file_read(filename, timeout_s)
+	exec "let l:flst = \"" . join(vimgdb#util#file_read_list(a:filename, a:timeout_s)) . "\""
 	return l:flst
 endfunction
 

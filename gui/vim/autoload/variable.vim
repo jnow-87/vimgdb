@@ -21,6 +21,7 @@ let s:cmd_dict = {
 			\ "__nested__":"vimgdb#variable#complete",
 			\ "__nested1__":{"<value>":{}}
 		\ },
+		\ "export":{"__nested__":"vimgdb#complete#file"},
 		\ "view":{},
 		\ "open":{},
 	\ }
