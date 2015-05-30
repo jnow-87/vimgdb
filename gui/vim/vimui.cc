@@ -47,11 +47,16 @@ vimui::vimui(){
 
 vimui::~vimui(){
 	pthread_cond_destroy(&resp_avail);
-	pthread_cond_destroy(&event_avail);
 	pthread_mutex_destroy(&resp_mtx);
 	pthread_mutex_destroy(&event_mtx);
 	pthread_mutex_destroy(&buf_mtx);
 	pthread_mutex_destroy(&ui_mtx);
+
+	/* do not destroy 'event_avail', since this can cause vimgdb
+	 * to hand in case it has been terminated via SIGINT or SIGTERM
+	 */
+	//pthread_cond_destroy(&event_avail);
+
 }
 
 int vimui::init(){

@@ -103,11 +103,13 @@ int cleanup(){
 	log::cleanup();
 
 	/* close gui */
-	ui->destroy();
+	if(ui)
+		ui->destroy();
+
 	delete ui;
 	ui = 0;
 	
 	pthread_mutex_unlock(&m);
 
-	return 0;
+	exit(0);
 }
