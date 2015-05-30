@@ -42,37 +42,43 @@
  * \brief	add an element at head of the list
  *
  * \param	head	pointer to list head
- * \param	new		pointer to element to insert
+ * \param	el		pointer to element to insert
  *
  * \return	new head
  */
-#define list_add_head(head, new){ \
-	(new)->next = *(head); \
-	(new)->prev = (*(head) == 0 ? (new) : (*(head))->prev); \
-	if(*(head) != 0) \
-		(*(head))->prev = new; \
+#define list_add_head(head, _el){ \
+	auto el = (_el); \
 	\
-	*(head) = new; \
+	\
+	(el)->next = *(head); \
+	(el)->prev = (*(head) == 0 ? (el) : (*(head))->prev); \
+	if(*(head) != 0) \
+		(*(head))->prev = el; \
+	\
+	*(head) = el; \
 }
 
 /**
  * \brief	add an element at the end of the list
  *
  * \param	head	pointer to list head
- * \param	new		poiinter to element to insert
+ * \param	el		poiinter to element to insert
  *
  * \return	none
  */
-#define list_add_tail(head, new){ \
-	(new)->next = 0; \
+#define list_add_tail(head, _el){ \
+	auto el = _el; \
+	\
+	\
+	(el)->next = 0; \
 	if(*(head) == 0){ \
-		*(head) = new; \
-		(new)->prev = new; \
+		*(head) = el; \
+		(el)->prev = el; \
 	} \
 	else{ \
-		(new)->prev = (*(head))->prev; \
-		(*(head))->prev->next = new; \
-		(*(head))->prev = new; \
+		(el)->prev = (*(head))->prev; \
+		(*(head))->prev->next = el; \
+		(*(head))->prev = el; \
 	} \
 }
 

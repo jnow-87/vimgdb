@@ -3,8 +3,8 @@
 
 
 #include <gdb/result.h>
-#include <gdb/gdb.h>
 #include <map>
+#include <list>
 #include <string>
 
 
@@ -21,19 +21,16 @@ typedef enum{
 
 
 /* class */
-class gdb_variable_t{
+class gdb_variable_t : public gdb_result_t{
 public:
 	static gdb_variable_t* acquire();
 	static gdb_variable_t* acquire(char* expr, gdb_origin_t origin, char* context = 0, unsigned int frame = 0);
 	static int release(gdb_variable_t* v);
 	static int get_changed();
 
-	static int result_to_variable(gdb_result_t* result, void** var);
-	static int result_to_change_list(gdb_result_t* result, void** unused);
-
 
 	int set(int argc, char** argv);
-	int format(char* fmt);
+	int format(const char* fmt);
 	int update();
 	int print(int win_id, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
 	int init_childs();
@@ -46,17 +43,19 @@ public:
 	char inscope;
 	bool modified,
 		 childs_visible,
-		 argument;
+		 argument,
+		 type_changed;
 
 	unsigned int nchilds,
 				 refcnt;
 
 	gdb_origin_t origin;
 
+	list<class gdb_variable_t*> childs;
+
 	class gdb_variable_t *next,
 						 *prev,
-						 *parent,
-						 *childs;
+						 *parent;
 
 private:
 	/* to force usage of acquire() and release() */
@@ -64,6 +63,7 @@ private:
 	~gdb_variable_t();
 
 	int print(int win_id, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map);
+	void erase_childs();
 };
 
 

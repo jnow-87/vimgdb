@@ -7,7 +7,6 @@
 	#include <common/string.h>
 	#include <gdb/gdb.h>
 	#include <gdb/types.h>
-	#include <gdb/identifier.h>
 	#include <gdb/lexer.lex.h>
 
 
@@ -23,22 +22,21 @@
 %union{
 	char* sptr;
 	unsigned int num;
-
-	void* result;
+	gdb_result_t* result;
 	gdb_result_class_t rclass;
-	const gdb_id_t* var_id;
-
-	struct{
-		void* result;
-	} record;
-
-	gdb_strlist_t* slst;
-	gdb_breakpoint_t* breakpt;
-	gdb_location_t* loc;
+	gdb_event_t* evt;
+	gdb_event_stop_t* evt_stop;
+	gdb_breakpoint_t* bkpt;
 	gdb_variable_t* var;
 	gdb_frame_t* frame;
+	gdb_location_t* loc;
 	gdb_memory_t* mem;
-	gdb_event_t* evt;
+	gdb_strlist_t* slst;
+
+	struct{
+		gdb_result_t* result;
+		gdb_result_class_t rclass;
+	} record;
 }
 
 
@@ -128,53 +126,60 @@
 %token VAR_END
 %token VAR_OFFSET
 %token VAR_CONTENTS
+%token VAR_NEW_TYPE
+%token VAR_NEW_NUM_CHILD
 
 // result classes
-%token TRC_DONE
-%token TRC_RUNNING
-%token TRC_CONNECTED
-%token TRC_ERROR
-%token TRC_EXIT
-%token TRC_STOPPED
-%token TRC_BREAK_CREATED
-%token TRC_BREAK_MODIFIED
-%token TRC_BREAK_DELETED
-%token TRC_THREAD_CREATED
-%token TRC_THREAD_EXITED
-%token TRC_THREAD_SELECTED
-%token TRC_THREAD_GRP_ADDED
-%token TRC_THREAD_GRP_STARTED
-%token TRC_THREAD_GRP_EXITED
-%token TRC_PARAM_CHANGED
-%token TRC_LIB_LOADED
-%token TRC_LIB_UNLOADED
+%token <rclass> RC_TK_DONE
+%token <rclass> RC_TK_RUNNING
+%token <rclass> RC_TK_CONNECTED
+%token <rclass> RC_TK_ERROR
+%token <rclass> RC_TK_EXIT
+%token <rclass> RC_TK_STOPPED
+%token <rclass> RC_TK_BREAK_CREATED
+%token <rclass> RC_TK_BREAK_MODIFIED
+%token <rclass> RC_TK_BREAK_DELETED
+%token <rclass> RC_TK_THREAD_CREATED
+%token <rclass> RC_TK_THREAD_EXITED
+%token <rclass> RC_TK_THREAD_SELECTED
+%token <rclass> RC_TK_THREAD_GRP_ADDED
+%token <rclass> RC_TK_THREAD_GRP_STARTED
+%token <rclass> RC_TK_THREAD_GRP_EXITED
+%token <rclass> RC_TK_PARAM_CHANGED
+%token <rclass> RC_TK_LIB_LOADED
+%token <rclass> RC_TK_LIB_UNLOADED
 
-
+// others
 %token <sptr> STRING
 %token <num> NUMBER
-%token <var_id> IDENTIFIER
 
 /* non-terminals */
-%type <record> record
+%type <sptr> string
+%type <sptr> string-dummy
+%type <num> token
+
+%type <record> response
+%type <record> event
+%type <rclass> response-res-class
+
+%type <evt> event-running
+%type <evt_stop> event-stop
+%type <evt_stop> event-stop-body
 %type <result> result
-%type <rclass> record-res-class
 %type <slst> list
 %type <slst> list-dummy
 %type <slst> strlist
 %type <slst> strlist-dummy
-%type <sptr> string
-%type <sptr> string-dummy
-%type <num> token
-%type <breakpt> breakpoint
-%type <breakpt> breakpoint-body
+%type <bkpt> breakpoint
+%type <bkpt> breakpoint-body
 %type <loc> location
 %type <loc> location-body
 %type <var> variable
 %type <var> variable-body
 %type <var> children
 %type <var> children-body
-%type <var> variablelist
-%type <var> variablelist-body
+%type <var> variable-list
+%type <var> variable-list-body
 %type <frame> frame
 %type <frame> frame-body
 %type <frame> frame-list
@@ -182,19 +187,14 @@
 %type <mem> memory
 %type <mem> memory-body
 %type <slst> reg-names
-%type <sptr> value
-%type <evt> event
-%type <evt> event-running
-%type <evt> event-stop
-%type <evt> event-stop-body
+%type <slst> value
 
 
 %%
 
 
-output :	out-of-band-record GDBTK NEWLINE												{ }
-	   ;
-
+/* start */
+output :	out-of-band-record GDBTK NEWLINE												{ };
 
 /* out-of-band-record */
 out-of-band-record :		%empty															{ }
@@ -202,71 +202,77 @@ out-of-band-record :		%empty															{ }
 				   |		out-of-band-record stream-record								{ }
 				   ;
 
-async-record :				error NEWLINE													{ /*gdb->mi_proc_result(TRC_ERROR, 0, (gdb_result_t*)0);*/ }				/* allow continued parsing after error */
-			 |				token '*' event	NEWLINE											{ /*gdb->mi_proc_async($3.rclass, $1, (gdb_result_t*)$3.result);*/ }	/* exec-async-output */
-			 |				token '+' event	NEWLINE											{ /*gdb->mi_proc_async($3.rclass, $1, (gdb_result_t*)$3.result);*/ }	/* status-async-output */
-			 |				token '=' event NEWLINE											{ /*gdb->mi_proc_async($3.rclass, $1, (gdb_result_t*)$3.result);*/ }	/* notify-async-output */
-			 |				token '^' record NEWLINE										{ /*gdb->mi_proc_result($3.rclass, $1, (gdb_result_t*)$3.result);*/ }	/* result-record */
+/* sub-records */
+async-record :				error NEWLINE													{ gdb->mi_proc_result(RC_ERROR, 0, 0); }			/* allow continued parsing after error */
+			 |				token '^' response NEWLINE										{ gdb->mi_proc_result($3.rclass, $1, $3.result); }	/* result-record */
+			 |				token '*' event	NEWLINE											{ gdb->mi_proc_async($3.rclass, $1, $3.result); }	/* exec-async-output */
+			 |				token '+' event	NEWLINE											{ gdb->mi_proc_async($3.rclass, $1, $3.result); }	/* status-async-output */
+			 |				token '=' event NEWLINE											{ gdb->mi_proc_async($3.rclass, $1, $3.result); }	/* notify-async-output */
 			 ;
 
-record :					record-res-class												{ /*$$.rclass = $1; $$.result = 0;*/ }						/* result-class only */
-	   |					record-res-class ',' result										{ /*$$.rclass = $1; $$.result = $3;*/ }						/* normal result */
-	   |					TRC_ERROR ',' VAR_MSG '=' string								{ /*$$.rclass = $1; $$.result = (gdb_result_t*)$5;*/ }		/* error */
-	   ;
-
-record-res-class :			TRC_DONE														{ }
-				 |			TRC_RUNNING														{ }
-				 ;
-
-stream-record :				'~' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }	/* console-stream-output */
-			  |				'@' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }	/* target-system-output */
-			  |				'&' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }	/* log-stream-output */
+stream-record :				'~' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }			/* console-stream-output */
+			  |				'@' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }			/* target-system-output */
+			  |				'&' string NEWLINE												{ gdb->mi_proc_stream(SC_CONSOLE, $2); }			/* log-stream-output */
 			  ;
 
-result :					breakpoint														{ $$ = (void*)$1; }
-	   |					location														{ $$ = (void*)$1; }
-	   |					variable														{ $$ = (void*)$1; }
-	   |					children														{ $$ = (void*)$1; }
-	   |					variablelist													{ $$ = (void*)$1; }
-	   |					frame															{ $$ = (void*)$1; }
-	   |					frame-list														{ $$ = (void*)$1; }
-	   |					memory															{ $$ = (void*)$1; }
-	   |					reg-names														{ $$ = (void*)$1; }
-	   |					value															{ $$ = (void*)$1; }
+/* response */
+response :					response-res-class												{ $$.rclass = $1; $$.result = 0; }					/* result-class only */
+		 |					response-res-class ',' result									{ $$.rclass = $1; $$.result = $3; }					/* normal result */
+		 |					RC_TK_ERROR ',' VAR_MSG '=' string								{ $$.rclass = $1; $$.result = (gdb_result_t*)$5; }	/* error */
+		 ;
+
+response-res-class :		RC_TK_DONE														{ $$ = $1; }
+				   |		RC_TK_RUNNING													{ $$ = $1; }
+				   ;
+
+result :					breakpoint														{ $$ = $1; }
+	   |					location														{ $$ = $1; }
+	   |					variable														{ $$ = $1; }
+	   |					children														{ $$ = $1; }
+	   |					variable-list													{ $$ = $1; }
+	   |					frame															{ $$ = $1; }
+	   |					frame-list														{ $$ = $1; }
+	   |					memory															{ $$ = $1; }
+	   |					reg-names														{ $$ = $1; }
+	   |					value															{ $$ = $1; }
 	   ;
 
-event :						TRC_RUNNING ',' event-running									{ $$ = $3; }
-	  |						TRC_STOPPED ',' event-stop										{ $$ = $3; }
-	  |						TRC_CONNECTED ',' event-dummy									{ }
-	  |						TRC_EXIT ',' event-dummy										{ }
-	  |						TRC_BREAK_CREATED ',' event-dummy								{ }
-	  |						TRC_BREAK_MODIFIED ',' event-dummy								{ }
-	  |						TRC_BREAK_DELETED ',' event-dummy								{ }
-	  |						TRC_THREAD_CREATED ',' event-dummy								{ }
-	  |						TRC_THREAD_EXITED ',' event-dummy								{ }
-	  |						TRC_THREAD_SELECTED ',' event-dummy								{ }
-	  |						TRC_THREAD_GRP_ADDED event-dummy								{ }
-	  |						TRC_THREAD_GRP_STARTED ',' event-dummy							{ }
-	  |						TRC_THREAD_GRP_EXITED ',' event-dummy							{ }
-	  |						TRC_PARAM_CHANGED ',' event-dummy								{ }
-	  |						TRC_LIB_LOADED ',' event-dummy									{ }
-	  |						TRC_LIB_UNLOADED ',' event-dummy								{ }
+/* event */
+event :						RC_TK_RUNNING ',' event-running									{ $$.rclass = $1; $$.result = $3; }
+	  |						RC_TK_STOPPED ',' event-stop									{ $$.rclass = $1; $$.result = $3; }
+	  |						RC_TK_CONNECTED ',' event-dummy									{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_EXIT ',' event-dummy										{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_BREAK_CREATED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_BREAK_MODIFIED ',' event-dummy							{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_BREAK_DELETED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_CREATED ',' event-dummy							{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_EXITED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_SELECTED ',' event-dummy							{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_GRP_ADDED event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_GRP_STARTED ',' event-dummy						{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_THREAD_GRP_EXITED ',' event-dummy							{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_PARAM_CHANGED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_LIB_LOADED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
+	  |						RC_TK_LIB_UNLOADED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
 	  ;
 
-/* gdb events */
-event-running :				VAR_THREAD_ID '=' string										{ printf("alloc event\n"); $$ = new gdb_event_t; $$->thread_id = atoi($3); delete $3; };
+event-running :				VAR_THREAD_ID '=' string										{ $$ = new gdb_event_t; $$->thread_id = atoi($3); delete [] $3; };
 
-event-stop :				VAR_REASON '=' string											{ printf("alloc stop event\n"); $$ = new gdb_event_stop_t; $$->reason = $3; }
+event-stop :				VAR_REASON '=' string											{ $$ = new gdb_event_stop_t; $$->reason = $3; }
 		   |				VAR_REASON '=' string ',' event-stop-body						{ $$ = $5; $$->reason = $3; }
 		   ;
 
-event-stop-body :			%empty															{ printf("alloc stop event\n"); $$ = new gdb_event_stop_t; }
+event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
 				|			event-stop-body con-com frame									{ $$ = $1; ((gdb_event_stop_t*)($$))->frame = $3; }
-				|			event-stop-body con-com VAR_THREAD_ID '=' string				{ $$ = $1; $$->thread_id = atoi($5); delete $5; }
+				|			event-stop-body con-com VAR_THREAD_ID '=' string				{ $$ = $1; $$->thread_id = atoi($5); delete [] $5; }
 				|			event-stop-body con-com VAR_THREADS_STOPPED '=' string-dummy	{ }
 				|			event-stop-body con-com VAR_CORE '=' string-dummy				{ }
 				|			event-stop-body con-com VAR_DISPOSITION '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_BREAKPT_NUM '=' string-dummy		{ }
+				|			event-stop-body con-com VAR_SIG_NAME '=' string-dummy			{ }
+				|			event-stop-body con-com VAR_SIG_MEANING '=' string-dummy		{ }
+				|			event-stop-body con-com VAR_GDBRES_VAR '=' string-dummy			{ }
+				|			event-stop-body con-com VAR_RETVAL '=' string-dummy				{ }
 				;
 
 event-dummy :				%empty															{ }
@@ -281,22 +287,21 @@ event-dummy :				%empty															{ }
 			|				event-dummy con-com VAR_HOST_NAME '=' string-dummy				{ }
 			|				event-dummy con-com VAR_SYM_LOADED '=' string-dummy				{ }
 			|				event-dummy con-com VAR_EXITCODE '=' string-dummy				{ }
-			|				event-dummy con-com breakpoint									{ printf("del bkpt\n"); delete $3; }
+			|				event-dummy con-com breakpoint									{ delete $3; }
 			;
-
 
 /* gdb types */
 breakpoint :				VAR_BREAKPT '=' '{' breakpoint-body '}'							{ $$ = $4; };
-breakpoint-body :			%empty															{ printf("alloc brkpt\n"); $$ = new gdb_breakpoint_t; }
-				|			breakpoint-body con-com VAR_NUMBER '=' string					{ $$ = $1; $$->num = atoi($5); delete $5; }
-				|			breakpoint-body con-com VAR_LINE '=' string						{ $$ = $1; $$->line = atoi($5); delete $5; }
+breakpoint-body :			%empty															{ $$ = new gdb_breakpoint_t; }
+				|			breakpoint-body con-com VAR_NUMBER '=' string					{ $$ = $1; $$->num = atoi($5); delete [] $5; }
+				|			breakpoint-body con-com VAR_LINE '=' string						{ $$ = $1; $$->line = atoi($5); delete [] $5; }
 				|			breakpoint-body con-com VAR_FILE '=' string						{ $$ = $1; $$->filename = $5; }
 				|			breakpoint-body con-com VAR_FULLNAME '=' string					{ $$ = $1; $$->fullname = $5; }
-				|			breakpoint-body con-com VAR_ENABLED '=' string					{ $$ = $1; $$->enabled = (strcmp((const char*)$5, "y") == 0) ? true : false; delete $5; }
+				|			breakpoint-body con-com VAR_ENABLED '=' string					{ $$ = $1; $$->enabled = (strcmp((const char*)$5, "y") == 0) ? true : false; delete [] $5; }
 				|			breakpoint-body con-com VAR_AT '=' string						{ $$ = $1; $$->at = $5; }
 				|			breakpoint-body con-com VAR_CONDITION '=' string				{ $$ = $1; $$->condition = $5; }
 				|			breakpoint-body con-com VAR_IGNORE '=' string					{ $$ = $1; $$->ignore_cnt = $5; }
-				|			breakpoint-body con-com VAR_DISPOSITION '=' string				{ $$ = $1; $$->temporary = (strcmp($5, "del") == 0) ? true : false; delete $5; }
+				|			breakpoint-body con-com VAR_DISPOSITION '=' string				{ $$ = $1; $$->temporary = (strcmp($5, "del") == 0) ? true : false; delete [] $5; }
 				|			breakpoint-body con-com VAR_TYPE '=' string-dummy				{ }
 				|			breakpoint-body con-com VAR_ADDRESS '=' string-dummy			{ }
 				|			breakpoint-body con-com VAR_FUNCTION '=' string-dummy			{ }
@@ -305,8 +310,8 @@ breakpoint-body :			%empty															{ printf("alloc brkpt\n"); $$ = new gdb
 				|			breakpoint-body con-com VAR_THREAD_GROUPS '=' list-dummy		{ }
 				;
 
-location :					VAR_LINE '=' string ',' location-body							{ $$ = $5; $5->line = atoi($3); delete $3; };
-location-body :				%empty															{ printf("alloc location\n"); $$ = new gdb_location_t; }
+location :					VAR_LINE '=' string ',' location-body							{ $$ = $5; $5->line = atoi($3); delete [] $3; };
+location-body :				%empty															{ $$ = new gdb_location_t; }
 			  |				location-body con-com VAR_FILE '=' string						{ $$ = $1; $$->filename = $5; }
 			  |				location-body con-com VAR_FULLNAME '=' string					{ $$ = $1; $$->fullname = $5; }
 			  |				location-body con-com VAR_MACRO_INFO '=' string-dummy			{ }
@@ -315,46 +320,50 @@ location-body :				%empty															{ printf("alloc location\n"); $$ = new g
 variable :					VAR_NAME '=' string ',' variable-body							{ $$ = $5; $5->name = $3; }
 		 |					VAR_LANG '=' string-dummy ',' variable-body						{ $$ = $5; }
 		 |					VAR_FORMAT '=' string-dummy ',' variable-body					{ $$ = $5; }
+		 |					VAR_NDELETED '=' string-dummy									{ $$ = 0; }
 		 ;
 
-variable-body :				%empty															{ printf("alloc var\n"); $$ = gdb_variable_t::acquire(); }
+variable-body :				%empty															{ $$ = gdb_variable_t::acquire(); }
 			  |				variable-body con-com VAR_TYPE '=' string						{ $$ = $1; $$->type = $5; }
 			  |				variable-body con-com VAR_VALUE '=' string						{ $$ = $1; $$->value = strdeescape($5); }
-			  |				variable-body con-com VAR_NUM_CHILD '=' string					{ $$ = $1; $$->nchilds = atoi($5); delete $5; }
+			  |				variable-body con-com VAR_NUM_CHILD '=' string					{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
 			  |				variable-body con-com VAR_EXP '=' string						{ $$ = $1; $$->exp = $5; }
 			  |				variable-body con-com VAR_ARG '=' string-dummy					{ $$ = $1; $$->argument = true; }
 			  |				variable-body con-com VAR_INSCOPE '=' string					{ $$ = $1; $$->inscope = $5[0]; }
+			  |				variable-body con-com VAR_TYPE_CHANGED '=' string				{ $$ = $1; $$->type_changed = ($5[0] == 't' ? true : false); delete $5; }
+			  |				variable-body con-com VAR_NEW_TYPE '=' string					{ $$ = $1; $$->type = $5; }
+			  |				variable-body con-com VAR_NEW_NUM_CHILD '=' string				{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
 			  |				variable-body con-com VAR_HAS_MORE '=' string-dummy				{ }
 			  |				variable-body con-com VAR_LANG '=' string-dummy					{ }
 			  |				variable-body con-com VAR_THREAD_ID '=' string-dummy			{ }
-			  |				variable-body con-com VAR_TYPE_CHANGED '=' string-dummy			{ }
 			  ;
 
+variable-list :				VAR_CHANGELIST '=' '[' variable-list-body ']'					{ $$ = $4; }
+			 |				VAR_VARIABLES '=' '[' variable-list-body ']'					{ $$ = $4; }
+			 ;
+
+variable-list-body :		%empty															{ $$ = 0; }
+				  |			variable-list-body con-com '{' variable '}'						{ $$ = $1; list_add_tail(&$$, $4); }
+				  ;
+
 children :					VAR_NUM_CHILD '=' string-dummy ',' children-body				{ $$ = $5; };
-children-body :				%empty															{ printf("start children-list\n"); $$ = 0; }
+children-body :				%empty															{ $$ = 0; }
 			  |				VAR_CHILDS '=' '[' children-body ']'							{ $$ = $4; }
 			  |				children-body con-com VAR_CHILD '=' '{' variable '}'			{ $$ = $1; list_add_tail(&$$, $6); }
 			  |				children-body con-com VAR_HAS_MORE '=' string-dummy				{ }
 			  ;
 
-variablelist :				VAR_CHANGELIST '=' '[' variablelist-body ']'					{ $$ = $4; }
-			 |				VAR_VARIABLES '=' '[' variablelist-body ']'						{ $$ = $4; }
-			 ;
-
-variablelist-body :			%empty															{ printf("start var-list\n"); $$ = 0; }
-				|			variablelist-body con-com '{' variable '}'						{ $$ = $1; list_add_tail(&$$, $4); }
-				;
 
 frame-list :				VAR_STACK '=' '[' frame-list-body ']'							{ $$ = $4; };
-frame-list-body :			%empty															{ printf("start frame-list\n"); $$ = 0; }
+frame-list-body :			%empty															{ $$ = 0; }
 				|			frame-list-body con-com frame									{ $$ = $1; list_add_tail(&$$, $3); }
 				;
 
 frame :						VAR_FRAME '=' '{' frame-body '}'								{ $$ = $4; };
-frame-body :				%empty															{ printf("alloc frame\n"); $$ = new gdb_frame_t; }
-		   |				frame-body con-com VAR_ADDRESS '=' string						{ $$ = $1; $$->addr = (void*)strtoll($5, 0, 16); delete $5; }
-		   |				frame-body con-com VAR_LINE '=' string							{ $$ = $1; $$->line = atoi($5); delete $5; }
-		   |				frame-body con-com VAR_LEVEL '=' string							{ $$ = $1; $$->level = atoi($5); delete $5; }
+frame-body :				%empty															{ $$ = new gdb_frame_t; }
+		   |				frame-body con-com VAR_ADDRESS '=' string						{ $$ = $1; $$->addr = (void*)strtoll($5, 0, 16); delete [] $5; }
+		   |				frame-body con-com VAR_LINE '=' string							{ $$ = $1; $$->line = atoi($5); delete [] $5; }
+		   |				frame-body con-com VAR_LEVEL '=' string							{ $$ = $1; $$->level = atoi($5); delete [] $5; }
 		   |				frame-body con-com VAR_FUNCTION '=' string						{ $$ = $1; $$->function = $5; }
 		   |				frame-body con-com VAR_FILE '=' string							{ $$ = $1; $$->filename = $5; }
 		   |				frame-body con-com VAR_FULLNAME '=' string						{ $$ = $1; $$->fullname = $5; }
@@ -368,28 +377,23 @@ arg-list :					%empty															{ }
 		 ;
 
 memory :					VAR_MEMORY '=' '[' '{' memory-body '}' ']'						{ $$ = $5; };
-memory-body :				%empty															{ printf("alloc memory\n"); $$ = new gdb_memory_t; }
+memory-body :				%empty															{ $$ = new gdb_memory_t; }
 			|				memory-body con-com VAR_BEGIN '=' string						{ $$ = $1; $$->begin = $5; }
-			|				memory-body con-com VAR_END '=' string							{ $$ = $1; $$->length = (unsigned int)(strtoll($5, 0, 16) - strtoll($$->begin, 0, 16)); delete $5; }
+			|				memory-body con-com VAR_END '=' string							{ $$ = $1; $$->length = (unsigned int)(strtoll($5, 0, 16) - strtoll($$->begin, 0, 16)); delete [] $5; }
 			|				memory-body con-com VAR_CONTENTS '=' string						{ $$ = $1; $$->content = $5; }
 			|				memory-body con-com VAR_OFFSET '=' string-dummy					{ }
 			;
 
-reg-names :					VAR_REG_NAMES '=' list											{ $$ = $3; }
-		  ;
+reg-names :					VAR_REG_NAMES '=' list											{ $$ = $3; };
 
-value :						VAR_VALUE '=' string											{ $$ = $3; }
-	  ;
+value :						VAR_VALUE '=' strlist											{ $$ = $3; strdeescape($3->s); };
 
 /* common */
-list :						'[' strlist ']'													{ $$ = $2; }
-	 ;
-
-list-dummy :				'[' strlist-dummy ']'											{ $$ = $2; }
-		   ;
+list :						'[' strlist ']'													{ $$ = $2; };
+list-dummy :				'[' strlist-dummy ']'											{ };
 
 strlist :					%empty															{ $$ = 0; }
-	 	|					strlist con-com string											{ $$ = $1; list_add_tail(&$1, new gdb_strlist_t($3)); }
+	 	|					strlist con-com string											{ $$ = $1; list_add_tail(&$$, new gdb_strlist_t($3)); }
 		;
 
 strlist-dummy :				%empty															{ }
@@ -397,15 +401,15 @@ strlist-dummy :				%empty															{ }
 			  ;
 
 string :					'"' '"'															{ $$ = stralloc((char*)"", 1); }
-	   |					'"' STRING '"'													{ $$ = $2; };
+	   |					'"' STRING '"'													{ $$ = $2; }
 	   ;
 
 string-dummy :				'"' '"'															{ }
-			 |				'"' STRING '"'													{ delete $2; }
+			 |				'"' STRING '"'													{ delete [] $2; }
 			 ;
 
 token :						%empty															{ $$ = 0; }
-	  |						NUMBER															{ $$ = $1; printf("token %d\n", $1);}
+	  |						NUMBER															{ $$ = $1; }
 	  ;
 
 con-com :					%empty															{ }

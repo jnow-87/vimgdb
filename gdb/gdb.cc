@@ -172,7 +172,7 @@ void gdbif::on_exit(int (*hdlr)(void)){
  * \return	>0		token used for the command
  * 			-1		error
  */
-int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...){
+int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...){
 	static char* volatile s = 0;
 	static unsigned int volatile s_len = 0;
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -191,7 +191,7 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 
 	gdb_term->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
 	gdb_term->write((char*)"-");
-	gdb_term->write(cmd);
+	gdb_term->write((char*)cmd);
 
 	if(*fmt != 0)
 		gdb_term->write((char*)" ");
@@ -269,26 +269,16 @@ int gdbif::mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb
 	va_end(lst);
 
 	/* process response */
-	if((resp.rclass & ok_mask)){
-		if(resp.result){
-			if(process){
-				if(process(resp.result, r) != 0){
-					ERROR("unable to process result for \"%s\"\n", cmd);
-					resp.rclass = RC_ERROR;
-				}
-			}
-			else if(r){
-				*r = (void**)resp.result;
-				resp.result = 0;
-			}
-		}
+	if(resp.rclass != RC_ERROR){
+		if(r)	*r = resp.result;
+		else	delete resp.result;
 	}
-	else
-		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? resp.result->value->value : "gdb implementation error"));
+	else{
+		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? (char*)resp.result : "gdb implementation error"));
+		delete [] (char*)resp.result;
+	}
 
-	gdb_result_free(resp.result);
-
-	if(resp.rclass & ok_mask)
+	if(resp.rclass != RC_ERROR)
 		return 0;
 	return -1;
 }
@@ -329,7 +319,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 
 	default:
 		GDB("unhandled gdb-event %d\n", rclass);
-		gdb_result_free(result);
+		delete result;
 	};
 
 	pthread_mutex_unlock(&event_mtx);
@@ -339,6 +329,8 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 
 int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
 	USER("%s", strdeescape(stream));	// use "%s" to avoid issues with '%' within stream
+	delete stream;
+
 	return 0;
 }
 
@@ -487,19 +479,19 @@ void* gdbif::event_thread(void* arg){
 					USER("error executing on-stop handler\n");
 			}
 
-			gdb_result_free(e->result);
+			delete e->result;
 			delete e;
 
 			pthread_exit(0);
 
 		case RC_STOPPED:
 			GDB("handle event STOPPED\n");
-			r = gdb->evt_stopped(e->result);
+			r = gdb->evt_stopped((gdb_event_stop_t*)e->result);
 			break;
 
 		case RC_RUNNING:
 			GDB("handle event RUNNING\n");
-			r = gdb->evt_running(e->result);
+			r = gdb->evt_running((gdb_event_t*)e->result);
 			break;
 
 		default:
@@ -509,53 +501,31 @@ void* gdbif::event_thread(void* arg){
 		if(r != 0)
 			ERROR("error handling gdb-event %d\n", e->rclass);
 
-		gdb_result_free(e->result);
+		delete e->result;
 		delete e;
 	}
 }
 
-int gdbif::evt_running(gdb_result_t* result){
+int gdbif::evt_running(gdb_event_t* result){
 	running(true);
 	return 0;
 }
 
-int gdbif::evt_stopped(gdb_result_t* result){
-	char* reason;
-	gdb_result_t* r;
-	gdb_frame_t* frame;
+int gdbif::evt_stopped(gdb_event_stop_t* result){
 	event_hdlr_t* e;
+	gdb_frame_t* frame;
 
-
-	reason = 0;
-	frame = 0;
 
 	running(false);
 
-	/* parse result */
-	list_for_each(result, r){
-		switch(r->var_id){
-		case IDV_REASON:
-			reason = (char*)r->value->value;
-			break;
+	if(result->reason == 0)
+		return -1;
 
-		case IDV_FRAME:
-			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
-			break;
-
-		case IDV_THREAD_ID:
-			cur_thread = atoi((char*)r->value->value);
-			break;
-
-		default:
-			break;
-		};
-	}
-
-	if(reason == 0)
-		goto err;
+	frame = result->frame;
+	cur_thread = result->thread_id;
 
 	/* check reason */
-	if(reason != 0 && frame != 0){
+	if(frame != 0){
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
@@ -563,9 +533,9 @@ int gdbif::evt_stopped(gdb_result_t* result){
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);
 	}
-	else if(strcmp(reason, "exited-normally") == 0){
+	else if(strcmp(result->reason, "exited-normally") == 0){
 		USER("program exited\n");
-		goto end;
+		return 0;
 	}
 
 	/* update variables */
@@ -577,11 +547,5 @@ int gdbif::evt_stopped(gdb_result_t* result){
 			USER("error executing on-stop handler\n");
 	}
 
-end:
-	delete frame;
 	return 0;
-
-err:
-	delete frame;
-	return -1;
 }

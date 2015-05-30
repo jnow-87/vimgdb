@@ -43,60 +43,60 @@ int cmd_inferior_exec(int argc, char** argv){
 		return 0;
 	}
 
-	loc = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0 || scmd->id == SYM){
 		if(scmd == 0){
-			if(gdb->mi_issue_cmd((char*)"file-exec-and-symbols", RC_DONE, 0, 0, "%ss %d", argv + 1, argc - 1) != 0)
-				goto end;
+			if(gdb->mi_issue_cmd("file-exec-and-symbols", 0, "%ss %d", argv + 1, argc - 1) != 0)
+				return -1;
 
 			USER("load file \"%s\"\n", argv[1]);
 
-			delete inf_file_bin;
-			delete inf_file_sym;
+			delete [] inf_file_bin;
+			delete [] inf_file_sym;
 
 			inf_file_bin = stralloc(argv[1], strlen(argv[1]));
 			inf_file_sym = stralloc(argv[1], strlen(argv[1]));
 		}
 		else{
-			if(gdb->mi_issue_cmd((char*)"file-symbol-file", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
-				goto end;
+			if(gdb->mi_issue_cmd("file-symbol-file", 0, "%ss %d", argv + 2, argc - 2) != 0)
+				return -1;
 
 			USER("load file \"%s\"\n", argv[2]);
 
-			delete inf_file_sym;
+			delete [] inf_file_sym;
 
 			inf_file_sym = stralloc(argv[2], strlen(argv[2]));
 		}
 
-		if(gdb->mi_issue_cmd((char*)"file-list-exec-source-file", RC_DONE, gdb_location_t::result_to_location, (void**)&loc, "") != 0)
-			goto end;
+		if(gdb->mi_issue_cmd("file-list-exec-source-file", (gdb_result_t**)&loc, "") != 0)
+			return 0;
 
 		ui->win_create(loc->fullname);
+		delete loc;
 	}
 	else{
 		switch(scmd->id){
 		case BIN:
-			if(gdb->mi_issue_cmd((char*)"file-exec-file", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
+			if(gdb->mi_issue_cmd("file-exec-file", 0, "%ss %d", argv + 2, argc - 2) != 0)
 				break;
 
 			USER("load binary file \"%s\"\n", argv[2]);
 
-			delete inf_file_bin;
+			delete [] inf_file_bin;
 
 			inf_file_bin = stralloc(argv[2], strlen(argv[2]));
 			break;
 
 		case ARGS:
-			if(gdb->mi_issue_cmd((char*)"exec-arguments", RC_DONE, 0, 0, "%ssq %d", argv + 2, argc - 2) != 0)
+			if(gdb->mi_issue_cmd("exec-arguments", 0, "%ssq %d", argv + 2, argc - 2) != 0)
 				break;
 
 			USER("set program arguments\n");
 
 			for(r=0; r<inf_argc; r++)
-				delete inf_argv[r];
-			delete inf_argv;
+				delete [] inf_argv[r];
+			delete [] inf_argv;
 
 			inf_argc = argc - 2;
 			inf_argv = new char*[inf_argc];
@@ -132,7 +132,7 @@ int cmd_inferior_exec(int argc, char** argv){
 
 				thread_name[tid] = "inferior";
 
-				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, 0, "%s", inf_term->get_name()) == 0)
+				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", inf_term->get_name()) == 0)
 					USER("set inferior tty to internal\n");
 			}
 			else{
@@ -154,7 +154,7 @@ int cmd_inferior_exec(int argc, char** argv){
 
 				close(fd);
 
-				if(gdb->mi_issue_cmd((char*)"inferior-tty-set", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) == 0)
+				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%ss %d", argv + 2, argc - 2) == 0)
 					USER("set inferior tty to \"%s\"\n", argv[2]);
 			}
 
@@ -166,12 +166,8 @@ int cmd_inferior_exec(int argc, char** argv){
 			if(fp == 0)
 				return 0;
 
-			if(strcmp(inf_file_bin, inf_file_sym) != 0){
-				if(inf_file_bin)	fprintf(fp, "Inferior bin %s\n", inf_file_bin);
-				if(inf_file_sym)	fprintf(fp, "Inferior sym %s\n", inf_file_sym);
-			}
-			else
-				fprintf(fp, "Inferior %s\n", inf_file_bin);
+			if(inf_file_bin)	fprintf(fp, "Inferior bin %s\n", inf_file_bin);
+			if(inf_file_sym)	fprintf(fp, "Inferior sym %s\n", inf_file_sym);
 
 			if(inf_term)		fprintf(fp, "Inferior tty internal\n");
 			else				fprintf(fp, "echoerr \"inferior tty not set to internal, please adjust\"");
@@ -197,8 +193,6 @@ int cmd_inferior_exec(int argc, char** argv){
 		else							USER("error initialising registers\n");
 	}
 
-end:
-	delete loc;
 	return 0;
 }
 

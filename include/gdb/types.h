@@ -2,7 +2,8 @@
 #define GDB_TYPES_H
 
 
-#include <gdb/string.h>
+#include <gdb/result.h>
+#include <gdb/strlist.h>
 #include <gdb/frame.h>
 #include <gdb/event.h>
 #include <gdb/memory.h>

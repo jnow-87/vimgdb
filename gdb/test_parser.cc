@@ -93,6 +93,7 @@ int main(int argc, char** argv){
 err_0:
 	delete gdb;
 	close(fd);
+	log::cleanup();
 
 	return 0;
 }

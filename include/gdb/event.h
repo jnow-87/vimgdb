@@ -2,10 +2,11 @@
 #define GDB_EVENT_H
 
 
+#include <gdb/result.h>
 #include <gdb/frame.h>
 
 
-class gdb_event_t{
+class gdb_event_t : public gdb_result_t{
 public:
 	gdb_event_t();
 	virtual ~gdb_event_t();

@@ -5,10 +5,8 @@
 #include <gdb/result.h>
 
 
-class gdb_location_t{
+class gdb_location_t : public gdb_result_t{
 public:
-	static int result_to_location(gdb_result_t* result, void** loc);
-
 	gdb_location_t();
 	~gdb_location_t();
 

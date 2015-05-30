@@ -3,12 +3,13 @@
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
+#include <gdb/strlist.h>
 #include <user_cmd/cmd.h>
 
 
 int cmd_evaluate_exec(int argc, char** argv){
 	int i;
-	gdb_result_t* r;
+	gdb_strlist_t* s;
 
 
 	if(argc < 2){
@@ -17,8 +18,7 @@ int cmd_evaluate_exec(int argc, char** argv){
 		return 0;
 	}
 
-	r = 0;
-	if(gdb->mi_issue_cmd((char*)"data-evaluate-expression", RC_DONE, 0, (void**)&r, "\"%ss %d\"", argv + 1, argc - 1) != 0)
+	if(gdb->mi_issue_cmd("data-evaluate-expression", (gdb_result_t**)&s, "\"%ss %d\"", argv + 1, argc - 1) != 0)
 		return -1;
 
 	ui->atomic(true);
@@ -26,13 +26,13 @@ int cmd_evaluate_exec(int argc, char** argv){
 	for(i=1; i<argc; i++)
 		USER("%s ", argv[i]);
 
-	USER("= %s\n", r->value->value);
+	USER("= %s\n", s->s);
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 
 	ui->atomic(false);
 
+	delete s;
 
-	gdb_result_free(r);
 	return 0;
 }
 

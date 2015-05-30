@@ -7,7 +7,6 @@
 	#include <gdb/types.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
-	#include <gdb/identifier.hash.h>
 	#include <common/log.h>
 	#include <common/string.h>
 
@@ -38,33 +37,26 @@
 %}
 
 	/* gdb result classes */
-"done"									{ return TRC_DONE; }
-"running"								{ return TRC_RUNNING; }
-"connected"								{ return TRC_CONNECTED; }
-"error"									{ return TRC_ERROR; }
-"exit"									{ return TRC_EXIT; }
-"stopped"								{ return TRC_STOPPED; }
-"breakpoint-created"					{ return TRC_BREAK_CREATED; }
-"breakpoint-modified"					{ return TRC_BREAK_MODIFIED; }
-"breakpoint-deleted"					{ return TRC_BREAK_DELETED; }
-"thread-created"						{ return TRC_THREAD_CREATED; }
-"thread-exited"							{ return TRC_THREAD_EXITED; }
-"thread-selected"						{ return TRC_THREAD_SELECTED; }
-"thread-group-added"					{ return TRC_THREAD_GRP_ADDED; }
-"thread-group-started"					{ return TRC_THREAD_GRP_STARTED; }
-"thread-group-exited"					{ return TRC_THREAD_GRP_EXITED; }
-"cmd-param-changed"						{ return TRC_PARAM_CHANGED; }
-"library-loaded"						{ return TRC_LIB_LOADED; }
-"library-unloaded"						{ return TRC_LIB_UNLOADED; }
+"done"									{ gdblval.rclass = RC_DONE; return RC_TK_DONE; }
+"running"								{ gdblval.rclass = RC_RUNNING; return RC_TK_RUNNING; }
+"connected"								{ gdblval.rclass = RC_CONNECTED; return RC_TK_CONNECTED; }
+"error"									{ gdblval.rclass = RC_ERROR; return RC_TK_ERROR; }
+"exit"									{ gdblval.rclass = RC_EXIT; return RC_TK_EXIT; }
+"stopped"								{ gdblval.rclass = RC_STOPPED; return RC_TK_STOPPED; }
+"breakpoint-created"					{ gdblval.rclass = RC_BREAK_CREATED; return RC_TK_BREAK_CREATED; }
+"breakpoint-modified"					{ gdblval.rclass = RC_BREAK_MODIFIED; return RC_TK_BREAK_MODIFIED; }
+"breakpoint-deleted"					{ gdblval.rclass = RC_BREAK_DELETED; return RC_TK_BREAK_DELETED; }
+"thread-created"						{ gdblval.rclass = RC_THREAD_CREATED; return RC_TK_THREAD_CREATED; }
+"thread-exited"							{ gdblval.rclass = RC_THREAD_EXITED; return RC_TK_THREAD_EXITED; }
+"thread-selected"						{ gdblval.rclass = RC_THREAD_SELECTED; return RC_TK_THREAD_SELECTED; }
+"thread-group-added"					{ gdblval.rclass = RC_THREAD_GRP_ADDED; return RC_TK_THREAD_GRP_ADDED; }
+"thread-group-started"					{ gdblval.rclass = RC_THREAD_GRP_STARTED; return RC_TK_THREAD_GRP_STARTED; }
+"thread-group-exited"					{ gdblval.rclass = RC_THREAD_GRP_EXITED; return RC_TK_THREAD_GRP_EXITED; }
+"cmd-param-changed"						{ gdblval.rclass = RC_PARAM_CHANGED; return RC_TK_PARAM_CHANGED; }
+"library-loaded"						{ gdblval.rclass = RC_LIB_LOADED; return RC_TK_LIB_LOADED; }
+"library-unloaded"						{ gdblval.rclass = RC_LIB_UNLOADED; return RC_TK_LIB_UNLOADED; }
 
-	/* gdb EOL string */
-"(gdb)"\ ?								{ return GDBTK; }
-
-	/* general patterns */
-\r?\n									{ gdb_col = 0; return NEWLINE; }
-[0-9]*									{ gdblval.num = atoi(gdbtext); return NUMBER; }
-
-	/* gdb identifier and unquoted string */
+	/* gdb identifier */
 "id"									{ return VAR_ID; }
 "msg"									{ return VAR_MSG; }
 "name"									{ return VAR_NAME; }
@@ -122,6 +114,8 @@
 "changelist"							{ return VAR_CHANGELIST; }
 "in_scope"								{ return VAR_INSCOPE; }
 "type_changed"							{ return VAR_TYPE_CHANGED; }
+"new_type"								{ return VAR_NEW_TYPE; }
+"new_num_children"						{ return VAR_NEW_NUM_CHILD; }
 "ndeleted"								{ return VAR_NDELETED; }
 "lang"									{ return VAR_LANG; }
 "exp"									{ return VAR_EXP; }
@@ -139,6 +133,14 @@
 "offset"								{ return VAR_OFFSET; }
 "contents"								{ return VAR_CONTENTS; }
 
+	/* gdb EOL string */
+"(gdb)"\ ?								{ return GDBTK; }
+
+	/* general patterns */
+\r?\n									{ gdb_col = 0; return NEWLINE; }
+[0-9]*									{ gdblval.num = atoi(gdbtext); return NUMBER; }
+
+	/* unquoted string */
 [a-zA-Z][a-zA-Z0-9_\-.]*				{ gdblval.sptr = stralloc(gdbtext, gdbleng); return STRING; }
 
 	/* quoted string */

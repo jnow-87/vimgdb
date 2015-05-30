@@ -200,14 +200,11 @@ void cmd_callstack_help(int argc, char** argv){
 
 int cmd_callstack_update(){
 	int win_id;
-	gdb_result_t *result, *r;
-	gdb_value_t* val;
 	gdb_frame_t *frame;
 	gdb_variable_t *vartmp, *var, *varlst;
 	string ctx;
 
 
-	varlst = 0;
 	win_id = ui->win_getid(CALLSTACK_NAME);
 
 	if(win_id < 0)
@@ -220,58 +217,25 @@ int cmd_callstack_update(){
 	}
 
 	/* get callstack frames */
-	if(gdb->mi_issue_cmd((char*)"stack-list-frames", RC_DONE, 0, (void**)&result, "") != 0)
+	if(gdb->mi_issue_cmd("stack-list-frames", (gdb_result_t**)&callstack, "") != 0)
 		return -1;
-
-	if(result->var_id != IDV_STACK)
-		goto err;
-
-	/* parse callstack, adding frames to callstack */
-	list_for_each((gdb_result_t*)result->value->value, r){
-		switch(r->var_id){
-		case IDV_FRAME:
-			frame = 0;
-			gdb_frame_t::result_to_frame((gdb_result_t*)r->value->value, &frame);
-
-			list_add_head(&callstack, frame);
-			break;
-
-		default:
-			DEBUG("unhandled identifier %d\n", r->var_id);
-			break;
-		};
-	}
-
-	gdb_result_free(result);
 
 	/* add arguments and locals to each level of the callstack */
 	list_for_each(callstack, frame){
 		// get list of arguments and locals for current frame
-		result = 0;
-
-		if(gdb->mi_issue_cmd((char*)"stack-list-variables", RC_DONE, 0, (void**)&result, "--thread %u --frame %u 2", gdb->threadid(), frame->level) != 0)
+		if(gdb->mi_issue_cmd("stack-list-variables", (gdb_result_t**)&varlst, "--thread %u --frame %u 2", gdb->threadid(), frame->level) != 0)
 			return -1;
-
-		if(result->var_id != IDV_VARIABLES)
-			goto err;
 
 		// parse argument and locals names and update context string (context = '<function-name>:{<type><name>,}')
 		ctx += frame->function;
 		ctx += ":";
 
-		list_for_each((gdb_value_t*)result->value->value, val){
-			vartmp = 0;
-			gdb_variable_t::result_to_variable((gdb_result_t*)val->value, (void**)&vartmp);
-			
-			list_add_tail(&varlst, vartmp);
-
-			if(vartmp->argument){
-				ctx += vartmp->type;
-				ctx += vartmp->name;
+		list_for_each(varlst, var){
+			if(var->argument){
+				ctx += var->type;
+				ctx += var->name;
 			}
 		}
-
-		gdb_result_free(result);
 
 		// update frame
 		list_for_each(varlst, vartmp){
@@ -285,7 +249,8 @@ int cmd_callstack_update(){
 
 				var->argument = vartmp->argument;
 
-				list_add_tail((var->argument == true ? &frame->args : &frame->locals), var);
+				if(var->argument)	frame->args.push_back(var);
+				else				frame->locals.push_back(var);
 			}
 
 			list_rm(&varlst, vartmp);
@@ -297,17 +262,13 @@ int cmd_callstack_update(){
 	cmd_callstack_print();
 
 	return 0;
-
-err:
-	gdb_result_free(result);
-	return -1;
 }
 
 int cmd_callstack_print(){
 	unsigned int line;
 	int win_id;
 	gdb_frame_t* frame;
-	gdb_variable_t* var;
+	list<gdb_variable_t*>::iterator it;
 
 
 	win_id = ui->win_getid(CALLSTACK_NAME);
@@ -326,23 +287,23 @@ int cmd_callstack_print(){
 	/* iterate through callstack */
 	for(frame=list_last(callstack); frame!=0; frame=frame->prev){
 		// print function name
-		if(frame->args != 0)
+		if(!frame->args.empty())
 			ui->win_print(win_id, "%s ", frame->expanded ? "[-]" : "[+]");
 
 		ui->win_print(win_id, "%s(", frame->function);
 		line_frames[line] = frame;
 
-		if(frame->args != 0 && frame->expanded){
+		if(!frame->args.empty() && frame->expanded){
 			ui->win_print(win_id, "\n");
 			line++;
 		}
 
 		// print arguments
-		list_for_each(frame->args, var){
-			var->print(win_id, &line, &line_vars, frame->expanded, 1);
+		for(it=frame->args.begin(); it!=frame->args.end(); it++){
+			(*it)->print(win_id, &line, &line_vars, frame->expanded, 1);
 
-			if(!frame->expanded && var != list_last(frame->args))
-				ui->win_print(win_id, ",%s", var->modified ? "" : " ");
+			if(!frame->expanded && (*it != frame->args.back()))
+				ui->win_print(win_id, ",%s", (*it)->modified ? "" : " ");
 		}
 
 		ui->win_print(win_id, ")\n");
@@ -354,9 +315,8 @@ int cmd_callstack_print(){
 		}
 
 		// print locals
-		list_for_each(frame->locals, var){
-			var->print(win_id, &line, &line_vars, true, 1);
-		}
+		for(it=frame->locals.begin(); it!=frame->locals.end(); it++)
+			(*it)->print(win_id, &line, &line_vars, true, 1);
 
 		ui->win_print(win_id, "\n");
 		line++;

@@ -3,8 +3,8 @@
 
 
 #include <common/pty.h>
-#include <common/list.h>
 #include <gdb/result.h>
+#include <gdb/event.h>
 #include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -34,7 +34,7 @@ public:
 	void on_exit(int (*hdlr)(void));
 
 	/* gdb machine interface (MI) */
-	int mi_issue_cmd(char* cmd, gdb_result_class_t ok_mask, int(*process)(gdb_result_t*, void**), void** r, const char* fmt, ...);
+	int mi_issue_cmd(const char* cmd, gdb_result_t** result, const char* fmt, ...);
 	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
 	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);
@@ -92,8 +92,8 @@ private:
 					event_mtx;
 
 	/* gdb event handling */
-	int evt_running(gdb_result_t* result);
-	int evt_stopped(gdb_result_t* result);
+	int evt_running(gdb_event_t* result);
+	int evt_stopped(gdb_event_stop_t* result);
 
 	event_hdlr_t *stop_hdlr_lst,
 				 *exit_hdlr_lst;
