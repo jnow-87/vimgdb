@@ -18,7 +18,7 @@ src_tree := $(SRC_TREE)
 # init default flags
 cflags := $(CFLAGS) -Wall
 cxxflags := $(CXXFLAGS) -std=c++11 -Wall
-cppflags := $(CPPFLAGS) -g -I"include/" -I"$(built_tree)/" -O3
+cppflags := $(CPPFLAGS) -g -I"include/" -I"$(built_tree)/"
 ldflags := $(LDFLAGS)
 asflags := $(ASFLAGS) -g
 archflags := $(ARCHFLAGS) -g
@@ -46,7 +46,7 @@ obj :=
 lib :=
 bin :=
 
-subdir-y := scripts/mconf/ main/ gdb/ gui/ user_cmd/ common/
+subdir-y := scripts/mconf/ main/ gdb/ gui/ user_cmd/ common/ testing/
 
 # fake target as default
 .PHONY: fake_all
