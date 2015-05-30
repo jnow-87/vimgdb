@@ -135,7 +135,7 @@ endfunction
 " \brief	cleanup window command
 function! vimgdb#window#cleanup()
 	" rm command
-	unabbrev win
+	unabbrev window
 	delcommand Window
 
 	" rm autocmd

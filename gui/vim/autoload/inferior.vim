@@ -46,7 +46,7 @@ endfunction
 " \brief	cleanup inferior command
 function! vimgdb#inferior#cleanup()
 	" rm command
-	unabbrev inf
+	unabbrev inferior
 	delcommand Inferior
 
 	" rm autocmd
