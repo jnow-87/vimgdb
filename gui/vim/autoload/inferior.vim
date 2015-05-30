@@ -98,17 +98,38 @@ function! s:inferior(...)
 		call vimgdb#util#cmd("inferior view")
 
 	else
-		if a:1 != "bin" && a:1 != "args" && a:1 != "tty"
-			let g:vimgdb_symfile = a:1
+		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
 
-			if a:1 == "sym"
-				let g:vimgdb_symfile = a:2
+		if a:1 == "bin" || a:1 == "sym" || filereadable(a:1)
+			" in case a new binary or symbol file is supplied make 
+			" sure it is given as absolute path
+
+			" get the actual file
+			if a:1 == "bin" || a:1 == "sym"
+				let l:file = a:2
+			else
+				let l:file = a:1
 			endif
 
-			call vimgdb#inferior#update_sym()
-		endif
+			" make the file an absolute path
+			if l:file[0] != '/'
+				let l:file = getcwd() . "/" . l:file
+			endif
 
-		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
-		call vimgdb#util#cmd("inferior " . join(a:000))
+			" update symbols
+			if a:1 != "bin"
+				let g:vimgdb_symfile = l:file
+				call vimgdb#inferior#update_sym()
+			endif
+
+			" issue the command
+			if a:1 == "bin" || a:1 == "sym"
+				call vimgdb#util#cmd("inferior " . a:1 . " " . l:file)
+			else
+				call vimgdb#util#cmd("inferior " . " " . l:file)
+			endif
+		else
+			call vimgdb#util#cmd("inferior " . join(a:000))
+		endif
 	endif
 endfunction
