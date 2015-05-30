@@ -68,7 +68,7 @@ include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
 all: check_config $(lib) $(bin)
 
 .PHONY: install-user
-install-user:
+install-user: all
 	mkdir -p ~/.vim/plugin ~/.vim/syntax ~/.vim/doc ~/.vim/autoload/vimgdb ~/bin
 	cp -au built/main/vimgdb ~/bin/
 	cp -au gui/vim/plugin/* ~/.vim/plugin
@@ -77,7 +77,7 @@ install-user:
 	cp -au gui/vim/autoload/* ~/.vim/autoload/vimgdb/
 
 .PHONY: install-system
-install-system:
+install-system: all
 	mkdir -p /usr/share/vim/vim74/plugin /usr/share/vim/vim74/syntax /usr/share/vim/vim74/doc /usr/share/vim/vim74/autoload/vimgdb /usr/bin
 	cp -au built/main/vimgdb /usr/bin/
 	cp -au gui/vim/plugin/* /usr/share/vim/vim74/plugin
