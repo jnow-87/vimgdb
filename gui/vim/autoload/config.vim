@@ -40,6 +40,7 @@ endif
 """""""""""""""""" 
 
 call vimgdb#util#cond_assign("g:vimgdb_bin", "vimgdb")
+call vimgdb#util#cond_assign("g:vimgdb_use_xterm", 0)
 
 call vimgdb#util#cond_assign("g:vimgdb_userlog_show", 1)
 call vimgdb#util#cond_assign("g:vimgdb_userlog_width", 40)

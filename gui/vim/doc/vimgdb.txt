@@ -476,6 +476,12 @@ to customise |vimgdb|.
 			global
 	This variable defines how to start the vimgdb program.
 
+							*'vimgdb_use_xterm'*
+'vimgdb_use_xterm'	number (default 0)
+			global
+	This variable defines if the vimgdb program shall be started as daemon
+	or within xterm
+
 							*'vimgdb_{bname}_show'*
 							*'vimgdb_break_show'*
 							*'vimgdb_callstack_show'*

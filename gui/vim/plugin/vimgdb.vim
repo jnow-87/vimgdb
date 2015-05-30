@@ -83,7 +83,11 @@ function! s:init()
 	call vimgdb#evaluate#init()
 
 	" start vimgdb
-	exec "silent !" . g:vimgdb_bin . " -d " . getcwd() . ""
+	if g:vimgdb_use_xterm
+		exec "silent !xterm -geometry 130x20+0+0 -e \"" . g:vimgdb_bin . " " . getcwd() . "\" &"
+	else
+		exec "silent !" . g:vimgdb_bin . " -d " . getcwd() . ""
+	endif
 
 	" start netbeans
 	exec "nbstart :127.0.0.1:1235:"
