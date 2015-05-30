@@ -485,7 +485,7 @@ to customise |vimgdb|.
 							*'vimgdb_register_show'*
 							*'vimgdb_userlog_show'*
 							*'vimgdb_variables_show'*
-'vimgdb_{bname}_show'	number (default 1)
+'vimgdb_{bname}_show'	number
 			global
 	This option defines whether the |vimgdb| buffer {bname} is opened when
 	|vimgdb| is initialised.
