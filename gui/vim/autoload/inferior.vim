@@ -18,6 +18,7 @@ let s:cmd_dict = {
 let g:vimgdb_inferior_files = ""
 let g:vimgdb_inferior_vars = ""
 let g:vimgdb_inferior_functions = ""
+let g:vimgdb_symfile = ""
 
 
 """"""""""""""""""""
@@ -73,6 +74,15 @@ function! vimgdb#inferior#complete_pts(subcmd)
 	return "internal\n" . l:files
 endfunction
 
+" \brief	update inferior symbols
+function! vimgdb#inferior#update_sym()
+	" read symbols from file
+	let g:vimgdb_inferior_vars = system("nm --demangle " . g:vimgdb_symfile . " |grep -e '[0-9a-f]* [bBCdDgGrRsS] ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
+	let g:vimgdb_inferior_functions = system("nm --demangle " . g:vimgdb_symfile . " |grep -e '[0-9a-f]* T ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
+	let g:vimgdb_inferior_files = system("readelf  -s " . g:vimgdb_symfile . " |grep ' FILE' | tr -s ' ' | cut -d ' ' -f 9 | tr -s ' ' | grep '.' | sort | uniq")
+endfunction
+
+
 """""""""""""""""""
 " local functions "
 """""""""""""""""""
@@ -89,16 +99,13 @@ function! s:inferior(...)
 
 	else
 		if a:1 != "bin" && a:1 != "args" && a:1 != "tty"
-			let l:file = a:1
+			let g:vimgdb_symfile = a:1
 
 			if a:1 == "sym"
-				let l:file = a:2
+				let g:vimgdb_symfile = a:2
 			endif
 
-			" read symbols from file
-			let g:vimgdb_inferior_vars = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* [bBCdDgGrRsS] ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
-			let g:vimgdb_inferior_functions = system("nm --demangle " . l:file . " |grep -e '[0-9a-f]* T ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
-			let g:vimgdb_inferior_files = system("readelf  -s " . l:file . " |grep ' FILE' | tr -s ' ' | cut -d ' ' -f 9 | tr -s ' ' | grep '.' | sort | uniq")
+			call vimgdb#inferior#update_sym()
 		endif
 
 		call vimgdb#window#open(g:vimgdb_inferior_name, 1)

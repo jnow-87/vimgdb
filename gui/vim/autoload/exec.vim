@@ -28,7 +28,7 @@ function! vimgdb#exec#init()
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Nnext call s:exec("next", <f-args>)
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Step call s:exec("step", <f-args>)
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Return call s:exec("return", <f-args>)
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Setpc call s:exec("jump", <f-args>)
+	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Setpc call s:exec("setpc", <f-args>)
 	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Goto call s:exec("goto", <f-args>)
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Continue call s:exec("continue", <f-args>)
 	command! -nargs=0 -complete=custom,vimgdb#complete#lookup Int call s:exec("break", <f-args>)
@@ -75,6 +75,10 @@ function! s:exec(cmd, ...)
 	" focus first window, which is assumed to contain the source code buffers
 	" avoiding messing up the window contents
 	call vimgdb#window#focus(1)
+
+	if a:cmd == "run"
+		call vimgdb#inferior#update_sym()
+	endif
 
 	" exec vimgdb command
 	call vimgdb#util#cmd("exec " . a:cmd . " " . join(a:000))
