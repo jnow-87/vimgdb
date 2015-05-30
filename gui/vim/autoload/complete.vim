@@ -123,16 +123,6 @@ function! vimgdb#complete#file(subcmd)
 	return join(l:files, "\n")
 endfunction
 
-" \brief	complete pseudo terminal under /dev/pts
-"
-" \param	subcmd	current argument supplied in command line
-function! vimgdb#complete#pts(subcmd)
-	" get list of pseudo terminals
-	exec "let l:files = globpath(\"/dev/pts/\", \"" . a:subcmd . "*\")"
-
-	return "internal\n" . l:files
-endfunction
-
 " \brief	complete inferior location, i.e. source files and function names
 "
 " \param	subcmd	current argument supplied in command line

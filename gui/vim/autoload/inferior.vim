@@ -8,7 +8,7 @@ let s:cmd_dict = {
 		\ "bin":{"__nested__":"vimgdb#complete#file"},
 		\ "sym":{"__nested__":"vimgdb#complete#file"},
 		\ "args":{"<args>":{}},
-		\ "tty":{"__nested__":"vimgdb#complete#pts"},
+		\ "tty":{"__nested__":"vimgdb#inferior#complete_pts"},
 		\ "export":{"__nested__":"vimgdb#complete#file"},
 		\ "view":{},
 		\ "open":{},
@@ -42,6 +42,7 @@ function! vimgdb#inferior#init()
 		\ "
 endfunction
 
+" \brief	cleanup inferior command
 function! vimgdb#inferior#cleanup()
 	" rm command
 	unabbrev inf
@@ -51,13 +52,26 @@ function! vimgdb#inferior#cleanup()
 	exec "autocmd! BufWinEnter " . g:vimgdb_inferior_name
 endfunction
 
-" \brief	complete inferior inferior arguments
+" \brief	complete inferior arguments
 "
 " \param	subcmd	current argument supplied in command line
 function! vimgdb#inferior#complete(subcmd)
 	return "bin\nsym\nargs\ntty\n" . vimgdb#complete#file(a:subcmd)
 endfunction
 
+" \brief	complete pseudo terminal under /dev/pts
+"
+" \param	subcmd	current argument supplied in command line
+function! vimgdb#inferior#complete_pts(subcmd)
+	" get list of pseudo terminals
+	if a:subcmd == "" || match(a:subcmd, "/dev/pts/") != -1
+		exec "let l:files = globpath(\"/dev/pts/\", \"" . substitute(a:subcmd, "/dev/pts/", "", "") . "*\")"
+	else
+		let l:files = vimgdb#complete#file(a:subcmd)
+	endif
+
+	return "internal\n" . l:files
+endfunction
 
 """""""""""""""""""
 " local functions "
