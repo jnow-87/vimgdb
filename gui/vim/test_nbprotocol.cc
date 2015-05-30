@@ -28,7 +28,7 @@ static socket* client;
 
 
 int main(int argc, char** argv){
-	char line[255], c;
+	char line[256], c;
 	unsigned int i;
 	int cmd_argc;
 	char** cmd_argv;
@@ -81,8 +81,8 @@ int main(int argc, char** argv){
 					else			vim_action(FCT, cmd_argc, cmd_argv);
 
 					for(i=0; i<(unsigned int)cmd_argc; i++)
-						delete cmd_argv[i];
-					delete cmd_argv;
+						delete [] cmd_argv[i];
+					delete [] cmd_argv;
 				}
 				else{
 					if(client != 0){
@@ -123,8 +123,8 @@ void* thread_server(void* arg){
 
 	server = (socket*)arg;
 	i = 0;
-	len = 255;
-	line = (char*)malloc(len * sizeof(char));
+	len = 256;
+	line = (char*)malloc(len);
 
 	if(line == 0)
 		return 0;
@@ -176,6 +176,8 @@ void* thread_server(void* arg){
 
 err:
 	delete client;
+	free(line);
+
 	pthread_exit(0);
 }
 

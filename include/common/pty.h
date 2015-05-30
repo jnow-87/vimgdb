@@ -24,7 +24,7 @@ private:
 		fd_slave,		// file descriptor for slave side of PTY
 		forkee_pid;		// PID in case fork has been used
 
-	char name[255];	// path to pty in filesystem (/dev)
+	char name[256];	// path to pty in filesystem (/dev)
 
 	/* open new pseudo terminal */
 	int openpty(int* fd_maser, int* fd_slave, struct termios* termp, struct winsize* win_size);

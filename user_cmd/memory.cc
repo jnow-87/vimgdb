@@ -40,7 +40,6 @@ int cmd_memory_exec(int argc, char** argv){
 		return 0;
 	}
 
-	mem = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
@@ -56,7 +55,7 @@ int cmd_memory_exec(int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd((char*)"data-read-memory-bytes", RC_DONE, gdb_memory_t::result_to_memory, (void**)&mem, "%ss %d", argv + 2, argc - 2) != 0)
+		if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&mem, "%ss %d", argv + 2, argc - 2) != 0)
 			return -1;
 
 		list_add_tail(&mem_lst, mem);
@@ -82,7 +81,7 @@ int cmd_memory_exec(int argc, char** argv){
 		break;
 
 	case SET:
-		if(gdb->mi_issue_cmd((char*)"data-write-memory-bytes", RC_DONE, 0, 0, "%ss %d", argv + 2, argc - 2) != 0)
+		if(gdb->mi_issue_cmd("data-write-memory-bytes", 0, "%ss %d", argv + 2, argc - 2) != 0)
 			return -1;
 		
 		gdb_variable_t::get_changed();
@@ -183,7 +182,7 @@ void cmd_memory_help(int argc, char** argv){
 			case SET:
 				USER("usage %s %s <addr> <value> [<count>]\n", argv[0], argv[i]);
 				USER("   set memory at address <addr> to <value>\n");
-				USER("    optionally define the number of bytes to write as <count>, if count is greater than the content length <value> will be written repeatedly\n");
+				USER("   optionally define the number of bytes to write as <count>, if count is greater than the content length <value> will be written repeatedly\n");
 				USER("\n");
 				break;
 
@@ -213,10 +212,9 @@ int cmd_memory_update(){
 	static char* ascii = new char[len];
 	int win_id;
 	char c;
-	char* content_old;
 	unsigned int i, j, line;
 	long long addr, displ;
-	gdb_memory_t* mem;
+	gdb_memory_t *mem, *tmem;
 
 
 	win_id = ui->win_getid(MEMORY_NAME);
@@ -233,12 +231,8 @@ int cmd_memory_update(){
 	list_for_each(mem_lst, mem){
 		addr = strtoll(mem->begin, 0, 16);
 
-		/* safe old content value */
-		content_old = mem->content;
-		mem->content = 0;
-
 		/* get memory content */
-		if(gdb->mi_issue_cmd((char*)"data-read-memory-bytes", RC_DONE, gdb_memory_t::result_to_memory, (void**)&mem, "%s %u", mem->begin, mem->length) != 0)
+		if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&tmem, "%s %u", mem->begin, mem->length) != 0)
 			break;
 
 		/* print header */
@@ -264,10 +258,10 @@ int cmd_memory_update(){
 
 		/* print actual memory content */
 		for(i=0; i<mem->length; i++, addr++){
-			ui->win_print(win_id, " %s%2.2s", (memcmp(content_old + i * 2, mem->content + i * 2, 2) == 0 ? "" : "`"), mem->content + i * 2);
+			ui->win_print(win_id, " %s%2.2s", (memcmp(tmem->content + i * 2, mem->content + i * 2, 2) == 0 ? "" : "`"), tmem->content + i * 2);
 
 			// update ascii string
-			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));
+			c = (char)(CTOI(tmem->content[i * 2]) * 16 + CTOI(tmem->content[i * 2 + 1]));
 			ascii[j++] = c == '\0' ? ' ' : c;
 
 			// print ascii string once reaching 8 bytes boundary
@@ -298,6 +292,12 @@ int cmd_memory_update(){
 			ui->win_print(win_id, "\n");
 			line++;
 		}
+
+		delete [] mem->content;
+		mem->content = tmem->content;
+		tmem->content = 0;
+
+		delete tmem;
 	}
 
 	ui->atomic(false);

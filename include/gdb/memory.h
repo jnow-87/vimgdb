@@ -5,11 +5,8 @@
 #include <gdb/result.h>
 
 
-class gdb_memory_t{
+class gdb_memory_t : public gdb_result_t{
 public:
-	static int result_to_memory(gdb_result_t* result, void** mem);
-
-
 	gdb_memory_t();
 	~gdb_memory_t();
 

@@ -1,10 +1,12 @@
 #include <common/defaults.h>
 #include <common/log.h>
 #include <common/map.h>
+#include <common/list.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
 #include <gdb/variable.h>
+#include <gdb/strlist.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
 #include <map>
@@ -21,10 +23,8 @@ static map<unsigned int, gdb_variable_t*> line_map;
 /* global functions */
 int cmd_register_init(){
 	static bool initialised = false;
-	gdb_result_t* r;
-	gdb_value_t* val;
+	gdb_strlist_t *names, *name;
 	gdb_variable_t* var;
-	map<string, gdb_variable_t*>::iterator it;
 
 
 	if(initialised)
@@ -32,47 +32,37 @@ int cmd_register_init(){
 
 	initialised = true;
 
-	/* clear register variables if present */
-	for(it=gdb_register_var.begin(); it!=gdb_register_var.end(); it++)
-		gdb_variable_t::release(it->second);
-
-	gdb_register_var.clear();
-
 	/* get register names */
-	if(gdb->mi_issue_cmd((char*)"data-list-register-names", RC_DONE, 0, (void**)&r, "") != 0)
+	if(gdb->mi_issue_cmd("data-list-register-names", (gdb_result_t**)&names, "") != 0)
 		return -1;
-
-	if(r->var_id != IDV_REG_NAMES)
-		goto err_0;
 
 	ui->atomic(true);
 
 	/* create variables */
-	list_for_each((gdb_value_t*)r->value->value, val){
-		if(((char*)val->value)[0] == 0)
+	list_for_each(names, name){
+		if(name->s[0] == 0)
 			continue;
 
-		var = gdb_variable_t::acquire((char*)val->value, O_REGISTER);
+		var = gdb_variable_t::acquire(name->s, O_REGISTER);
 
 		if(var == 0)
-			goto err_1;
+			goto err;
 
-		if(var->format((char*)"hexadecimal") != 0)
-			goto err_1;
+		if(var->format("hexadecimal") != 0)
+			goto err;
 	}
 
 	cmd_register_print();
 
-	gdb_result_free(r);
 	ui->atomic(false);
+	delete names;
 
 	return 0;
 
-err_1:
+err:
 	ui->atomic(false);
+	delete names;
 
-err_0:
-	gdb_result_free(r);
 	return -1;
 }
 

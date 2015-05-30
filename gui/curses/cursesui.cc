@@ -38,8 +38,8 @@ int cursesui::init(){
 
 	memset(windows, 0x0, sizeof(window_t*) * max_win);
 
-	line_len = 255;
-	line = (char*)malloc(line_len * sizeof(char));
+	line_len = 256;
+	line = (char*)malloc(line_len);
 
 	if(line == 0)
 		goto err_1;
@@ -82,7 +82,7 @@ void cursesui::destroy(){
 
 		delwin(windows[i]->win);
 		delwin(windows[i]->frame);
-		free(windows[i]);
+		delete windows[i];
 	}
 
 	free(windows);
@@ -207,7 +207,7 @@ int cursesui::win_destroy(int win_id){
 	/* de-init window and free memory */
 	delwin(windows[win_id]->win);
 	delwin(windows[win_id]->frame);
-	free(windows[win_id]);
+	delete windows[win_id];
 	windows[win_id] = 0;
 	nwin--;
 

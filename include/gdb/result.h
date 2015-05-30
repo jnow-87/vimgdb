@@ -2,10 +2,6 @@
 #define GDB_RESULT_H
 
 
-#include <gdb/value.h>
-#include <gdb/identifier.h>
-
-
 /* types */
 typedef enum{
 	RC_DONE = 0x1,
@@ -34,21 +30,10 @@ typedef enum{
 	SC_LOG,
 } gdb_stream_class_t;
 
-typedef struct _gdb_result_t{
-	const char* var_name;
-	gdb_id_val_t var_id;
-
-	gdb_value_t* value;
-
-	struct _gdb_result_t *next, *prev;
-} gdb_result_t;
-
-
-/* prototypes */
-gdb_result_t* gdb_result_create(const char* var_name, gdb_id_val_t var_id, gdb_value_t* value);
-gdb_result_t* gdb_result_free(gdb_result_t* list);
-void gdb_result_add(gdb_result_t* list, gdb_result_t* result);
-void gdb_result_print(gdb_result_t* list);
+class gdb_result_t{
+public:
+	virtual ~gdb_result_t();
+};
 
 
 #endif // GDB_RESULT_H

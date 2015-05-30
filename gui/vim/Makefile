@@ -10,7 +10,7 @@ test-nbprotocol-y := test_nbprotocol.o cmd.o fct.o event.o $(built_tree)/gui/gui
 test-nbprotocol-ldflags := -lcurses -lpthread
 
 
-$(loc_built_tree)/vimui.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/cmd.hash.h
+$(loc_built_tree)/vimui.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/lexer.lex.h
 $(loc_built_tree)/test_nbprotocol.o: $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/fct.hash.h $(loc_built_tree)/event.hash.h $(loc_built_tree)/lexer.lex.h $(loc_built_tree)/parser.tab.h
 $(loc_built_tree)/parser.o: $(loc_built_tree)/lexer.lex.h
 $(loc_built_tree)/lexer.o: $(loc_built_tree)/event.hash.h

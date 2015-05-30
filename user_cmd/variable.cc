@@ -34,7 +34,6 @@ int cmd_var_exec(int argc, char** argv){
 		return 0;
 	}
 
-	var = 0;
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){

@@ -18,13 +18,13 @@ using namespace libc;
 
 
 socket::socket(){
-	saddr = (sockaddr_in*)malloc(sizeof(sockaddr_in));
+	saddr = new sockaddr_in;
 	memset(saddr, 0, sizeof(sockaddr_in));
 	((sockaddr_in*)saddr)->sin_family = AF_INET;
 
 	sbuf_idx = 0;
 	sbuf_len = 256;
-	sbuf = (char*)malloc(sbuf_len * sizeof(char));;
+	sbuf = (char*)malloc(sbuf_len);
 }
 
 /**
@@ -52,7 +52,7 @@ socket::~socket(){
 	DEBUG("closing socket to %s\n", get_ip());
 
 	free(sbuf);
-	free(saddr);
+	delete (sockaddr_in*)saddr;
 
 	if(fd_sock != -1){
 		if(close(fd_sock) != 0)
