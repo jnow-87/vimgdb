@@ -182,8 +182,8 @@
 %type <var> variable-list-body
 %type <frame> frame
 %type <frame> frame-body
-%type <frame> frame-list
-%type <frame> frame-list-body
+%type <frame> callstack
+%type <frame> callstack-body
 %type <mem> memory
 %type <mem> memory-body
 %type <slst> reg-names
@@ -231,7 +231,7 @@ result :					breakpoint														{ $$ = $1; }
 	   |					children														{ $$ = $1; }
 	   |					variable-list													{ $$ = $1; }
 	   |					frame															{ $$ = $1; }
-	   |					frame-list														{ $$ = $1; }
+	   |					callstack														{ $$ = $1; }
 	   |					memory															{ $$ = $1; }
 	   |					reg-names														{ $$ = $1; }
 	   |					value															{ $$ = $1; }
@@ -354,9 +354,9 @@ children-body :				%empty															{ $$ = 0; }
 			  ;
 
 
-frame-list :				VAR_STACK '=' '[' frame-list-body ']'							{ $$ = $4; };
-frame-list-body :			%empty															{ $$ = 0; }
-				|			frame-list-body con-com frame									{ $$ = $1; list_add_tail(&$$, $3); }
+callstack :					VAR_STACK '=' '[' callstack-body ']'							{ $$ = $4; };
+callstack-body :			%empty															{ $$ = 0; }
+				|			callstack-body con-com frame									{ $$ = $1; list_add_head(&$$, $3); }
 				;
 
 frame :						VAR_FRAME '=' '{' frame-body '}'								{ $$ = $4; };
