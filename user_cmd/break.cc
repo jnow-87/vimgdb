@@ -46,7 +46,7 @@ int cmd_break_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3){
+	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE) && argc < 3) || ((scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -133,6 +133,11 @@ int cmd_break_exec(int argc, char** argv){
 
 	case COMPLETE:
 		breakpt_print(argv[2]);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
+		fclose(fp);
 		break;
 
 	case EXPORT:
@@ -158,6 +163,13 @@ int cmd_break_exec(int argc, char** argv){
 			fprintf(fp, "\n");
 		}
 
+		fclose(fp);
+
+		USER("export breakpoints to \"%s\"\n", argv[2]);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
 		fclose(fp);
 		break;
 

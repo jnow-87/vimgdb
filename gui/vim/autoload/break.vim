@@ -95,7 +95,5 @@ function! s:break(...)
 	endif
 
 	" ask vimgdb for breakpoint list
-	call delete("/tmp/vimgdb_break")
-	call vimgdb#util#cmd("break complete /tmp/vimgdb_break")
-	let s:breakpt_lst = vimgdb#util#file_read("/tmp/vimgdb_break", 5)
+	let s:breakpt_lst = vimgdb#util#cmd_get_data_string("break complete")
 endfunction

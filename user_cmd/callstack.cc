@@ -41,7 +41,7 @@ int cmd_callstack_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
+	if((scmd->id == FOLD && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT || scmd->id == COMPLETE) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_callstack_help(2, argv);
 		return 0;
@@ -119,6 +119,11 @@ int cmd_callstack_exec(int argc, char** argv){
 		for(it_var=line_vars.begin(); it_var!=line_vars.end(); it_var++)
 			fprintf(fp, "%d\\n", it_var->first);
 
+		fclose(fp);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
 		fclose(fp);
 		break;
 

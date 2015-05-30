@@ -147,28 +147,24 @@ function! s:cleanup()
 endfunction
 
 function! s:export(file)
+	let l:lst = []
+
+	" export inferior data
+	let l:lst += vimgdb#util#cmd_get_data_list("inferior export")
+	
+	" export breakpoints
+	let l:lst += vimgdb#util#cmd_get_data_list("break export")
+
+	" export variables
+	let l:lst += vimgdb#util#cmd_get_data_list("variable export")	
+
+	" write ouptut file
 	let l:fullname = a:file
 
 	if l:fullname[0] != "/"
 		let l:fullname = getcwd() . "/" . a:file
 	endif
 
-	" export inferior data
-	call vimgdb#util#cmd("inferior export /tmp/vimgdb_inf")
-	let l:lst = vimgdb#util#file_read_list("/tmp/vimgdb_inf", 5)
-	call delete("/tmp/vimgdb_inf")
-	
-	" export breakpoints
-	call vimgdb#util#cmd("break export /tmp/vimgdb_break")
-	let l:lst += vimgdb#util#file_read_list("/tmp/vimgdb_break", 5)
-	call delete("/tmp/vimgdb_break")
-
-	" export variables
-	call vimgdb#util#cmd("variable export /tmp/vimgdb_var")
-	let l:lst += vimgdb#util#file_read_list("/tmp/vimgdb_var", 5)
-	call delete("/tmp/vimgdb_var")
-
-	" write ouptut file
 	call writefile(l:lst, l:fullname)
 endfunction
 

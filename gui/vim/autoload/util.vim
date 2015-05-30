@@ -2,38 +2,6 @@
 " global functions "
 """"""""""""""""""""
 
-" \brief	read file if it exists, otherwise wait untils its readable with timeout
-"
-" \param	filename	file to read
-" \param	timeout_s	number of seconds to wait for file to become readable
-"
-" \return	file content as list
-function! vimgdb#util#file_read_list(filename, timeout_s)
-	let l:s = 0
-
-	while !filereadable(a:filename)
-		sleep 1m
-		let l:s += 0.001
-
-		if l:s >= a:timeout_s
-			return ""
-		endif
-	endwhile
-
-	return readfile(a:filename)
-endfunction
-
-" \brief	read file if it exists, otherwise wait untils its readable with timeout
-"
-" \param	filename	file to read
-" \param	timeout_s	number of seconds to wait for file to become readable
-"
-" \return	file content as string
-function! vimgdb#util#file_read(filename, timeout_s)
-	exec "let l:flst = \"" . join(vimgdb#util#file_read_list(a:filename, a:timeout_s)) . "\""
-	return l:flst
-endfunction
-
 " \brief	print error message
 "
 " \param	msg		message to print
@@ -51,6 +19,49 @@ endfunction
 " \param	cmd		command to execute
 function! vimgdb#util#cmd(cmd)
 	exec "nbkey " . escape(a:cmd, '"')
+endfunction
+
+
+let s:sync_file = "/tmp/vimgdb_sync"
+let s:data_file = "/tmp/vimgdb_data"
+let s:timeout_s = 5
+
+" \brief	issue vimgdb-command and wait for its response
+"
+" \param	cmd		vimgdb-command to execute
+"
+" \return	command response as list
+function! vimgdb#util#cmd_get_data_list(cmd)
+	" delete files
+	call delete(s:sync_file)
+	call delete(s:data_file)
+
+	" issue command
+	call vimgdb#util#cmd(a:cmd . " " . s:data_file . " " . s:sync_file)
+
+	let l:s = 0
+
+	" wait for sync file to be readable again
+	while !filereadable(s:sync_file)
+		sleep 1m
+		let l:s += 0.001
+
+		if l:s >= s:timeout_s
+			return []
+		endif
+	endwhile
+
+	" read file
+	return readfile(s:data_file)
+endfunction
+
+" \brief	issue vimgdb-command and wait for its response
+"
+" \param	cmd		vimgdb-command to execute
+"
+" \return	command response as string
+function! vimgdb#util#cmd_get_data_string(cmd)
+	exec "return \"" . join(vimgdb#util#cmd_get_data_list(a:cmd)) . "\""
 endfunction
 
 " \brief	create exec-mode abbreviation

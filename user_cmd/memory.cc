@@ -47,7 +47,7 @@ int cmd_memory_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == DELETE || scmd->id == COMPLETE || scmd->id == FOLD) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
+	if(((scmd->id == DELETE || scmd->id == FOLD) && argc < 3) || ((scmd->id == ADD || scmd->id == SET || scmd->id == COMPLETE) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_memory_help(2, argv);
 		return 0;
@@ -118,6 +118,11 @@ int cmd_memory_exec(int argc, char** argv){
 		list_for_each(mem_lst, mem)
 			fprintf(fp, "%s\\n", mem->begin);
 
+		fclose(fp);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
 		fclose(fp);
 		break;
 

@@ -41,7 +41,7 @@ int cmd_var_exec(int argc, char** argv){
 		return 0;
 	}
 
-	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
+	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
 		return 0;
@@ -130,6 +130,11 @@ int cmd_var_exec(int argc, char** argv){
 			fprintf(fp, "%d\\n", lit->first);
 
 		fclose(fp);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
+		fclose(fp);
 		break;
 
 	case EXPORT:
@@ -143,6 +148,13 @@ int cmd_var_exec(int argc, char** argv){
 		for(sit=gdb_user_var.begin(); sit!=gdb_user_var.end(); sit++)
 			fprintf(fp, "Variable add %s\n", sit->second->exp);
 
+		fclose(fp);
+
+		USER("export variables to \"%s\"\n", argv[2]);
+
+		/* signal data availability */
+		fp = fopen(argv[3], "w");
+		fprintf(fp, "1\n");
 		fclose(fp);
 		break;
 
