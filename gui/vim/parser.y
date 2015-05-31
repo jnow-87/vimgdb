@@ -5,7 +5,6 @@
 	#include <common/log.h>
 	#include <gui/vim/vimui.h>
 	#include <gui/vim/cursor.h>
-	#include <gui/vim/length.h>
 	#include <lexer.lex.h>
 
 
@@ -28,7 +27,6 @@
 
 	vim_event_t* event;
 	vim_reply_t* reply;
-	vim_length_t* length;
 	vim_cursor_t* cursor;
 }
 
@@ -59,7 +57,6 @@
 
 /* non-terminals */
 %type <reply> reply
-%type <length> length
 %type <cursor> cursor
 %type <event> event
 %type <event> special
@@ -78,12 +75,10 @@ line :			NUMBER reply NEWLINE													{ return vim->proc_reply($1, $2); }		/
 
 /* reply */
 reply :			%empty																	{ $$ = 0; }
-	  |			length																	{ $$ = $1; }
 	  |			cursor																	{ $$ = $1; }
 	  ;
 
 
-length :		' ' NUMBER																{ $$ = new vim_length_t; $$->value = $2; };
 cursor :		' ' NUMBER ' ' NUMBER ' ' NUMBER ' ' NUMBER								{ $$ = new vim_cursor_t; $$->bufid = $2; $$->line = $4;	$$->column = $6; };
 
 /* event */

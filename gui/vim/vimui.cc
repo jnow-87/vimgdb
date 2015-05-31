@@ -5,7 +5,6 @@
 #include <common/map.h>
 #include <gui/vim/vimui.h>
 #include <gui/vim/cursor.h>
-#include <gui/vim/length.h>
 #include <gui/vim/lexer.lex.h>
 #include <cmd.hash.h>
 #include <parser.tab.h>

@@ -7,7 +7,6 @@
 	#include <common/string.h>
 	#include <gui/vim/vimui.h>
 	#include <gui/vim/event.h>
-	#include <gui/vim/length.h>
 	#include <gui/vim/cursor.h>
 	#include <parser.tab.h>
 
