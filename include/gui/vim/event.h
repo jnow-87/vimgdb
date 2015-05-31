@@ -2,6 +2,7 @@
 #define VIM_EVENT_H
 
 
+/* types */
 typedef enum{
 	E_NONE = 0,
 	E_DISCONNECT = 0x1,
@@ -19,12 +20,20 @@ typedef enum{
 	E_VERSION = 0x1000,
 } vim_event_id_t;
 
-struct vim_event_t{
-	const char* name;
-	vim_event_id_t id;
-};
 
-typedef vim_event_t vim_event_t;
+/* class */
+class vim_event_t{
+public:
+	vim_event_t();
+	~vim_event_t();
+
+	int buf_id;
+	char* data;
+	vim_event_id_t evt_id;
+
+	class vim_event_t *next,
+					  *prev;
+};
 
 
 #endif // VIM_EVENT_H

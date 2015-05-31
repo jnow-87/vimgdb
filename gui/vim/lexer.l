@@ -6,8 +6,9 @@
 	#include <common/log.h>
 	#include <common/string.h>
 	#include <gui/vim/vimui.h>
-	#include <gui/vim/result.h>
-	#include <event.hash.h>
+	#include <gui/vim/event.h>
+	#include <gui/vim/length.h>
+	#include <gui/vim/cursor.h>
 	#include <parser.tab.h>
 
 
@@ -42,19 +43,29 @@
 	/* general patterns */
 \r?\n									{ vim_col = 0; return NEWLINE; }
 -?[0-9]*								{ vimlval.num = atoi(vimtext); return NUMBER; }
+T										{ vimlval.boolean = true; return BOOL; }
+F										{ vimlval.boolean = false; return BOOL; }
+
+	/* events */
+"disconnect"							{ return DISCONNECT; }
+"startupDone"							{ return STARTUPDONE; }
+"killed"								{ return KILLED; }
+"fileOpened"							{ return FILEOPENED; }
+"insert"								{ return INSERT; }
+"remove"								{ return REMOVE; }
+"keyCommand"							{ return KEYCOMMAND; }
+"keyAtPos"								{ return KEYATPOS; }
+"version"								{ return VERSION; }
+"newDotAndMark"							{ return NEWDOTANDMARK; }
+
+	/* special events */
+"DISCONNECT"							{ vimlval.event_id = E_DISCONNECT; return SPECIAL; }
+"ACCEPT"								{ vimlval.event_id = E_ACCEPT; return SPECIAL; }
+"AUTH"									{ vimlval.event_id = E_AUTH; return SPECIAL; }
+"DETACH"								{ vimlval.event_id = E_DETACH; return SPECIAL; }
 
 	/* unquoted string */
-[a-zA-Z][a-zA-Z0-9_\-.]*				{
-											/* check if string is a known vim variable */
-											if(vim_event::lookup(vimtext, vimleng) != 0){
-												vimlval.event = vim_event::lookup(vimtext, vimleng);
-												return EVENT;
-											}
-											else{
-												vimlval.sptr = stralloc(vimtext, vimleng);
-												return STRING;
-											}
-										}
+[a-zA-Z][a-zA-Z0-9_\-.]*				{ vimlval.sptr = stralloc(vimtext, vimleng); return STRING; }
 
 	/* quoted string */
 \"										{ BEGIN QSTRING; return vimtext[0]; }

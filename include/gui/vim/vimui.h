@@ -5,7 +5,7 @@
 #include <common/socket.h>
 #include <gui/gui.h>
 #include <gui/vim/event.h>
-#include <gui/vim/result.h>
+#include <gui/vim/reply.h>
 #include <stdarg.h>
 #include <pthread.h>
 #include <string>
@@ -43,8 +43,8 @@ public:
 	void win_clear(int win);
 
 	/* netbeans message handling */
-	int reply(int seq_num, vim_result_t* rlst);
-	int event(int buf_id, int seq_num, vim_event_id_t evt_id, vim_result_t* rlst);
+	int proc_reply(int seq_num, vim_reply_t* r);
+	int proc_event(int buf_id, vim_event_t* e);
 
 private:
 	/* types */
@@ -62,20 +62,9 @@ private:
 		map<string, int> anno_types;
 	} buffer_t;
 
-	typedef struct _response_t{
-		int seq_num,
-			buf_id;
-
-		vim_event_id_t volatile evt_id;
-		vim_result_t* volatile result;
-
-		struct _response_t * volatile next,
-						   * volatile prev;
-	} response_t;
-
 	/* prototypes */
 	int atomic(bool en, bool apply);
-	int action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...);
+	int action(action_t type, const char* action, int buf_id, vim_reply_t** reply, const char* fmt, ...);
 	static void* readline_thread(void* arg);
 
 	/* data */
@@ -94,17 +83,18 @@ private:
 	pthread_t read_tid;
 	pthread_mutex_t event_mtx;
 	pthread_cond_t event_avail;
-	response_t* volatile event_lst;
+	vim_event_t* volatile event_lst;
 
 	// output
 	char* ostr;
 	unsigned int ostr_len;
 	pthread_mutex_t ui_mtx;
 
-	// response handling
-	pthread_cond_t resp_avail;
-	pthread_mutex_t resp_mtx;
-	response_t resp;
+	// reply handling
+	pthread_cond_t reply_avail;
+	pthread_mutex_t reply_mtx;
+	int volatile seq_num;
+	vim_reply_t* reply;
 };
 
 

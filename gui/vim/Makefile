@@ -1,4 +1,4 @@
-obj-y := vimui.o parser.o lexer.o event.o result.o cmd.o cursor.o length.o
+obj-y := vimui.o parser.o lexer.o event.o cmd.o reply.o
 bin-y := test-nbprotocol
 
 
@@ -11,6 +11,5 @@ test-nbprotocol-ldflags := -lcurses -lpthread
 
 
 $(loc_built_tree)/vimui.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/lexer.lex.h
-$(loc_built_tree)/test_nbprotocol.o: $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/fct.hash.h $(loc_built_tree)/event.hash.h $(loc_built_tree)/lexer.lex.h $(loc_built_tree)/parser.tab.h
+$(loc_built_tree)/test_nbprotocol.o: $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/fct.hash.h $(loc_built_tree)/lexer.lex.h $(loc_built_tree)/parser.tab.h
 $(loc_built_tree)/parser.o: $(loc_built_tree)/lexer.lex.h
-$(loc_built_tree)/lexer.o: $(loc_built_tree)/event.hash.h

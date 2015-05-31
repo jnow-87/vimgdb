@@ -4,8 +4,6 @@
 #include <common/opt.h>
 #include <common/map.h>
 #include <gui/vim/vimui.h>
-#include <gui/vim/event.h>
-#include <gui/vim/result.h>
 #include <gui/vim/cursor.h>
 #include <gui/vim/length.h>
 #include <gui/vim/lexer.lex.h>
@@ -28,15 +26,16 @@ vimui::vimui(){
 	cwd = opt.vim_cwd;
 	cursor_update = true;
 
-	memset((void*)&resp, -1, sizeof(response_t));
+	seq_num = 1;
+	reply = 0;
 
 	event_lst = 0;
 	list_init(event_lst);
 
 	pthread_mutex_init(&buf_mtx, 0);
-	pthread_mutex_init(&resp_mtx, 0);
+	pthread_mutex_init(&reply_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
-	pthread_cond_init(&resp_avail, 0);
+	pthread_cond_init(&reply_avail, 0);
 	pthread_cond_init(&event_avail, 0);
 
 	pthread_mutexattr_init(&attr);
@@ -46,8 +45,8 @@ vimui::vimui(){
 }
 
 vimui::~vimui(){
-	pthread_cond_destroy(&resp_avail);
-	pthread_mutex_destroy(&resp_mtx);
+	pthread_cond_destroy(&reply_avail);
+	pthread_mutex_destroy(&reply_mtx);
 	pthread_mutex_destroy(&event_mtx);
 	pthread_mutex_destroy(&buf_mtx);
 	pthread_mutex_destroy(&ui_mtx);
@@ -117,11 +116,14 @@ err_0:
 }
 
 void vimui::destroy(){
-	response_t* e;
+	vim_event_t* e;
 
 
 	/* trigger shutdown of main thread */
-	event(0, 0, E_DISCONNECT, 0);
+	e = new vim_event_t;
+	e->evt_id = E_DISCONNECT;
+
+	proc_event(0, e);
 
 	/* cancel readline-thread */
 	if(read_tid != 0){
@@ -134,8 +136,10 @@ void vimui::destroy(){
 	delete nbserver;
 
 	/* free memory */
-	list_for_each(event_lst, e)
+	list_for_each(event_lst, e){
 		list_rm(&event_lst, e);
+		delete e;
+	}
 
 	delete [] ostr;
 }
@@ -143,7 +147,7 @@ void vimui::destroy(){
 char* vimui::readline(){
 	char* line = 0;
 	unsigned int len = 0;
-	response_t* e;
+	vim_event_t* e;
 
 
 	while(1){
@@ -160,27 +164,27 @@ char* vimui::readline(){
 
 		/* process command */
 		switch(e->evt_id){
-		case E_KEYATPOS:
-			VIM("handle KEYATPOS event\n");
+		case E_KEYCOMMAND:
+			VIM("handle KEYCOMMAND event\n");
 
-			// KEYATPOS events are user commands
+			// KEYCOMMAND events are user commands
 			// hence signal availability of a command to readline()
-			/* copy response string into line */
-			if(len < strlen(e->result->sptr)){
-				len += strlen(e->result->sptr) + 1;
+			/* copy the data string into line */
+			if(len < strlen(e->data) + 1){
+				len += strlen(e->data) + 1;
 				line = new char[len];
 
 				if(line == 0)
 					goto end;
 			}
 
-			strcpy(line, e->result->sptr);
+			strcpy(line, e->data);
 			goto end;
 		
 		case E_FILEOPENED:
 			VIM("handle FILEOPENED event\n");
 
-			win_create(e->result->sptr);
+			win_create(e->data);
 			break;
 
 		case E_KILLED:
@@ -199,12 +203,10 @@ char* vimui::readline(){
 			TODO("unhandled event id %d\n", e->evt_id);
 		};
 
-		vim_result_free(e->result);
 		delete e;
 	}
 
 end:
-	vim_result_free(e->result);
 	delete e;
 
 	return line;
@@ -246,11 +248,11 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	 * 	otherwise assume a non-file buffer, e.g. 'breakpoints'
 	 */
 	if(name[0] == '/')
-		action(CMD, "editFile", id, 0, 0, "\"%s\"", name);
+		action(CMD, "editFile", id, 0, "\"%s\"", name);
 	else
-		action(CMD, "putBufferNumber", id, 0, 0, "\"%s/%s\"", cwd, name);
+		action(CMD, "putBufferNumber", id, 0, "\"%s/%s\"", cwd, name);
 
-	action(CMD, "stopDocumentListen", id, 0, 0, "");
+	action(CMD, "stopDocumentListen", id, 0, "");
 
 	/* set buf_id as used */
 	b = new buffer_t;
@@ -318,7 +320,7 @@ int vimui::win_destroy(int win){
 	pthread_mutex_lock(&ui_mtx);
 
 	/* close vim buffer */
-	if(action(CMD, "close", win, 0, 0, "") != 0)
+	if(action(CMD, "close", win, 0, "") != 0)
 		goto err_0;
 
 	/* remove buffer */
@@ -375,7 +377,7 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 
 	/* create annotation type if it doesn't exist */
 	if(annotype == 0){
-		if(action(CMD, "defineAnnoType", win, 0, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
+		if(action(CMD, "defineAnnoType", win, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
 			goto err;
 
 		buf->anno_types[key] = buf->anno_types.size();	// first element has value 1, since anno_types size
@@ -384,7 +386,7 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 	}
 
 	/* add annotation */
-	if(action(CMD, "addAnno", win, 0, 0, "%d %d %d/0", id, annotype, line) == 0){
+	if(action(CMD, "addAnno", win, 0, "%d %d %d/0", id, annotype, line) == 0){
 		key = line;
 		key += sign;
 
@@ -421,7 +423,7 @@ int vimui::win_anno_delete(int win, int line, const char* sign){
 	anno = buf->annos.find(key);
 
 	if(anno != buf->annos.end()){
-		if(action(CMD, "removeAnno", win, 0, 0, "%d", anno->second) != 0)
+		if(action(CMD, "removeAnno", win, 0, "%d", anno->second) != 0)
 			goto err;
 
 		buf->annos.erase(anno);
@@ -444,11 +446,11 @@ int vimui::win_cursor_set(int win, int line){
 	if(line == -1){
 		buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
 
-		if(buf != 0)	r = action(CMD, "setDot", win, 0, 0, "%d", buf->len - 1);
+		if(buf != 0)	r = action(CMD, "setDot", win, 0, "%d", buf->len - 1);
 		else			r = -1;
 	}
 	else
-		r = action(CMD, "setDot", win, 0, 0, "%d/0", line);
+		r = action(CMD, "setDot", win, 0, "%d/0", line);
 
 	pthread_mutex_unlock(&ui_mtx);
 
@@ -497,19 +499,18 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	}
 
 	/* insert text and update cursor position */
-	action(FCT, "insert", win, 0, 0, "%d \"%s\"", buf->len, ostr);
+	action(FCT, "insert", win, 0, "%d \"%s\"", buf->len, ostr);
 	buf->len += len;
 
 	/* update cursor */
 	if(cursor_update)
-		action(CMD, "setDot", win, 0, 0, "%d", buf->len - 1);
+		action(CMD, "setDot", win, 0, "%d", buf->len - 1);
 
 	atomic(false, false);
 	pthread_mutex_unlock(&ui_mtx);
 }
 
 void vimui::win_clear(int win){
-	int len;
 	buffer_t* buf;
 
 
@@ -522,10 +523,8 @@ void vimui::win_clear(int win){
 
 	atomic(true, false);
 
-	/* get length of buffer and remove text */
-	if(action(FCT, "getLength", win, result_to_length, (void*)&len, "") == 0)
-		action(FCT, "remove", win, 0, 0, "0 %d", len);
-
+	/* clear buffer */
+	action(FCT, "remove", win, 0, "0 %d", buf->len);
 	buf->len = 0;
 
 	atomic(false, false);
@@ -533,48 +532,43 @@ void vimui::win_clear(int win){
 	pthread_mutex_unlock(&ui_mtx);
 }
 
-int vimui::reply(int seq_num, vim_result_t* rlst){
-	pthread_mutex_lock(&resp_mtx);
+int vimui::proc_reply(int seq_num, vim_reply_t* r){
+	pthread_mutex_lock(&reply_mtx);
 
 	/* check if this is the sequence number waited for, if not drop it
 	 *	this is safe since there can only be one outstanding action()
 	 */
-	if(resp.seq_num == seq_num){
+	if(this->seq_num == seq_num){
 		VIM("vim reply to seq-num %d\n", seq_num);
-		resp.result = rlst;
+		reply = r;
 
-		pthread_cond_signal(&resp_avail);
+		pthread_cond_signal(&reply_avail);
 	}
 	else{
-		VIM("drop vim reply with sequence number %d, expected %d\n", seq_num, resp.seq_num);
-		vim_result_free(rlst);
+		VIM("drop vim reply with sequence number %d, expected %d\n", seq_num, this->seq_num);
+		delete r;
 	}
 
-	pthread_mutex_unlock(&resp_mtx);
+	pthread_mutex_unlock(&reply_mtx);
 
 	return 0;
 }
 
-int vimui::event(int buf_id, int seq_num, vim_event_id_t evt_id, vim_result_t* rlst){
-	response_t* e;
-
-
+int vimui::proc_event(int buf_id, vim_event_t* e){
 	pthread_mutex_lock(&event_mtx);
 
 	/* check event type */
-	if(evt_id & (E_KEYATPOS | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
-		e = new response_t;
-		e->evt_id = evt_id;
+	if(e->evt_id & (E_KEYCOMMAND | E_FILEOPENED | E_KILLED | E_DISCONNECT)){
 		e->buf_id = buf_id;
-		e->result = rlst;
+
 		list_add_tail(&event_lst, e);
 
 		pthread_cond_signal(&event_avail);
 	}
 	else{
 		// drop the result otherwise
-		VIM("drop vim event %d for buffer %d, sequence number %d\n", evt_id, buf_id, seq_num);
-		vim_result_free(rlst);
+		VIM("drop vim event %d for buffer %d\n", e->evt_id, buf_id);
+		delete e;
 	}
 
 	pthread_mutex_unlock(&event_mtx);
@@ -584,7 +578,7 @@ int vimui::event(int buf_id, int seq_num, vim_event_id_t evt_id, vim_result_t* r
 
 int vimui::atomic(bool en, bool apply){
 	static bool volatile in_atomic = false;
-	static vim_cursor_t volatile cur;
+	static volatile vim_cursor_t* volatile cursor = 0;
 
 
 	/* only apply changes if not already in atomic or apply is set */
@@ -594,11 +588,14 @@ int vimui::atomic(bool en, bool apply){
 	pthread_mutex_lock(&ui_mtx);
 
 	if(en){
-		if(action(CMD, "startAtomic", 0, 0, 0, "") != 0)
+		if(action(CMD, "startAtomic", 0, 0, "") != 0)
 			goto err;
 
 		/* get current vim buffer and cursor position */
-		if(action(FCT, "getCursor", 0, result_to_cursor, (void*)&cur, "") != 0)
+		delete cursor;
+		cursor = 0;
+
+		if(action(FCT, "getCursor", 0, (vim_reply_t**)&cursor, "") != 0)
 			goto err;
 
 		if(apply){
@@ -609,12 +606,12 @@ int vimui::atomic(bool en, bool apply){
 	}
 	else{
 		/* reset cursor to previous buffer if its different from target buffer */
-		if(cur.bufid > 0){
-			if(action(CMD, "setDot", cur.bufid, 0, 0, "%d/%d", cur.line, cur.column) != 0)
+		if(cursor && cursor->bufid > 0){
+			if(action(CMD, "setDot", cursor->bufid, 0, "%d/%d", cursor->line, cursor->column) != 0)
 				goto err;
 		}
 
-		if(action(CMD, "endAtomic", 0, 0, 0, "") != 0)
+		if(action(CMD, "endAtomic", 0, 0, "") != 0)
 			goto err;
 
 		if(apply){
@@ -631,8 +628,7 @@ err:
 	return -1;
 }
 
-int vimui::action(action_t type, const char* action, int buf_id, int (*process)(vim_result_t*, void*), void* result, const char* fmt, ...){
-	static int volatile seq_num = 1;
+int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** reply, const char* fmt, ...){
 	static char* volatile s = 0;
 	static unsigned int volatile s_len = 0;
 	unsigned int i;
@@ -689,30 +685,20 @@ int vimui::action(action_t type, const char* action, int buf_id, int (*process)(
 
 	va_end(lst);
 
-	/* wait for vim response if action is a function */
+	/* wait for vim reply if action is a function */
 	if(type == FCT){
-		pthread_mutex_lock(&resp_mtx);
+		pthread_mutex_lock(&reply_mtx);
 
-		memset((void*)&resp, -1, sizeof(response_t));
-
-		resp.seq_num = seq_num;
 		nbclient->send((char*)"\n");		// issue action after mutex has been locked
-											// avoid vim response before being ready
+											// avoid vim reply before being ready
 
-		// wait for response
-		pthread_cond_wait(&resp_avail, &resp_mtx);
-
-		pthread_mutex_unlock(&resp_mtx);
+		// wait for reply
+		pthread_cond_wait(&reply_avail, &reply_mtx);
+		pthread_mutex_unlock(&reply_mtx);
 
 		// process result if requested, otherwise free
-		if(process){
-			if(process(resp.result, result) != 0){
-				vim_result_free(resp.result);
-				return -1;
-			}
-		}
-
-		vim_result_free(resp.result);
+		if(reply)	*reply = this->reply;
+		else		delete this->reply;
 	}
 	else
 		nbclient->send((char*)"\n");
@@ -724,6 +710,7 @@ void* vimui::readline_thread(void* arg){
 	char c;
 	char* line;
 	unsigned int i, line_len;
+	vim_event_t* e;
 	vimui* vim;
 
 
@@ -761,7 +748,10 @@ void* vimui::readline_thread(void* arg){
 	}
 
 	/* trigger shutdown of main thread */
-	vim->event(0, 0, E_DISCONNECT, 0);
+	e = new vim_event_t;
+	e->evt_id = E_DISCONNECT;
+
+	vim->proc_event(0, e);
 
 	free(line);
 	pthread_exit(0);

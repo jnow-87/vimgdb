@@ -2,10 +2,8 @@
 #include <common/log.h>
 #include <common/string.h>
 #include <gui/vim/event.h>
-#include <gui/vim/result.h>
 #include <cmd.hash.h>
 #include <fct.hash.h>
-#include <event.hash.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
