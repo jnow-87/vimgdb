@@ -4,7 +4,6 @@
 
 %{
 	#include <common/log.h>
-	#include <common/string.h>
 	#include <gui/vim/vimui.h>
 	#include <gui/vim/event.h>
 	#include <gui/vim/cursor.h>
@@ -64,13 +63,13 @@ F										{ vimlval.boolean = false; return BOOL; }
 "DETACH"								{ vimlval.event_id = E_DETACH; return SPECIAL; }
 
 	/* unquoted string */
-[a-zA-Z][a-zA-Z0-9_\-.]*				{ vimlval.sptr = stralloc(vimtext, vimleng); return STRING; }
+[a-zA-Z][a-zA-Z0-9_\-.]*				{ vimlval.string.s = vimtext; vimlval.string.len = vimleng; return STRING; }
 
 	/* quoted string */
 \"										{ BEGIN QSTRING; return vimtext[0]; }
-\"\"									{ vimlval.sptr = 0; return STRING; }
+\"\"									{ vimlval.string.s = 0; vimlval.string.len = 0; return STRING; }
 <QSTRING>\"								{ BEGIN INITIAL; return vimtext[0]; }
-<QSTRING>([^\"]|(\\\"))*				{ vimlval.sptr = stralloc(vimtext, vimleng); return STRING; }
+<QSTRING>([^\"]|(\\\"))*				{ vimlval.string.s = vimtext; vimlval.string.len = vimleng; return STRING; }
 
 	/* default */
 .										{ return vimtext[0]; }

@@ -21,7 +21,9 @@
 
 %union{
 	char* sptr;
+	bool boolean;
 	unsigned int num;
+	long long int llnum;
 	gdb_result_t* result;
 	gdb_result_class_t rclass;
 	gdb_event_t* evt;
@@ -37,6 +39,11 @@
 		gdb_result_t* result;
 		gdb_result_class_t rclass;
 	} record;
+
+	struct{
+		char* s;
+		unsigned int len;
+	} string;
 }
 
 
@@ -150,12 +157,15 @@
 %token <rclass> RC_TK_LIB_UNLOADED
 
 // others
-%token <sptr> STRING
+%token <string> STRING
 %token <num> NUMBER
 
 /* non-terminals */
 %type <sptr> string
 %type <sptr> string-dummy
+%type <boolean> string-bool
+%type <num> string-num
+%type <llnum> string-llnum-hex
 %type <num> token
 
 %type <record> response
@@ -256,7 +266,7 @@ event :						RC_TK_RUNNING ',' event-running									{ $$.rclass = $1; $$.result
 	  |						RC_TK_LIB_UNLOADED ',' event-dummy								{ $$.rclass = $1; $$.result = 0; }
 	  ;
 
-event-running :				VAR_THREAD_ID '=' string										{ $$ = new gdb_event_t; $$->thread_id = atoi($3); delete [] $3; };
+event-running :				VAR_THREAD_ID '=' string-num									{ $$ = new gdb_event_t; $$->thread_id = $3; };
 
 event-stop :				VAR_REASON '=' string											{ $$ = new gdb_event_stop_t; $$->reason = $3; }
 		   |				VAR_REASON '=' string ',' event-stop-body						{ $$ = $5; $$->reason = $3; }
@@ -264,7 +274,7 @@ event-stop :				VAR_REASON '=' string											{ $$ = new gdb_event_stop_t; $$-
 
 event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
 				|			event-stop-body con-com frame									{ $$ = $1; ((gdb_event_stop_t*)($$))->frame = $3; }
-				|			event-stop-body con-com VAR_THREAD_ID '=' string				{ $$ = $1; $$->thread_id = atoi($5); delete [] $5; }
+				|			event-stop-body con-com VAR_THREAD_ID '=' string-num			{ $$ = $1; $$->thread_id = $5; }
 				|			event-stop-body con-com VAR_THREADS_STOPPED '=' string-dummy	{ }
 				|			event-stop-body con-com VAR_CORE '=' string-dummy				{ }
 				|			event-stop-body con-com VAR_DISPOSITION '=' string-dummy		{ }
@@ -293,11 +303,11 @@ event-dummy :				%empty															{ }
 /* gdb types */
 breakpoint :				VAR_BREAKPT '=' '{' breakpoint-body '}'							{ $$ = $4; };
 breakpoint-body :			%empty															{ $$ = new gdb_breakpoint_t; }
-				|			breakpoint-body con-com VAR_NUMBER '=' string					{ $$ = $1; $$->num = atoi($5); delete [] $5; }
-				|			breakpoint-body con-com VAR_LINE '=' string						{ $$ = $1; $$->line = atoi($5); delete [] $5; }
+				|			breakpoint-body con-com VAR_NUMBER '=' string-num				{ $$ = $1; $$->num = $5; }
+				|			breakpoint-body con-com VAR_LINE '=' string-num					{ $$ = $1; $$->line = $5; }
 				|			breakpoint-body con-com VAR_FILE '=' string						{ $$ = $1; $$->filename = $5; }
 				|			breakpoint-body con-com VAR_FULLNAME '=' string					{ $$ = $1; $$->fullname = $5; }
-				|			breakpoint-body con-com VAR_ENABLED '=' string					{ $$ = $1; $$->enabled = (strcmp((const char*)$5, "y") == 0) ? true : false; delete [] $5; }
+				|			breakpoint-body con-com VAR_ENABLED '=' string-bool				{ $$ = $1; $$->enabled = $5; }
 				|			breakpoint-body con-com VAR_AT '=' string						{ $$ = $1; $$->at = $5; }
 				|			breakpoint-body con-com VAR_CONDITION '=' string				{ $$ = $1; $$->condition = $5; }
 				|			breakpoint-body con-com VAR_IGNORE '=' string					{ $$ = $1; $$->ignore_cnt = $5; }
@@ -310,7 +320,7 @@ breakpoint-body :			%empty															{ $$ = new gdb_breakpoint_t; }
 				|			breakpoint-body con-com VAR_THREAD_GROUPS '=' list-dummy		{ }
 				;
 
-location :					VAR_LINE '=' string ',' location-body							{ $$ = $5; $5->line = atoi($3); delete [] $3; };
+location :					VAR_LINE '=' string-num ',' location-body						{ $$ = $5; $5->line = $3; };
 location-body :				%empty															{ $$ = new gdb_location_t; }
 			  |				location-body con-com VAR_FILE '=' string						{ $$ = $1; $$->filename = $5; }
 			  |				location-body con-com VAR_FULLNAME '=' string					{ $$ = $1; $$->fullname = $5; }
@@ -326,13 +336,13 @@ variable :					VAR_NAME '=' string ',' variable-body							{ $$ = $5; $5->name =
 variable-body :				%empty															{ $$ = gdb_variable_t::acquire(); }
 			  |				variable-body con-com VAR_TYPE '=' string						{ $$ = $1; $$->type = $5; }
 			  |				variable-body con-com VAR_VALUE '=' string						{ $$ = $1; $$->value = strdeescape($5); }
-			  |				variable-body con-com VAR_NUM_CHILD '=' string					{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
+			  |				variable-body con-com VAR_NUM_CHILD '=' string-num				{ $$ = $1; $$->nchilds = $5; }
 			  |				variable-body con-com VAR_EXP '=' string						{ $$ = $1; $$->exp = $5; }
 			  |				variable-body con-com VAR_ARG '=' string-dummy					{ $$ = $1; $$->argument = true; }
-			  |				variable-body con-com VAR_INSCOPE '=' string					{ $$ = $1; $$->inscope = ($5[0] == 't' ? true : false); delete [] $5; }
-			  |				variable-body con-com VAR_TYPE_CHANGED '=' string				{ $$ = $1; $$->type_changed = ($5[0] == 't' ? true : false); delete [] $5; }
+			  |				variable-body con-com VAR_INSCOPE '=' string-bool				{ $$ = $1; $$->inscope = $5; }
+			  |				variable-body con-com VAR_TYPE_CHANGED '=' string-bool			{ $$ = $1; $$->type_changed = $5; }
 			  |				variable-body con-com VAR_NEW_TYPE '=' string					{ $$ = $1; $$->type = $5; }
-			  |				variable-body con-com VAR_NEW_NUM_CHILD '=' string				{ $$ = $1; $$->nchilds = atoi($5); delete [] $5; }
+			  |				variable-body con-com VAR_NEW_NUM_CHILD '=' string-num			{ $$ = $1; $$->nchilds = $5; }
 			  |				variable-body con-com VAR_HAS_MORE '=' string-dummy				{ }
 			  |				variable-body con-com VAR_LANG '=' string-dummy					{ }
 			  |				variable-body con-com VAR_THREAD_ID '=' string-dummy			{ }
@@ -361,9 +371,9 @@ callstack-body :			%empty															{ $$ = 0; }
 
 frame :						VAR_FRAME '=' '{' frame-body '}'								{ $$ = $4; };
 frame-body :				%empty															{ $$ = new gdb_frame_t; }
-		   |				frame-body con-com VAR_ADDRESS '=' string						{ $$ = $1; $$->addr = (void*)strtoll($5, 0, 16); delete [] $5; }
-		   |				frame-body con-com VAR_LINE '=' string							{ $$ = $1; $$->line = atoi($5); delete [] $5; }
-		   |				frame-body con-com VAR_LEVEL '=' string							{ $$ = $1; $$->level = atoi($5); delete [] $5; }
+		   |				frame-body con-com VAR_ADDRESS '=' string-llnum-hex				{ $$ = $1; $$->addr = (void*)$5; }
+		   |				frame-body con-com VAR_LINE '=' string-num						{ $$ = $1; $$->line = $5; }
+		   |				frame-body con-com VAR_LEVEL '=' string-num						{ $$ = $1; $$->level = $5; }
 		   |				frame-body con-com VAR_FUNCTION '=' string						{ $$ = $1; $$->function = $5; }
 		   |				frame-body con-com VAR_FILE '=' string							{ $$ = $1; $$->filename = $5; }
 		   |				frame-body con-com VAR_FULLNAME '=' string						{ $$ = $1; $$->fullname = $5; }
@@ -379,7 +389,7 @@ arg-list :					%empty															{ }
 memory :					VAR_MEMORY '=' '[' '{' memory-body '}' ']'						{ $$ = $5; };
 memory-body :				%empty															{ $$ = new gdb_memory_t; }
 			|				memory-body con-com VAR_BEGIN '=' string						{ $$ = $1; $$->begin = $5; }
-			|				memory-body con-com VAR_END '=' string							{ $$ = $1; $$->length = (unsigned int)(strtoll($5, 0, 16) - strtoll($$->begin, 0, 16)); delete [] $5; }
+			|				memory-body con-com VAR_END '=' string-llnum-hex				{ $$ = $1; $$->length = (unsigned int)($5 - strtoll($$->begin, 0, 16)); }
 			|				memory-body con-com VAR_CONTENTS '=' string						{ $$ = $1; $$->content = $5; }
 			|				memory-body con-com VAR_OFFSET '=' string-dummy					{ }
 			;
@@ -401,11 +411,23 @@ strlist-dummy :				%empty															{ }
 			  ;
 
 string :					'"' '"'															{ $$ = stralloc((char*)"", 1); }
-	   |					'"' STRING '"'													{ $$ = $2; }
+	   |					'"' STRING '"'													{ $$ = stralloc($2.s, $2.len); }
 	   ;
 
+string-bool :				'"' '"'															{ $$ = false; }
+			|				'"' STRING '"'													{ $$ = ($2.s[0] == 't' || $2.s[0] == 'y') ? true : false; }
+			;
+
+string-num :				'"' '"'															{ $$ = 0; }
+		   |				'"' STRING '"'													{ $$ = atoi($2.s); }
+		   ;
+
+string-llnum-hex :			'"' '"'															{ $$ = 0; }
+			 	 |			'"' STRING '"'													{ $$ = strtoll($2.s, 0, 16); }
+				 ;
+
 string-dummy :				'"' '"'															{ }
-			 |				'"' STRING '"'													{ delete [] $2; }
+			 |				'"' STRING '"'													{ }
 			 ;
 
 token :						%empty															{ $$ = 0; }

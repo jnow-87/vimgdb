@@ -3,6 +3,7 @@
 
 %{
 	#include <common/log.h>
+	#include <common/string.h>
 	#include <gui/vim/vimui.h>
 	#include <gui/vim/cursor.h>
 	#include <lexer.lex.h>
@@ -18,7 +19,6 @@
 %}
 
 %union{
-	char* sptr;
 	char dummy;
 	int num;
 	bool boolean;
@@ -28,6 +28,11 @@
 	vim_event_t* event;
 	vim_reply_t* reply;
 	vim_cursor_t* cursor;
+
+	struct{
+		char* s;
+		unsigned int len;
+	} string;
 }
 
 %parse-param { char* line }
@@ -51,7 +56,7 @@
 %token NEWDOTANDMARK
 %token VERSION
 %token <event_id> SPECIAL
-%token <sptr> STRING
+%token <string> STRING
 %token <num> NUMBER
 %token <boolean> BOOL
 
@@ -60,7 +65,7 @@
 %type <cursor> cursor
 %type <event> event
 %type <event> special
-%type <sptr> string
+%type <string> string
 %type <dummy> list-dummy
 
 
@@ -86,12 +91,12 @@ event :			%empty																	{ $$ = new vim_event_t; }	// event is not actua
 	  |			event DISCONNECT '=' NUMBER												{ $$ = $1; $$->evt_id = E_DISCONNECT; }
 	  |			event STARTUPDONE '=' NUMBER											{ $$ = $1; $$->evt_id = E_STARTUPDONE; }
 	  |			event KILLED '=' NUMBER													{ $$ = $1; $$->evt_id = E_KILLED; }
-	  |			event FILEOPENED '=' NUMBER ' ' string ' ' BOOL ' ' BOOL				{ $$ = $1; $$->evt_id = E_FILEOPENED; $$->data = $6; }
-	  |			event INSERT '=' NUMBER ' ' NUMBER ' ' string							{ $$ = $1; $$->evt_id = E_INSERT; delete $8; }
+	  |			event FILEOPENED '=' NUMBER ' ' string ' ' BOOL ' ' BOOL				{ $$ = $1; $$->evt_id = E_FILEOPENED; $$->data = stralloc($6.s, $6.len); }
+	  |			event INSERT '=' NUMBER ' ' NUMBER ' ' string							{ $$ = $1; $$->evt_id = E_INSERT; }
 	  |			event REMOVE '=' NUMBER ' ' NUMBER ' ' NUMBER							{ $$ = $1; $$->evt_id = E_REMOVE; }
-	  |			event KEYCOMMAND '=' NUMBER ' ' string									{ $$ = $1; $$->evt_id = E_KEYCOMMAND; $$->data = $6; }
-	  |			event KEYATPOS '=' NUMBER ' ' string ' ' NUMBER ' ' NUMBER '/' NUMBER	{ $$ = $1; $$->evt_id = E_KEYATPOS; delete $6; }
-	  |			event VERSION '=' NUMBER ' ' '"' string '"'								{ $$ = $1; $$->evt_id = E_VERSION; delete $7; }
+	  |			event KEYCOMMAND '=' NUMBER ' ' string									{ $$ = $1; $$->evt_id = E_KEYCOMMAND; $$->data = stralloc($6.s, $6.len); }
+	  |			event KEYATPOS '=' NUMBER ' ' string ' ' NUMBER ' ' NUMBER '/' NUMBER	{ $$ = $1; $$->evt_id = E_KEYATPOS; }
+	  |			event VERSION '=' NUMBER ' ' '"' string '"'								{ $$ = $1; $$->evt_id = E_VERSION; }
 	  |			event NEWDOTANDMARK '=' NUMBER ' ' NUMBER ' ' NUMBER					{ $$ = $1; $$->evt_id = E_NEWDOTANDMARK; }
 	  ;
 
@@ -101,8 +106,8 @@ special :	SPECIAL list-dummy															{ $$ = new vim_event_t; $$->evt_id = 
 /* common */
 list-dummy :	%empty																	{ }
 		   |	list-dummy ' ' BOOL														{ }
-		   |	list-dummy ' ' '!' STRING												{ delete $4; }
-		   |	list-dummy ' ' string													{ delete $3; }
+		   |	list-dummy ' ' '!' STRING												{ }
+		   |	list-dummy ' ' string													{ }
 		   |	list-dummy ' ' NUMBER													{ }
 		   |	list-dummy ' ' NUMBER '/' NUMBER										{ }
 		   ;

@@ -3,12 +3,11 @@
 %option nounput
 
 %{
+	#include <common/log.h>
 	#include <gdb/gdb.h>
 	#include <gdb/types.h>
 	#include <gdb/result.h>
 	#include <gdb/parser.tab.h>
-	#include <common/log.h>
-	#include <common/string.h>
 
 
 	/* define YY_USER_ACTION, executed for every token, before excuting its
@@ -141,12 +140,12 @@
 [0-9]*									{ gdblval.num = atoi(gdbtext); return NUMBER; }
 
 	/* unquoted string */
-[a-zA-Z][a-zA-Z0-9_\-.]*				{ gdblval.sptr = stralloc(gdbtext, gdbleng); return STRING; }
+[a-zA-Z][a-zA-Z0-9_\-.]*				{ gdblval.string.s = gdbtext; gdblval.string.len = gdbleng; return STRING; }
 
 	/* quoted string */
 \"										{ BEGIN QSTRING; return gdbtext[0]; }
 <QSTRING>\"								{ BEGIN INITIAL; return gdbtext[0]; }
-<QSTRING>([^\"]|(\\\"))*				{ gdblval.sptr = stralloc(gdbtext, gdbleng); return STRING; }
+<QSTRING>([^\"]|(\\\"))*				{ gdblval.string.s = gdbtext; gdblval.string.len = gdbleng; return STRING; }
 
 	/* MI command */
 ^[0-9]*-.*\n							{ gdbtext[gdbleng - 1] = 0; GDB("ignore MI command \"%s\\n\"\n", gdbtext); }
