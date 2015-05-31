@@ -9,7 +9,6 @@ opt_t opt;
 
 int opt_parse(int argc, char** argv){
 	int i;
-	FILE* fp;
 
 
 	if(argc < 2){
@@ -35,16 +34,6 @@ int opt_parse(int argc, char** argv){
 			/* daemonise */
 			if(daemon(1, 0) != 0)
 				return -1;
-
-			/* write pid file */
-			fp = fopen(PID_FILE, "w");
-
-			if(fp == 0)
-				return -1;
-
-			fprintf(fp, "%d", getpid());
-			fclose(fp);
-
 			break;
 
 		default:
