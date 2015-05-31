@@ -103,6 +103,7 @@ function vimgdb#config#init()
 	call s:map_key("E", "n", ":exec 'Break disable ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("j", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("c", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("<F2>", "n", ":silent Step<cr>")
 	call s:map_key("<F3>", "n",  ":silent Nnext<cr>")
 	call s:map_key("<F5>", "n",  ":silent Return<cr>")
@@ -120,7 +121,7 @@ function! vimgdb#config#cleanup()
 		let l:restore = l:val['restore']
 		exec l:val['mode'] . "unmap " . l:key
 
-		if l:restore != {} && l:restore['sid'] == 1
+		if l:restore != {}
 			exec l:restore['mode']
 				\ . (l:restore['noremap'] == 1 ? "noremap " : "map ")
 				\ . (l:restore['silent'] == 1 ? "<silent> " : "")

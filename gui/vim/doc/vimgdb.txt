@@ -417,6 +417,7 @@ are restored.
 	E	disable breakpoint at the current line
 	j	set PC to current line
 	g	continue execution until current line
+	c	continue execution until current line
 	<F2>	step
 	<F3>	next
 	<F5>	return
