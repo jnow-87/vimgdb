@@ -76,7 +76,7 @@ int cmd_inferior_exec(int argc, char** argv){
 		}
 
 		if(gdb->mi_issue_cmd("file-list-exec-source-file", (gdb_result_t**)&loc, "") != 0)
-			return 0;
+			return -1;
 
 		ui->win_create(loc->fullname);
 		delete loc;
@@ -85,7 +85,7 @@ int cmd_inferior_exec(int argc, char** argv){
 		switch(scmd->id){
 		case BIN:
 			if(gdb->mi_issue_cmd("file-exec-file", 0, "%ss %d", argv + 2, argc - 2) != 0)
-				break;
+				return -1;
 
 			USER("load binary file \"%s\"\n", argv[2]);
 
@@ -96,7 +96,7 @@ int cmd_inferior_exec(int argc, char** argv){
 
 		case ARGS:
 			if(gdb->mi_issue_cmd("exec-arguments", 0, "%ssq %d", argv + 2, argc - 2) != 0)
-				break;
+				return -1;
 
 			USER("set program arguments\n");
 
@@ -138,8 +138,10 @@ int cmd_inferior_exec(int argc, char** argv){
 
 				thread_name[tid] = "inferior";
 
-				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", inf_term->get_name()) == 0)
-					USER("set inferior tty to internal\n");
+				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", inf_term->get_name()) != 0)
+					return -1;
+
+				USER("set inferior tty to internal\n");
 			}
 			else{
 				/* close internal terminal if exists */
@@ -160,8 +162,10 @@ int cmd_inferior_exec(int argc, char** argv){
 
 				close(fd);
 
-				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%ss %d", argv + 2, argc - 2) == 0)
-					USER("set inferior tty to \"%s\"\n", argv[2]);
+				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%ss %d", argv + 2, argc - 2) != 0)
+					return -1;
+
+				USER("set inferior tty to \"%s\"\n", argv[2]);
 			}
 
 			break;

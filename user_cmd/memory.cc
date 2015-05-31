@@ -241,8 +241,10 @@ int cmd_memory_update(){
 		addr = strtoll(mem->begin, 0, 16);
 
 		/* get memory content */
-		if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&tmem, "%s %u", mem->begin, mem->length) != 0)
-			break;
+		if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&tmem, "%s %u", mem->begin, mem->length) != 0){
+			ui->atomic(false);
+			return -1;
+		}
 
 		/* print header */
 		ui->win_print(win_id, "[%c] memory dump: %#0*p (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);

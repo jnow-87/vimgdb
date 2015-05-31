@@ -22,12 +22,16 @@ gdb_frame_t::~gdb_frame_t(){
 	delete [] fullname;
 
 	for(it=args.begin(); it!=args.end(); ){
-		gdb_variable_t::release(*it);
+		if(gdb_variable_t::release(*it) != 0)
+			return;
+
 		it = args.erase(it);
 	}
 
 	for(it=locals.begin(); it!=locals.end(); ){
-		gdb_variable_t::release(*it);
+		if(gdb_variable_t::release(*it) != 0)
+			return;
+
 		it = locals.erase(it);
 	}
 }

@@ -54,22 +54,25 @@ int cmd_break_exec(int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		if(gdb->mi_issue_cmd("break-insert", (gdb_result_t**)&bkpt, "%ssq %d", argv + 2, argc - 2) == 0){
-			if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
-			else					snprintf(key, 256, "%s", bkpt->at);
+		if(gdb->mi_issue_cmd("break-insert", (gdb_result_t**)&bkpt, "%ssq %d", argv + 2, argc - 2) != 0)
+			return -1;
 
-			// check if breakpoint already exists - gdb doesn't check this
-			if(MAP_LOOKUP(breakpt_lst, key) == 0){
-				breakpt_lst[key] = bkpt;
-				breakpt_print();
-				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
+		if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
+		else					snprintf(key, 256, "%s", bkpt->at);
 
-				USER("add break-point \"%s\"\n", key);
-			}
-			else{
-				gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num);
-				delete bkpt;
-			}
+		// check if breakpoint already exists - gdb doesn't check this
+		if(MAP_LOOKUP(breakpt_lst, key) == 0){
+			breakpt_lst[key] = bkpt;
+			breakpt_print();
+			ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
+
+			USER("add break-point \"%s\"\n", key);
+		}
+		else{
+			if(gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num) != 0)
+				return -1;
+
+			delete bkpt;
 		}
 
 		break;
@@ -88,41 +91,41 @@ int cmd_break_exec(int argc, char** argv){
 
 		switch(scmd->id){
 		case DELETE:
-			if(gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num) == 0){
-				USER("delete break-point \"%s\"\n", it->first.c_str());
-				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
+			if(gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num) != 0)
+				return -1;
 
-				delete bkpt;
-				breakpt_lst.erase(it);
-				breakpt_print();
-			}
+			USER("delete break-point \"%s\"\n", it->first.c_str());
+			ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
 
+			delete bkpt;
+			breakpt_lst.erase(it);
+			breakpt_print();
 			break;
 
 		case ENABLE:
-			if(gdb->mi_issue_cmd("break-enable", 0, "%d", bkpt->num) == 0){
-				USER("enable break-point \"%s\"\n", it->first.c_str());
+			if(gdb->mi_issue_cmd("break-enable", 0, "%d", bkpt->num) != 0)
+				return -1;
 
-				bkpt->enabled = true;
-				breakpt_print();
+			USER("enable break-point \"%s\"\n", it->first.c_str());
 
-				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
-				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
-			}
+			bkpt->enabled = true;
+			breakpt_print();
 
+			ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
+			ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "DarkRed");
 			break;
 
 		case DISABLE:
-			if(gdb->mi_issue_cmd("break-disable", 0, "%d", bkpt->num) == 0){
-				USER("disable break-point \"%s\"\n", it->first.c_str());
+			if(gdb->mi_issue_cmd("break-disable", 0, "%d", bkpt->num) != 0)
+				return -1;
 
-				bkpt->enabled = false;
-				breakpt_print();
+			USER("disable break-point \"%s\"\n", it->first.c_str());
 
-				ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
-				ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
-			}
+			bkpt->enabled = false;
+			breakpt_print();
 
+			ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
+			ui->win_anno_add(ui->win_create(bkpt->fullname), bkpt->line, "b", "Black", "Yellow");
 			break;
 
 		default:

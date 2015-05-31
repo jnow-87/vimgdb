@@ -250,20 +250,23 @@ int cmd_callstack_update(){
 		list_for_each(varlst, vartmp){
 			var = gdb_variable_t::acquire(vartmp->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
 	
-			if(var != 0){
-				// increment the reference counter of new variables to avoid
-				// variable from being delete once deleting the frame
-				if(var->refcnt == 1)
-					var->refcnt++;
+			if(var == 0)
+				return -1;
 
-				var->argument = vartmp->argument;
+			// increment the reference counter of new variables to avoid
+			// variable from being delete once deleting the frame
+			if(var->refcnt == 1)
+				var->refcnt++;
 
-				if(var->argument)	frame->args.push_back(var);
-				else				frame->locals.push_back(var);
-			}
+			var->argument = vartmp->argument;
+
+			if(var->argument)	frame->args.push_back(var);
+			else				frame->locals.push_back(var);
 
 			list_rm(&varlst, vartmp);
-			gdb_variable_t::release(vartmp);
+			
+			if(gdb_variable_t::release(vartmp) != 0)
+				return -1;
 		}
 	}
 

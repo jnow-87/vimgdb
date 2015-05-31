@@ -155,8 +155,13 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 
 int gdb_variable_t::release(gdb_variable_t* v){
 	if(--v->refcnt == 0){
-		if(v->name && MAP_LOOKUP(gdb_var_lst, v->name) != 0)
-			gdb->mi_issue_cmd("var-delete", 0, "\"%s\"", v->name);
+		if(v->name && MAP_LOOKUP(gdb_var_lst, v->name) != 0){
+			if(gdb->mi_issue_cmd("var-delete", 0, "\"%s\"", v->name) != 0){
+				ERROR("var-delete \"%s\" failed, check if this is due to gdb crash "
+					  "or an implementation error using non-gdb variable objects\n", v->name);
+				return -1;
+			}
+		}
 
 		delete v;
 	}
@@ -168,7 +173,8 @@ int gdb_variable_t::get_changed(){
 	gdb_variable_t *cl, *v, *var;
 
 
-	gdb->mi_issue_cmd("var-update", (gdb_result_t**)&cl, "*");
+	if(gdb->mi_issue_cmd("var-update", (gdb_result_t**)&cl, "*") != 0)
+		return -1;
 
 	list_for_each(cl, v){
 		var = MAP_LOOKUP(gdb_var_lst, v->name);
@@ -192,14 +198,24 @@ int gdb_variable_t::get_changed(){
 			var->init_childs();
 		}
 
-		if(v->inscope == 'i')
-			gdb_variable_t::release(var);
+		if(v->inscope == 'i'){
+			if(gdb_variable_t::release(var) != 0)
+				goto err;
+		}
 
 		list_rm(&cl, v);
 		delete v;
 	}
 
 	return 0;
+
+err:
+	list_for_each(cl, v){
+		list_rm(&cl, v);
+		delete v;
+	}
+
+	return -1;
 }
 
 int gdb_variable_t::set(int argc, char** argv){

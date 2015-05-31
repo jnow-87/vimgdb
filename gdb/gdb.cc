@@ -66,9 +66,9 @@ gdbif::~gdbif(){
 	}
 
 	/* join event-thread
-	 *	terminated through 'RC_EXIT' event issued by readline-thread
+	 * 	avoid the thread signaling himself
 	 */
-	if(event_tid != 0){
+	if(event_tid != 0 && event_tid != pthread_self()){
 		do{
 			pthread_sigqueue(event_tid, SIGINT, v);
 			usleep(1000);
@@ -279,15 +279,15 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 		delete resp.result;
 	}
 
-	if(resp.rclass != RC_ERROR)
-		return 0;
-	return -1;
+	if(resp.rclass & (RC_ERROR | RC_EXIT))
+		return -1;
+	return 0;
 }
 
 int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
 	pthread_mutex_lock(&resp_mtx);
 
-	if(this->token != token){
+	if(this->token != token && rclass != RC_EXIT){
 		ERROR("result token (%d) doesn't match issued token (%d)\n", token, this->token);
 
 		delete result;
@@ -455,8 +455,11 @@ err_1:
 
 err_0:
 	/* trigger shutdown */
-	// force event-thread to exit
+	// generate gdb exit event
 	gdb->mi_proc_async(RC_EXIT, 0, 0);
+
+	// abort any in-fly mi_issue_cmd()
+	gdb->mi_proc_result(RC_EXIT, 0, 0);
 
 	// exit
 	pthread_exit(0);
@@ -546,12 +549,15 @@ int gdbif::evt_stopped(gdb_event_stop_t* result){
 	}
 
 	/* update variables */
-	gdb_variable_t::get_changed();
+	if(gdb_variable_t::get_changed() != 0)
+		return -1;
 
 	/* execute callbacks */
 	list_for_each(stop_hdlr_lst, e){
-		if(e->hdlr() != 0)
+		if(e->hdlr() != 0){
 			USER("error executing on-stop handler\n");
+			return -1;
+		}
 	}
 
 	return 0;

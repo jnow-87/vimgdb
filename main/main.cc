@@ -91,15 +91,19 @@ int cleanup(){
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
 
+	DEBUG("recv cleanup request\n");
+
 	/* ensure cleanup is only executed once */
 	if(pthread_mutex_trylock(&m) != 0)
 		return 0;
 
 	/* destroy gdb */
+	DEBUG("close gdb interface\n");
 	delete gdb;
 	gdb = 0;
 
 	/* close log */
+	DEBUG("close log\n");
 	log::cleanup();
 
 	/* close gui */

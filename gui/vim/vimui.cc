@@ -118,11 +118,16 @@ void vimui::destroy(){
 	vim_event_t* e;
 
 
-	/* trigger shutdown of main thread */
-	e = new vim_event_t;
-	e->evt_id = E_DISCONNECT;
+	/* signal shutdown to vim
+	 * this automatically closes the vim readline and event
+	 * threads through the associated events
+	 */
+	if(nbclient){
+		nbclient->send((char*)"DISCONNECT\n", 11);
 
-	proc_event(0, e);
+		// give vim some time to send disconnect event
+		sleep(2);
+	}
 
 	/* cancel readline-thread */
 	if(read_tid != 0){
