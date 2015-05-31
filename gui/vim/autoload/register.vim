@@ -51,9 +51,9 @@ function! vimgdb#register#init()
 		\ nnoremap <buffer> <silent> + :exec 'Register fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> - :exec 'Register fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> u :exec 'Register view'<cr>|
-		\ nnoremap <buffer> i :Register set <c-r>=line('.')<cr>|
-		\ nnoremap <buffer> s :Register set <c-r>=line('.')<cr>|
-		\ nnoremap <buffer> f :Register format <c-r>=line('.')<cr>
+		\ nnoremap <buffer> i :Register set <c-r>=line('.')<cr> |
+		\ nnoremap <buffer> s :Register set <c-r>=line('.')<cr> |
+		\ nnoremap <buffer> f :Register format <c-r>=line('.')<cr> 
 		\ "
 endfunction
 
