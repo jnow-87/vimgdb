@@ -275,7 +275,7 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 		else	delete resp.result;
 	}
 	else{
-		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? ((gdb_strlist_t*)resp.result)->s : "gdb implementation error"));
+		USER("gdb-error %s: \"%s\"\n", cmd, (resp.result ? strdeescape(((gdb_strlist_t*)resp.result)->s) : "gdb implementation error"));
 		delete resp.result;
 	}
 
@@ -426,7 +426,7 @@ void* gdbif::readline_thread(void* arg){
 			  ){
 				line[i] = 0;
 
-				GDB("parse gdb string \"%.10s\"\n", line);
+				GDB("parse gdb string \"%.20s\"\n", line);
 				ui->win_print(ui->win_getid(GDBLOG_NAME), "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
