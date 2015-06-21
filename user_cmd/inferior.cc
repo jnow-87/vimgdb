@@ -179,7 +179,7 @@ int cmd_inferior_exec(int argc, char** argv){
 			if(inf_file_bin)	fprintf(fp, "Inferior bin %s\n", inf_file_bin);
 			if(inf_file_sym)	fprintf(fp, "Inferior sym %s\n", inf_file_sym);
 
-			if(inf_term)		fprintf(fp, "Inferior tty internal\n");
+			if(inf_term)		fprintf(fp, "Inferior tty internal");
 			else				fprintf(fp, "echoerr \"inferior tty not set to internal, please adjust\"");
 
 			if(inf_argc > 0)
