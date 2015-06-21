@@ -51,11 +51,16 @@ int main(int argc, char** argv){
 
 	// gdb
 	DEBUG("initialise gdbctrl\n");
+
 	gdb = new gdbif;
 
 	DEBUG("initialising gdb interface\n");
-	if(gdb->init() != 0)
+
+	if(gdb->init() != 0){
+		ERROR("initialising gdb interface\n");
+
 		return 2;
+	}
 
 	gdb->on_stop(cmd_var_print);
 	gdb->on_stop(cmd_callstack_update);
