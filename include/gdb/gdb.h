@@ -14,13 +14,6 @@
 using namespace std;
 
 
-/* marcos */
-#define GDB_CMD		"/usr/bin/gdb"
-#define GDB_ARGS						/* specified as comma-separated list of strings */ \
-					"--interpreter=mi", /* enable MI interface */ \
-					"-q" 				/* disbale gdb info on start*/
-
-
 /* class */
 class gdbif{
 public:

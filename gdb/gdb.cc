@@ -1,4 +1,5 @@
 #include <common/defaults.h>
+#include <common/opt.h>
 #include <common/log.h>
 #include <common/pty.h>
 #include <common/string.h>
@@ -114,7 +115,7 @@ int gdbif::init(){
 		/* child */
 		log::cleanup();
 
-		return execl(GDB_CMD, GDB_CMD, GDB_ARGS, (char*)0);
+		return execvp(opt.gdb_argv[0], opt.gdb_argv);
 	}
 	else if(gdb_pid > 0){
 		/* parent */

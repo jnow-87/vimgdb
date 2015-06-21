@@ -46,14 +46,12 @@ function! s:vimgdb(first, ...)
 		call s:export(a:1)
 
 	else
-		if s:initialised == 0
-			call s:init()
-		endif
-
 		if filereadable(a:first) && match(a:first, ".*\.vim") == 0
 			" source vim script
 			exec "source " . a:first
 		else
+			call s:init()
+
 			" execute default init
 			exec "Inferior " . a:first
 			exec "Inferior tty internal"
@@ -62,7 +60,7 @@ function! s:vimgdb(first, ...)
 	endif
 endfunction
 
-
+" \brief	initialise vimgdb plugin (windows, commands, vimgdb program)
 function! s:init()
 	if s:initialised != 0
 		return
@@ -84,9 +82,9 @@ function! s:init()
 
 	" start vimgdb
 	if g:vimgdb_use_xterm
-		exec "silent !xterm -geometry 130x20+0+0 -e \"" . g:vimgdb_bin . " " . getcwd() . "\" &"
+		exec "silent !xterm -geometry 130x20+0+0 -e '" . g:vimgdb_bin . " -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . "' &"
 	else
-		exec "silent !" . g:vimgdb_bin . " -d " . getcwd() . ""
+		exec "silent !" . g:vimgdb_bin . " -d -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . ""
 	endif
 
 	" start netbeans
@@ -115,6 +113,7 @@ function! s:init()
 	let s:initialised = 1
 endfunction
 
+" \brief	cleanup vimgdb plugin
 function! s:cleanup()
 	if s:initialised == 0
 		return
@@ -150,8 +149,14 @@ function! s:cleanup()
 	let s:initialised = 0
 endfunction
 
+" \brief	export the current debug session
+"
+" \param	file	output file name
 function! s:export(file)
-	let l:lst = []
+	let l:lst = [ 
+		\ "let vimgdb_gdb_cmd = '" . g:vimgdb_gdb_cmd . "'", "",
+	 	\ "Vimgdb start", "",
+	\ ]
 
 	" export inferior data
 	let l:lst += vimgdb#util#cmd_get_data_list("inferior export")
@@ -172,6 +177,9 @@ function! s:export(file)
 	call writefile(l:lst, l:fullname)
 endfunction
 
+" \brief	vimgdb help command
+"
+" \param	line	item for which help is requested
 function! s:help(line)
 	call vimgdb#window#open(g:vimgdb_userlog_name, 1)
 	call vimgdb#util#cmd("help " . a:line)

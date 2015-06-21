@@ -2,6 +2,10 @@
 #define DEFAULTS_H
 
 
+#define GDB_CMD				"gdb"
+#define GDB_ARGV1			"--interpreter=mi"
+#define GDB_ARGV2			"-q"
+
 #define	USERLOG_NAME		"user-log"
 #define GDBLOG_NAME			"gdb-log"
 #define DEBUGLOG_NAME		"debug-log"

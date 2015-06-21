@@ -483,6 +483,11 @@ to customise |vimgdb|.
 	This variable defines if the vimgdb program shall be started as daemon
 	or within xterm
 
+							*'vimgdb_gdb_cmd'*
+'vimgdb_gdb_cmd'	string (default "gdb -q")
+			global
+	This variable defines the command line for invoking gdb
+
 							*'vimgdb_{bname}_show'*
 							*'vimgdb_break_show'*
 							*'vimgdb_callstack_show'*

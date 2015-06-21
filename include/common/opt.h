@@ -5,7 +5,8 @@
 /* types */
 typedef struct{
 	char *prg_name,
-		 *vim_cwd;
+		 *vim_cwd,
+		 **gdb_argv;
 } opt_t;
 
 
