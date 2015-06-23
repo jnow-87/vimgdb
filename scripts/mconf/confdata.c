@@ -631,7 +631,6 @@ static void conf_write_symbol(FILE *fp, struct symbol *sym,
 	case S_STRING:
 		str = sym_get_string_value(sym);
 		printer->print_symbol(fp, sym, str, printer_arg);
-		free((void *)str);
 		break;
 
 	case S_QSTRING:
