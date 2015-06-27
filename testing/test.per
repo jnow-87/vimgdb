@@ -1,0 +1,22 @@
+/* testing all */
+//		<name>	<addr>	<length>
+range	"mem0"	0x0		20		= {
+
+	//			<name>	<offset>	<nbytes>
+	register	"tbl"	0			4		= {
+
+		//		<name>	<index>	<nbits>
+		bits	"01"	0		2
+		bits 	"8"		8		1
+	}
+
+	register "tbu" 4 4 = { }
+}
+
+/* 
+ * multi-line commend
+ */
+range "mem1" 0x100 20 = {
+	register "pmc0" 0 8 = { }
+	register "pmc1" 8 8 = { }
+}
