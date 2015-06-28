@@ -55,7 +55,10 @@ function! s:vimgdb(first, ...)
 			" execute default init
 			exec "Inferior " . a:first
 			exec "Inferior tty internal"
-			exec "Inferior args " . join(a:000)
+
+			if len(join(a:000)) > 0
+				exec "Inferior args " . join(a:000)
+			endif
 		endif
 	endif
 endfunction
