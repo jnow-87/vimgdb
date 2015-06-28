@@ -74,7 +74,7 @@ function! vimgdb#memory#complete_lines(subcmd)
 	" get list of gdb memory buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("memory complete"), '<addr>')
 
-	if l:line_lst == []
+	if len(l:line_lst) == 0
 		return ""
 	endif
 
@@ -88,7 +88,7 @@ function! vimgdb#memory#complete_addr(subcmd)
 	" get list of gdb memory buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("memory complete"), '<addr>')
 
-	if l:line_lst == []
+	if len(l:line_lst < 2)
 		return ""
 	endif
 
