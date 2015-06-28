@@ -19,8 +19,7 @@
 
 %union{
 char* sptr;
-unsigned int i;
-void* addr;
+long long int i;
 
 per_range_t* range;
 per_register_t* reg;
@@ -47,7 +46,6 @@ per_bits_t* bits;
 %token END
 %token <sptr> STRING
 %token <i> INT
-%token <addr> ADDR
 
 /* non-terminals */
 %type <range> range
@@ -63,7 +61,7 @@ start :		range END													{ *rlst = $1; return 0; }
 	  ;
 
 range :		%empty														{ $$ = 0; }
-	  |		range RANGE STRING ADDR INT '=' '{' nl register '}' nl		{ $$ = $1; list_add_tail(&$$, new per_range_t($3, $4, $5, $9)); }
+	  |		range RANGE STRING INT INT '=' '{' nl register '}' nl		{ $$ = $1; list_add_tail(&$$, new per_range_t($3, $4, $5, $9)); }
 	  ;
 
 register :	%empty														{ $$ = 0; }

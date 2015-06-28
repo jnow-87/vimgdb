@@ -11,6 +11,7 @@ let g:vimgdb_variables_name = "variables"
 let g:vimgdb_callstack_name = "callstack"
 let g:vimgdb_register_name = "registers"
 let g:vimgdb_memory_name = "memory"
+let g:vimgdb_per_name = "peripherals"
 
 
 """""""""""""""""""
@@ -95,6 +96,14 @@ function! vimgdb#window#init()
 		\ "vertical":g:vimgdb_memory_vertical,
 	\ }
 
+	let s:win_lst[g:vimgdb_per_name] = {
+		\ "show":g:vimgdb_per_show,
+		\ "width":g:vimgdb_per_width,
+		\ "height":g:vimgdb_per_height,
+		\ "vertical":g:vimgdb_per_vertical,
+	\ }
+
+
 	" update vimgdb completio
 	exec "let s:win_names = \""
 		\ . g:vimgdb_userlog_name . "\n"
@@ -104,7 +113,8 @@ function! vimgdb#window#init()
 		\ . g:vimgdb_variables_name . "\n"
 		\ . g:vimgdb_callstack_name . "\n"
 		\ . g:vimgdb_register_name . "\n"
-		\ . g:vimgdb_memory_name
+		\ . g:vimgdb_memory_name . "\n"
+		\ . g:vimgdb_per_name
 		\ . "\""
 
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)

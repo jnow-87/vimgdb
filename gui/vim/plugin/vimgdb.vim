@@ -82,6 +82,7 @@ function! s:init()
 	call vimgdb#register#init()
 	call vimgdb#memory#init()
 	call vimgdb#evaluate#init()
+	call vimgdb#per#init()
 
 	" start vimgdb
 	if g:vimgdb_use_xterm
@@ -107,6 +108,7 @@ function! s:init()
 	call vimgdb#window#open(g:vimgdb_variables_name, 0)
 	call vimgdb#window#open(g:vimgdb_inferior_name, 0)
 	call vimgdb#window#open(g:vimgdb_register_name, 0)
+	call vimgdb#window#open(g:vimgdb_per_name, 0)
 
 	call vimgdb#window#focus(1)
 
@@ -132,6 +134,7 @@ function! s:cleanup()
 	call vimgdb#window#close(g:vimgdb_callstack_name)
 	call vimgdb#window#close(g:vimgdb_register_name)
 	call vimgdb#window#close(g:vimgdb_memory_name)
+	call vimgdb#window#close(g:vimgdb_per_name)
 
 	" close netbeans
 	nbclose
@@ -147,6 +150,7 @@ function! s:cleanup()
 	call vimgdb#register#cleanup()
 	call vimgdb#memory#cleanup()
 	call vimgdb#evaluate#cleanup()
+	call vimgdb#per#cleanup()
 	call vimgdb#config#cleanup()
 
 	let s:initialised = 0

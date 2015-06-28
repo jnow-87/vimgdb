@@ -89,6 +89,7 @@ int cmd_memory_exec(int argc, char** argv){
 		cmd_memory_update();
 		cmd_var_print();
 		cmd_callstack_print();
+		cmd_per_update();
 		break;
 
 	case FOLD:

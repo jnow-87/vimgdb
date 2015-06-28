@@ -1,4 +1,4 @@
-obj-y := cmd.o subcmd.o test.o help.o inferior.o break.o exec.o variable.o callstack.o register.o memory.o evaluate.o per.lex.o per.tab.o pertypes.o
+obj-y := cmd.o subcmd.o test.o help.o inferior.o break.o exec.o variable.o callstack.o register.o memory.o evaluate.o per.lex.o per.tab.o pertypes.o per.o
 bin-y := test-perparser
 
 

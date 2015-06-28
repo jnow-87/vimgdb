@@ -47,7 +47,7 @@ int main(int argc, char** argv){
 			USER("    reg: %s %u %u\n", reg->name, reg->offset, reg->nbytes);
 
 			list_for_each(reg->bits, bits){
-				USER("        bits: %s %u %u\n", bits->name, bits->idx, bits->nbits);
+				USER("        bits: %s %u %#x\n", bits->name, bits->idx, bits->mask);
 			}
 		}
 

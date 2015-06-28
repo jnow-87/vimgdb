@@ -40,6 +40,7 @@ callstack,	cmd_callstack_exec,	cmd_callstack_help,	"control layout and variables
 register,	cmd_register_exec,	cmd_register_help,	"control target registers"
 memory,		cmd_memory_exec,	cmd_memory_help,	"display and modify memory"
 evaluate,	cmd_evaluate_exec,	cmd_evaluate_help,	"evaluate an expressions"
+per,		cmd_per_exec,		cmd_per_help,		"display and modify memory mapped registers"
 %%
 
 /**

@@ -83,6 +83,11 @@ call vimgdb#util#cond_assign("g:vimgdb_memory_width", 40)
 call vimgdb#util#cond_assign("g:vimgdb_memory_height", 10)
 call vimgdb#util#cond_assign("g:vimgdb_memory_vertical", 0)
 
+call vimgdb#util#cond_assign("g:vimgdb_per_show", 0)
+call vimgdb#util#cond_assign("g:vimgdb_per_width", 40)
+call vimgdb#util#cond_assign("g:vimgdb_per_height", 10)
+call vimgdb#util#cond_assign("g:vimgdb_per_vertical", 1)
+
 
 """""""""""""""""""
 " local variables "

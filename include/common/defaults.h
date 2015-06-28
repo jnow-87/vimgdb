@@ -15,6 +15,7 @@
 #define REGISTERS_NAME		"registers"
 #define MEMORY_NAME			"memory"
 #define INFERIOR_NAME		"inferior"
+#define PER_NAME			"peripherals"
 
 
 #endif // DEFAULTS_H
