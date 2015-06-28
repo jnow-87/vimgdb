@@ -53,7 +53,7 @@ function! vimgdb#memory#init()
 		\ nnoremap <buffer> <silent> dd :exec 'Memory delete ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> u :exec 'Memory view'<cr>|
 		\ nnoremap <buffer> i :Memory set <c-r>=split(getline('.'))[0]<cr> |
-		\ nnoremap <buffer> s :Memory set <c-r>=split(getline('.'))[0]<cr> 
+		\ nnoremap <buffer> s :Memory set <c-r>=split(getline('.'))[0]<cr>
 		\ "
 endfunction
 

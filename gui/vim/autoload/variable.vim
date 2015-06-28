@@ -60,7 +60,7 @@ function! vimgdb#variable#init()
 		\ nnoremap <buffer> <silent> dd :exec 'Variable delete ' . line('.')<cr>|
 		\ nnoremap <buffer> i :Variable set <c-r>=line('.')<cr> |
 		\ nnoremap <buffer> s :Variable set <c-r>=line('.')<cr> |
-		\ nnoremap <buffer> f :Variable format <c-r>=line('.')<cr> 
+		\ nnoremap <buffer> f :Variable format <c-r>=line('.')<cr>
 		\ "
 endfunction
 

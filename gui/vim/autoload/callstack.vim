@@ -53,7 +53,7 @@ function! vimgdb#callstack#init()
 		\ nnoremap <buffer> <silent> u :exec 'Callstack view'<cr>|
 		\ nnoremap <buffer> i :Callstack set <c-r>=line('.')<cr> |
 		\ nnoremap <buffer> s :Callstack set <c-r>=line('.')<cr> |
-		\ nnoremap <buffer> f :Callstack format <c-r>=line('.')<cr> 
+		\ nnoremap <buffer> f :Callstack format <c-r>=line('.')<cr>
 		\ "
 endfunction
 
