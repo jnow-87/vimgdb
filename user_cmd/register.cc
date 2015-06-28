@@ -178,11 +178,11 @@ void cmd_register_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("      fold <line>          fold/unfold variable/frame\n");
-		USER("      format <line> <fmt>  change variable output format\n");
-		USER("      set <line> <value>   set variable\n");
-		USER("      complete <filename>  get list of variables/frames\n");
-		USER("      view                 update register window\n");
+		USER("      fold <line>              fold/unfold variable/frame\n");
+		USER("      format <line> <fmt>      change variable output format\n");
+		USER("      set <line> <value>       set variable\n");
+		USER("      complete <file> <sync>   get list of variables/frames\n");
+		USER("      view                     update register window\n");
 		USER("\n");
 	}
 	else{
@@ -215,8 +215,8 @@ void cmd_register_help(int argc, char** argv){
 				break;
 
 			case COMPLETE:
-				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("          print '\\n' seprated list of line numbers that contain variables or frames to file <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[i]);
+				USER("          print '\\n' seprated list of line numbers that contain variables or frames to file <file>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 

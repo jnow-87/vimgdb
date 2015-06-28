@@ -155,6 +155,7 @@ int cmd_var_exec(int argc, char** argv){
 		for(sit=gdb_user_var.begin(); sit!=gdb_user_var.end(); sit++)
 			fprintf(fp, "Variable add %s\n", sit->second->exp);
 
+		fprintf(fp, "\n");
 		fclose(fp);
 
 		USER("export variables to \"%s\"\n", argv[2]);
@@ -190,14 +191,14 @@ void cmd_var_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("      add <expr>           add variable for expression <expr>\n");
-		USER("      delete <line>        delete variable\n");
-		USER("      fold <line>          fold/unfold variable\n");
-		USER("      format <line> <fmt>  change variable output format\n");
-		USER("      set <line> <value>   set variable\n");
-		USER("      complete <filename>  get list of variables\n");
-		USER("      export <filename>    export user variables to vim script\n");
-		USER("      view                 update variable window\n");
+		USER("      add <expr>               add variable for expression <expr>\n");
+		USER("      delete <line>            delete variable\n");
+		USER("      fold <line>              fold/unfold variable\n");
+		USER("      format <line> <fmt>      change variable output format\n");
+		USER("      set <line> <value>       set variable\n");
+		USER("      complete <file> <sync>   get list of variables\n");
+		USER("      export <file> <sync>     export user variables to vim script\n");
+		USER("      view                     update variable window\n");
 		USER("\n");
 	}
 	else{
@@ -242,14 +243,14 @@ void cmd_var_help(int argc, char** argv){
 				break;
 
 			case COMPLETE:
-				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("   print '\\n' separated list of line numbers that contain variables to file <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[i]);
+				USER("   print '\\n' separated list of line numbers that contain variables to file <file>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 
 			case EXPORT:
-				USER("usage %s %s <filename>\n", argv[0], argv[1]);
-				USER("   export user variables to vim script <filename>\n");
+				USER("usage %s %s <file>\n", argv[0], argv[1]);
+				USER("   export user variables to vim script <file>, using file <sync> to sync with vim\n");
 				USER("   note: restore of variables only works for global variables\n");
 				USER("\n");
 				break;

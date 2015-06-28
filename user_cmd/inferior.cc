@@ -188,7 +188,7 @@ int cmd_inferior_exec(int argc, char** argv){
 			for(r=0; r<inf_argc; r++)
 				fprintf(fp, " \"%s\"", inf_argv[r]);
 
-			fprintf(fp, "\n");
+			fprintf(fp, "\n\n");
 			fclose(fp);
 
 			USER("export inferior data to \"%s\"\n", argv[2]);
@@ -227,12 +227,12 @@ void cmd_inferior_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("      <file>              load code and debug symbols\n");
-		USER("      bin <file>          load code\n");
-		USER("      sym <file>          load debug symbols\n");
-		USER("      args <args>...      set inferior parameters\n");
-		USER("      tty <terminal>      set inferior output terminal\n");
-		USER("      export <filename>   export inferior data to vim script\n");
+		USER("      <file>                 load code and debug symbols\n");
+		USER("      bin <file>             load code\n");
+		USER("      sym <file>             load debug symbols\n");
+		USER("      args <args>...         set inferior parameters\n");
+		USER("      tty <terminal>         set inferior output terminal\n");
+		USER("      export <file> <sync>   export inferior data to vim script\n");
 		USER("\n");
 	}
 	else{
@@ -272,8 +272,8 @@ void cmd_inferior_help(int argc, char** argv){
 				break;
 
 			case EXPORT:
-				USER("usage %s %s <filename>\n", argv[0], argv[1]);
-				USER("   export inferior data to vim script <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[1]);
+				USER("   export inferior data to vim script <filename>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 

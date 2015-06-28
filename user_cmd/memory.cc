@@ -154,11 +154,11 @@ void cmd_memory_help(int argc, char** argv){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
 		USER("   sub-commands:\n");
 		USER("      add <addr> <bytes>           add memory segment\n");
-		USER("      delete <line>               delete memory segment\n");
-		USER("      fold <line>                 fold/unfold memory segment\n");
-		USER("      set <addr> <value> [<cnt>]  set memory\n");
-		USER("      complete <filename>         get list of memory segments and addresses\n");
-		USER("      view                        update memory window\n");
+		USER("      delete <line>                delete memory segment\n");
+		USER("      fold <line>                  fold/unfold memory segment\n");
+		USER("      set <addr> <value> [<cnt>]   set memory\n");
+		USER("      complete <file> <sync>       get list of memory segments and addresses\n");
+		USER("      view                         update memory window\n");
 		USER("\n");
 	}
 	else{
@@ -197,8 +197,8 @@ void cmd_memory_help(int argc, char** argv){
 				break;
 
 			case COMPLETE:
-				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("   print list of line numbers and addresses to file <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[i]);
+				USER("   print list of line numbers and addresses to file <file>, using file <sync> to sync with vim\n");
 				USER("   both lists are separated by '<addr>'\n");
 				USER("   the items of each list are '\\n' separated\n");
 				USER("\n");

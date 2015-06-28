@@ -170,6 +170,7 @@ int cmd_break_exec(int argc, char** argv){
 			fprintf(fp, "\n");
 		}
 
+		fprintf(fp, "\n");
 		fclose(fp);
 
 		USER("export breakpoints to \"%s\"\n", argv[2]);
@@ -205,13 +206,13 @@ void cmd_break_help(int argc, char** argv){
 	if(argc == 1){
 		USER("usage %s <sub-command> <arg>\n", argv[0]);
 		USER("   sub-commands:\n");
-		USER("       add [opt] <location>   add breakpoint\n");
-		USER("       delete <location>      delete breakpoint\n");
-		USER("       enable <location>      enable breakpoint\n");
-		USER("       disable <location>     disable breakpoint\n");
-		USER("       view                   update breakpoint window\n");
-		USER("       complete <filename>    get list of breakpoints\n");
-		USER("       export <filename>      export breakpoints to vim script\n");
+		USER("       add [opt] <location>     add breakpoint\n");
+		USER("       delete <location>        delete breakpoint\n");
+		USER("       enable <location>        enable breakpoint\n");
+		USER("       disable <location>       disable breakpoint\n");
+		USER("       view                     update breakpoint window\n");
+		USER("       complete <file> <sync>   get list of breakpoints\n");
+		USER("       export <file> <sync>     export breakpoints to vim script\n");
 		USER("\n");
 	}
 	else{
@@ -258,14 +259,14 @@ void cmd_break_help(int argc, char** argv){
 				break;
 
 			case COMPLETE:
-				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("          print '\\n' seprated list of breakpoint to file <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[i]);
+				USER("          print '\\n' seprated list of breakpoint to file <file>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 
 			case EXPORT:
-				USER("usage %s %s <filename>\n", argv[0], argv[1]);
-				USER("         export breakpoints to vim script <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[1]);
+				USER("         export breakpoints to vim script <file>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 
