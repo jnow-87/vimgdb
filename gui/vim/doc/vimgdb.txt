@@ -80,6 +80,7 @@ The following vim buffers are used to display gdb information:
 	* memory
 	* inferior
 	* breakpoints
+	* peripherals
 
 Commands and mappings associated to each of the buffers can be found in
 |vimgdb-commands| and |vimgdb-mappings| respectively.
@@ -308,6 +309,44 @@ The following argument types are used regularly:
 
 	<open>
 		See |:Window| <open>
+
+							*:Per* *:per*
+:[pP]er {args}
+	Control memory-mapped registers (peripherals).
+	{args} can be any of the following, {line} arguments refer to the
+	respective line in the peripherals buffer:
+
+	<file>
+		initialise memory-mapped registers using the specified
+		peripherals file. The peripherals file can contain multipe
+		{range} definitions. Each {range} can contain multiple
+		{registers}, whereas each {register} can contain multiple
+		{bits} definitions:
+							*peripherals-file*
+		    range "<name>" <base-addr> <nbytes> = {
+			    register "<name>" <offset> <nbytes> = {
+				    bits "<name>" <index> <nbits>
+				    ...
+			    }
+
+			    ...
+		    }
+
+		    ...
+
+	<fold> {line}
+		Toggle fold state of peripherals range under cursor.
+
+	<set> {reg-name} {value}
+		Set value of specified register {reg-name}. {reg-name} referes
+		to any of the registers listed in the peripherals buffer.
+
+	<view>
+		See |:Window| <view>
+
+	<open>
+		See |:Window| <open>
+
 							*:Register* *:register*
 :[rR]egister {args}
 	Control the registers shown in the registers buffer.
@@ -461,6 +500,12 @@ break
 	dd		delete breakpoint
 	u		update buffer content
 	<cr>		jump to breakpoint
+
+peripherals
+	<c-f>, +, -	fold current line
+	u		update buffer content
+	i, s		set value of variable
+
 
 ==============================================================================
 							*vimgdb-customisation*
