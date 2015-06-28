@@ -191,7 +191,7 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 
 	GDB("issue: %s\n", cmd);
 
-	gdb_term->write(itoa(token, (char**)&s, (unsigned int*)&s_len));
+	gdb_term->write(itoa(token, (char**)&s, (unsigned int*)&s_len, 10));
 	gdb_term->write((char*)"-");
 	gdb_term->write((char*)cmd);
 
@@ -203,12 +203,17 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 		case '%':
 			switch(fmt[i + 1]){
 			case 'd':
-				gdb_term->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				gdb_term->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len, 10));
 				i++;
 				break;
 
 			case 'u':
-				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
+				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len, 10));
+				i++;
+				break;
+
+			case 'x':
+				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len, 16));
 				i++;
 				break;
 

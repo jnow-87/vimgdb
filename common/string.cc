@@ -1,3 +1,4 @@
+#include <common/log.h>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -324,14 +325,14 @@ char* strdeescape(char* s){
 	return s;
 }
 
-char* itoa(unsigned int v, char** s, unsigned int* max, bool neg){
+char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool neg){
 	unsigned int len = 0;
 	
 
 	if(s == 0)
 		return 0;
 
-	len = strlen(v, 10) + 1 + (neg ? 1 : 0);
+	len = strlen(v, base) + 1 + (neg ? 1 : 0);
 
 	if(*max < len){
 		*max += len;;
@@ -344,12 +345,25 @@ char* itoa(unsigned int v, char** s, unsigned int* max, bool neg){
 		return 0;
 	}
 
-	sprintf(*s, "%s%u", (neg ? "-" : ""), v);
+	switch(base){
+	case 10:
+		sprintf(*s, "%s%u", (neg ? "-" : ""), v);
+		break;
+
+	case 16:
+		sprintf(*s, "%s%x", (neg ? "-" : ""), v);
+		break;
+
+	default:
+		ERROR("base %u not supported\n", base);
+		return 0;
+	}
+
 	return *s;
 }
 
-char* itoa(int v, char** s, unsigned int* max){
-	return itoa((unsigned int)(v < 0 ? v * -1 : v), s, max, (v < 0 ? true : false));
+char* itoa(int v, char** s, unsigned int* max, unsigned int base){
+	return itoa((unsigned int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
 }
 
 char* stralloc(char* _s, unsigned int len){

@@ -645,7 +645,7 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 	va_start(lst, fmt);
 
 	/* send action header */
-	nbclient->send(itoa(buf_id, (char**)&s, (unsigned int*)&s_len));
+	nbclient->send(itoa(buf_id, (char**)&s, (unsigned int*)&s_len, 10));
 	nbclient->send((char*)":");
 	nbclient->send((char*)action);
 
@@ -655,7 +655,7 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 	else if(type == CMD)	nbclient->send((char*)"!");
 
 	seq_num++;
-	nbclient->send(itoa(seq_num, (char**)&s, (unsigned int*)&s_len));
+	nbclient->send(itoa(seq_num, (char**)&s, (unsigned int*)&s_len, 10));
 
 	/* process arguments */
 	if(strlen(fmt) > 0)
@@ -666,11 +666,11 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 			switch(fmt[++i]){
 			case 'i':
 			case 'd':
-				nbclient->send(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len));
+				nbclient->send(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len, 10));
 				break;
 
 			case 'u':
-				nbclient->send(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len));
+				nbclient->send(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len, 10));
 				break;
 
 			case 's':

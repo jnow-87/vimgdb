@@ -7,8 +7,8 @@ int strlen(int val, int base);
 int strsplit(char* line, int* argc, char*** argv);
 char* strescape(char* s, char** e, unsigned int* e_max);
 char* strdeescape(char* s);
-char* itoa(unsigned int v, char** s, unsigned int* max, bool neg = false);
-char* itoa(int v, char** s, unsigned int* max);
+char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool neg = false);
+char* itoa(int v, char** s, unsigned int* max, unsigned int base);
 char* stralloc(char* s, unsigned int len);
 
 
