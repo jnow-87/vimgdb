@@ -172,7 +172,10 @@ function! s:export(file)
 	let l:lst += vimgdb#util#cmd_get_data_list("break export")
 
 	" export variables
-	let l:lst += vimgdb#util#cmd_get_data_list("variable export")	
+	let l:lst += vimgdb#util#cmd_get_data_list("variable export")
+
+	" export peripheral data
+	let l:lst += vimgdb#util#cmd_get_data_list("per export")
 
 	" write ouptut file
 	let l:fullname = a:file

@@ -26,6 +26,7 @@ using namespace std;
 
 
 /* static variables */
+static char* per_file = 0;
 static per_range_t* range_lst = 0;
 static map<unsigned int, per_range_t*> line_map;
 static map<string, per_register_t*> reg_map;
@@ -55,7 +56,7 @@ int cmd_per_exec(int argc, char** argv){
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
-	if((scmd == 0 && argc < 2) || (scmd != 0 && ((scmd->id == FOLD && argc < 3) || ((scmd->id == SET || scmd->id == COMPLETE) && argc < 4)))){
+	if((scmd == 0 && argc < 2) || (scmd != 0 && ((scmd->id == FOLD && argc < 3) || ((scmd->id == SET || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 4)))){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_per_help(2, argv);
 		return 0;
@@ -116,6 +117,9 @@ int cmd_per_exec(int argc, char** argv){
 
 			USER("add memory segment for range \"%s\" (%p, %u)\n", range->name, range->base, range->size);
 		}
+
+		delete [] per_file;
+		per_file = stralloc(argv[1], strlen(argv[1]));
 
 		cmd_per_update();
 	}
@@ -179,6 +183,29 @@ int cmd_per_exec(int argc, char** argv){
 			fclose(fp);
 			break;
 
+		case EXPORT:
+			fp = fopen(argv[2], "w");
+
+			if(fp == 0)
+				return 0;
+
+			if(per_file)		fprintf(fp, "Per %s\n\n", per_file);
+
+			fclose(fp);
+
+			USER("export peripheral commands to \"%s\"\n", argv[2]);
+
+			/* signal data availability */
+			fp = fopen(argv[3], "w");
+
+			if(fp == 0)
+				return -1;
+
+			fprintf(fp, "1\n");
+			fclose(fp);
+			break;
+
+
 		case VIEW:
 			cmd_per_update();
 			break;
@@ -204,7 +231,8 @@ void cmd_per_help(int argc, char** argv){
 		USER("      <file>                          set peripheral file\n");
 		USER("      set <register> <value> [<cnt>]  set register\n");
 		USER("      fold <line>                     fold/unfold peripheral segment\n");
-		USER("      complete <filename>             get list of peripheral segments and addresses\n");
+		USER("      complete <file> <sync>          get list of peripheral segments and addresses\n");
+		USER("      export <file> <sync>            export used peripheral file to vim script\n");
 		USER("      view                            update per window\n");
 		USER("\n");
 	}
@@ -231,10 +259,16 @@ void cmd_per_help(int argc, char** argv){
 				break;
 
 			case COMPLETE:
-				USER("usage %s %s <filename>\n", argv[0], argv[i]);
-				USER("   print list of line numbers and addresses to file <filename>\n");
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[i]);
+				USER("   print list of line numbers and addresses to file <file>, using file <sync> to sync with vim\n");
 				USER("   both lists are separated by '<addr>'\n");
 				USER("   the items of each list are '\\n' separated\n");
+				USER("\n");
+				break;
+
+			case EXPORT:
+				USER("usage %s %s <file> <sync>\n", argv[0], argv[1]);
+				USER("   export peripheral file to vim script <file>, using file <sync> to sync with vim\n");
 				USER("\n");
 				break;
 
