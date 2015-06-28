@@ -135,13 +135,8 @@ int cmd_per_exec(int argc, char** argv){
 
 			if(gdb->mi_issue_cmd("data-write-memory-bytes", 0, "0x%x %s", (unsigned long long)reg->parent->base + reg->offset, argv[3]) != 0)
 				return -1;
-			
-			gdb_variable_t::get_changed();
 
-			cmd_memory_update();
-			cmd_var_print();
-			cmd_callstack_print();
-			cmd_per_update();
+			gdb->memory_update();
 			break;
 
 		case FOLD:

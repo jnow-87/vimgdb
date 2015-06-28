@@ -156,6 +156,25 @@ void gdbif::on_exit(int (*hdlr)(void)){
 	list_add_tail(&exit_hdlr_lst, e);
 }
 
+int gdbif::memory_update(){
+	event_hdlr_t* e;
+
+
+	/* update variables */
+	if(gdb_variable_t::get_changed() != 0)
+		return -1;
+
+	/* execute callbacks */
+	list_for_each(stop_hdlr_lst, e){
+		if(e->hdlr() != 0){
+			USER("error executing on-stop handler\n");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 /**
  * \brief	create gdb machine interface (MI) command
  *
@@ -528,7 +547,6 @@ int gdbif::evt_running(gdb_event_t* result){
 }
 
 int gdbif::evt_stopped(gdb_event_stop_t* result){
-	event_hdlr_t* e;
 	gdb_frame_t* frame;
 
 
@@ -554,17 +572,6 @@ int gdbif::evt_stopped(gdb_event_stop_t* result){
 		return 0;
 	}
 
-	/* update variables */
-	if(gdb_variable_t::get_changed() != 0)
-		return -1;
-
-	/* execute callbacks */
-	list_for_each(stop_hdlr_lst, e){
-		if(e->hdlr() != 0){
-			USER("error executing on-stop handler\n");
-			return -1;
-		}
-	}
-
-	return 0;
+	/* update variables and memory content */
+	return memory_update();
 }

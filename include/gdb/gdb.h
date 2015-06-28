@@ -25,6 +25,7 @@ public:
 	int init();
 	void on_stop(int (*hdlr)(void));
 	void on_exit(int (*hdlr)(void));
+	int memory_update();
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(const char* cmd, gdb_result_t** result, const char* fmt, ...);

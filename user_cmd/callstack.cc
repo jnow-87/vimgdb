@@ -95,12 +95,7 @@ int cmd_callstack_exec(int argc, char** argv){
 	case SET:
 		var->set(argc - 3, argv + 3);
 
-		gdb_variable_t::get_changed();
-
-		cmd_callstack_print();
-		cmd_var_print();
-		cmd_memory_update();
-		cmd_per_update();
+		gdb->memory_update();
 		break;
 
 	case FORMAT:

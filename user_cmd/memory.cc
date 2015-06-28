@@ -83,13 +83,8 @@ int cmd_memory_exec(int argc, char** argv){
 	case SET:
 		if(gdb->mi_issue_cmd("data-write-memory-bytes", 0, "%ss %d", argv + 2, argc - 2) != 0)
 			return -1;
-		
-		gdb_variable_t::get_changed();
 
-		cmd_memory_update();
-		cmd_var_print();
-		cmd_callstack_print();
-		cmd_per_update();
+		gdb->memory_update();
 		break;
 
 	case FOLD:
