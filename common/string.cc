@@ -1,4 +1,5 @@
 #include <common/log.h>
+#include <common/string.h>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -6,6 +7,10 @@
 
 
 int strlen(unsigned int val, int base){
+	return strlen((unsigned long int)val, base);
+}
+
+int strlen(unsigned long int val, int base){
 	unsigned int len;
 
 
@@ -18,7 +23,11 @@ int strlen(unsigned int val, int base){
 }
 
 int strlen(int val, int base){
-	return strlen((unsigned int)(val < 0 ? val * -1 : val), base) + (val < 0 ? 1 : 0);
+	return strlen((unsigned long int)(val < 0 ? val * -1 : val), base) + (val < 0 ? 1 : 0);
+}
+
+int strlen(long int val, int base){
+	return strlen((unsigned long int)(val < 0 ? val * -1 : val), base) + (val < 0 ? 1 : 0);
 }
 
 int strsplit(char* line, int* _argc, char*** _argv){
@@ -326,6 +335,18 @@ char* strdeescape(char* s){
 }
 
 char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool neg){
+	return itoa((unsigned long int)v, s, max, base, neg);
+}
+
+char* itoa(int v, char** s, unsigned int* max, unsigned int base){
+	return itoa((unsigned long int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
+}
+
+char* itoa(long int v, char** s, unsigned int* max, unsigned int base){
+	return itoa((unsigned long int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
+}
+
+char* itoa(unsigned long int v, char** s, unsigned int* max, unsigned int base, bool neg){
 	unsigned int len = 0;
 	
 
@@ -347,11 +368,11 @@ char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool 
 
 	switch(base){
 	case 10:
-		sprintf(*s, "%s%u", (neg ? "-" : ""), v);
+		sprintf(*s, "%s%lu", (neg ? "-" : ""), v);
 		break;
 
 	case 16:
-		sprintf(*s, "%s%x", (neg ? "-" : ""), v);
+		sprintf(*s, "%s%lx", (neg ? "-" : ""), v);
 		break;
 
 	default:
@@ -360,10 +381,6 @@ char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool 
 	}
 
 	return *s;
-}
-
-char* itoa(int v, char** s, unsigned int* max, unsigned int base){
-	return itoa((unsigned int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
 }
 
 char* stralloc(char* _s, unsigned int len){

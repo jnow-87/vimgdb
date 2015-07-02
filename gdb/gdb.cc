@@ -221,19 +221,41 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 		switch(fmt[i]){
 		case '%':
 			switch(fmt[i + 1]){
+			case 'l':
+				switch(fmt[i + 2]){
+				case 'd':
+					gdb_term->write(itoa((long int)va_arg(lst, long int), (char**)&s, (unsigned int*)&s_len, 10));
+					break;
+
+				case 'u':
+					gdb_term->write(itoa((unsigned long int)va_arg(lst, unsigned long int), (char**)&s, (unsigned int*)&s_len, 10));
+					break;
+
+				case 'x':
+					gdb_term->write(itoa((unsigned long int)va_arg(lst, unsigned long int), (char**)&s, (unsigned int*)&s_len, 16));
+					break;
+
+				default:
+					pthread_mutex_unlock(&m);
+					va_end(lst);
+
+					ERROR("invalid format specifier for long %%%c\n", fmt[i + 2]);
+					return -1;
+				};
+
+				i++;
+				break;
+
 			case 'd':
 				gdb_term->write(itoa((int)va_arg(lst, int), (char**)&s, (unsigned int*)&s_len, 10));
-				i++;
 				break;
 
 			case 'u':
 				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len, 10));
-				i++;
 				break;
 
 			case 'x':
 				gdb_term->write(itoa((unsigned int)va_arg(lst, unsigned int), (char**)&s, (unsigned int*)&s_len, 16));
-				i++;
 				break;
 
 			case 's':
@@ -255,8 +277,6 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 				}
 				else
 					gdb_term->write(va_arg(lst, char*));
-
-				i++;
 				break;
 
 			default:
@@ -267,6 +287,7 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 				return -1;
 			};
 
+			i++;
 			break;
 
 		default:
