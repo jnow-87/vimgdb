@@ -580,17 +580,26 @@ int gdbif::evt_stopped(gdb_event_stop_t* result){
 	cur_thread = result->thread_id;
 
 	/* check reason */
-	if(frame != 0){
+	if(strcmp(result->reason, "exited-normally") == 0){
+		USER("program exited\n");
+		return 0;
+	}
+	else if(strcmp(result->reason, "signal-received") == 0){
+		USER("program received signal \"%s\"\n", result->signal);
+
+		// generate gdb exit event on SEGFAULT
+		if(strcmp(result->signal, "SIGSEGV") == 0)
+			gdb->mi_proc_async(RC_EXIT, 0, 0);
+
+		return 0;
+	}
+	else if(frame != 0){
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
 		}
 		else
 			USER("file \"%s\" does not exist\n", frame->fullname);
-	}
-	else if(strcmp(result->reason, "exited-normally") == 0){
-		USER("program exited\n");
-		return 0;
 	}
 
 	/* update variables and memory content */

@@ -21,6 +21,7 @@ public:
 	~gdb_event_stop_t();
 
 	gdb_frame_t* frame;
+	char* signal;
 };
 
 

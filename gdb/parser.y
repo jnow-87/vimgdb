@@ -279,7 +279,7 @@ event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
 				|			event-stop-body con-com VAR_CORE '=' string-dummy				{ }
 				|			event-stop-body con-com VAR_DISPOSITION '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_BREAKPT_NUM '=' string-dummy		{ }
-				|			event-stop-body con-com VAR_SIG_NAME '=' string-dummy			{ }
+				|			event-stop-body con-com VAR_SIG_NAME '=' string					{ $$ = $1; $$->signal = $5; }
 				|			event-stop-body con-com VAR_SIG_MEANING '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_GDBRES_VAR '=' string-dummy			{ }
 				|			event-stop-body con-com VAR_RETVAL '=' string-dummy				{ }
