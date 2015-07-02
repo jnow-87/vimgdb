@@ -387,7 +387,7 @@ arg-list :					%empty															{ }
 		 ;
 
 memory :					VAR_MEMORY '=' '[' '{' memory-body '}' ']'						{ $$ = $5; };
-memory-body :				%empty															{ $$ = new gdb_memory_t; }
+memory-body :				%empty															{ $$ = gdb_memory_t::acquire(); }
 			|				memory-body con-com VAR_BEGIN '=' string						{ $$ = $1; $$->begin = $5; }
 			|				memory-body con-com VAR_END '=' string-llnum-hex				{ $$ = $1; $$->length = (unsigned int)($5 - strtoll($$->begin, 0, 16)); }
 			|				memory-body con-com VAR_CONTENTS '=' string						{ $$ = $1; $$->content = $5; }

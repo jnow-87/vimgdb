@@ -298,9 +298,9 @@ The following argument types are used regularly:
 	<fold> {line}
 		Toggle fold state of memory segment at line {line}.
 
-	<set> {addr} {value} [{count}]
+	<set> {addr} {value} [{nbytes}]
 		Set memory content at address {addr} to {value}. Optionally
-		define the number of bytes to be written as {count}. If
+		define the number of bytes to be written as {nbytes}. If
 		{count} is greater than the length of {value}, the value will
 		be written repeatedly
 		

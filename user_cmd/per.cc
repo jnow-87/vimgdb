@@ -87,7 +87,9 @@ int cmd_per_exec(int argc, char** argv){
 		/* initialise memory segments */
 		list_for_each(range_lst, range){
 			// read respective memory
-			if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&(range->mem), "0x%x %u", range->base, range->size) != 0){
+			range->mem = gdb_memory_t::acquire(range->base, range->size);
+
+			if(range->mem == 0){
 				USER("unable to create memory segment for range \"%s\" (%p, %u)\n", range->name, range->base, range->size);
 				per_cleanup();
 				return -1;
@@ -133,7 +135,7 @@ int cmd_per_exec(int argc, char** argv){
 				return 0;
 			}
 
-			if(gdb->mi_issue_cmd("data-write-memory-bytes", 0, "0x%x %s", (unsigned long long)reg->parent->base + reg->offset, argv[3]) != 0)
+			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3]) != 0)
 				return -1;
 
 			gdb->memory_update();
@@ -315,14 +317,16 @@ int cmd_per_update(){
 		}
 
 		/* get memory content */
-		if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&mem, "%s %u", range->mem->begin, range->mem->length) != 0){
+		mem = range->mem;
+
+		if(mem->update() != 0){
 			ui->atomic(false);
 			return -1;
 		}
 
 		/* print register values */
 		list_for_each(range->regs, reg){
-			changed = memcmp(range->mem->content + reg->offset * 2, mem->content + reg->offset * 2, reg->nbytes * 2);
+			changed = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
 			ui->win_print(win_id, " %s = %s%.*s\n", reg->name, (changed ? "`" : ""), reg->nbytes * 2, mem->content + reg->offset * 2);
 
@@ -351,11 +355,6 @@ int cmd_per_update(){
 				line += 2;
 			}
 		}
-
-		delete [] range->mem->content;
-		range->mem->content = mem->content;
-		mem->content = 0;
-		delete mem;
 	}
 
 	ui->atomic(false);

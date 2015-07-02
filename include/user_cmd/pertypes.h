@@ -39,11 +39,11 @@ public:
 
 class per_range_t{
 public:
-	per_range_t(char* name, unsigned long int base, unsigned int size, per_register_t* regs);
+	per_range_t(char* name, void* base, unsigned int size, per_register_t* regs);
 	~per_range_t();
 
 	char* name;
-	unsigned long int base;
+	void* base;
 	unsigned int size;
 	bool expanded;
 

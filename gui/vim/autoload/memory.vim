@@ -14,7 +14,7 @@ let s:cmd_dict = {
 			\ "__nested__":"vimgdb#memory#complete_addr",
 			\ "__nested1__":{
 				\ "<value>":{
-					\ "<count>":{}
+					\ "<nbytes>":{}
 				\ }
 			\ }
 		\ },
@@ -112,6 +112,6 @@ function! s:memory(...)
 
 	else
 		call vimgdb#window#open(g:vimgdb_memory_name, 1)
-		call vimgdb#util#cmd("memory " . join(a:000))
+		call vimgdb#util#cmd("memory " . escape(join(a:000), '"'))
 	endif
 endfunction

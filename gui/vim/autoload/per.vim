@@ -39,8 +39,8 @@ function! vimgdb#per#init()
 		\ nnoremap <buffer> <silent> + :exec 'Per fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> - :exec 'Per fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> u :exec 'Per view'<cr>|
-		\ nnoremap <buffer> i :Memory set <c-r>=split(getline('.'))[0]<cr> |
-		\ nnoremap <buffer> s :Memory set <c-r>=split(getline('.'))[0]<cr>
+		\ nnoremap <buffer> i :Per set <c-r>=split(getline('.'))[0]<cr> |
+		\ nnoremap <buffer> s :Per set <c-r>=split(getline('.'))[0]<cr>
 		\ "
 endfunction
 
@@ -100,6 +100,6 @@ function! s:per(...)
 
 	else
 		call vimgdb#window#open(g:vimgdb_per_name, 1)
-		call vimgdb#util#cmd("per " . join(a:000))
+		call vimgdb#util#cmd("per " . escape(join(a:000), '"'))
 	endif
 endfunction

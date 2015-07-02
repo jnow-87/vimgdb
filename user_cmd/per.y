@@ -61,7 +61,7 @@ start :		range END													{ *rlst = $1; return 0; }
 	  ;
 
 range :		%empty														{ $$ = 0; }
-	  |		range RANGE STRING INT INT '=' '{' nl register '}' nl		{ $$ = $1; list_add_tail(&$$, new per_range_t($3, $4, $5, $9)); }
+	  |		range RANGE STRING INT INT '=' '{' nl register '}' nl		{ $$ = $1; list_add_tail(&$$, new per_range_t($3, (void*)$4, $5, $9)); }
 	  ;
 
 register :	%empty														{ $$ = 0; }

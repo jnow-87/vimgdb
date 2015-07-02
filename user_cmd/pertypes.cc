@@ -40,7 +40,7 @@ per_register_t::~per_register_t(){
 	}
 }
 
-per_range_t::per_range_t(char* name, unsigned long int base, unsigned int size, per_register_t* regs){
+per_range_t::per_range_t(char* name, void* base, unsigned int size, per_register_t* regs){
 	this->name = name;
 	this->base = base;
 	this->size = size;
