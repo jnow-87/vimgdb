@@ -123,7 +123,7 @@ void vimui::destroy(){
 	 * threads through the associated events
 	 */
 	if(nbclient){
-		nbclient->send((char*)"DISCONNECT\n", 11);
+		nbclient->send((char*)"DETACH\n", 7);
 
 		// give vim some time to send disconnect event
 		sleep(2);
