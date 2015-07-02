@@ -135,7 +135,7 @@ int cmd_per_exec(int argc, char** argv){
 				return 0;
 			}
 
-			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3]) != 0)
+			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3], reg->nbytes) != 0)
 				return -1;
 
 			gdb->memory_update();
