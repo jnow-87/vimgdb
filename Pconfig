@@ -17,6 +17,15 @@ config VIM_NB_PORT
 	default 1235
 	range 1 65535
 
+config VIM_KEEP_GDBLOG
+	bool "keep gdb-log"
+	depends on GUI_VIM
+	default y
+
+config VIM_KEEP_USERLOG
+	bool "keep user-log"
+	depends on GUI_VIM
+	default y
 
 comment "log system"
 config LOG_FILE

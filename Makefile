@@ -40,6 +40,8 @@ $(call loglevel,TODO)
 # gui
 $(if $(CONFIG_GUI_CURSES), $(eval cppflags += -DGUI_CURSES),)
 $(if $(CONFIG_GUI_VIM), $(eval cppflags += -DGUI_VIM),)
+$(if $(CONFIG_VIM_KEEP_USERLOG), $(eval cppflags += -DVIM_KEEP_USERLOG),)
+$(if $(CONFIG_VIM_KEEP_GDBLOG), $(eval cppflags += -DVIM_KEEP_GDBLOG),)
 
 # init global variables for list of objects, libraries and executables
 obj :=

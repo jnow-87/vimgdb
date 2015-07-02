@@ -76,7 +76,9 @@ void log::cleanup(){
 	// ensure that only creating process is closing the windows
 	// otherwise any forked process would destroy them
 	if(ui && creator == getpid()){
+#ifndef VIM_KEEP_USERLOG
 		ui->win_destroy(ui->win_getid(USERLOG_NAME));
+#endif
 
 #ifdef GUI_CURSES
 		ui->win_destroy(ui->win_getid(DEBUGLOG_NAME));

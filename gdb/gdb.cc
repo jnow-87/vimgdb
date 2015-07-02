@@ -491,7 +491,9 @@ void* gdbif::readline_thread(void* arg){
 	}
 
 err_2:
+#ifndef VIM_KEEP_GDBLOG
 	ui->win_destroy(ui->win_getid(GDBLOG_NAME));
+#endif
 
 #ifdef GUI_CURSES
 err_1:
