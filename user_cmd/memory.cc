@@ -244,7 +244,8 @@ int cmd_memory_update(){
 		}
 
 		/* print header */
-		ui->win_print(win_id, "[%c] memory dump: %#0*p (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
+		ui->win_print(win_id, "[%c] memory dump: %#0*x (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
+		ui->win_print(win_id, " %*s      0  1  2  3  4  5  6  7\n", sizeof(void*) * 2 + 2, "");
 		line_map[line++] = mem;
 
 		if(!mem->expanded){
@@ -257,7 +258,7 @@ int cmd_memory_update(){
 		j = 0;
 		displ = ALIGN(addr, 8);
 
-		ui->win_print(win_id, " %#0*p    ", sizeof(void*) * 2 + 2, displ);
+		ui->win_print(win_id, " %#0*x    ", sizeof(void*) * 2 + 2, displ);
 
 		for(; displ<addr; displ++){
 			ui->win_print(win_id, " ??");
@@ -272,7 +273,7 @@ int cmd_memory_update(){
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));
 			ascii[j++] = c == '\0' ? ' ' : c;
 
-			// print ascii string once reaching 8 bytes boundary
+			// print ascii string and next address once reaching 8 bytes boundary
 			if(addr + 1 == ALIGN(addr + 8, 8)){
 				ascii[j] = 0;
 				j = 0;
@@ -280,7 +281,7 @@ int cmd_memory_update(){
 				line_map[line++] = mem;
 
 				if(i + 1 < mem->length)
-					ui->win_print(win_id, " %#0*p    ", sizeof(void*) * 2 + 2, 10 + 1);
+					ui->win_print(win_id, " %#0*x    ", sizeof(void*) * 2 + 2, addr + 1);
 			}
 		}
 
