@@ -14,6 +14,11 @@
 #include <fcntl.h>
 
 
+/* macros */
+#define TTY_EXT_FILE	"/tmp/vimgdb_pts"
+#define TTY_EXT_CMD		"xterm -T 'vimgdb-inferior' -e 'ls  /proc/self/fd/0 -l | grep -o -e \"/dev/pts.*\" > " TTY_EXT_FILE "; while [ 0 == 0 ];do sleep 10; done' &"
+
+
 /* static variables */
 static char *inf_file_bin = 0,
 			*inf_file_sym = 0;
@@ -32,6 +37,7 @@ static void* thread_inferior_output(void* arg);
 /* global functions */
 int cmd_inferior_exec(int argc, char** argv){
 	int fd, r;
+	char pts[128];
 	const struct user_subcmd_t* scmd;
 	FILE* fp;
 	gdb_location_t* loc;
@@ -153,19 +159,42 @@ int cmd_inferior_exec(int argc, char** argv){
 					inf_term = 0;
 				}
 
+				/* get pseudo terminal */
+				if(strcmp(argv[2], "external") == 0){
+					unlink(TTY_EXT_FILE);
+					system(TTY_EXT_CMD);
+
+					// wait for xterm to echo its pts
+					r = 0;
+					while((fp = fopen(TTY_EXT_FILE, "r")) == 0){
+						if(++r > 50){
+							USER("error, waiting for pts of external tty\n");
+							return -1;
+						}
+
+						usleep(100000);
+					}
+
+					// read pts
+					fscanf(fp, "%128s", pts);
+					fclose(fp);
+				}
+				else
+					strncpy(pts, argv[2], 128);
+
 				/* use specified pty for output */
-				fd = open(argv[2], O_RDONLY);
+				fd = open(pts, O_RDONLY);
 				if(fd == -1){
-					USER("error opening pts \"%s\"\n", argv[2]);
+					USER("error opening pts \"%s\"\n", pts);
 					return -1;
 				}
 
 				close(fd);
 
-				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%ss %d", argv + 2, argc - 2) != 0)
+				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", pts) != 0)
 					return -1;
 
-				USER("set inferior tty to \"%s\"\n", argv[2]);
+				USER("set inferior tty to \"%s\"\n", pts);
 			}
 
 			break;
@@ -260,8 +289,9 @@ void cmd_inferior_help(int argc, char** argv){
 			case TTY:
 				USER("usage %s %s <terminal>\n", argv[0], argv[i]);
 				USER("   set inferior output terminal, <terminal> is either\n");
-				USER("      a pseudo terminal in the form of \"/dev/pts/1\", or\n");
-				USER("      'internal' which redirects the output to one of the gui windows\n");
+				USER("      a pseudo terminal in the form of \"/dev/pts/1\",\n");
+				USER("      'internal' which redirects the output to one of the gui windows or\n");
+				USER("      'external' which creates an xterm and redirects the inferior terminal to it\n");
 				USER("\n");
 				break;
 

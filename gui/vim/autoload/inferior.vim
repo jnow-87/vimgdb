@@ -64,7 +64,7 @@ function! vimgdb#inferior#complete_pts(subcmd)
 		let l:files = vimgdb#complete#file(a:subcmd)
 	endif
 
-	return "internal\n" . l:files
+	return "internal\nexternal\n" . l:files
 endfunction
 
 " \brief	update inferior symbols
