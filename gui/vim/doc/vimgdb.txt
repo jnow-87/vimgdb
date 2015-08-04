@@ -175,8 +175,10 @@ The following argument types are used regularly:
 
 	<tty> {terminal}
 		Sets the inferior output terminal to {terminal}. {terminal}
-		can either be <internal> or a pseudo-terminal at /dev/pts. If
-		<internal> is defined as target a vim buffer is used.
+		can either be <internal>, <external> or a pseudo-terminal at
+		/dev/pts. If <internal> is defined as target a vim buffer is
+		used. For <external> a xterm is created and I/O is directed to
+		it.
 
 	<export> {file}
 		Exports the so far supplied inferior settings including binary
