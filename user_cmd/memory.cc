@@ -245,7 +245,6 @@ int cmd_memory_update(){
 
 		/* print header */
 		ui->win_print(win_id, "[%c] memory dump: %#0*x (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
-		ui->win_print(win_id, " %*s      0  1  2  3  4  5  6  7\n", sizeof(void*) * 2 + 2, "");
 		line_map[line++] = mem;
 
 		if(!mem->expanded){
@@ -253,6 +252,9 @@ int cmd_memory_update(){
 			line++;
 			continue;
 		}
+
+		ui->win_print(win_id, " %*s      0  1  2  3  4  5  6  7\n", sizeof(void*) * 2 + 2, "");
+		line_map[line++] = mem;
 
 		/* print preceding bytes, that are not part of content, to align the output to 8 bytes per line */
 		j = 0;
