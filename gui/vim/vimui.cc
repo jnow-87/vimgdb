@@ -711,9 +711,8 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 }
 
 void* vimui::readline_thread(void* arg){
-	char c;
 	char* line;
-	unsigned int i, line_len;
+	unsigned int line_len, i, r;
 	vim_event_t* e;
 	vimui* vim;
 
@@ -725,20 +724,15 @@ void* vimui::readline_thread(void* arg){
 	i = 0;
 
 	/* read from netbeans socket */
-	while(vim->nbclient->recv(&c, 1) > 0){
-		if(c == '\r')
-			continue;
+	while((r = vim->nbclient->recv(line + i, line_len - i)) > 0){
+		i += r;
+		line[i] = 0;
 
-		line[i++] = c;
-
-		if(i >= line_len){
+		if(line[i - 1] != '\n'){
 			line_len *= 2;
 			line = (char*)realloc(line, line_len * sizeof(char));
 		}
-
-		if(c == '\n'){
-			line[i] = 0;
-
+		else{
 			line[i - 1] = 0;
 			VIM("parse vim input \"%s\"\n", line);
 			line[i - 1] = '\n';

@@ -16,6 +16,10 @@
 
 	/* prototypes */
 	int vimerror(char* line, vimui* vim, const char* s);
+
+
+	/* static variables */
+	static int ret_val;
 %}
 
 %union{
@@ -40,6 +44,7 @@
 
 %initial-action{
 	vim_scan_string(line);
+	ret_val = 0;
 }
 
 
@@ -72,10 +77,12 @@
 
 %%
 
+start :			line																	{ return ret_val; }
 
-line :			NUMBER reply NEWLINE													{ return vim->proc_reply($1, $2); }		/* reply */
-	 |			NUMBER ':' event NEWLINE												{ return vim->proc_event($1, $3); }		/* event */
-	 |			special NEWLINE															{ return vim->proc_event(0, $1); }		/* special event */
+line :			%empty																	{ }
+	 |			line NUMBER reply NEWLINE												{ ret_val |= vim->proc_reply($2, $3); }		/* reply */
+	 |			line NUMBER ':' event NEWLINE											{ ret_val |= vim->proc_event($2, $4); }		/* event */
+	 |			line special NEWLINE													{ ret_val |= vim->proc_event(0, $2); }		/* special event */
 	 ;
 
 /* reply */
