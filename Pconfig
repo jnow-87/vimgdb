@@ -1,0 +1,96 @@
+menu "Build system"
+	comment "Target toolchain"
+	config TOOLCHAIN_PREFIX
+		string "Toolchain prefix"
+
+	config CC
+		string CC
+		default "$(CONFIG_TOOLCHAIN_PREFIX)gcc"
+
+	config CXX
+		string CXX
+		default "$(CONFIG_TOOLCHAIN_PREFIX)g++"
+
+	config AS
+		string AS
+		default "$(CONFIG_TOOLCHAIN_PREFIX)as"
+
+	config AR
+		string AR
+		default "$(CONFIG_TOOLCHAIN_PREFIX)ar"
+
+	config LD
+		string LD
+		default "$(CONFIG_TOOLCHAIN_PREFIX)ld"
+
+	comment "Target flags"
+	config CFLAGS
+		string CFLAGS
+
+	config CXXFLAGS
+		string CXXFLAGS
+
+	config CPPFLAGS
+		string CPPFLAGS
+
+	config ASFLAGS
+		string ASFLAGS
+
+	config LDFLAGS
+		string LDFLAGS
+
+	config LDRFLAGS
+		string LDRFLAGS
+
+	config ARCHFLAGS
+		string ARCHFLAGS
+
+	comment "Host toolchain"
+	config HOSTCC
+		string HOSTCC
+		default "gcc"
+
+	config HOSTCXX
+		string HOSTCXX
+		default "g++"
+
+	config HOSTAS
+		string HOSTAS
+		default "as"
+
+	config HOSTAR
+		string HOSTAR
+		default "ar"
+
+	config HOSTLD
+		string HOSTLD
+		default "ld"
+
+	comment "Host flags"
+	config HOSTCFLAGS
+		string HOSTCFLAGS
+
+	config HOSTCXXFLAGS
+		string HOSTCXXFLAGS
+
+	config HOSTCPPFLAGS
+		string HOSTCPPFLAGS
+
+	config HOSTASFLAGS
+		string HOSTASFLAGS
+
+	config HOSTLDFLAGS
+		string HOSTLDFLAGS
+
+	config HOSTLDRFLAGS
+		string HOSTLDRFLAGS
+
+	config HOSTARCHFLAGS
+		string HOSTARCHFLAGS
+
+	comment "Build information"
+	config BUILT_TREE
+		string "built tree"
+		default "built/"
+
+endmenu
