@@ -1,25 +1,79 @@
-	#########################
-	###                   ###
-	###   global config   ###
-	###                   ###
-	#########################
+include scripts/Makefile.helper
+include scripts/Makefile.compile
 
-QUIET ?= @
-SILENT ?= @
-DEBUG ?= 0
+###############################
+###   verbosity and debug   ###
+###############################
 
-ifdef SILENT
-override QUIET := @
-override SILENT := @
+V ?= 0
+
+ifeq ($(V),0)
+  QBUILD := @
+  QUTIL := @
 endif
 
-ifdef QUIET
-override QUIET := @
+ifeq ($(call cond_ge,$(V),1),1)
+  QBUILD :=
+  QUTIL := @
 endif
 
-supported_flags := cflags cxxflags cppflags asflags ldflags archflags yaccflags lexflags gperfflags
-supported_types := obj obj-nobuiltin lib bin
+ifeq ($(call cond_ge,$(V),2),1)
+  QBUILD :=
+  QUTIL :=
+endif
 
+# print DEBUG message
+#
+#	$(call pdebug,<msg>)
+ifeq ($(call cond_ge,$(V),3),1)
+  define pdebug0
+    $(info $1)
+  endef
+endif
+
+ifeq ($(call cond_ge,$(V),4),1)
+  define pdebug1
+    $(info $1)
+  endef
+endif
+
+ifeq ($(call cond_ge,$(V),5),1)
+  define pdebug2
+    $(info $1)
+  endef
+endif
+
+
+################
+###   init   ###
+################
+
+# include config file if defined
+ifneq ("$(config)","")
+-include $(config)
+endif
+
+# check project type
+ifneq ($(project_type),c)
+  ifneq ($(project_type),cxx)
+    $(error invalid $$(project_type), choose either 'c' or 'cxx')
+  endif
+endif
+
+# init build system variables
+all_flags := cflags cxxflags cppflags asflags ldflags ldrflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
+
+obj_types := obj obj-nobuiltin hostobj hostobj-nobuiltin
+lib_types := lib hostlib
+bin_types := bin hostbin
+all_types := $(obj_types) $(lib_types) $(bin_types)
+
+all_tools := cc cxx as ld ar hostcc hostcxx hostas hostld hostar lex yacc gperf
+
+# init global variables for list of objects, libraries and executables
+$(foreach type,$(supported_types), \
+	$(eval $(type) :=) \
+)
 
 # disable built-in rules
 .SUFFIXES:
@@ -27,276 +81,192 @@ supported_types := obj obj-nobuiltin lib bin
 # disable removal of temporary files
 .SECONDARY:
 
+# init source and built tree
+$(call set_default,BUILT_TREE, $(default_built_tree))
+$(call set_default,SRC_TREE, .)
 
-	####################
-	###              ###
-	###   commands   ###
-	###              ###
-	####################
+built_tree := $(patsubst %/,%,$(BUILT_TREE))
+src_tree := $(patsubst %/,%,$(SRC_TREE))
 
-CC ?= gcc
-CXX ?= g++
-AS ?= as
-LD ?= ld
-AR ?= ar
-LEX ?= flex
-YACC ?= bison
-GPERF ?= gperf
-cc := $(SILENT)$(CC)
-cxx := $(SILENT)$(CXX)
-as := $(SILENT)$(AS)
-ld := $(SILENT)$(LD)
-ar := $(SILENT)$(AR)
-lex := $(SILENT)$(LEX)
-yacc := $(SILENT)$(YACC)
-gperf := $(SILENT)$(GPERF)
-echo := @echo
-printf := @printf
-rm := $(QUIET)rm -rf
-mkdir := $(QUIET)mkdir -p
-touch := $(QUIET)touch
-cp := $(QUIET)cp
-gperf_header := $(QUIET)scripts/gperf_header.sh
-
-define exists
-$(if $(wildcard $(1)),1,)
-endef
-
-define loglevel
-$(if $(CONFIG_LOG_$(1)), \
-  $(eval cppflags += -DLOG_$(1)=$(1)), \
-)
-endef
-
-
-	#################
-	###           ###
-	###   DEBUG   ###
-	###           ###
-	#################
-
-# print DEBUG message
-#
-#	$(call pdebug,<msg>)
-ifneq ($(DEBUG),0)
-  define pdebug
-    $(info $1)
-  endef
-else
-  define pdebug
-  endef
-endif
-
-
-	###############################
-	###                         ###
-	###   directory traversal   ###
-	###                         ###
-	###############################
-
+# init variables for directory traversal
 build := scripts/Makefile.build
 included :=
 
+# set default values for tools
+$(call set_default,CC, gcc)
+$(call set_default,CXX, g++)
+$(call set_default,AS, as)
+$(call set_default,LD, ld)
+$(call set_default,AR, ar)
 
-# recursively include 'Makefile.build' on given directories, avoiding
-# dobble-inclusion of the same Makefile
-# directory for current iteration is available through $(loc_dir)
-#
-#	$(call dinclude,<directory list>)
-define dinclude
-	$(eval traverse := $(filter-out $(included),$(patsubst %/,%,$(1)))) \
-	$(eval included += $(traverse)) \
-	\
-	$(foreach d,$(traverse), \
-		$(eval loc_dir=$(d)) \
-		$(eval include $(build)) \
-	)
-endef
+$(call set_default,HOSTCC, gcc)
+$(call set_default,HOSTCXX, g++)
+$(call set_default,HOSTAS, as)
+$(call set_default,HOSTLD, ld)
+$(call set_default,HOSTAR, ar)
 
+$(call set_default,LEX, flex)
+$(call set_default,YACC, bison)
+$(call set_default,GPERF, gperf)
 
-	###########################
-	###                     ###
-	###   file operations   ###
-	###                     ###
-	###########################
+cc := $(QBUILD)$(CC)
+cxx := $(QBUILD)$(CXX)
+as := $(QBUILD)$(AS)
+ld := $(QBUILD)$(LD)
+ar := $(QBUILD)$(AR)
 
-# return files that do not define a separate list of prerequisites,
-# i.e. $(<file>-y) is empty
-#
-#	$(call filter_single_file,<file list>
-define filter_single_prereq
-	$(foreach f, $(1), \
-		$(if $($(basename $(f))-y), \
-			, \
-			$(f) \
-		) \
-	)
-endef
+hostcc := $(QBUILD)$(HOSTCC)
+hostcxx := $(QBUILD)$(HOSTCXX)
+hostas := $(QBUILD)$(HOSTAS)
+hostld := $(QBUILD)$(HOSTLD)
+hostar := $(QBUILD)$(HOSTAR)
 
-# return list of prerequisites for given list of files,
-# i.e. return $(<file>-y)
-#
-#	$(call get_prereq,<file list>
-define get_prereq
-	$(foreach f,$(1), \
-		$($(basename $(f))-y) \
-	)
-endef
+lex := $(QBUILD)$(LEX)
+yacc := $(QBUILD)$(YACC)
+gperf := $(QBUILD)$(GPERF)
+gperf_c_header := $(QBUILD)scripts/gperf_c_header.sh
+gperf_cxx_header := $(QBUILD)scripts/gperf_cxx_header.sh
+
+echo := @echo
+printf := @printf
+rm := $(QUTIL)rm -rf
+mkdir := $(QUTIL)mkdir -p
+touch := $(QUTIL)touch
+cp := $(QUTIL)cp
+sym_link := $(QUTIL)ln -s
 
 
-	############################
-	###                      ###
-	###   rules generation   ###
-	###                      ###
-	############################
+###########################
+###   default targets   ###
+###########################
 
-# generate target-specific rule for <target>-*flags
-# 	also generate same rule for $(basename <target>).i since %.i files
-# 		are only built on explicite request and thus do not depent on <target>
-#
-# 	afterwards clear flag variable to avoid name collisions with files
-# 		with the same stem but in a different directory
-#
-#	$(call gen_rule_tgt_flags,<target>,<flag>,<bin_prefix>
-define gen_rule_tgt_flags
-	$(if $($(basename $(1))-$(2)), \
-		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(basename $(1))-$(2)))) \
-		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(basename $(1))-$(2)))) \
-		$(eval $(basename $(1))-$(2) :=), \
-	)
-endef
+# fake target as default target
+.PHONY: fake_all
+fake_all: check_tools all
 
-# generate target-specific rule for local flags, i.e. *flags-y and subdir-*flags
-# 	handling <target> and $(basename <target>).i
-#
-#	$(call gen_rule_flags,<target>,<flag>,<bin_prefix>
-define gen_rule_loc_flags
-	$(if $(strip $($(2)-y) $(subdir-$(2))), \
-		$(eval $(call gen_rule_basic,,$(3)$(1), $(2) += $($(2)-y) $(subdir-$(2)))) \
-		$(eval $(call gen_rule_basic,,$(3)$(basename $(1)).i, $(2) += $($(2)-y) $(subdir-$(2)))) \
-		,)
-endef
+# check of all tools are available
+check_tools_error := "please make sure that a version of $${tool} is installed and the make variable is initialised correctly"
 
-# generate rules for compound targets
-# 	first $(<target>-y), which is $($(basename $(f))-y) is checked for external prerequisites ($(edep)), i.e. prerequisites that
-# 		origniate from a different path, are extracted
-#
-#	afterwards the rule is generated whereat <bin-prefix> is added to all non-external prerequisites and external prerequisites are
-#		added as they are
-#
-#	finally the prerequisite variable is cleared to avoid name collisions
-#		with files with the same stem but in a different diretory
-#
-#	$(call gen_rule_multi,<cmd-name>,<file list>,<bin_prefix>
-define gen_rule_multi
-		$(foreach f,$(2), \
-			$(eval edep :=) \
-			$(foreach p,$($(basename $(f))-y), \
-				$(if $(subst ./,,$(dir $(p))), \
-					$(eval edep += $(p)) \
-					, \
-				) \
-			) \
-			$(call gen_rule_basic,$(1),$(3)$(f),$(addprefix $(3),$(filter-out $(edep),$($(basename $(f))-y))) $(edep)) \
-			$(eval $(basename $(f))-y :=) \
-		)
-endef
+tools :=
+$(foreach tool,$(all_tools), \
+	$(eval tools += $(subst @,,$($(tool)))) \
+)
 
-# generate basic rule
-#
-#	$(call gen_rule_basic,<cmd-name>,<target>,<prerequisite>
-define gen_rule_basic
-	$(eval \
-		$(call pdebug,    generate rule:)
-		$(call pdebug,        $(2): $(3))
-		$(if $(1), \
-			$(call pdebug,            $(mkdir) $$(@D)) \
-			$(call pdebug,            $$(call $(1),$(host))) \
-		)
-		$(call pdebug)
+.PHONY: check_tools
+check_tools:
+	@for tool in $(tools); do test -n "$$(which $${tool})" || (echo $(check_tools_error); exit 1); done
 
-		$(if $(1),
-			$(eval \
-				$(2): $(3)
-					$(mkdir) $$(@D)
-					$$(call $(1),$(host)) \
-			), \
-			$(eval $(2): $(3)) \
-		) \
-	)
-endef
+# check if $(config) file is present
+.PHONY: check_config
+check_config:
+ifneq ($(shell test -e $(config) && echo $(config)),$(config))
+	$(call error,$(config) does not exist, please run $$make menuconfig or $$make defconfig_<target> first)
+endif
 
+# menuconfig
+ifneq ("$(mconfig)","")
+ifneq ("$(mconfig_ftype)","")
+mconfig_src := $(dir $(mconfig))
+mconfig := $(built_tree)/$(mconfig)
 
-	####################
-	###              ###
-	###   commands   ###
-	###              ###
-	####################
-
-# XXX naming: cmd_cc_<target type>_<prerequisite type>
-# XXX $(call cmd_*,<host>)
-
-define cmd_cc_i
-	$(echo) [$(1)CC] $@
-	$($(1)cc) $($(1)cppflags) $($(1)archflags) -E $< -o $@
-	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
-endef
-
-define cmd_cc_c_y
-	$(echo) [YACC] $@
-	$(yacc) $(yaccflags) -v --report-file=$(basename $@).log --defines=$(basename $@).h $< -o $@
-endef
-
-define cmd_cc_c_l
-	$(echo) [LEX] $@
-	$(lex) $(lexflags) --header-file=$(basename $@).h -o $@ $<
-endef
-
-define cmd_cc_c_gperf
-	$(echo) [GPERF] $@
-	$(gperf) $(gperfflags) $< --output-file=$@
-endef
-
-define cmd_cc_cxx_gperf
-	$(echo) [GPERF] $@
-	$(gperf) $(gperfflags) $< --output-file=$@
-	$(gperf_header) $@ $(basename $@).h
-endef
-
-define cmd_cc_o_s
-	$(echo) [$(1)AS] $@
-	$($(1)as) $($(1)asflags) $^ -o $@
-endef
-
-define cmd_cc_o_c
-	$(echo) [$(1)CC] $@
-	$($(1)cc) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $< -o $@
-	$($(1)cc) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
-endef
-
-define cmd_cc_o_cxx
-	$(echo) [$(1)CXX] $@
-	$($(1)cxx) $($(1)cxxflags) $($(1)cflags) $($(1)cppflags) $($(1)archflags) -c $< -o $@
-	$($(1)cxx) $($(1)cppflags) $($(1)archflags) -MM -MF $@.d -MP -MT $@ $<
-endef
-
-define cmd_cc_o_o
-	$(echo) [$(1)LD] $@
-	$($(1)ld) -r $^ -o $@
-endef
-
-define cmd_cc_lib_o
-	$(echo) [$(1)AR] $@
-	$($(1)ar) crs $@ $^
-endef
-
-define cmd_cc_bin_o
-	$(echo) [$(1)CXX] $@
-	$($(1)cxx) $($(1)archflags) $^ -o $@ $($(1)ldflags)
-endef
-
-define cmd_defconfig
-	$(echo) [CP] $< '->' config
-	$(cp) $< config
+.PHONY: menuconfig
+menuconfig: check_tools $(mconfig)
+	@$(mconfig) $(mconfig_ftype)
 	$(MAKE) clean
-endef
+endif
+endif
+
+# default config targets
+ifneq ("$(config_tree)","")
+config_files = $(notdir $(wildcard $(config_tree)/*))
+
+$(foreach cfg, $(config_files), \
+	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg)) \
+)
+endif
+
+# include dependency files
+include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
+
+# help for the build system
+help-buildsys:
+	$(printf) "   \033[1m\033[4msub-directory Makefile syntax - available identifiers\033[0m\n"
+	$(printf) "\n"
+	$(printf) "      \033[1mbuild targets\033[0m\n"
+	$(printf) "         %25s\t%s\n" "[host]obj-y" "define target object files, also combined into ./obj.o"
+	$(printf) "         %25s\t%s\n" "[host]lib-y" "define target libraries"
+	$(printf) "         %25s\t%s\n" "[host]bin-y" "define target binaries"
+	$(printf) "         %25s\t%s\n" "<target>-y" "specify the objects required to build the compound object <target>"
+	$(printf) "\n"
+	$(printf) "             - prefixed \"host\" indicates to use host compiler tools\n"
+	$(printf) "             - [host]obj-y can take a directory as \"obj-y := <dir>/\"\n"
+	$(printf) "                  this builds <dir>/obj.o and adds <dir>/ to subdir-y\n"
+	$(printf) "\n"
+	$(printf) "      \033[1msub-directories\033[0m\n"
+	$(printf) "         %25s\t%s\n" "subdir-y" "define sub-directories to include"
+	$(printf) "\n"
+	$(printf) "      \033[1mflags\033[0m\n"
+	$(printf) "         %25s\t%s\n" "[host]<flags>-y" "specify <flags> to be used for all targets within the current directory"
+	$(printf) "         %25s\t%s\n" "<target>-[host]<flags>" "specify <flags> only applied for that <target>"
+	$(printf) "         %25s\t%s\n" "subdir-[host]<flags>" "specify <flags> apply to all sub-directories"
+	$(printf) "         %25s\t%s\n" "<subdir>-[host]<flags>" "specify <flags> apply to all sub-directories"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "cflags" "c compiler flags"
+	$(printf) "         %25s\t%s\n" "cxxflags" "c++ compiler flags"
+	$(printf) "         %25s\t%s\n" "cppflags" "c pre-processor flags"
+	$(printf) "         %25s\t%s\n" "asflags" "assembler flags"
+	$(printf) "         %25s\t%s\n" "ldflags" "linker flags"
+	$(printf) "         %25s\t%s\n" "ldrflags" "linker flags for creating relocatable output (ld -r)"
+	$(printf) "         %25s\t%s\n" "archflags" "architecture specific flags"
+	$(printf) "         %25s\t%s\n" "yaccflags" "yacc flags"
+	$(printf) "         %25s\t%s\n" "lexflags" "lex flags"
+	$(printf) "         %25s\t%s\n" "gperfflags" "gperf flags"
+	$(printf) "\n\n"
+	$(printf) "   \033[1m\033[4muser defineable variables\033[0m\n"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "V" "change verbosity, default = 0"
+	$(printf) "         %25s\t%s\n" "BUILT_TREE" "define output directory"
+	$(printf) "         %25s\t%s\n" "SRC_TREE" "define source directory"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "[HOST]CC"
+	$(printf) "         %25s\t%s\n" "[HOST]CXX"
+	$(printf) "         %25s\t%s\n" "[HOST]AS"
+	$(printf) "         %25s\t%s\n" "[HOST]LD"
+	$(printf) "         %25s\t%s\n" "[HOST]AR"
+	$(printf) "         %25s\t%s\n" "LEX"
+	$(printf) "         %25s\t%s\n" "YACC"
+	$(printf) "         %25s\t%s\n" "GPERF"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "[HOST]CFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]CXXFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]CPPFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]LDFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]ASFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]ARCHFLAGS"
+	$(printf) "         %25s\t%s\n" "LEXFLAGS"
+	$(printf) "         %25s\t%s\n" "YACCFLAGS"
+	$(printf) "         %25s\t%s\n" "GPERFFLAGS"
+	$(printf) "\n\n"
+	$(printf) "   \033[1m\033[4mspecial targets\033[0m\n"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "<path>/<target>.i" "build pre-processed target file"
+	$(printf) "         %25s\t%s\n" "<path>/<target>.S" "build assembly target file"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "menuconfig" "graphical configuration"
+	$(printf) "         %25s\t%s\n" "defconfig_*" "apply default configuration"
+	$(printf) "\n"
+	$(printf) "         %25s\t%s\n" "check_tools" "test if the variables defined in 'all_tools' define valid binaries"
+	$(printf) "         %25s\t%s\n" "check_config" "test if the config file defined in 'config' is accesable"
+
+
+######################################
+###   finally traverse Makefiles   ###
+######################################
+
+# start subdirectory traversal
+# 	if subdir-y is empty include '.' (within $(src_tree))
+$(if $(src_dirs), \
+	$(call dinclude,$(src_dirs) $(mconfig_src)) \
+	, \
+	$(error $$(src_dirs) is empty, please define initial source directories) \
+)

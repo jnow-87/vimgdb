@@ -63,14 +63,14 @@ static void conf_message(const char *fmt, ...)
 
 const char *conf_get_configname(void)
 {
-	char *name = getenv("kopt_CONFIG");
+	char *name = getenv("KCONFIG_CONFIG");
 
 	return name ? name : "config";
 }
 
 const char *conf_get_autoconfig_name(void)
 {
-	char *name = getenv("kopt_AUTOCONFIG");
+	char *name = getenv("KCONFIG_AUTOCONFIG");
 
 	return name ? name : "include/config/auto.conf";
 }
@@ -441,7 +441,7 @@ int conf_read(const char *name)
 		if (sym_has_value(sym) && !sym_is_choice_value(sym)) {
 			/* Reset values of generates values, so they'll appear
 			 * as new, if they should become visible, but that
-			 * doesn't quite work if the kopt and the saved
+			 * doesn't quite work if the Kconfig and the saved
 			 * configuration disagree.
 			 */
 			if (sym->visible == no && !conf_unsaved)
@@ -469,15 +469,15 @@ int conf_read(const char *name)
 }
 
 /*
- * kopt configuration printer
+ * Kconfig configuration printer
  *
  * This printer is used when generating the resulting configuration after
- * kopt invocation and `defconfig' files. Unset symbol might be omitted by
+ * kconfig invocation and `defconfig' files. Unset symbol might be omitted by
  * passing a non-NULL argument to the printer.
  *
  */
 static void
-kopt_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg)
+kconfig_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg)
 {
 
 	switch (sym->type) {
@@ -500,7 +500,7 @@ kopt_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg)
 }
 
 static void
-kopt_print_comment(FILE *fp, const char *value, void *arg)
+kconfig_print_comment(FILE *fp, const char *value, void *arg)
 {
 	const char *p = value;
 	size_t l;
@@ -519,10 +519,10 @@ kopt_print_comment(FILE *fp, const char *value, void *arg)
 	}
 }
 
-static struct conf_printer kopt_printer_cb =
+static struct conf_printer kconfig_printer_cb =
 {
-	.print_symbol = kopt_print_symbol,
-	.print_comment = kopt_print_comment,
+	.print_symbol = kconfig_print_symbol,
+	.print_comment = kconfig_print_comment,
 };
 
 /*
@@ -616,7 +616,7 @@ tristate_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg
 static struct conf_printer tristate_printer_cb =
 {
 	.print_symbol = tristate_print_symbol,
-	.print_comment = kopt_print_comment,
+	.print_comment = kconfig_print_comment,
 };
 
 static void conf_write_symbol(FILE *fp, struct symbol *sym,
@@ -715,7 +715,7 @@ int conf_write_defconfig(const char *filename)
 						goto next_menu;
 				}
 			}
-			conf_write_symbol(out, sym, &kopt_printer_cb, NULL);
+			conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
 		}
 next_menu:
 		if (menu->list != NULL) {
@@ -769,7 +769,7 @@ int conf_write(const char *name)
 		basename = conf_get_configname();
 
 	sprintf(newname, "%s%s", dirname, basename);
-	env = getenv("kopt_OVERWRITECONFIG");
+	env = getenv("KCONFIG_OVERWRITECONFIG");
 	if (!env || !*env) {
 		sprintf(tmpname, "%s.tmpconfig.%d", dirname, (int)getpid());
 		out = fopen(tmpname, "w");
@@ -780,7 +780,7 @@ int conf_write(const char *name)
 	if (!out)
 		return 1;
 
-	conf_write_heading(out, &kopt_printer_cb, NULL);
+	conf_write_heading(out, &kconfig_printer_cb, NULL);
 
 	if (!conf_get_changed())
 		sym_clear_all_valid();
@@ -802,7 +802,7 @@ int conf_write(const char *name)
 				goto next;
 			sym->flags &= ~SYMBOL_WRITE;
 
-			conf_write_symbol(out, sym, &kopt_printer_cb, NULL);
+			conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
 		}
 
 next:
@@ -973,14 +973,14 @@ int conf_write_autoconf(void)
 		return 1;
 	}
 
-	out_h = fopen(".tmpopt.h", "w");
+	out_h = fopen(".tmpconfig.h", "w");
 	if (!out_h) {
 		fclose(out);
 		fclose(tristate);
 		return 1;
 	}
 
-	conf_write_heading(out, &kopt_printer_cb, NULL);
+	conf_write_heading(out, &kconfig_printer_cb, NULL);
 
 	conf_write_heading(tristate, &tristate_printer_cb, NULL);
 
@@ -992,7 +992,7 @@ int conf_write_autoconf(void)
 			continue;
 
 		/* write symbol to auto.conf, tristate and header files */
-		conf_write_symbol(out, sym, &kopt_printer_cb, (void *)1);
+		conf_write_symbol(out, sym, &kconfig_printer_cb, (void *)1);
 
 		conf_write_symbol(tristate, sym, &tristate_printer_cb, (void *)1);
 
@@ -1002,12 +1002,12 @@ int conf_write_autoconf(void)
 	fclose(tristate);
 	fclose(out_h);
 
-	name = getenv("kopt_AUTOHEADER");
+	name = getenv("KCONFIG_AUTOHEADER");
 	if (!name)
 		name = "include/generated/autoconf.h";
-	if (rename(".tmpopt.h", name))
+	if (rename(".tmpconfig.h", name))
 		return 1;
-	name = getenv("kopt_TRISTATE");
+	name = getenv("KCONFIG_TRISTATE");
 	if (!name)
 		name = "include/config/tristate.conf";
 	if (rename(".tmpconfig_tristate", name))
