@@ -145,16 +145,23 @@ sym_link := $(QUTIL)ln -s
 fake_all: check_tools all
 
 # check of all tools are available
-check_tools_error := "please make sure that a version of $${tool} is installed and the make variable is initialised correctly"
+check_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
 
 tools :=
 $(foreach tool,$(all_tools), \
-	$(eval tools += $(subst @,,$($(tool)))) \
+	$(eval tools += $(call upper_case,$(tool))=$(subst @,,$($(tool)))) \
 )
 
 .PHONY: check_tools
 check_tools:
-	@for tool in $(tools); do test -n "$$(which $${tool})" || (echo $(check_tools_error); exit 1); done
+	@r=0; \
+	for tool in $(tools); do \
+		id=$$(echo $${tool} | cut -d '=' -f 1); \
+		val=$$(echo $${tool} | cut -d '=' -f 2); \
+		test -n "$$(which $${val})" || (echo $(check_tools_error); exit 1); \
+		test $${?} -eq 1 && r=1; \
+	done; \
+	exit $${r}
 
 # check if $(config) file is present
 .PHONY: check_config
