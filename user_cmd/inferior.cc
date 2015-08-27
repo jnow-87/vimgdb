@@ -104,17 +104,22 @@ int cmd_inferior_exec(int argc, char** argv){
 			if(gdb->mi_issue_cmd("exec-arguments", 0, "%ssq %d", argv + 2, argc - 2) != 0)
 				return -1;
 
-			USER("set program arguments\n");
-
 			for(r=0; r<inf_argc; r++)
 				delete [] inf_argv[r];
+
 			delete [] inf_argv;
 
 			inf_argc = argc - 2;
 			inf_argv = new char*[inf_argc];
 
-			for(r=2; r<argc; r++)
+			USER("set program arguments to");
+
+			for(r=2; r<argc; r++){
 				inf_argv[r - 2] = stralloc(argv[r], strlen(argv[r]));
+				USER(" \"%s\"", inf_argv[r - 2]);
+			}
+
+			USER("\n");
 			break;
 
 		case TTY:
@@ -209,7 +214,7 @@ int cmd_inferior_exec(int argc, char** argv){
 			if(inf_file_sym)	fprintf(fp, "Inferior sym %s\n", inf_file_sym);
 
 			if(inf_term)		fprintf(fp, "Inferior tty internal\n");
-			else				fprintf(fp, "echoerr \"inferior tty not set to internal, please adjust\"\n");
+			else				fprintf(fp, "Inferior tty external\n");
 
 			if(inf_argc > 0)
 				fprintf(fp, "Inferior args");

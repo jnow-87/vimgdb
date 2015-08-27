@@ -102,8 +102,6 @@ int cmd_exec_exec(int argc, char** argv){
 			return -1;
 	}
 
-	USER("%s\n", argv[1]);
-
 	return 0;
 }
 
