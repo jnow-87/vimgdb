@@ -29,18 +29,18 @@
 struct user_cmd_t;
 
 %%
-# command	exec callback		help callback		help text
-test,		cmd_test_exec,		cmd_test_help,		"test command echoing all given arguments"
-help,		cmd_help_exec,		0,					"print this help message"
-inferior,	cmd_inferior_exec,	cmd_inferior_help,	"control inferior and its parameters"
-break,		cmd_break_exec,		cmd_break_help,		"manage breakpoints"
-exec,		cmd_exec_exec,		cmd_exec_help,		"run control"
-variable,	cmd_var_exec,		cmd_var_help,		"manage user defined variables"
-callstack,	cmd_callstack_exec,	cmd_callstack_help,	"control layout and variables on the callstack"
-register,	cmd_register_exec,	cmd_register_help,	"control target registers"
-memory,		cmd_memory_exec,	cmd_memory_help,	"display and modify memory"
-evaluate,	cmd_evaluate_exec,	cmd_evaluate_help,	"evaluate an expressions"
-per,		cmd_per_exec,		cmd_per_help,		"display and modify memory mapped registers"
+# command	exec callback		cleanu callback			help callback		help text
+test,		cmd_test_exec,		0,						cmd_test_help,		"test command echoing all given arguments"
+help,		cmd_help_exec,		0,						0,					"print this help message"
+inferior,	cmd_inferior_exec,	cmd_inferior_cleanup,	cmd_inferior_help,	"control inferior and its parameters"
+break,		cmd_break_exec,		cmd_break_cleanup,		cmd_break_help,		"manage breakpoints"
+exec,		cmd_exec_exec,		0,						cmd_exec_help,		"run control"
+variable,	cmd_var_exec,		cmd_var_cleanup,		cmd_var_help,		"manage user defined variables"
+callstack,	cmd_callstack_exec,	cmd_callstack_cleanup,	cmd_callstack_help,	"control layout and variables on the callstack"
+register,	cmd_register_exec,	cmd_register_cleanup,	cmd_register_help,	"control target registers"
+memory,		cmd_memory_exec,	cmd_memory_cleanup,		cmd_memory_help,	"display and modify memory"
+evaluate,	cmd_evaluate_exec,	0,						cmd_evaluate_help,	"evaluate an expressions"
+per,		cmd_per_exec,		cmd_per_cleanup,		cmd_per_help,		"display and modify memory mapped registers"
 %%
 
 /**

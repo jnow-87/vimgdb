@@ -19,6 +19,7 @@
 struct user_cmd_t{
 	const char* name;
 	int (*exec)(int argc, char** argv);
+	void (*cleanup)();
 	void (*help)(int argc, char** argv);
 	const char* help_msg;
 };

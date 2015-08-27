@@ -196,6 +196,16 @@ int cmd_break_exec(int argc, char** argv){
 	return 0;
 }
 
+void cmd_break_cleanup(){
+	map<string, gdb_breakpoint_t*>::iterator it;
+
+
+	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++)
+		delete it->second;
+
+	breakpt_lst.clear();
+}
+
 void cmd_break_help(int argc, char** argv){
 	int i;
 	const struct user_subcmd_t* scmd;

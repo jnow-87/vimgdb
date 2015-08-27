@@ -32,10 +32,6 @@ static map<unsigned int, per_range_t*> line_map;
 static map<string, per_register_t*> reg_map;
 
 
-/* local prototypes */
-static int per_cleanup();
-
-
 /* global functions */
 int cmd_per_exec(int argc, char** argv){
 	int r;
@@ -64,7 +60,7 @@ int cmd_per_exec(int argc, char** argv){
 
 	if(scmd == 0){
 		/* de-initialise */
-		per_cleanup();
+		cmd_per_cleanup();
 
 		/* parser peripheral file */
 		fp = fopen(argv[1], "r");
@@ -91,7 +87,10 @@ int cmd_per_exec(int argc, char** argv){
 
 			if(range->mem == 0){
 				USER("unable to create memory segment for range \"%s\" (%p, %u)\n", range->name, range->base, range->size);
-				per_cleanup();
+
+				cmd_per_cleanup();
+				cmd_per_update();
+
 				return -1;
 			}
 
@@ -99,7 +98,10 @@ int cmd_per_exec(int argc, char** argv){
 				// check integrity of register to range
 				if(reg->offset + reg->nbytes >  range->size){
 					USER("error: offset/size of register \"%s\" exceeds size of range \"%s\"\n", reg->name, range->name);
-					per_cleanup();
+
+					cmd_per_cleanup();
+					cmd_per_update();
+
 					return -1;
 				}
 
@@ -107,7 +109,10 @@ int cmd_per_exec(int argc, char** argv){
 				list_for_each(reg->bits, bits){
 					if(bits->idx + bits->nbits > reg->nbytes * 8){
 						USER("error: index/size of bits \"%s\" exceeds size of register \"%s\"\n", bits->name, reg->name);
-						per_cleanup();
+
+						cmd_per_cleanup();
+						cmd_per_update();
+						
 						return -1;
 					}
 				}
@@ -213,6 +218,22 @@ int cmd_per_exec(int argc, char** argv){
 	}
 
 	return 0;
+}
+
+void cmd_per_cleanup(){
+	per_range_t* range;
+
+
+	delete [] per_file;
+	per_file = 0;
+
+	reg_map.clear();
+	line_map.clear();
+
+	list_for_each(range_lst, range){
+		list_rm(&range_lst, range);
+		delete range;
+	}
 }
 
 void cmd_per_help(int argc, char** argv){
@@ -358,24 +379,6 @@ int cmd_per_update(){
 	}
 
 	ui->atomic(false);
-
-	return 0;
-}
-
-
-/* local functions */
-int per_cleanup(){
-	per_range_t* range;
-
-
-	reg_map.clear();
-
-	list_for_each(range_lst, range){
-		list_rm(&range_lst, range);
-		delete range;
-	}
-
-	cmd_per_update();
 
 	return 0;
 }

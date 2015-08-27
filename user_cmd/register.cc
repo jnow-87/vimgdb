@@ -168,6 +168,10 @@ int cmd_register_exec(int argc, char** argv){
 	return 0;
 }
 
+void cmd_register_cleanup(){
+	line_map.clear();
+}
+
 void cmd_register_help(int argc, char** argv){
 	int i;
 	const struct user_subcmd_t* scmd;

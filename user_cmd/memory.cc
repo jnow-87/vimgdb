@@ -139,6 +139,18 @@ int cmd_memory_exec(int argc, char** argv){
 
 }
 
+void cmd_memory_cleanup(){
+	gdb_memory_t* mem;
+
+
+	line_map.clear();
+
+	list_for_each(mem_lst, mem){
+		list_rm(&mem_lst, mem);
+		delete mem;
+	}
+}
+
 void cmd_memory_help(int argc, char** argv){
 	int i;
 	const struct user_subcmd_t* scmd;

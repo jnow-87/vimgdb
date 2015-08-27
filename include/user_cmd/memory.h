@@ -4,6 +4,7 @@
 
 /* prototypes */
 int cmd_memory_exec(int argc, char** argv);
+void cmd_memory_cleanup();
 void cmd_memory_help(int argc, char** argv);
 int cmd_memory_update();
 

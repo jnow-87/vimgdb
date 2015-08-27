@@ -175,6 +175,10 @@ int cmd_var_exec(int argc, char** argv){
 	return 0;
 }
 
+void cmd_var_cleanup(){
+	line_map.clear();
+}
+
 void cmd_var_help(int argc, char** argv){
 	int i;
 	const struct user_subcmd_t* scmd;

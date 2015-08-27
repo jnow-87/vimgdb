@@ -3,6 +3,7 @@
 #include <gdb/gdb.h>
 #include <gui/gui.h>
 #include <user_cmd/cmd.h>
+#include <user_cmd/cmd.hash.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <pthread.h>
@@ -95,6 +96,7 @@ void cleanup(int signum){
 
 int cleanup(){
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+	unsigned int i;
 
 
 	DEBUG("recv cleanup request\n");
@@ -106,6 +108,14 @@ int cleanup(){
 	}
 
 	DEBUG("processing cleanup request\n");
+
+	/* call user-command cleanup functions */
+	for(i=user_cmd::MIN_HASH_VALUE; i<=user_cmd::MAX_HASH_VALUE; i++){
+		if(user_cmd::wordlist[i].name[0] != 0 && user_cmd::wordlist[i].cleanup != 0){
+			DEBUG("calling user-command cleanup for %s\n", user_cmd::wordlist[i].name);
+			user_cmd::wordlist[i].cleanup();
+		}
+	}
 
 	/* destroy gdb */
 	DEBUG("destroying gdb interface\n");

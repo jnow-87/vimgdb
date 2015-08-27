@@ -8,6 +8,8 @@
 #include <gui/gui.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
+#include <sys/types.h>
+#include <signal.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -16,7 +18,7 @@
 
 /* macros */
 #define TTY_EXT_FILE	"/tmp/vimgdb_pts"
-#define TTY_EXT_CMD		"xterm -T 'vimgdb-inferior' -e 'ls  /proc/self/fd/0 -l | grep -o -e \"/dev/pts.*\" > " TTY_EXT_FILE "; while [ 0 == 0 ];do sleep 10; done' &"
+#define TTY_EXT_CMD		"xterm -T 'vimgdb-inferior' -geometry 75x15+0+0 -e 'ls  /proc/self/fd/0 -l | grep -o -e \"/dev/pts.*\" > " TTY_EXT_FILE "; echo $$ >> " TTY_EXT_FILE "; while [ 0 == 0 ];do sleep 10; done' &"
 
 
 /* static variables */
@@ -27,6 +29,7 @@ static char** inf_argv = 0;
 static int inf_argc = 0;
 
 static pty* inf_term = 0;
+static unsigned int inf_pty_pid = 0;
 static pthread_t tid = 0;
 
 
@@ -123,6 +126,11 @@ int cmd_inferior_exec(int argc, char** argv){
 			break;
 
 		case TTY:
+			if(inf_pty_pid){
+				kill(inf_pty_pid, SIGKILL);
+				inf_pty_pid = 0;
+			}
+
 			/* setup pty */
 			if(strcmp(argv[2], "internal") == 0){
 				/* setup pty for output redirection */
@@ -181,7 +189,7 @@ int cmd_inferior_exec(int argc, char** argv){
 					}
 
 					// read pts
-					fscanf(fp, "%128s", pts);
+					fscanf(fp, "%128s\n%u", pts, &inf_pty_pid);
 					fclose(fp);
 				}
 				else
@@ -249,6 +257,35 @@ int cmd_inferior_exec(int argc, char** argv){
 	}
 
 	return 0;
+}
+
+void cmd_inferior_cleanup(){
+	int i;
+
+
+	/* delete global strings */
+	delete [] inf_file_bin;
+	delete [] inf_file_sym;
+
+	for(i=0; i<inf_argc; i++)
+		delete [] inf_argv[i];
+
+	delete [] inf_argv;
+
+	/* close external terminal window */
+	if(inf_pty_pid){
+		kill(inf_pty_pid, SIGKILL);
+		inf_pty_pid = 0;
+	}
+
+	/* destroy internal terminal */
+	if(inf_term != 0){
+		pthread_cancel(tid);
+		pthread_join(tid, 0);
+
+		delete inf_term;
+		inf_term = 0;
+	}
 }
 
 void cmd_inferior_help(int argc, char** argv){

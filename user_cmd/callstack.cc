@@ -138,6 +138,20 @@ int cmd_callstack_exec(int argc, char** argv){
 	return 0;
 }
 
+void cmd_callstack_cleanup(){
+	gdb_frame_t *frame;
+
+
+	line_vars.clear();
+	line_frames.clear();
+
+	/* delete existing callstack */
+	list_for_each(callstack, frame){
+		list_rm(&callstack, frame);
+		delete frame;
+	}
+}
+
 void cmd_callstack_help(int argc, char** argv){
 	int i;
 	const struct user_subcmd_t* scmd;
