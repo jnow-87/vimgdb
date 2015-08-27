@@ -100,24 +100,31 @@ int cleanup(){
 	DEBUG("recv cleanup request\n");
 
 	/* ensure cleanup is only executed once */
-	if(pthread_mutex_trylock(&m) != 0)
+	if(pthread_mutex_trylock(&m) != 0){
+		DEBUG("cleanup already ongoing, nothing to be done\n");
 		return 0;
+	}
+
+	DEBUG("processing cleanup request\n");
 
 	/* destroy gdb */
-	DEBUG("close gdb interface\n");
+	DEBUG("destroying gdb interface\n");
+
 	delete gdb;
 	gdb = 0;
 
-	/* close log */
-	DEBUG("close log\n");
-	log::cleanup();
-
 	/* close gui */
+	DEBUG("destroying gui\n");
+
 	if(ui)
 		ui->destroy();
 
 	delete ui;
 	ui = 0;
+
+	/* close log */
+	DEBUG("closing log and exit normally\n");
+	log::cleanup();
 	
 	pthread_mutex_unlock(&m);
 
