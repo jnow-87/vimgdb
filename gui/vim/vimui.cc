@@ -126,7 +126,7 @@ void vimui::destroy(){
 		nbclient->send((char*)"DETACH\n", 7);
 
 		// give vim some time to send disconnect event
-		sleep(2);
+		sleep(1);
 	}
 
 	/* cancel readline-thread */
