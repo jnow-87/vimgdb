@@ -1,0 +1,23 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# vimgdb configuration
+#
+
+#
+# user interface
+#
+CONFIG_GUI_CURSES=y
+#CONFIG_GUI_VIM=y
+#CONFIG_VIM_NB_PORT=1235
+
+#
+# log system
+#
+CONFIG_LOG_FILE=/tmp/vimgdb.log
+CONFIG_LOG_ERROR=y
+CONFIG_LOG_DEBUG=y
+#CONFIG_LOG_GDB=y
+#CONFIG_LOG_VIM=y
+CONFIG_LOG_USER=y
+CONFIG_LOG_TEST=y
+CONFIG_LOG_TODO=y
