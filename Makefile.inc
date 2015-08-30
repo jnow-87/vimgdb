@@ -1,5 +1,5 @@
-include scripts/Makefile.helper
-include scripts/Makefile.compile
+include $(scripts_dir)/Makefile.helper
+include $(scripts_dir)/Makefile.compile
 
 ###############################
 ###   verbosity and debug   ###
@@ -89,7 +89,7 @@ built_tree := $(patsubst %/,%,$(BUILT_TREE))
 src_tree := $(patsubst %/,%,$(SRC_TREE))
 
 # init variables for directory traversal
-build := scripts/Makefile.build
+build := $(scripts_dir)/Makefile.build
 included :=
 
 # set default values for tools
@@ -124,8 +124,8 @@ hostar := $(QBUILD)$(HOSTAR)
 lex := $(QBUILD)$(LEX)
 yacc := $(QBUILD)$(YACC)
 gperf := $(QBUILD)$(GPERF)
-gperf_c_header := $(QBUILD)scripts/gperf_c_header.sh
-gperf_cxx_header := $(QBUILD)scripts/gperf_cxx_header.sh
+gperf_c_header := $(QBUILD)$(scripts_dir)/gperf_c_header.sh
+gperf_cxx_header := $(QBUILD)$(scripts_dir)/gperf_cxx_header.sh
 
 echo := @echo
 printf := @printf

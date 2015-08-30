@@ -3,18 +3,19 @@
 ################
 
 # init source and built tree
+scripts_dir := scripts/
 default_built_tree := built/
 src_dirs := main/ gdb/ gui/ user_cmd/ common/ testing/
 
 # init build system variables
 project_type := cxx
 config := ./config
-config_tree := scripts/config
-mconfig := scripts/mconf/mconfig
+config_tree := $(scripts_dir)/config
+mconfig := $(scripts_dir)/mconf/mconfig
 mconfig_ftype := Pconfig
 
 # include build system Makefile
-include scripts/Makefile.inc
+include $(scripts_dir)/Makefile.inc
 
 # init default flags
 cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall
