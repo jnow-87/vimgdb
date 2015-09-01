@@ -6,6 +6,7 @@
 #include <user_cmd/cmd.hash.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include <pthread.h>
 
 #ifdef GUI_CURSES
@@ -16,12 +17,13 @@
 
 
 /* static prototypes */
-void cleanup(int signum);
 int cleanup();
+void cleanup(int signum);
 
 
 int main(int argc, char** argv){
 	char* line;
+	int n;
 
 
 	/* initialise */
@@ -43,12 +45,22 @@ int main(int argc, char** argv){
 	#error "invalid gui defined"
 #endif
 
-	if(ui->init() != 0)
-		return 1;
+	for(n=0; n<10; n++){
+		if(ui->init() == 0)
+			break;
+
+		ERROR("unable to initialise user interface, trying again\n");
+		sleep(1);
+	}
+
+	if(n == 10){
+		ERROR("attempt to initialise user interface failed %d times, giving up\n", n);
+		cleanup(1);
+	}
 
 	// logging
 	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
-		return 1;
+		cleanup(1);
 
 	// gdb
 	DEBUG("initialise gdbctrl\n");
@@ -59,8 +71,7 @@ int main(int argc, char** argv){
 
 	if(gdb->init() != 0){
 		ERROR("initialising gdb interface\n");
-
-		return 2;
+		cleanup(2);
 	}
 
 	gdb->on_stop(cmd_var_print);
@@ -85,16 +96,17 @@ int main(int argc, char** argv){
 end:
 	// call cleanup() through signal to prevent nested signals
 	// from other threads like closing ui and gdb
-	cleanup();
+	cleanup(0);
 }
 
 
 /* static functions */
-void cleanup(int signum){
-	cleanup();
+int cleanup(){
+	cleanup(0);
+	return 0;
 }
 
-int cleanup(){
+void cleanup(int signum){
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 	unsigned int i;
 
@@ -104,7 +116,7 @@ int cleanup(){
 	/* ensure cleanup is only executed once */
 	if(pthread_mutex_trylock(&m) != 0){
 		DEBUG("cleanup already ongoing, nothing to be done\n");
-		return 0;
+		return;
 	}
 
 	DEBUG("processing cleanup request\n");
@@ -138,5 +150,5 @@ int cleanup(){
 	
 	pthread_mutex_unlock(&m);
 
-	exit(0);
+	exit(signum);
 }
