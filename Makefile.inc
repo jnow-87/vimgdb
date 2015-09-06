@@ -182,6 +182,13 @@ menuconfig: check_tools $(mconfig) $(genconfig)
 	$(mconfig) $(mconfig_ftype)
 	$(mkdir) $(built_tree)/config/
 	$(call cmd_genconfig)
+
+.PHONY: genconfig
+genconfig: $(genconfig)
+	$(mkdir) $(built_tree)/config/
+	$(call cmd_genconfig)
+
+all: genconfig
 endif
 endif
 
