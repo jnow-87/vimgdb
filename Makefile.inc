@@ -197,7 +197,7 @@ ifneq ("$(config_tree)","")
 config_files = $(notdir $(wildcard $(config_tree)/*))
 
 $(foreach cfg, $(config_files), \
-	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg)) \
+	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg) $(genconfig)) \
 )
 endif
 
