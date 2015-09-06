@@ -37,7 +37,6 @@ $(if $(CONFIG_LOG_$(1)), \
 )
 endef
 
-cppflags += -DLOG_FILE=\"$(CONFIG_LOG_FILE)\"
 cppflags += -DLOG_LEVEL="(log_level_t)(LOG_ERROR | LOG_DEBUG | LOG_GDB | LOG_VIM | LOG_USER | LOG_TEST | LOG_TODO)"
 $(call loglevel,ERROR)
 $(call loglevel,DEBUG)
@@ -46,12 +45,6 @@ $(call loglevel,VIM)
 $(call loglevel,USER)
 $(call loglevel,TEST)
 $(call loglevel,TODO)
-
-# gui
-$(if $(CONFIG_GUI_CURSES), $(eval cppflags += -DGUI_CURSES),)
-$(if $(CONFIG_GUI_VIM), $(eval cppflags += -DGUI_VIM),)
-$(if $(CONFIG_VIM_KEEP_USERLOG), $(eval cppflags += -DVIM_KEEP_USERLOG),)
-$(if $(CONFIG_VIM_KEEP_GDBLOG), $(eval cppflags += -DVIM_KEEP_GDBLOG),)
 
 ###################
 ###   targets   ###
