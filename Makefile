@@ -3,7 +3,7 @@
 ################
 
 # init source and built tree
-scripts_dir := scripts/
+scripts_dir := scripts
 default_built_tree := built/
 src_dirs := main/ gdb/ gui/ user_cmd/ common/ testing/
 

@@ -561,6 +561,10 @@ header_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg)
 		break;
 	}
 	case S_STRING:
+		fprintf(fp, "#define %s%s \"%s\"\n",
+		    CONFIG_, sym->name, value);
+		break;
+
 	case S_QSTRING:
 	case S_INT:
 		fprintf(fp, "#define %s%s %s\n",
@@ -605,7 +609,7 @@ static struct conf_printer header_printer_cb =
  *
  * This printer is used when generating the `include/config/tristate.conf' file.
  */
-static void
+/*static void
 tristate_print_symbol(FILE *fp, struct symbol *sym, const char *value, void *arg)
 {
 
@@ -618,7 +622,7 @@ static struct conf_printer tristate_printer_cb =
 	.print_symbol = tristate_print_symbol,
 	.print_comment = kconfig_print_comment,
 };
-
+*/
 static void conf_write_symbol(FILE *fp, struct symbol *sym,
 			      struct conf_printer *printer, void *printer_arg)
 {
@@ -836,19 +840,15 @@ next:
 	return 0;
 }
 
-static int conf_split_config(void)
+static int conf_split_config(const char* spath)
 {
-	const char *name;
 	char path[PATH_MAX+1];
 	char *s, *d, c;
 	struct symbol *sym;
 	struct stat sb;
 	int res, i, fd;
 
-	name = conf_get_autoconfig_name();
-	conf_read_simple(name, S_DEF_AUTO);
-
-	if (chdir("include/config"))
+	if (chdir(spath))
 		return 1;
 
 	res = 0;
@@ -949,40 +949,21 @@ out:
 	return res;
 }
 
-int conf_write_autoconf(void)
+int conf_write_autoconf(const char* conf_header, const char* split_path)
 {
 	struct symbol *sym;
-	const char *name;
-	FILE *out, *tristate, *out_h;
+	FILE* out_h;
 	int i;
 
 	sym_clear_all_valid();
 
-	file_write_dep("include/config/auto.conf.cmd");
-
-	if (conf_split_config())
+	if (conf_split_config(split_path))
 		return 1;
 
-	out = fopen(".tmpconfig", "w");
-	if (!out)
-		return 1;
-
-	tristate = fopen(".tmpconfig_tristate", "w");
-	if (!tristate) {
-		fclose(out);
-		return 1;
-	}
-
-	out_h = fopen(".tmpconfig.h", "w");
+	out_h = fopen(conf_header, "w");
 	if (!out_h) {
-		fclose(out);
-		fclose(tristate);
 		return 1;
 	}
-
-	conf_write_heading(out, &kconfig_printer_cb, NULL);
-
-	conf_write_heading(tristate, &tristate_printer_cb, NULL);
 
 	conf_write_heading(out_h, &header_printer_cb, NULL);
 
@@ -991,35 +972,12 @@ int conf_write_autoconf(void)
 		if (!(sym->flags & SYMBOL_WRITE) || !sym->name)
 			continue;
 
-		/* write symbol to auto.conf, tristate and header files */
-		conf_write_symbol(out, sym, &kconfig_printer_cb, (void *)1);
-
-		conf_write_symbol(tristate, sym, &tristate_printer_cb, (void *)1);
-
 		conf_write_symbol(out_h, sym, &header_printer_cb, NULL);
 	}
-	fclose(out);
-	fclose(tristate);
+
 	fclose(out_h);
 
-	name = getenv("KCONFIG_AUTOHEADER");
-	if (!name)
-		name = "include/generated/autoconf.h";
-	if (rename(".tmpconfig.h", name))
-		return 1;
-	name = getenv("KCONFIG_TRISTATE");
-	if (!name)
-		name = "include/config/tristate.conf";
-	if (rename(".tmpconfig_tristate", name))
-		return 1;
-	name = conf_get_autoconfig_name();
-	/*
-	 * This must be the last step, kbuild has a dependency on auto.conf
-	 * and this marks the successful completion of the previous steps.
-	 */
-	if (rename(".tmpconfig", name))
-		return 1;
-
+	printf("configuration header written to %s\n", conf_header);
 	return 0;
 }
 
