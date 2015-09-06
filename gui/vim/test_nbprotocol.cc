@@ -1,3 +1,4 @@
+#include <config/config.h>
 #include <common/socket.h>
 #include <common/log.h>
 #include <common/string.h>
@@ -40,7 +41,7 @@ int main(int argc, char** argv){
 
 
 	client = 0;
-	server = new socket(VIM_NB_PORT, 0);
+	server = new socket(CONFIG_VIM_NB_PORT, 0);
 	if(server->init_server(TCP) != 0){
 		delete server;
 		log::cleanup();

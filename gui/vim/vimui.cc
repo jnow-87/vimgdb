@@ -1,3 +1,4 @@
+#include <config/config.h>
 #include <common/string.h>
 #include <common/log.h>
 #include <common/list.h>
@@ -67,7 +68,7 @@ int vimui::init(){
 	if(ostr == 0)
 		goto err_0;
 
-	nbserver = new socket(VIM_NB_PORT, 0);
+	nbserver = new socket(CONFIG_VIM_NB_PORT, 0);
 
 	if(nbserver == 0)
 		goto err_1;

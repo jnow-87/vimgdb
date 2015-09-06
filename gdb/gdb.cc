@@ -1,3 +1,4 @@
+#include <config/config.h>
 #include <common/defaults.h>
 #include <common/opt.h>
 #include <common/log.h>
@@ -443,10 +444,10 @@ void* gdbif::readline_thread(void* arg){
 	if(line == 0)
 		goto err_0;
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 	if(ui->win_create("gdb-log", true, 0) < 0)
 		goto err_1;
-#endif // GUI_CURSES
+#endif // CONFIG_GUI_CURSES
 
 	while(1){
 		if(gdb->read(&c, 1) == 1){
@@ -491,13 +492,13 @@ void* gdbif::readline_thread(void* arg){
 	}
 
 err_2:
-#ifndef VIM_KEEP_GDBLOG
+#ifndef CONFIG_VIM_KEEP_GDBLOG
 	ui->win_destroy(ui->win_getid(GDBLOG_NAME));
 #endif
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 err_1:
-#endif // GUI_CURSES
+#endif // CONFIG_GUI_CURSES
 
 	free(line);
 

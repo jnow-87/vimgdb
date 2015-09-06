@@ -1,3 +1,4 @@
+#include <config/config.h>
 #include <common/log.h>
 #include <common/opt.h>
 #include <gdb/gdb.h>
@@ -9,9 +10,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 	#include <gui/curses/cursesui.h>
-#elif GUI_VIM
+#elif CONFIG_GUI_VIM
 	#include <gui/vim/vimui.h>
 #endif
 
@@ -37,9 +38,9 @@ int main(int argc, char** argv){
 	signal(SIGINT, cleanup);
 
 	// user interface
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 	ui = new cursesui();
-#elif GUI_VIM
+#elif CONFIG_GUI_VIM
 	ui = new vimui();
 #else
 	#error "invalid gui defined"
@@ -59,7 +60,7 @@ int main(int argc, char** argv){
 	}
 
 	// logging
-	if(log::init(LOG_FILE, LOG_LEVEL) != 0)
+	if(log::init(CONFIG_LOG_FILE, LOG_LEVEL) != 0)
 		cleanup(1);
 
 	// gdb

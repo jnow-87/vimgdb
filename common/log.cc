@@ -1,3 +1,4 @@
+#include <config/config.h>
 #include <common/defaults.h>
 #include <common/log.h>
 #include <gui/gui.h>
@@ -39,18 +40,18 @@ int log::init(const char* file_name, log_level_t lvl){
 	}
 
 	if(ui){
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 		if(ui->win_create("user-log", true, 0) < 0)
 			goto err_1;
 
 		if(ui->win_create("debug-log", true, 0) < 0)
 			goto err_2;
-#endif // GUI_CURSES
+#endif // CONFIG_GUI_CURSES
 	}
 
 	return 0;
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 
 err_2:
 	ui->win_destroy(ui->win_getid(USERLOG_NAME));
@@ -61,7 +62,7 @@ err_1:
 err_0:
 	return -1;
 
-#endif // GUI_CURSES
+#endif // CONFIG_GUI_CURSES
 }
 
 /**
@@ -76,11 +77,12 @@ void log::cleanup(){
 	// ensure that only creating process is closing the windows
 	// otherwise any forked process would destroy them
 	if(ui && creator == getpid()){
-#ifndef VIM_KEEP_USERLOG
+
+#ifndef CONFIG_VIM_KEEP_USERLOG
 		ui->win_destroy(ui->win_getid(USERLOG_NAME));
 #endif
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 		ui->win_destroy(ui->win_getid(DEBUGLOG_NAME));
 #endif
 	}
@@ -108,7 +110,7 @@ void log::print(log_level_t lvl, const char* msg, ...){
 		if(ui){
 			va_start(lst, msg);
 
-#ifdef GUI_CURSES
+#ifdef CONFIG_GUI_CURSES
 			if(lvl & (USER | TEST))	ui->win_vprint(ui->win_getid(USERLOG_NAME), msg, lst);
 			else					ui->win_vprint(ui->win_getid(DEBUGLOG_NAME), msg, lst);
 #else
