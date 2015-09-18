@@ -24,6 +24,7 @@ void cleanup(int signum);
 
 int main(int argc, char** argv){
 	char* line;
+	char log_name[strlen(CONFIG_LOG_FILE) + 10];
 	int n;
 
 
@@ -60,7 +61,9 @@ int main(int argc, char** argv){
 	}
 
 	// logging
-	if(log::init(CONFIG_LOG_FILE, LOG_LEVEL) != 0)
+	sprintf(log_name, CONFIG_LOG_FILE ".%d", getpid());
+
+	if(log::init(log_name, LOG_LEVEL) != 0)
 		cleanup(1);
 
 	// gdb
