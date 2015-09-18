@@ -11,8 +11,8 @@ src_dirs := example
 project_type := cxx
 config := ./config
 config_tree := $(scripts_dir)/config
-mconfig := $(scripts_dir)/mconf/mconfig
-mconfig_ftype := Pconfig
+use_config_sys := y
+config_ftype := Pconfig
 
 # include build system Makefile
 include $(scripts_dir)/Makefile.inc
@@ -46,7 +46,7 @@ gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 ## build
 ####
 .PHONY: all
-all: check_tools check_config $(lib) $(hostlib) $(bin) $(hostbin)
+all: $(lib) $(bin) $(hostlib) $(hostbin)
 
 .PHONY: debug
 debug: cflags += -g

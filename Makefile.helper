@@ -8,7 +8,7 @@
 #
 #	$(call dinclude,<directory list>)
 define dinclude
-	$(eval traverse := $(filter-out $(included),$(patsubst %/,%,$(1)))) \
+	$(eval traverse := $(sort $(filter-out $(included),$(patsubst %/,%,$(1))))) \
 	$(eval included += $(traverse)) \
 	\
 	$(foreach dir,$(traverse), \
