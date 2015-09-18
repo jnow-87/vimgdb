@@ -44,20 +44,11 @@ static void sym_add_default(struct symbol *sym, const char *def)
 
 void sym_init(void)
 {
-	struct symbol *sym;
-	struct utsname uts;
 	static bool inited = false;
 
 	if (inited)
 		return;
 	inited = true;
-
-	uname(&uts);
-
-	sym = sym_lookup("UNAME_RELEASE", 0);
-	sym->type = S_STRING;
-	sym->flags |= SYMBOL_AUTO;
-	sym_add_default(sym, uts.release);
 }
 
 enum symbol_type sym_get_type(struct symbol *sym)

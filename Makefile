@@ -11,8 +11,8 @@ src_dirs := main/ gdb/ gui/ user_cmd/ common/ testing/
 project_type := cxx
 config := ./config
 config_tree := $(scripts_dir)/config
-mconfig := $(scripts_dir)/mconf/mconfig
-mconfig_ftype := Pconfig
+use_config_sys := y
+config_ftype := Pconfig
 
 # include build system Makefile
 include $(scripts_dir)/Makefile.inc
@@ -30,22 +30,6 @@ yaccflags := $(YACCFLAGS) $(CONFIG_YACCFLAGS)
 lexflags := $(LEXFLAGS) $(CONFIG_LEXFLAGS)
 gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 
-# log level
-define loglevel
-$(if $(CONFIG_LOG_$(1)), \
-  $(eval cppflags += -DLOG_$(1)=$(1)), \
-)
-endef
-
-cppflags += -DLOG_LEVEL="(log_level_t)(LOG_ERROR | LOG_DEBUG | LOG_GDB | LOG_VIM | LOG_USER | LOG_TEST | LOG_TODO)"
-$(call loglevel,ERROR)
-$(call loglevel,DEBUG)
-$(call loglevel,GDB)
-$(call loglevel,VIM)
-$(call loglevel,USER)
-$(call loglevel,TEST)
-$(call loglevel,TODO)
-
 ###################
 ###   targets   ###
 ###################
@@ -54,7 +38,7 @@ $(call loglevel,TODO)
 ## build
 ####
 .PHONY: all
-all: check_tools check_config $(lib) $(bin)
+all: $(lib) $(bin)
 
 .PHONY: debug
 debug: cflags += -g
