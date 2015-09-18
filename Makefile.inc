@@ -144,7 +144,7 @@ sym_link := $(QUTIL)ln -s
 .PHONY: fake_all
 fake_all: check_tools all
 
-# check of all tools are available
+# check if all tools are available
 check_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
 
 tools :=
@@ -173,22 +173,29 @@ endif
 # menuconfig
 ifneq ("$(mconfig)","")
 ifneq ("$(mconfig_ftype)","")
+config_header := $(built_tree)/config/config.h
 mconfig_src := $(dir $(mconfig))
 mconfig := $(built_tree)/$(mconfig)
-genconfig := $(dir $(mconfig))genconfig
+confheader := $(dir $(mconfig))confheader
+
+config_tools := $(mconfig) $(confheader)
+
+.PHONY: configtools
+configtools: $(config_tools)
+
+.PHONY: check_configheader
+check_configheader: $(config_header)
+
+$(config_header): $(config) $(config_tools)
+	$(confheader) $(mconfig_ftype) $(dir $(config_header)) $(config_header) 
 
 .PHONY: menuconfig
-menuconfig: check_tools $(mconfig) $(genconfig)
+menuconfig: check_tools configtools
 	$(mconfig) $(mconfig_ftype)
 	$(mkdir) $(built_tree)/config/
-	$(call cmd_genconfig)
+	$(call cmd_confheader)
 
-.PHONY: genconfig
-genconfig: $(genconfig)
-	$(mkdir) $(built_tree)/config/
-	$(call cmd_genconfig)
-
-all: genconfig
+all: configtools check_configheader
 endif
 endif
 
@@ -197,7 +204,7 @@ ifneq ("$(config_tree)","")
 config_files = $(notdir $(wildcard $(config_tree)/*))
 
 $(foreach cfg, $(config_files), \
-	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg) $(genconfig)) \
+	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg)) \
 )
 endif
 
@@ -282,7 +289,7 @@ help-buildsys:
 # start subdirectory traversal
 # 	if subdir-y is empty include '.' (within $(src_tree))
 $(if $(src_dirs), \
-	$(call dinclude,$(src_dirs) $(mconfig_src)) \
+	$(call dinclude,$(src_dirs) $(mconfig_src) $(confheader_src)) \
 	, \
 	$(error $$(src_dirs) is empty, please define initial source directories) \
 )

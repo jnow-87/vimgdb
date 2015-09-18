@@ -1,4 +1,4 @@
-hostbin-y := mconfig genconfig
+hostbin-y := mconfig confheader
 
 $(loc_built_tree)/zconf.tab.host.o: $(loc_built_tree)/zconf.lex.c $(loc_built_tree)/zconf.hash.c $(loc_built_tree)/zconf.tab.c
 
@@ -12,10 +12,10 @@ mconfig-yaccflags := --name-prefix=zconf
 mconfig-lexflags := --prefix=zconf
 mconfig-gperfflags := -a -C -E -g -k '1,3,$$$$' -p -t
 
-genconfig-y := genconf.o zconf.tab.o
+confheader-y := confheader.o zconf.tab.o
 
-genconfig-hostcppflags := -I"$(loc_src_tree)" -I"$(loc_built_tree)" -DYYDEBUG
-genconfig-hostcflags := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
-genconfig-yaccflags := --name-prefix=zconf
-genconfig-lexflags := --prefix=zconf
-genconfig-gperfflags := -a -C -E -g -k '1,3,$$$$' -p -t
+confheader-hostcppflags := -I"$(loc_src_tree)" -I"$(loc_built_tree)" -DYYDEBUG
+confheader-hostcflags := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
+confheader-yaccflags := --name-prefix=zconf
+confheader-lexflags := --prefix=zconf
+confheader-gperfflags := -a -C -E -g -k '1,3,$$$$' -p -t
