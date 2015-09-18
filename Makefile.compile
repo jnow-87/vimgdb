@@ -84,17 +84,8 @@ define compile_bin_o
 endef
 endif
 
-define cmd_genconfig
-	@if [ $$(diff -q $(config) $(config).old 1> /dev/null 2> /dev/null; echo $$?) -eq 1 ];then \
-		$(genconfig) $(mconfig_ftype) $(built_tree)/config/config.h $(built_tree)/config; \
-	elif [ ! -e $(built_tree)/config/config.h ];then \
-		$(genconfig) $(mconfig_ftype) $(built_tree)/config/config.h $(built_tree)/config; \
-	fi
-endef
-
 define cmd_defconfig
 	$(echo) [CP] $< '->' $(config)
 	@(test -e $(config) && cp $(config) $(config).old) ; return 0
 	$(cp) $< $(config)
-	$(call cmd_genconfig)
 endef
