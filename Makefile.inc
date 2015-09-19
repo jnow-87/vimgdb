@@ -172,21 +172,21 @@ endif
 
 # config system targets
 ifeq ("$(use_config_sys)","y")
-ifneq ("$(config_ftype)","")
-config_header := $(built_tree)/config/config.h
+  ifneq ("$(config_ftype)","")
+    config_header := $(built_tree)/config/config.h
 
-mconfig_src := $(scripts_dir)/mconf
-mconfig := $(built_tree)/$(mconfig_src)/mconfig
-confheader_src := $(scripts_dir)/mconf
-confheader := $(built_tree)/$(confheader_src)/confheader
-fixdep_src := $(scripts_dir)/fixdep
-fixdep := $(built_tree)/$(fixdep_src)/fixdep
+    mconfig_src := $(scripts_dir)/mconf
+    mconfig := $(built_tree)/$(mconfig_src)/mconfig
+    confheader_src := $(scripts_dir)/mconf
+    confheader := $(built_tree)/$(confheader_src)/confheader
+    fixdep_src := $(scripts_dir)/fixdep
+    fixdep := $(built_tree)/$(fixdep_src)/fixdep
 
-config_tools := $(fixdep) $(mconfig) $(confheader)
+    config_tools := $(fixdep) $(mconfig) $(confheader)
 
-mconfig := $(QBUILD)$(mconfig)
-confheader := $(QBUILD)$(confheader)
-fixdep := $(QBUILD)$(fixdep)
+    mconfig := $(QBUILD)$(mconfig)
+    confheader := $(QBUILD)$(confheader)
+    fixdep := $(QBUILD)$(fixdep)
 
 .PHONY: configtools
 configtools: do_basic := y
@@ -203,7 +203,9 @@ menuconfig: check_tools configtools
 	$(mconfig) $(config_ftype)
 
 all: configtools check_configheader
-endif
+  endif
+else
+  do_basic := y
 endif
 
 # default config targets
