@@ -1,4 +1,0 @@
-[submodule "scripts"]
-	path = scripts
-	url = git@github.com:jnow-87/make.git
-	branch = vimgdb
