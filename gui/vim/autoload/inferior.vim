@@ -91,7 +91,9 @@ function! s:inferior(...)
 		call vimgdb#util#cmd("inferior view")
 
 	else
-		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
+		if a:1 == "tty" && a:2 == "internal"
+			call vimgdb#window#open(g:vimgdb_inferior_name, 1)
+		endif
 
 		if a:1 == "bin" || a:1 == "sym" || filereadable(a:1)
 			" in case a new binary or symbol file is supplied make 
