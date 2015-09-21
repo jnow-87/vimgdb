@@ -228,6 +228,7 @@ void cmd_memory_help(int argc, char** argv){
 int cmd_memory_update(){
 	static unsigned int len = 17;	// 8 byte + 0-byte + 8 byte for potential escape chars
 	static char* ascii = new char[len];
+	bool modified;
 	int win_id;
 	char c;
 	unsigned int i, j, line;
@@ -281,7 +282,9 @@ int cmd_memory_update(){
 
 		/* print actual memory content */
 		for(i=0; i<mem->length; i++, addr++){
-			ui->win_print(win_id, " %s%2.2s", (memcmp(mem->content + i * 2, mem->content_old + i * 2, 2) == 0 ? "" : "`"), mem->content + i * 2);
+			modified = memcmp(mem->content + i * 2, mem->content_old + i * 2, 2);
+
+			ui->win_print(win_id, " %s%2.2s%s", (modified ? "`" : ""), mem->content + i * 2, (modified ? "`" : ""));
 
 			// update ascii string
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));

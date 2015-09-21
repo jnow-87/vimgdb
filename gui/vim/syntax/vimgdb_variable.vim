@@ -1,10 +1,7 @@
 " use region for being able to hide the content-changed indicator '`'
 " matchgroup is location sensitive, in this case 'start' can be highlighted
 " while all 'end' patterns are set to None
-syn region 	vimgdb_content_changed start="`" matchgroup=None end=",\|)\|$" contains=vimgdb_hidden
-
-" hide content-changed indicator '`'
-syn match	vimgdb_hidden			"`" contained conceal
+syn region 	vimgdb_content_changed matchgroup=None start="`" matchgroup=None end="`" concealends
 
 " navigation item [+] or [-]
 syn match	vimgdb_navigation		"^ *\zs\[[+-]\]\ze"

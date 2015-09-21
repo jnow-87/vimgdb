@@ -257,7 +257,7 @@ int gdb_variable_t::print(int win_id, unsigned int* line, map<unsigned int, gdb_
 		if(update() != 0)
 			return -1;
 
-		ui->win_print(win_id, "%s%s = %s", (modified ? "`" : ""), exp, value);
+		ui->win_print(win_id, "%s%s = %s%s", (modified ? "`" : ""), exp, value, (modified ? "`" : ""));
 		modified = false;
 
 		return 0;
@@ -314,7 +314,7 @@ int gdb_variable_t::print(int win_id, int rec_lvl, unsigned int* line, map<unsig
 		return -1;
 
 	/* update UI */
-	ui->win_print(win_id, "%s%s %s%s = %s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "`" : ""), exp, value);
+	ui->win_print(win_id, "%s%s %s%s = %s%s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "`" : ""), exp, value, (modified ? "`" : ""));
 
 	/* update variable structs */
 	modified = false;
