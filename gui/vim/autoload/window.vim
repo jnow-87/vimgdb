@@ -151,6 +151,9 @@ function! vimgdb#window#cleanup()
 	" rm autocmd
 	exec "autocmd! BufWinEnter " . g:vimgdb_userlog_name
 	exec "autocmd! BufWinEnter " . g:vimgdb_gdblog_name
+
+	" open initial buffer
+	exec "edit! " . s:init_bname
 endfunction
 
 " \brief	window completion
@@ -162,9 +165,9 @@ endfunction
 "
 " \param	name	default name of initial buffer
 function! vimgdb#window#initial(name)
-	let l:bname = bufname(bufnr("%"))
+	let s:init_bname = bufname(bufnr("%"))
 
-	if l:bname == ""
+	if s:init_bname == ""
 		" if current buffer is empty, create new one
 		exec "autocmd! BufWinLeave " . a:name . " silent call vimgdb#window#close(\"" . a:name . "\")"
 
@@ -176,11 +179,11 @@ function! vimgdb#window#initial(name)
 
 	else
 		if &modified == 1
-			call vimgdb#util#error("buffer " . l:bname . " is modified, please safe changes and try again")
+			call vimgdb#util#error("buffer " . s:init_bname . " is modified, please safe changes and try again")
 			return -1
 		endif
 
-		exec "edit! " . l:bname
+		exec "edit! " . s:init_bname
 		let l:bnr = bufnr("%")
 	endif
 

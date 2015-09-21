@@ -141,7 +141,6 @@ function! s:cleanup()
 
 	" cleanup
 	call vimgdb#complete#cleanup(s:cmd_dict)
-	call vimgdb#window#cleanup()
 	call vimgdb#variable#cleanup()
 	call vimgdb#exec#cleanup()
 	call vimgdb#break#cleanup()
@@ -151,6 +150,7 @@ function! s:cleanup()
 	call vimgdb#memory#cleanup()
 	call vimgdb#evaluate#cleanup()
 	call vimgdb#per#cleanup()
+	call vimgdb#window#cleanup()
 	call vimgdb#config#cleanup()
 
 	let s:initialised = 0
