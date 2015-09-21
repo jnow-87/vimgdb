@@ -389,7 +389,7 @@ int cmd_per_update(){
 					changed = (bit_val == bits->value) ? false : true;
 					bits->value = bit_val;
 
-					ui->win_print(win_id, "  %s %s%0*.*x", bits->name, (changed ? "`" : ""), bits->nbits / 4, bits->nbits / 4, bit_val);
+					ui->win_print(win_id, "  %s %s%0*.*x", bits->name, (changed ? "`" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val);
 					i++;
 				}
 
