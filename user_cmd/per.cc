@@ -312,7 +312,7 @@ void cmd_per_help(int argc, char** argv){
 int cmd_per_update(){
 	char c;
 	int win_id;
-	unsigned int line;
+	unsigned int line, i;
 	unsigned long long reg_val, bit_val;
 	bool changed;
 	gdb_memory_t *mem;
@@ -376,13 +376,21 @@ int cmd_per_update(){
 				reg_val = strtoll(mem->content + reg->offset * 2, 0, 16);
 				mem->content[reg->offset * 2 + reg->nbytes * 2] = c;
 
+				i = 0;
 				list_for_each(reg->bits, bits){
+					if(i && i % 4 == 0){
+						line_map[line] = range;
+						ui->win_print(win_id, "\n");
+						line++;
+					}
+
 					bit_val = (reg_val & (bits->mask << bits->idx)) >> bits->idx;
 
 					changed = (bit_val == bits->value) ? false : true;
 					bits->value = bit_val;
 
 					ui->win_print(win_id, "  %s %s%0*.*x", bits->name, (changed ? "`" : ""), bits->nbits / 4, bits->nbits / 4, bit_val);
+					i++;
 				}
 
 				line_map[line] = range;
