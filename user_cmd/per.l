@@ -38,6 +38,8 @@
 "range"					{ return RANGE; }
 "register"				{ return REGISTER; }
 "bits"					{ return BITS; }
+"emptyline"				{ return EMPTYLINE; }
+"heading"				{ return HEADLINE; }
 
 	/* general patterns */
 [\ \t]					{ /* ignore whitespaces */}

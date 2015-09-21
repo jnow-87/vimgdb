@@ -43,6 +43,8 @@ per_bits_t* bits;
 %token RANGE
 %token REGISTER
 %token BITS
+%token EMPTYLINE
+%token HEADLINE
 %token END
 %token <sptr> STRING
 %token <i> INT
@@ -65,6 +67,8 @@ range :		%empty														{ $$ = 0; }
 	  ;
 
 register :	%empty														{ $$ = 0; }
+		 |	register EMPTYLINE nl										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0)); }
+		 |	register HEADLINE STRING nl									{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0)); }
 		 |	register REGISTER STRING INT INT '=' '{' nl bits '}' nl		{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $9)); }
 		 ;
 

@@ -95,6 +95,12 @@ int cmd_per_exec(int argc, char** argv){
 			}
 
 			list_for_each(range->regs, reg){
+				if(reg->name)
+					strdeescape(reg->name);
+
+				if(reg->nbytes == 0)
+					continue;
+
 				// check integrity of register to range
 				if(reg->offset + reg->nbytes >  range->size){
 					USER("error: offset/size of register \"%s\" exceeds size of range \"%s\"\n", reg->name, range->name);
@@ -347,6 +353,14 @@ int cmd_per_update(){
 
 		/* print register values */
 		list_for_each(range->regs, reg){
+			if(reg->nbytes == 0){
+				ui->win_print(win_id, "%s\n", reg->name ? reg->name : "");
+				line_map[line] = range;
+				line++;
+
+				continue;
+			}
+
 			changed = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
 			ui->win_print(win_id, " %s = %s%.*s\n", reg->name, (changed ? "`" : ""), reg->nbytes * 2, mem->content + reg->offset * 2);
