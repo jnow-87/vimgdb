@@ -270,6 +270,7 @@ event-running :				VAR_THREAD_ID '=' string-num									{ $$ = new gdb_event_t; 
 
 event-stop :				VAR_REASON '=' string											{ $$ = new gdb_event_stop_t; $$->reason = $3; }
 		   |				VAR_REASON '=' string ',' event-stop-body						{ $$ = $5; $$->reason = $3; }
+		   |				event-stop-body													{ $$ = $1; $$->reason = 0; }
 		   ;
 
 event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
@@ -443,6 +444,6 @@ con-com :					%empty															{ }
 
 
 int gdberror(char* line, gdbif* gdb, const char* s){
-	USER("gdbparse: %s at token \"%s\" columns (%d - %d)\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column);
+	USER("gdbparse: %s at token \"%s\" columns (%d - %d)\nline: \"%s\"\n\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column, line);
 	return 0;
 }
