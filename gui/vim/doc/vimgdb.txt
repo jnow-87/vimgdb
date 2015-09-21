@@ -626,6 +626,11 @@ vimgdb_function_name
 vimgdb_memory_unknown
 	Unknown/unlisted memory in the |vimgdb| memory buffer.
 
+							*hl-vimgdb_per_heading*
+vimgdb_per_heading
+	Headings (range-, register- or bit-name) in the |vimgdb| peripherals
+	buffer
+
 ==============================================================================
 							*vimgdb-license*
 7. License~

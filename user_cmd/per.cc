@@ -314,7 +314,7 @@ int cmd_per_update(){
 	int win_id;
 	unsigned int line, i;
 	unsigned long long reg_val, bit_val;
-	bool changed;
+	bool modified;
 	gdb_memory_t *mem;
 	per_range_t* range;
 	per_register_t* reg;
@@ -334,7 +334,7 @@ int cmd_per_update(){
 
 	list_for_each(range_lst, range){
 		/* print header */
-		ui->win_print(win_id, "[%c] %s\n", (range->expanded ? '-' : '+'), range->name);
+		ui->win_print(win_id, "[%c] ´%s´\n", (range->expanded ? '-' : '+'), range->name);
 		line_map[line++] = range;
 
 		if(!range->expanded){
@@ -354,16 +354,16 @@ int cmd_per_update(){
 		/* print register values */
 		list_for_each(range->regs, reg){
 			if(reg->nbytes == 0){
-				ui->win_print(win_id, "%s\n", reg->name ? reg->name : "");
+				ui->win_print(win_id, "´%s´\n", reg->name ? reg->name : "");
 				line_map[line] = range;
 				line++;
 
 				continue;
 			}
 
-			changed = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
+			modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-			ui->win_print(win_id, " %s = %s%.*s\n", reg->name, (changed ? "`" : ""), reg->nbytes * 2, mem->content + reg->offset * 2);
+			ui->win_print(win_id, " ´%s´ = %s%.*s%s\n", reg->name, (modified ? "`" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`" : ""));
 
 			line_map[line] = range;
 			line++;
@@ -386,10 +386,10 @@ int cmd_per_update(){
 
 					bit_val = (reg_val & (bits->mask << bits->idx)) >> bits->idx;
 
-					changed = (bit_val == bits->value) ? false : true;
+					modified = (bit_val == bits->value) ? false : true;
 					bits->value = bit_val;
 
-					ui->win_print(win_id, "  %s %s%0*.*x", bits->name, (changed ? "`" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val);
+					ui->win_print(win_id, "  ´%s´ %s%0*.*x%s", bits->name, (modified ? "`" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`" : ""));
 					i++;
 				}
 

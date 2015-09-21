@@ -34,6 +34,10 @@ if !hlexists("vimgdb_memory_unknown")
 	highlight default vimgdb_memory_unknown ctermfg=88
 endif
 
+if !hlexists("vimgdb_per_heading")
+	highlight default vimgdb_per_heading ctermfg=255 cterm=bold
+endif
+
 
 """"""""""""""""""
 " user-variables "
