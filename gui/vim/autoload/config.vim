@@ -139,10 +139,10 @@ let s:keymap = {}
 " \brief	apply configuration
 function vimgdb#config#init()
 	" assign key mappings
-	call s:map_key("b", "n", ":exec 'Break add ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
-	call s:map_key("B", "n", ":exec 'Break delete ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
-	call s:map_key("e", "n", ":exec 'Break enable ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
-	call s:map_key("E", "n", ":exec 'Break disable ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("b", "n", ":exec 'Break add ' . bufname('%') . ':' . line('.')<cr>")
+	call s:map_key("B", "n", ":exec 'Break delete ' . bufname('%') . ':' . line('.')<cr>")
+	call s:map_key("e", "n", ":exec 'Break enable ' . bufname('%') . ':' . line('.')<cr>")
+	call s:map_key("E", "n", ":exec 'Break disable ' . bufname('%') . ':' . line('.')<cr>")
 	call s:map_key("j", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("c", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
