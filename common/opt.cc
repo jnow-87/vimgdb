@@ -20,6 +20,7 @@ int opt_parse(int argc, char** argv){
 			"options:\n"
 			"    -d        start as daemon\n"
 			"    -c <cmd>  gdb command line\n"
+			"    -l <file> log file\n"
 			, argv[0]
 		);
 
@@ -33,6 +34,7 @@ int opt_parse(int argc, char** argv){
 	opt.prg_name = argv[0];
 	opt.vim_cwd = argv[argc - 1];
 	opt.gdb_argv = 0;
+	opt.log_file = 0;
 
 	if(opt.vim_cwd[strlen(opt.vim_cwd) - 1] == '/')
 		opt.vim_cwd[strlen(opt.vim_cwd) - 1] = 0;
@@ -54,6 +56,15 @@ int opt_parse(int argc, char** argv){
 
 			if(strsplit(argv[i], &gdb_argc, &gdb_argv) != 0)
 				return -1;
+			break;
+
+		case 'l':
+			if(++i >= argc - 1){
+				printf("invalid argument to -l, expected log file\n");
+				return -1;
+			}
+		
+			opt.log_file = argv[i];
 			break;
 
 		default:

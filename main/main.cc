@@ -51,17 +51,20 @@ int main(int argc, char** argv){
 		if(ui->init() == 0)
 			break;
 
-		ERROR("unable to initialise user interface, trying again\n");
+		printf("unable to initialise user interface, trying again\n");
 		sleep(1);
 	}
 
 	if(n == 10){
-		ERROR("attempt to initialise user interface failed %d times, giving up\n", n);
+		printf("attempt to initialise user interface failed %d times, giving up\n", n);
 		cleanup(1);
 	}
 
 	// logging
-	sprintf(log_name, CONFIG_LOG_FILE ".%d", getpid());
+	if(opt.log_file)
+		strcpy(log_name, opt.log_file);
+	else
+		sprintf(log_name, CONFIG_LOG_FILE ".%d", getpid());
 
 	if(log::init(log_name, LOG_LEVEL) != 0)
 		cleanup(1);
