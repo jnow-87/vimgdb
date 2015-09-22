@@ -54,7 +54,7 @@ int cmd_inferior_exec(int argc, char** argv){
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
-	if((scmd == 0 && argc < 2) || (scmd && (((scmd->id == SYM || scmd->id == BIN || scmd->id == TTY || scmd->id == ARGS) && argc < 3) || ((scmd->id == EXPORT) && argc < 4)))){
+	if((scmd == 0 && argc < 2) || (scmd && (((scmd->id == SYM || scmd->id == BIN || scmd->id == TTY || scmd->id == ARGS || scmd->id == EXPORT) && argc < 3)))){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_inferior_help(2, argv);
 		return 0;
@@ -234,15 +234,6 @@ int cmd_inferior_exec(int argc, char** argv){
 			fclose(fp);
 
 			USER("export inferior data to \"%s\"\n", argv[2]);
-
-			/* signal data availability */
-			fp = fopen(argv[3], "w");
-
-			if(fp == 0)
-				return -1;
-
-			fprintf(fp, "1\n");
-			fclose(fp);
 			break;
 
 		default:

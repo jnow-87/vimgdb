@@ -55,6 +55,7 @@ int cmd_exec(char* line){
 	int i;
 	int argc, r;
 	char** argv;
+	FILE* sync;
 
 
 	if(strsplit(strdeescape(line), &argc, &argv) != 0){
@@ -72,8 +73,18 @@ int cmd_exec(char* line){
 
 		r = -1;
 	}
-	else
-		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc, argv);
+	else{
+		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc - 1, argv);
+
+		sync = fopen(argv[argc - 1], "w");
+
+		if(sync != 0){
+			fprintf(sync, "1\n");
+			fclose(sync);
+		}
+		else
+			ERROR("unable to open sync file \"%s\" - %s\n", argv[argc - 1], strerror(errno));
+	}
 
 	for(i=0; i<argc; i++)
 		delete [] argv[i];

@@ -1,6 +1,10 @@
 """"""""""""""""""""
 " global functions "
 """"""""""""""""""""
+let s:sync_file = "/tmp/vimgdb_sync"
+let s:data_file = "/tmp/vimgdb_data"
+let s:timeout_s = 5
+
 
 " \brief	print error message
 "
@@ -18,26 +22,11 @@ endfunction
 "
 " \param	cmd		command to execute
 function! vimgdb#util#cmd(cmd)
-	exec "nbkey " . escape(a:cmd, '"')
-endfunction
-
-
-let s:sync_file = "/tmp/vimgdb_sync"
-let s:data_file = "/tmp/vimgdb_data"
-let s:timeout_s = 5
-
-" \brief	issue vimgdb-command and wait for its response
-"
-" \param	cmd		vimgdb-command to execute
-"
-" \return	command response as list
-function! vimgdb#util#cmd_get_data_list(cmd)
-	" delete files
+	" delete sync file
 	call delete(s:sync_file)
-	call delete(s:data_file)
 
 	" issue command
-	call vimgdb#util#cmd(a:cmd . " " . s:data_file . " " . s:sync_file)
+	exec "nbkey " . escape(a:cmd . " " . s:sync_file, '"')
 
 	let l:s = 0
 
@@ -47,9 +36,27 @@ function! vimgdb#util#cmd_get_data_list(cmd)
 		let l:s += 0.001
 
 		if l:s >= s:timeout_s
-			return []
+			echoerr "timeout executing vimgdb command: " . a:cmd
+			return -1
 		endif
 	endwhile
+
+	return 0
+endfunction
+
+" \brief	issue vimgdb-command and wait for its response
+"
+" \param	cmd		vimgdb-command to execute
+"
+" \return	command response as list
+function! vimgdb#util#cmd_get_data_list(cmd)
+	" delete data file
+	call delete(s:data_file)
+
+	" issue command
+	if vimgdb#util#cmd(a:cmd . " " . s:data_file) != 0
+		return []
+	endif
 
 	" read file
 	return readfile(s:data_file)
