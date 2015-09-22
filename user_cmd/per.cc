@@ -334,7 +334,7 @@ int cmd_per_update(){
 
 	list_for_each(range_lst, range){
 		/* print header */
-		ui->win_print(win_id, "[%c] ´%s´\n", (range->expanded ? '-' : '+'), range->name);
+		ui->win_print(win_id, "[%c] ´h0%s`h0\n", (range->expanded ? '-' : '+'), range->name);
 		line_map[line++] = range;
 
 		if(!range->expanded){
@@ -354,7 +354,7 @@ int cmd_per_update(){
 		/* print register values */
 		list_for_each(range->regs, reg){
 			if(reg->nbytes == 0){
-				ui->win_print(win_id, " %s\n", reg->name ? reg->name : "");
+				ui->win_print(win_id, " ´h1%s`h1\n", reg->name ? reg->name : "");
 				line_map[line] = range;
 				line++;
 
@@ -363,7 +363,7 @@ int cmd_per_update(){
 
 			modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-			ui->win_print(win_id, "  %s = %s%.*s%s\n", reg->name, (modified ? "`" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`" : ""));
+			ui->win_print(win_id, "  ´h2%s`h2 = %s%.*s%s\n", reg->name, (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
 
 			line_map[line] = range;
 			line++;
@@ -389,7 +389,7 @@ int cmd_per_update(){
 					modified = (bit_val == bits->value) ? false : true;
 					bits->value = bit_val;
 
-					ui->win_print(win_id, "   ´%s´ %s%0*.*x%s", bits->name, (modified ? "`" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`" : ""));
+					ui->win_print(win_id, "   ´h3%s`h3 %s%0*.*x%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
 					i++;
 				}
 

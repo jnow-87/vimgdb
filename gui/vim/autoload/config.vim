@@ -26,16 +26,48 @@ if !hlexists("vimgdb_navigation")
 	highlight default vimgdb_navigation ctermfg=56
 endif
 
-if !hlexists("vimgdb_function_name")
-	highlight default vimgdb_function_name ctermfg=27
+if !hlexists("vimgdb_callstack_filename")
+	highlight default vimgdb_callstack_filename ctermfg=255
+endif
+
+if !hlexists("vimgdb_callstack_line")
+	highlight default vimgdb_callstack_line ctermfg=1
+endif
+
+if !hlexists("vimgdb_callstack_function")
+	highlight default vimgdb_callstack_function ctermfg=27
 endif
 
 if !hlexists("vimgdb_memory_unknown")
 	highlight default vimgdb_memory_unknown ctermfg=88
 endif
 
+if !hlexists("vimgdb_memory_heading")
+	highlight default vimgdb_memory_heading ctermfg=255 cterm=bold,underline
+endif
+
+if !hlexists("vimgdb_memory_addr")
+	highlight default vimgdb_memory_addr ctermfg=255 cterm=bold
+endif
+
+if !hlexists("vimgdb_memory_ascii")
+	highlight default vimgdb_memory_ascii ctermfg=8
+endif
+
+if !hlexists("vimgdb_per_range")
+	highlight default vimgdb_per_range ctermfg=255 cterm=bold,underline
+endif
+
 if !hlexists("vimgdb_per_heading")
 	highlight default vimgdb_per_heading ctermfg=255 cterm=bold
+endif
+
+if !hlexists("vimgdb_per_register")
+	highlight default vimgdb_per_register ctermfg=8 cterm=bold
+endif
+
+if !hlexists("vimgdb_per_bit")
+	highlight default vimgdb_per_bit ctermfg=8
 endif
 
 

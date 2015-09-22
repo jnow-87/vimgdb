@@ -618,13 +618,45 @@ vimgdb_mi_cmd
 vimgdb_navigation
 	|vimgdb| navigation items.
 
-							*hl-vimgdb_function_name*
-vimgdb_function_name
+							*hl-vimgdb_callstack_filename*
+vimgdb_callstack_filename
+	File names in the |vimgdb| callstack buffer.
+
+							*hl-vimgdb_callstack_function*
+vimgdb_callstack_function
 	Function names in the |vimgdb| callstack buffer.
+
+							*hl-vimgdb_callstack_line*
+vimgdb_callstack_line
+	Line numbers in the |vimgdb| callstack buffer.
+
+							*hl-vimgdb_memory_heading*
+vimgdb_memory_heading
+	The headlines for memory segments in the |vimgdb| memory buffer.
+
+							*hl-vimgdb_memory_addr*
+vimgdb_memory_addr
+	Address inidicators in the |vimgdb| memory buffer.
+
+							*hl-vimgdb_memory_ascii*
+vimgdb_memory_ascii
+	ASCII interpretation of memory content in the |vimgdb| memory buffer.
 
 							*hl-vimgdb_memory_unknown*
 vimgdb_memory_unknown
 	Unknown/unlisted memory in the |vimgdb| memory buffer.
+
+							*hl-vimgdb_per_range*
+vimgdb_per_range
+	Range names in the |vimgdb| peripherals buffer
+
+							*hl-vimgdb_per_register*
+vimgdb_per_register
+	Register names in the |vimgdb| peripherals buffer
+
+							*hl-vimgdb_per_bit*
+vimgdb_per_bit
+	Bit names in the |vimgdb| peripherals buffer
 
 							*hl-vimgdb_per_heading*
 vimgdb_per_heading

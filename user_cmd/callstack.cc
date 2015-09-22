@@ -312,7 +312,7 @@ int cmd_callstack_print(){
 		if(!frame->args.empty())
 			ui->win_print(win_id, "%s ", frame->expanded ? "[-]" : "[+]");
 
-		ui->win_print(win_id, "%s:%d %s(", frame->filename, frame->line, frame->function);
+		ui->win_print(win_id, "´fl%s`fl:´ln%d`ln ´fu%s`fu(", frame->filename, frame->line, frame->function);
 		line_frames[line] = frame;
 
 		if(!frame->args.empty() && frame->expanded){
