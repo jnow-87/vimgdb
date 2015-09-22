@@ -20,8 +20,9 @@ per_bits_t::~per_bits_t(){
 	delete [] name;
 }
 
-per_register_t::per_register_t(char* name, unsigned int offset, unsigned int nbytes, per_bits_t* bits){
+per_register_t::per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_bits_t* bits){
 	this->name = name;
+	this->desc = desc;
 	this->offset = offset;
 	this->nbytes = nbytes;
 	this->bits = bits;
@@ -33,6 +34,7 @@ per_register_t::~per_register_t(){
 
 
 	delete [] name;
+	delete [] desc;
 
 	list_for_each(bits, b){
 		list_rm(&bits, b);

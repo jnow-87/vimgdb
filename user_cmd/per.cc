@@ -336,7 +336,7 @@ int cmd_per_update(){
 		/* print register values */
 		list_for_each(range->regs, reg){
 			if(reg->nbytes == 0){
-				ui->win_print(win_id, " ´h1%s`h1\n", reg->name ? reg->name : "");
+				ui->win_print(win_id, " ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc ? " - " : ""), (reg->desc ? reg->desc : ""));
 				line_map[line] = range;
 				line++;
 
@@ -345,7 +345,7 @@ int cmd_per_update(){
 
 			modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-			ui->win_print(win_id, "  ´h2%s`h2 = %s%.*s%s\n", reg->name, (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+			ui->win_print(win_id, "  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
 
 			line_map[line] = range;
 			line++;

@@ -59,25 +59,25 @@ per_bits_t* bits;
 
 
 /* start */
-start :		range END													{ *rlst = $1; return 0; }
+start :		range END															{ *rlst = $1; return 0; }
 	  ;
 
-range :		%empty														{ $$ = 0; }
-	  |		range RANGE STRING INT INT '=' '{' nl register '}' nl		{ $$ = $1; list_add_tail(&$$, new per_range_t($3, (void*)$4, $5, $9)); }
+range :		%empty																{ $$ = 0; }
+	  |		range RANGE STRING INT INT '=' '{' nl register '}' nl				{ $$ = $1; list_add_tail(&$$, new per_range_t($3, (void*)$4, $5, $9)); }
 	  ;
 
-register :	%empty														{ $$ = 0; }
-		 |	register EMPTYLINE nl										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0)); }
-		 |	register HEADLINE STRING nl									{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0)); }
-		 |	register REGISTER STRING INT INT '=' '{' nl bits '}' nl		{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $9)); }
+register :	%empty																{ $$ = 0; }
+		 |	register EMPTYLINE nl												{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
+		 |	register HEADLINE STRING nl											{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, 0)); }
+		 |	register REGISTER STRING STRING INT INT '=' '{' nl bits '}' nl		{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $10)); }
 		 ;
 
-bits :		%empty														{ $$ = 0; }
-	 |		bits BITS STRING INT INT nl									{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
+bits :		%empty																{ $$ = 0; }
+	 |		bits BITS STRING INT INT nl											{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
 	 ;
 
-nl :		%empty														{ }
-   |		'\n'														{ }
+nl :		%empty																{ }
+   |		'\n'																{ }
    ;
 
 

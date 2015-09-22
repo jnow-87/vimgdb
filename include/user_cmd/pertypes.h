@@ -23,10 +23,12 @@ public:
 
 class per_register_t{
 public:
-	per_register_t(char* name, unsigned int offset, unsigned int nbytes, per_bits_t* bits);
+	per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_bits_t* bits);
 	~per_register_t();
 
-	char* name;
+	char *name,
+		 *desc;
+
 	unsigned int offset,
 				 nbytes;
 
