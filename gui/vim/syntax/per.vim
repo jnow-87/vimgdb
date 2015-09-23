@@ -1,5 +1,5 @@
-set local foldnestmax=3
-set local foldmethod=syntax
+setlocal foldnestmax=3
+setlocal foldmethod=syntax
 
 syn keyword per_key	section range register bits heading emptyline
 
