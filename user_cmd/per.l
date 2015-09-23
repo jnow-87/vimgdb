@@ -43,7 +43,7 @@
 	/* general patterns */
 [\ \t]					{ /* ignore whitespaces */}
 ^[\ \t]*\r?\n			{ per_line++; /* ignore empty/white-space lines */ }
-\r?\n					{ per_col = 0; per_line++; return '\n'; }
+\r?\n					{ per_col = 0; per_line++; }
 [0-9]*					{ perlval.i = atoi(pertext); return INT; }
 0x[0-9a-fA-F]*			{ perlval.i = strtoll(pertext, 0, 16); return INT; }
 

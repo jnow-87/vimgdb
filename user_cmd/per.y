@@ -68,32 +68,27 @@ per_bits_t* bits;
 
 
 /* start */
-start :		section END															{ *rlst = $1; return 0; }
+start :		section END												{ *rlst = $1; return 0; }
 	  ;
 
-section :	%empty																{ $$ = 0; }
-		|	section SECTION STRING '=' '{' nl range '}' nl						{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $7)); }
+section :	%empty													{ $$ = 0; }
+		|	section SECTION STRING '{' range '}'					{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $5)); }
 		;
 
-range :		%empty																{ $$ = 0; }
-	  |		range RANGE INT INT '=' '{' nl register '}' nl						{ $$ = $1; list_add_tail(&$$, new per_range_t(0, (void*)$3, $4, $8)); }
-	  |		range HEADLINE STRING nl											{ $$ = $1; list_add_tail(&$$, new per_range_t($3, 0, 0, 0)); }
+range :		%empty													{ $$ = 0; }
+	  |		range RANGE INT INT '{' register '}'					{ $$ = $1; list_add_tail(&$$, new per_range_t(0, (void*)$3, $4, $6)); }
+	  |		range HEADLINE STRING									{ $$ = $1; list_add_tail(&$$, new per_range_t($3, 0, 0, 0)); }
 	  ;
 
-register :	%empty																{ $$ = 0; }
-		 |	register EMPTYLINE nl												{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
-		 |	register REGISTER STRING STRING INT INT '=' '{' nl bits '}' nl		{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $10)); }
-		 |	register HEADLINE STRING nl											{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, 0)); }
+register :	%empty													{ $$ = 0; }
+		 |	register EMPTYLINE										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
+		 |	register REGISTER STRING STRING INT INT '{' bits '}'	{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $8)); }
+		 |	register HEADLINE STRING								{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, 0)); }
 		 ;
 
-bits :		%empty																{ $$ = 0; }
-	 |		bits BITS STRING INT INT nl											{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
+bits :		%empty													{ $$ = 0; }
+	 |		bits BITS STRING INT INT								{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
 	 ;
-
-nl :		%empty																{ }
-   |		'\n'																{ }
-   ;
-
 
 %%
 
