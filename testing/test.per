@@ -1,19 +1,22 @@
 /* testing all */
-//		<name>	<addr>	<length>
-range "first" 0x601010 10 = {
-	//			<name>	<offset>	<nbytes>
-	register "r1" "Register 1" 0 4 = {
-		//		<name>	<index>	<nbits>
-		bits "30/31" 28 4
-		bits "0/1" 0 8
+section "first" = {
+//			<addr>	<length>
+	heading "headline"
+	range 0x601010 10 = {
+		//			<name>	<offset>	<nbytes>
+		register "r1" "Register 1" 0 4 = {
+			//		<name>	<index>	<nbits>
+			bits "30/31" 28 4
+			bits "0/1" 0 8
+		}
+
+		emptyline
+		heading "this is a heading"
+		emptyline
+
+		/* 
+		 * multi-line commend
+		 */
+		register "r2" "Register 2" 4 2 = {}
 	}
-
-	emptyline
-	heading "this is a heading"
-	emptyline
-
-	/* 
-	 * multi-line commend
-	 */
-	register "r2" "Register 2" 4 2 = {}
 }

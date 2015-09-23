@@ -54,8 +54,8 @@ if !hlexists("vimgdb_memory_ascii")
 	highlight default vimgdb_memory_ascii ctermfg=8
 endif
 
-if !hlexists("vimgdb_per_range")
-	highlight default vimgdb_per_range ctermfg=255 cterm=bold,underline
+if !hlexists("vimgdb_per_section")
+	highlight default vimgdb_per_section ctermfg=255 cterm=bold,underline
 endif
 
 if !hlexists("vimgdb_per_heading")

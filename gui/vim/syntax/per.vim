@@ -1,7 +1,7 @@
-set foldnestmax=2
-set foldmethod=syntax
+set local foldnestmax=3
+set local foldmethod=syntax
 
-syn keyword per_key	range register bits heading emptyline
+syn keyword per_key	section range register bits heading emptyline
 
 syn region per_block start="{" end="}" fold transparent
 syn region per_string start=+L\="+ skip=+\\\\\|\\"+ end=+"+

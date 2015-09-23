@@ -47,7 +47,6 @@ public:
 	char* name;
 	void* base;
 	unsigned int size;
-	bool expanded;
 
 	per_register_t* regs;
 
@@ -55,6 +54,19 @@ public:
 
 	class per_range_t *next,
 					  *prev;
+};
+
+class per_section_t{
+public:
+	per_section_t(char* name, per_range_t* ranges);
+	~per_section_t();
+
+	char* name;
+	bool expanded;
+	per_range_t* ranges;
+
+	class per_section_t *next,
+						*prev;
 };
 
 

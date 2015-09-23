@@ -646,9 +646,9 @@ vimgdb_memory_ascii
 vimgdb_memory_unknown
 	Unknown/unlisted memory in the |vimgdb| memory buffer.
 
-							*hl-vimgdb_per_range*
-vimgdb_per_range
-	Range names in the |vimgdb| peripherals buffer
+							*hl-vimgdb_per_section*
+vimgdb_per_section
+	Section names in the |vimgdb| peripherals buffer
 
 							*hl-vimgdb_per_register*
 vimgdb_per_register

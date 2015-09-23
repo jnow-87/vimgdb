@@ -5,7 +5,7 @@
 let s:cmd_dict = {
 	\ "per":{
 		\ "__nested__":"vimgdb#complete#file",
-		\ "fold":{"__nested__":"vimgdb#per#complete_range"},
+		\ "fold":{"__nested__":"vimgdb#per#complete_section"},
 		\ "set":{"__nested__":"vimgdb#per#complete_regs"},
 		\ "view":{},
 		\ "open":{},
@@ -57,7 +57,7 @@ endfunction
 " \brief	complete vimgdb per buffer lines with ranges
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#per#complete_range(subcmd)
+function! vimgdb#per#complete_section(subcmd)
 	" get list of gdb per buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("per complete"), '<regs>')
 

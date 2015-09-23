@@ -14,7 +14,8 @@
 /* global functions */
 int main(int argc, char** argv){
 	FILE* fp;
-	per_range_t *rlst, *range;
+	per_section_t *rlst, *sec;
+	per_range_t *range;
 	per_register_t* reg;
 	per_bits_t* bits;
 
@@ -40,18 +41,33 @@ int main(int argc, char** argv){
 
 	fclose(fp);
 
-	list_for_each(rlst, range){
-		USER("range: %s 0x%lx %u\n", range->name, (unsigned long)range->base, range->size);
+	list_for_each(rlst, sec){
+		USER("section: %s\n", sec->name);
 
-		list_for_each(range->regs, reg){
-			USER("    reg: %s %u %u\n", reg->name, reg->offset, reg->nbytes);
+		list_for_each(sec->ranges, range){
+			if(!range->name){
+				USER("range: 0x%lx %u\n", (unsigned long)range->base, range->size);
 
-			list_for_each(reg->bits, bits){
-				USER("        bits: %s %u %#x\n", bits->name, bits->idx, bits->mask);
+				list_for_each(range->regs, reg){
+					if(reg->nbytes == 0){
+						if(reg->name)	printf("    heading: %s\n", reg->name);
+						else			printf("\n");
+
+						continue;
+					}
+
+					USER("    reg: %s %u %u\n", reg->name, reg->offset, reg->nbytes);
+
+					list_for_each(reg->bits, bits){
+						USER("        bits: %s %u %#x\n", bits->name, bits->idx, bits->mask);
+					}
+				}
+
+				USER("\n");
 			}
+			else
+				USER("heading: %s\n", range->name);
 		}
-
-		USER("\n");
 	}
 
 	log::cleanup();

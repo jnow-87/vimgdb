@@ -48,7 +48,6 @@ per_range_t::per_range_t(char* name, void* base, unsigned int size, per_register
 	this->size = size;
 	this->regs = regs;
 	this->mem = 0;
-	this->expanded = false;
 }
 
 per_range_t::~per_range_t(){
@@ -61,5 +60,23 @@ per_range_t::~per_range_t(){
 	list_for_each(regs, reg){
 		list_rm(&regs, reg);
 		delete reg;
+	}
+}
+
+per_section_t::per_section_t(char* name, per_range_t* ranges){
+	this->name = name;
+	this->ranges = ranges;
+	this->expanded = false;
+}
+
+per_section_t::~per_section_t(){
+	per_range_t* range;
+
+
+	delete [] name;
+
+	list_for_each(ranges, range){
+		list_rm(&ranges, range);
+		delete range;
 	}
 }

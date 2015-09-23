@@ -20,6 +20,11 @@
 			perlloc.last_column = per_col + perleng; \
 			per_col += perleng; \
 		}
+
+	/* external variables */
+	extern unsigned int per_col,
+				 		per_line;
+
 %}
 
 
@@ -27,14 +32,8 @@
 
 %%
 
-
-%{
-	/* code that goes to the beginning of yylex() */
-	static unsigned int per_col = 0;
-	static unsigned int per_line = 1;
-%}
-
 	/* per identifier */
+"section"				{ return SECTION; }
 "range"					{ return RANGE; }
 "register"				{ return REGISTER; }
 "bits"					{ return BITS; }
@@ -55,7 +54,7 @@
 "/*"					{ BEGIN COMMENT; }
 <COMMENT>\n				{ per_line++; }
 <COMMENT>.				{ /* ignore */ }
-<COMMENT>"*/"\r?\n?		{ BEGIN INITIAL; }
+<COMMENT>"*/"\r?\n?		{ if(pertext[perleng - 1] == '\n') per_line++; BEGIN INITIAL; }
 "/*"[^*/]*"*/"\r?\n		{ per_line++; }	/* multi-line comment */
 ^"//".*\r?\n			{ per_line++; }	/* single-line comment at beginning of line */
 "//".*\r?\n				{ per_line++; }	/* single-line comment at end of line (do not read the newline */

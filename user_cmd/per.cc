@@ -27,8 +27,8 @@ using namespace std;
 
 /* static variables */
 static char* per_file = 0;
-static per_range_t* range_lst = 0;
-static map<unsigned int, per_range_t*> line_map;
+static per_section_t* section_lst = 0;
+static map<unsigned int, per_section_t*> line_map;
 static map<string, per_register_t*> reg_map;
 
 
@@ -37,10 +37,11 @@ int cmd_per_exec(int argc, char** argv){
 	int r;
 	const struct user_subcmd_t* scmd;
 	FILE* fp;
+	per_section_t* sec;
 	per_range_t* range;
 	per_register_t* reg;
 	per_bits_t* bits;
-	map<unsigned int, per_range_t*>::iterator it_range;
+	map<unsigned int, per_section_t*>::iterator it_sec;
 	map<string, per_register_t*>::iterator it_reg;
 
 
@@ -70,7 +71,7 @@ int cmd_per_exec(int argc, char** argv){
 			return -1;
 		}
 
-		r = perparse(fp, &range_lst);
+		r = perparse(fp, &section_lst);
 		perlex_destroy();
 
 		fclose(fp);
@@ -81,29 +82,17 @@ int cmd_per_exec(int argc, char** argv){
 		}
 
 		/* initialise memory segments */
-		list_for_each(range_lst, range){
-			// read respective memory
-			range->mem = gdb_memory_t::acquire(range->base, range->size);
-
-			if(range->mem == 0){
-				USER("unable to create memory segment for range \"%s\" (%p, %u)\n", range->name, range->base, range->size);
-
-				cmd_per_cleanup();
-				cmd_per_update();
-
-				return -1;
-			}
-
-			list_for_each(range->regs, reg){
-				if(reg->name)
-					strdeescape(reg->name);
-
-				if(reg->nbytes == 0)
+		list_for_each(section_lst, sec){
+			list_for_each(sec->ranges, range){
+				// check if the range is a headline and not an actual range
+				if(range->name)
 					continue;
 
-				// check integrity of register to range
-				if(reg->offset + reg->nbytes >  range->size){
-					USER("error: offset/size of register \"%s\" exceeds size of range \"%s\"\n", reg->name, range->name);
+				// read respective memory
+				range->mem = gdb_memory_t::acquire(range->base, range->size);
+
+				if(range->mem == 0){
+					USER("unable to create memory segment for section \"%s\" (%p, %u)\n", sec->name, range->base, range->size);
 
 					cmd_per_cleanup();
 					cmd_per_update();
@@ -111,24 +100,43 @@ int cmd_per_exec(int argc, char** argv){
 					return -1;
 				}
 
-				// check integrity of bits to register
-				list_for_each(reg->bits, bits){
-					if(bits->idx + bits->nbits > reg->nbytes * 8){
-						USER("error: index/size of bits \"%s\" exceeds size of register \"%s\"\n", bits->name, reg->name);
+				list_for_each(range->regs, reg){
+					if(reg->name)
+						strdeescape(reg->name);
+
+					// check if the register is a headline and not an actual register
+					if(reg->nbytes == 0)
+						continue;
+
+					// check integrity of register to range
+					if(reg->offset + reg->nbytes >  range->size){
+						USER("error: offset/size of register \"%s\" exceeds size of range (%p)\n", reg->name, range->base);
 
 						cmd_per_cleanup();
 						cmd_per_update();
-						
+
 						return -1;
 					}
+
+					// check integrity of bits to register
+					list_for_each(reg->bits, bits){
+						if(bits->idx + bits->nbits > reg->nbytes * 8){
+							USER("error: index/size of bits \"%s\" exceeds size of register \"%s\"\n", bits->name, reg->name);
+
+							cmd_per_cleanup();
+							cmd_per_update();
+							
+							return -1;
+						}
+					}
+
+					// update list of registers
+					reg->parent = range;
+					reg_map[reg->name] = reg;
 				}
 
-				// update list of registers
-				reg->parent = range;
-				reg_map[reg->name] = reg;
+				USER("add memory segment for section \"%s\" (%p, %u)\n", sec->name, range->base, range->size);
 			}
-
-			USER("add memory segment for range \"%s\" (%p, %u)\n", range->name, range->base, range->size);
 		}
 
 		delete [] per_file;
@@ -153,14 +161,14 @@ int cmd_per_exec(int argc, char** argv){
 			break;
 
 		case FOLD:
-			range = MAP_LOOKUP(line_map, atoi(argv[2]));
+			sec = MAP_LOOKUP(line_map, atoi(argv[2]));
 
-			if(range == 0){
-				USER("no peripheral segment at line %s\n", argv[2]);
+			if(sec == 0){
+				USER("no peripheral section at line %s\n", argv[2]);
 				return 0;
 			}
 
-			range->expanded = range->expanded ? false : true;
+			sec->expanded = sec->expanded ? false : true;
 
 			cmd_per_update();
 			break;
@@ -171,8 +179,8 @@ int cmd_per_exec(int argc, char** argv){
 			if(fp == 0)
 				return -1;
 
-			for(it_range=line_map.begin(); it_range!=line_map.end(); it_range++)
-				fprintf(fp, "%d\\n", it_range->first);
+			for(it_sec=line_map.begin(); it_sec!=line_map.end(); it_sec++)
+				fprintf(fp, "%d\\n", it_sec->first);
 
 			fprintf(fp, "<regs>");
 
@@ -209,7 +217,7 @@ int cmd_per_exec(int argc, char** argv){
 }
 
 void cmd_per_cleanup(){
-	per_range_t* range;
+	per_section_t* sec;
 
 
 	delete [] per_file;
@@ -218,9 +226,9 @@ void cmd_per_cleanup(){
 	reg_map.clear();
 	line_map.clear();
 
-	list_for_each(range_lst, range){
-		list_rm(&range_lst, range);
-		delete range;
+	list_for_each(section_lst, sec){
+		list_rm(&section_lst, sec);
+		delete sec;
 	}
 }
 
@@ -298,6 +306,7 @@ int cmd_per_update(){
 	unsigned long long reg_val, bit_val;
 	bool modified;
 	gdb_memory_t *mem;
+	per_section_t* sec;
 	per_range_t* range;
 	per_register_t* reg;
 	per_bits_t* bits;
@@ -314,75 +323,86 @@ int cmd_per_update(){
 	ui->atomic(true);
 	ui->win_clear(win_id);
 
-	list_for_each(range_lst, range){
+	list_for_each(section_lst, sec){
 		/* print header */
-		ui->win_print(win_id, "[%c] ´h0%s`h0\n", (range->expanded ? '-' : '+'), range->name);
-		line_map[line++] = range;
+		ui->win_print(win_id, "[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
+		line_map[line++] = sec;
 
-		if(!range->expanded){
+		if(!sec->expanded){
 			ui->win_print(win_id, "\n");
 			line++;
 			continue;
 		}
 
-		/* get memory content */
-		mem = range->mem;
-
-		if(mem->update() != 0){
-			ui->atomic(false);
-			return -1;
-		}
-
-		/* print register values */
-		list_for_each(range->regs, reg){
-			if(reg->nbytes == 0){
-				ui->win_print(win_id, " ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc ? " - " : ""), (reg->desc ? reg->desc : ""));
-				line_map[line] = range;
+		list_for_each(sec->ranges, range){
+			/* print headline of range is not an actual range */
+			if(range->name){
+				ui->win_print(win_id, " ´h1%s`h1\n", range->name);
+				line_map[line] = sec;
 				line++;
 
 				continue;
 			}
 
-			modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
+			/* get memory content */
+			mem = range->mem;
 
-			ui->win_print(win_id, "  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+			if(mem->update() != 0){
+				ui->atomic(false);
+				return -1;
+			}
 
-			line_map[line] = range;
-			line++;
+			/* print register values */
+			list_for_each(range->regs, reg){
+				if(reg->nbytes == 0){
+					ui->win_print(win_id, " ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));
+					line_map[line] = sec;
+					line++;
 
-			// print bits
-			if(reg->bits){
-				c = mem->content[reg->offset * 2 + reg->nbytes * 2];
-				mem->content[reg->offset * 2 + reg->nbytes * 2] = 0;
-
-				reg_val = strtoll(mem->content + reg->offset * 2, 0, 16);
-				mem->content[reg->offset * 2 + reg->nbytes * 2] = c;
-
-				i = 0;
-				list_for_each(reg->bits, bits){
-					if(i && i % 4 == 0){
-						line_map[line] = range;
-						ui->win_print(win_id, "\n");
-						line++;
-					}
-
-					bit_val = (reg_val & (bits->mask << bits->idx)) >> bits->idx;
-
-					modified = (bit_val == bits->value) ? false : true;
-					bits->value = bit_val;
-
-					ui->win_print(win_id, "   ´h3%s`h3 %s%0*.*x%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
-					i++;
+					continue;
 				}
 
-				line_map[line] = range;
-				ui->win_print(win_id, "\n\n");
-				line += 2;
-			}
-		}
+				modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-		ui->win_print(win_id, "\n");
-		line++;
+				ui->win_print(win_id, "  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+
+				line_map[line] = sec;
+				line++;
+
+				// print bits
+				if(reg->bits){
+					c = mem->content[reg->offset * 2 + reg->nbytes * 2];
+					mem->content[reg->offset * 2 + reg->nbytes * 2] = 0;
+
+					reg_val = strtoll(mem->content + reg->offset * 2, 0, 16);
+					mem->content[reg->offset * 2 + reg->nbytes * 2] = c;
+
+					i = 0;
+					list_for_each(reg->bits, bits){
+						if(i && i % 4 == 0){
+							line_map[line] = sec;
+							ui->win_print(win_id, "\n");
+							line++;
+						}
+
+						bit_val = (reg_val & (bits->mask << bits->idx)) >> bits->idx;
+
+						modified = (bit_val == bits->value) ? false : true;
+						bits->value = bit_val;
+
+						ui->win_print(win_id, "   ´h3%s`h3 %s%0*.*x%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
+						i++;
+					}
+
+					line_map[line] = sec;
+					ui->win_print(win_id, "\n\n");
+					line += 2;
+				}
+			}
+
+			ui->win_print(win_id, "\n");
+			line++;
+		}
 	}
 
 	ui->atomic(false);
