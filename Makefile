@@ -64,6 +64,7 @@ distclean:
 install-user: all
 	$(mkdir) -p ~/.vim/plugin ~/.vim/syntax ~/.vim/doc ~/.vim/autoload/vimgdb ~/bin
 	$(cp) -au built/main/vimgdb ~/bin/
+	$(cp) -au built/user_cmd/per2h ~/bin/
 	$(cp) -au gui/vim/plugin/* ~/.vim/plugin
 	$(cp) -au gui/vim/syntax/* ~/.vim/syntax
 	$(cp) -au gui/vim/doc/* ~/.vim/doc
@@ -73,6 +74,7 @@ install-user: all
 install-system: all
 	$(mkdir) -p /usr/share/vim/vim74/plugin /usr/share/vim/vim74/syntax /usr/share/vim/vim74/doc /usr/share/vim/vim74/autoload/vimgdb /usr/bin
 	$(cp) -au built/main/vimgdb /usr/bin/
+	$(cp) -au built/user_cmd/per2h /usr/bin/
 	$(cp) -au gui/vim/plugin/* /usr/share/vim/vim74/plugin
 	$(cp) -au gui/vim/syntax/* /usr/share/vim/vim74/syntax
 	$(cp) -au gui/vim/doc/* /usr/share/vim/vim74/doc
