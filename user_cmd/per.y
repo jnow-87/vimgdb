@@ -77,12 +77,13 @@ section :	%empty													{ $$ = 0; }
 
 range :		%empty													{ $$ = 0; }
 	  |		range RANGE INT INT '{' register '}'					{ $$ = $1; list_add_tail(&$$, new per_range_t(0, (void*)$3, $4, $6)); }
+	  |		range EMPTYLINE											{ $$ = $1; list_add_tail(&$$, new per_range_t(0, 0, 0, 0)); }
 	  |		range HEADLINE STRING									{ $$ = $1; list_add_tail(&$$, new per_range_t($3, 0, 0, 0)); }
 	  ;
 
 register :	%empty													{ $$ = 0; }
-		 |	register EMPTYLINE										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
 		 |	register REGISTER STRING STRING INT INT '{' bits '}'	{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $8)); }
+		 |	register EMPTYLINE										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
 		 |	register HEADLINE STRING								{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, 0)); }
 		 ;
 

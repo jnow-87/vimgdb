@@ -85,7 +85,7 @@ int cmd_per_exec(int argc, char** argv){
 		list_for_each(section_lst, sec){
 			list_for_each(sec->ranges, range){
 				// check if the range is a headline and not an actual range
-				if(range->name)
+				if(range->size == 0)
 					continue;
 
 				// read respective memory
@@ -346,8 +346,8 @@ int cmd_per_update(){
 
 		list_for_each(sec->ranges, range){
 			/* print headline of range is not an actual range */
-			if(range->name){
-				ui->win_print(win_id, " ´h1%s`h1\n", range->name);
+			if(range->size == 0){
+				ui->win_print(win_id, " ´h1%s`h1\n", range->name ? range->name : "");
 				line_map[line] = sec;
 				line++;
 
@@ -409,10 +409,10 @@ int cmd_per_update(){
 					line += 2;
 				}
 			}
-
-			ui->win_print(win_id, "\n");
-			line++;
 		}
+
+		ui->win_print(win_id, "\n");
+		line++;
 	}
 
 	ui->atomic(false);

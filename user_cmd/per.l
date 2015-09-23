@@ -21,6 +21,7 @@
 			per_col += perleng; \
 		}
 
+
 	/* external variables */
 	extern unsigned int per_col,
 				 		per_line;
