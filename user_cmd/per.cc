@@ -132,6 +132,16 @@ int cmd_per_exec(int argc, char** argv){
 
 					// update list of registers
 					reg->parent = range;
+
+					if(MAP_LOOKUP(reg_map, reg->name)){
+						USER("error: register \"%s\" defined twice in peripheral file \"%s\"\n", reg->name, argv[1]);
+
+						cmd_per_cleanup();
+						cmd_per_update();
+
+						return -1;
+					}
+
 					reg_map[reg->name] = reg;
 				}
 
