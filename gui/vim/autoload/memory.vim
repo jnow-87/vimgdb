@@ -52,8 +52,8 @@ function! vimgdb#memory#init()
 		\ nnoremap <buffer> <silent> - :exec 'Memory fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> dd :exec 'Memory delete ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> u :exec 'Memory view'<cr>|
-		\ nnoremap <buffer> i :Memory set <c-r>=split(getline('.'))[0]<cr> |
-		\ nnoremap <buffer> s :Memory set <c-r>=split(getline('.'))[0]<cr>
+		\ nnoremap <buffer> i :Memory set <c-r>=substitute(split(getline('.'))[0], '[´`]h[0-9]', '', 'g')<cr> |
+		\ nnoremap <buffer> s :Memory set <c-r>=substitute(split(getline('.'))[0], '[´`]h[0-9]', '', 'g')<cr>
 		\ "
 endfunction
 
