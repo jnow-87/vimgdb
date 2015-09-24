@@ -263,6 +263,7 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	b = new buffer_t;
 	b->id = id;
 	b->len = 0;
+	b->readonly = false;
 
 	if(name[0] == '/'){
 		b->name = new char[strlen(name) + 1];
@@ -446,6 +447,7 @@ int vimui::win_cursor_set(int win, int line){
 	int r;
 	buffer_t* buf;
 
+
 	pthread_mutex_lock(&ui_mtx);
 
 	if(line == -1){
@@ -456,6 +458,27 @@ int vimui::win_cursor_set(int win, int line){
 	}
 	else
 		r = action(CMD, "setDot", win, 0, "%d/0", line);
+
+	pthread_mutex_unlock(&ui_mtx);
+
+	return r;
+}
+
+int vimui::win_readonly(int win, bool ro){
+	int r;
+	buffer_t* buf;
+
+
+	pthread_mutex_lock(&ui_mtx);
+
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
+
+	if(buf){
+		buf->readonly = ro;
+		action(CMD, "setReadOnly", win, 0, "%s", ro ? "T" : "F");
+	}
+	else
+		r = -1;
 
 	pthread_mutex_unlock(&ui_mtx);
 
@@ -504,8 +527,14 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	}
 
 	/* insert text and update cursor position */
+	if(buf->readonly)
+		action(CMD, "setReadOnly", win, 0, "F");
+
 	action(FCT, "insert", win, 0, "%d \"%s\"", buf->len, ostr);
 	buf->len += len;
+
+	if(buf->readonly)
+		action(CMD, "setReadOnly", win, 0, "T");
 
 	/* update cursor */
 	if(cursor_update)
@@ -529,8 +558,14 @@ void vimui::win_clear(int win){
 	atomic(true, false);
 
 	/* clear buffer */
+	if(buf->readonly)
+		action(CMD, "setReadOnly", win, 0, "F");
+
 	action(FCT, "remove", win, 0, "0 %d", buf->len);
 	buf->len = 0;
+
+	if(buf->readonly)
+		action(CMD, "setReadOnly", win, 0, "T");
 
 	atomic(false, false);
 
@@ -679,6 +714,7 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 				break;
 
 			default:
+				ERROR("invalid format specifier \"%c\"for arguments\n", fmt[i]);
 				va_end(lst);
 				return -1;
 			};

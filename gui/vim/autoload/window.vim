@@ -45,6 +45,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_userlog_width,
 		\ "height":g:vimgdb_userlog_height,
 		\ "vertical":g:vimgdb_userlog_vertical,
+		\ "readonly":0
 	\ }
 
 	let s:win_lst[g:vimgdb_gdblog_name] = {
@@ -52,6 +53,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_gdblog_width,
 		\ "height":g:vimgdb_gdblog_height,
 		\ "vertical":g:vimgdb_gdblog_vertical,
+		\ "readonly":0
 	\ }
 
 	let s:win_lst[g:vimgdb_break_name] = {
@@ -59,6 +61,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_break_width,
 		\ "height":g:vimgdb_break_height,
 		\ "vertical":g:vimgdb_break_vertical,
+		\ "readonly":1
 	\ }
 
 	let s:win_lst[g:vimgdb_inferior_name] = {
@@ -66,6 +69,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_inferior_width,
 		\ "height":g:vimgdb_inferior_height,
 		\ "vertical":g:vimgdb_inferior_vertical,
+		\ "readonly":0
 	\ }
 
 	let s:win_lst[g:vimgdb_variables_name] = {
@@ -73,6 +77,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_variables_width,
 		\ "height":g:vimgdb_variables_height,
 		\ "vertical":g:vimgdb_variables_vertical,
+		\ "readonly":1
 	\ }
 
 	let s:win_lst[g:vimgdb_callstack_name] = {
@@ -80,6 +85,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_callstack_width,
 		\ "height":g:vimgdb_callstack_height,
 		\ "vertical":g:vimgdb_callstack_vertical,
+		\ "readonly":1
 	\ }
 
 	let s:win_lst[g:vimgdb_register_name] = {
@@ -87,6 +93,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_register_width,
 		\ "height":g:vimgdb_register_height,
 		\ "vertical":g:vimgdb_register_vertical,
+		\ "readonly":1
 	\ }
 
 	let s:win_lst[g:vimgdb_memory_name] = {
@@ -94,6 +101,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_memory_width,
 		\ "height":g:vimgdb_memory_height,
 		\ "vertical":g:vimgdb_memory_vertical,
+		\ "readonly":1
 	\ }
 
 	let s:win_lst[g:vimgdb_per_name] = {
@@ -101,6 +109,7 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_per_width,
 		\ "height":g:vimgdb_per_height,
 		\ "vertical":g:vimgdb_per_vertical,
+		\ "readonly":1
 	\ }
 
 
@@ -190,6 +199,10 @@ function! vimgdb#window#initial(name)
 	" add buffer to list
 	let s:win_lst_hor[l:bnr] = 1
 
+	" wait for vimgdb to assign id to new buffer, otherwise the
+	" subsequent vimgdb#util#cmd() is not able to send the command
+	sleep 100m
+
 	return 0
 endfunction
 
@@ -254,7 +267,7 @@ function! vimgdb#window#open(name, force_open)
 	endif
 
 	" split
-	exe l:split_arg . " split " . a:name
+	exe l:split_arg . " split"
 
 	" update respective window list
 	if l:win.vertical == 1
@@ -263,12 +276,8 @@ function! vimgdb#window#open(name, force_open)
 		let s:win_lst_hor[bufnr(a:name)] = 1
 	endif
 
-	" set autocmd for window close
-	exec "autocmd! BufWinLeave " . a:name " silent call vimgdb#window#close(\"" . a:name . "\")"
-
-	" wait for vimgdb to assign id to new buffer, otherwise the
-	" subsequent vimgdb#util#cmd() is not able to send the command
-	sleep 100m
+	" view actual buffer
+	call vimgdb#window#view(a:name)
 endfunction
 
 " \brief	open buffer in current window if not already displayed elsewhere
@@ -296,6 +305,11 @@ function! vimgdb#window#view(name)
 	" wait for vimgdb to assign id to new buffer, otherwise the
 	" subsequent vimgdb#util#cmd() is not able to send the command
 	sleep 100m
+
+	" set window readonly state
+	if l:win.readonly
+		call vimgdb#util#cmd('ui ' . a:name . ' ro 1')
+	endif
 endfunction
 
 " \brief	close a window and remove from window list

@@ -233,6 +233,10 @@ int cursesui::win_cursor_set(int win, int line){
 	return -1;
 }
 
+int cursesui::win_readonly(int win, bool ro){
+	return -1;
+}
+
 void cursesui::win_print(int win_id, const char* fmt, ...){
 	va_list lst;
 

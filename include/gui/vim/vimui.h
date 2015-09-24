@@ -37,6 +37,7 @@ public:
 	int win_anno_delete(int win, int line, const char* sign);
 
 	int win_cursor_set(int win, int line);
+	int win_readonly(int win, bool ro);
 
 	void win_print(int win, const char* fmt, ...);
 	void win_vprint(int win, const char* fmt, va_list lst);
@@ -57,6 +58,7 @@ private:
 		int id;
 		char* name;
 		unsigned int len;
+		bool readonly;
 
 		map<string, int> annos;
 		map<string, int> anno_types;

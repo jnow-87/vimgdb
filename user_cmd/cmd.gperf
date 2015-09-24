@@ -41,6 +41,7 @@ register,	cmd_register_exec,	cmd_register_cleanup,	cmd_register_help,	"control t
 memory,		cmd_memory_exec,	cmd_memory_cleanup,		cmd_memory_help,	"display and modify memory"
 evaluate,	cmd_evaluate_exec,	0,						cmd_evaluate_help,	"evaluate an expressions"
 per,		cmd_per_exec,		cmd_per_cleanup,		cmd_per_help,		"display and modify memory mapped registers"
+ui,			cmd_ui_exec,		0,						cmd_ui_help,		"control user interface parameter"
 %%
 
 /**

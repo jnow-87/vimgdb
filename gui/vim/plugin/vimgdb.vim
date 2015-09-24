@@ -86,7 +86,7 @@ function! s:init()
 
 	" start vimgdb
 	if g:vimgdb_use_xterm
-		exec "silent !xterm -geometry 130x20+0+0 -e '" . g:vimgdb_bin . " -l /dev/stdout -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . "' &"
+		exec "silent !xterm -geometry 130x20+0+0 -e '" . g:vimgdb_bin . " -l /dev/null -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . "' &"
 	else
 		exec "silent !" . g:vimgdb_bin . " -d -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . ""
 	endif
@@ -100,6 +100,12 @@ function! s:init()
 		return
 	endif
 
+	" signal end of initialisation to vimgdb
+	" XXX: do not use vimgdb#util#cmd() since it waits for a response
+	"	   whereat vimgdb will not issue a response when receiving
+	"	   'init-done'
+	exec "nbkey init-done"
+
 	call vimgdb#window#open(g:vimgdb_userlog_name, 0)
 	call vimgdb#window#open(g:vimgdb_gdblog_name, 0)
 	call vimgdb#window#open(g:vimgdb_callstack_name, 0)
@@ -111,12 +117,6 @@ function! s:init()
 	call vimgdb#window#open(g:vimgdb_per_name, 0)
 
 	call vimgdb#window#focus(1)
-
-	" signal end of initialisation to vimgdb
-	" XXX: do not use vimgdb#util#cmd() since it waits for a response
-	"	   whereat vimgdb will not issue a response when receiving
-	"	   'init-done'
-	exec "nbkey init-done"
 
 	let s:initialised = 1
 endfunction
