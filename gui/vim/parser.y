@@ -81,6 +81,7 @@ start :			line																	{ return ret_val; }
 
 line :			%empty																	{ }
 	 |			line NUMBER reply NEWLINE												{ ret_val |= vim->proc_reply($2, $3); }		/* reply */
+	 |			line NUMBER ' ' '!' list-dummy											{ ret_val |= vim->proc_reply($2, 0); }
 	 |			line NUMBER ':' event NEWLINE											{ ret_val |= vim->proc_event($2, $4); }		/* event */
 	 |			line special NEWLINE													{ ret_val |= vim->proc_event(0, $2); }		/* special event */
 	 ;
