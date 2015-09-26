@@ -597,6 +597,9 @@ int gdbif::evt_stopped(gdb_event_stop_t* result){
 		return 0;
 	}
 	else if(frame != 0){
+		if(memory_update() != 0)
+			return -1;
+
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
@@ -606,5 +609,5 @@ int gdbif::evt_stopped(gdb_event_stop_t* result){
 	}
 
 	/* update variables and memory content */
-	return memory_update();
+	return 0;
 }
