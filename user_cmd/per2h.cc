@@ -38,8 +38,8 @@ int main(int argc, char** argv){
 				 bit_off;
 	FILE *per,
 		 *header;
-	per_section_t *rlst, *sec;
-	per_range_t *range;
+	per_section_t *sec;
+	per_range_t *rlst, *range;
 	per_register_t* reg;
 	per_bits_t* bits;
 
@@ -74,45 +74,46 @@ int main(int argc, char** argv){
 	}
 
 	/* generate header */
-	list_for_each(rlst, sec){
-		skip_blank(sec->name, sec_off);
-		fprintf(header, "/* %s */\n", sec->name + sec_off);
+	list_for_each(rlst, range){
+		list_for_each(range->sections, sec){
+			if(!sec->name)
+				continue;
 
-		list_for_each(sec->ranges, range){
-			if(!range->name){
-				list_for_each(range->regs, reg){
-					if(reg->nbytes == 0)
-						continue;
+			skip_blank(sec->name, sec_off);
+			fprintf(header, "/* %s */\n", sec->name + sec_off);
 
-					skip_blank(reg->name, reg_off);
+			list_for_each(sec->regs, reg){
+				if(reg->nbytes == 0)
+					continue;
 
-					fprintf(header,
-						"/* %s */\n"
-						"// register\n"
-						"#define %s\t\t\t0x%lx\n\n"
-						, reg->name + reg_off
-						, reg->name + reg_off
-						, (unsigned long int)range->base + reg->offset
-					);
+				skip_blank(reg->name, reg_off);
 
-					if(!list_empty(reg->bits))
-						fprintf(header, "// bits\n");
+				fprintf(header,
+					"/* %s */\n"
+					"// register\n"
+					"#define %s\t\t\t0x%lx\n\n"
+					, reg->name + reg_off
+					, reg->name + reg_off
+					, (unsigned long int)range->base + reg->offset
+				);
 
-					list_for_each(reg->bits, bits){
-						skip_blank(bits->name, bit_off);
-						fprintf(header, "#define %s_%s\t\t%d\n", reg->name + reg_off, bits->name + bit_off, bits->idx);
-					}
+				if(!list_empty(reg->bits))
+					fprintf(header, "// bits\n");
 
-					if(!list_empty(reg->bits))
-						fprintf(header, "\n// masks\n");
-
-					list_for_each(reg->bits, bits)
-						fprintf(header, "#define %s_%s_MASK\t0x%x\n", reg->name + reg_off, bits->name + bit_off, bits->mask);
-
-					
-					if(!list_empty(reg->bits))
-						fprintf(header, "\n");
+				list_for_each(reg->bits, bits){
+					skip_blank(bits->name, bit_off);
+					fprintf(header, "#define %s_%s\t\t%d\n", reg->name + reg_off, bits->name + bit_off, bits->idx);
 				}
+
+				if(!list_empty(reg->bits))
+					fprintf(header, "\n// masks\n");
+
+				list_for_each(reg->bits, bits)
+					fprintf(header, "#define %s_%s_MASK\t0x%x\n", reg->name + reg_off, bits->name + bit_off, bits->mask);
+
+				
+				if(!list_empty(reg->bits))
+					fprintf(header, "\n");
 			}
 		}
 	}

@@ -39,34 +39,33 @@ public:
 						 *prev;
 };
 
-class per_range_t{
+class per_section_t{
 public:
-	per_range_t(char* name, void* base, unsigned int size, per_register_t* regs);
-	~per_range_t();
+	per_section_t(char* name, per_register_t* regs);
+	~per_section_t();
 
 	char* name;
+	bool expanded;
+	per_register_t* regs;
+
+	class per_section_t *next,
+						*prev;
+};
+
+class per_range_t{
+public:
+	per_range_t(void* base, unsigned int size, per_section_t* sections);
+	~per_range_t();
+
 	void* base;
 	unsigned int size;
 
-	per_register_t* regs;
+	per_section_t* sections;
 
 	gdb_memory_t* mem;
 
 	class per_range_t *next,
 					  *prev;
-};
-
-class per_section_t{
-public:
-	per_section_t(char* name, per_range_t* ranges);
-	~per_section_t();
-
-	char* name;
-	bool expanded;
-	per_range_t* ranges;
-
-	class per_section_t *next,
-						*prev;
 };
 
 

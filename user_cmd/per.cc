@@ -27,7 +27,9 @@ using namespace std;
 
 /* static variables */
 static char* per_file = 0;
-static per_section_t* section_lst = 0;
+static char* obuf = 0;
+static unsigned int obuf_len = 0;
+static per_range_t* range_lst = 0;
 static map<unsigned int, per_section_t*> line_map;
 static map<string, per_register_t*> reg_map;
 
@@ -71,7 +73,7 @@ int cmd_per_exec(int argc, char** argv){
 			return -1;
 		}
 
-		r = perparse(fp, &section_lst);
+		r = perparse(fp, &range_lst);
 		perlex_destroy();
 
 		fclose(fp);
@@ -81,26 +83,28 @@ int cmd_per_exec(int argc, char** argv){
 			return -1;
 		}
 
+		/* malloc */
+		if(obuf_len == 0){
+			obuf_len = 1024;
+			obuf = (char*)malloc(obuf_len);
+		}
+
 		/* initialise memory segments */
-		list_for_each(section_lst, sec){
-			list_for_each(sec->ranges, range){
-				// check if the range is a headline and not an actual range
-				if(range->size == 0)
-					continue;
+		list_for_each(range_lst, range){
+			// read respective memory
+			range->mem = gdb_memory_t::acquire(range->base, range->size);
 
-				// read respective memory
-				range->mem = gdb_memory_t::acquire(range->base, range->size);
+			if(range->mem == 0){
+				USER("unable to create memory segment for section \"%s\" (%p, %u)\n", sec->name, range->base, range->size);
 
-				if(range->mem == 0){
-					USER("unable to create memory segment for section \"%s\" (%p, %u)\n", sec->name, range->base, range->size);
+				cmd_per_cleanup();
+				cmd_per_update();
 
-					cmd_per_cleanup();
-					cmd_per_update();
+				return -1;
+			}
 
-					return -1;
-				}
-
-				list_for_each(range->regs, reg){
+			list_for_each(range->sections, sec){
+				list_for_each(sec->regs, reg){
 					if(reg->name)
 						strdeescape(reg->name);
 
@@ -145,7 +149,7 @@ int cmd_per_exec(int argc, char** argv){
 					reg_map[reg->name] = reg;
 				}
 
-				USER("add memory segment for section \"%s\" (%p, %u)\n", sec->name, range->base, range->size);
+				USER("add peripheral section \"%s\"\n", sec->name);
 			}
 		}
 
@@ -227,18 +231,21 @@ int cmd_per_exec(int argc, char** argv){
 }
 
 void cmd_per_cleanup(){
-	per_section_t* sec;
+	per_range_t* range;
 
 
 	delete [] per_file;
 	per_file = 0;
 
+	free(obuf);
+	obuf_len = 0;
+
 	reg_map.clear();
 	line_map.clear();
 
-	list_for_each(section_lst, sec){
-		list_rm(&section_lst, sec);
-		delete sec;
+	list_for_each(range_lst, range){
+		list_rm(&range_lst, range);
+		delete range;
 	}
 }
 
@@ -312,14 +319,31 @@ void cmd_per_help(int argc, char** argv){
 int cmd_per_update(){
 	char c;
 	int win_id;
-	unsigned int line, i;
-	unsigned long long reg_val, bit_val;
+	unsigned int line, i, obuf_idx;
+	unsigned long int reg_val, bit_val;
 	bool modified;
 	gdb_memory_t *mem;
 	per_section_t* sec;
 	per_range_t* range;
 	per_register_t* reg;
 	per_bits_t* bits;
+
+	#define obuf_add(fmt, ...){ \
+		unsigned int tmp; \
+		\
+		\
+		while(1){ \
+			tmp = snprintf(obuf + obuf_idx, obuf_len - obuf_idx, fmt, ##__VA_ARGS__); \
+			\
+			if(tmp < obuf_len - obuf_idx){ \
+				obuf_idx += tmp; \
+				break; \
+			} \
+			\
+			obuf_len *= 2; \
+			obuf = (char*)realloc(obuf, obuf_len); \
+		} \
+	}
 
 
 	win_id = ui->win_getid(PER_NAME);
@@ -329,55 +353,40 @@ int cmd_per_update(){
 
 	line_map.clear();
 	line = 1;
+	obuf_idx = 0;
 
-	ui->atomic(true);
-	ui->win_clear(win_id);
+	/* generate output buffer */
+	list_for_each(range_lst, range){
+		// get memory content
+		mem = range->mem;
 
-	list_for_each(section_lst, sec){
-		/* print header */
-		ui->win_print(win_id, "[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
-		line_map[line++] = sec;
+		if(mem->update() != 0)
+			return -1;
 
-		if(!sec->expanded){
-			ui->win_print(win_id, "\n");
-			line++;
-			continue;
-		}
+		list_for_each(range->sections, sec){
+			// print header
+			obuf_add("[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
+			line_map[line++] = sec;
 
-		list_for_each(sec->ranges, range){
-			/* print headline of range is not an actual range */
-			if(range->size == 0){
-				ui->win_print(win_id, " ´h1%s`h1\n", range->name ? range->name : "");
-				line_map[line] = sec;
+			if(!sec->expanded){
+				obuf_add("\n");
 				line++;
-
 				continue;
 			}
 
-			/* get memory content */
-			mem = range->mem;
-
-			if(mem->update() != 0){
-				ui->atomic(false);
-				return -1;
-			}
-
-			/* print register values */
-			list_for_each(range->regs, reg){
+			// print register values
+			list_for_each(sec->regs, reg){
 				if(reg->nbytes == 0){
-					ui->win_print(win_id, " ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));
-					line_map[line] = sec;
-					line++;
+					obuf_add(" ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));
+					line_map[line++] = sec;
 
 					continue;
 				}
 
 				modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-				ui->win_print(win_id, "  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
-
-				line_map[line] = sec;
-				line++;
+				obuf_add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+				line_map[line++] = sec;
 
 				// print bits
 				if(reg->bits){
@@ -390,9 +399,8 @@ int cmd_per_update(){
 					i = 0;
 					list_for_each(reg->bits, bits){
 						if(i && i % 4 == 0){
-							line_map[line] = sec;
-							ui->win_print(win_id, "\n");
-							line++;
+							obuf_add("\n");
+							line_map[line++] = sec;
 						}
 
 						bit_val = (reg_val & (bits->mask << bits->idx)) >> bits->idx;
@@ -400,20 +408,26 @@ int cmd_per_update(){
 						modified = (bit_val == bits->value) ? false : true;
 						bits->value = bit_val;
 
-						ui->win_print(win_id, "   ´h3%s`h3 %s%0*.*x%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
+						obuf_add("   ´h3%s`h3 %s%.*lx%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
 						i++;
 					}
 
-					line_map[line] = sec;
-					ui->win_print(win_id, "\n\n");
-					line += 2;
+					obuf_add("\n\n");
+					line_map[line++] = sec;
+					line_map[line++] = sec;
 				}
 			}
-		}
 
-		ui->win_print(win_id, "\n");
-		line++;
+			obuf_add("\n");
+			line_map[line++] = sec;
+		}
 	}
+
+	/* update ui */
+	ui->atomic(true);
+
+	ui->win_clear(win_id);
+	ui->win_print(win_id, obuf);
 
 	ui->atomic(false);
 

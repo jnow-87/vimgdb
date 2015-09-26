@@ -1,8 +1,6 @@
 /* testing all */
-section "first"{
-//			<addr>	<length>
-	heading "headline"
-	range 0x601010 10{
+range 0x612c20 10{
+	section "first"{
 		//			<name>	<offset>	<nbytes>
 		register "r1" "Register 1" 0 4{
 			//		<name>	<index>	<nbits>
@@ -18,5 +16,9 @@ section "first"{
 		 * multi-line commend
 		 */
 		register "r2" "Register 2" 4 2{}
+	}
+
+	section "second"{
+		register "r3" "Register 3" 5 2{}
 	}
 }

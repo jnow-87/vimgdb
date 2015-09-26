@@ -18,7 +18,7 @@
 
 
 	/* prototypes */
-	int pererror(FILE* file, per_section_t** rlst, const char* s);
+	int pererror(FILE* file, per_range_t** rlst, const char* s);
 %}
 
 %union{
@@ -33,7 +33,7 @@ per_bits_t* bits;
 
 
 %parse-param { FILE* file }
-%parse-param { per_section_t** rlst }
+%parse-param { per_range_t** rlst }
 
 %initial-action{
 	if(!rlst)
@@ -68,18 +68,16 @@ per_bits_t* bits;
 
 
 /* start */
-start :		section END												{ *rlst = $1; return 0; }
+start :		range END												{ *rlst = $1; return 0; }
+	  ;
+
+range :		%empty													{ $$ = 0; }
+	  |		range RANGE INT INT '{' section '}'						{ $$ = $1; list_add_tail(&$$, new per_range_t((void*)$3, $4, $6)); }
 	  ;
 
 section :	%empty													{ $$ = 0; }
-		|	section SECTION STRING '{' range '}'					{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $5)); }
+		|	section SECTION STRING '{' register '}'					{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $5)); }
 		;
-
-range :		%empty													{ $$ = 0; }
-	  |		range RANGE INT INT '{' register '}'					{ $$ = $1; list_add_tail(&$$, new per_range_t(0, (void*)$3, $4, $6)); }
-	  |		range EMPTYLINE											{ $$ = $1; list_add_tail(&$$, new per_range_t(0, 0, 0, 0)); }
-	  |		range HEADLINE STRING									{ $$ = $1; list_add_tail(&$$, new per_range_t($3, 0, 0, 0)); }
-	  ;
 
 register :	%empty													{ $$ = 0; }
 		 |	register REGISTER STRING STRING INT INT '{' bits '}'	{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $8)); }
@@ -94,7 +92,7 @@ bits :		%empty													{ $$ = 0; }
 %%
 
 
-int pererror(FILE* file, per_section_t** rlst, const char* s){
+int pererror(FILE* file, per_range_t** rlst, const char* s){
 	USER("perparse: %s at token \"%s\" line %d, columns (%d - %d)\n", s, pertext, perlloc.first_line, perlloc.first_column, perlloc.last_column);
 	return 0;
 }
