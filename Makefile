@@ -18,8 +18,8 @@ config_ftype := Pconfig
 include $(scripts_dir)/Makefile.inc
 
 # init default flags
-cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall
-cxxflags := $(CXXFLAGS) $(CONFIG_CXXFLAGS) -std=c++11 -Wall
+cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall -O2
+cxxflags := $(CXXFLAGS) $(CONFIG_CXXFLAGS) -std=c++11 -Wall -O2
 cppflags := $(CPPFLAGS) $(CONFIG_CPPFLAGS) -I"include/" -I"$(built_tree)/"
 ldflags := $(LDFLAGS) $(CONFIG_LDFLAGS)
 ldrflags := $(LDRFLAGS) $(CONFIG_LDRFLAGS)
