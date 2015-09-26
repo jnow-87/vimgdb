@@ -107,6 +107,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
+#include <ctype.h>
 #include "util.h"
 #include "hashtbl.h"
 
@@ -125,7 +126,6 @@ char* conf_dir;
 
 /* global functions */
 int main(int argc, char *argv[]){
-	int retval = 1;
 	int fd;
 	void *map;
 	unsigned int size;
@@ -164,8 +164,6 @@ static void parse_dep_file(void *dmap, size_t len){
 		 *end = m + len,
 		 *tgt,
 		 *prereq;
-	char s[PATH_MAX];
-	int first = 1;
 	int fd;
 	unsigned int size;
 	unsigned int confh_len = strlen(conf_header);
@@ -265,7 +263,7 @@ static void parse_prereq(const char *map, size_t len){
 
 /* print CONFIG_ prerequisite */
 static void update_prereq(const char *m, int slen){
-	int c, i;
+	int i;
 
 	// return if already hashed
 	if(hashtbl_add(m, slen))
