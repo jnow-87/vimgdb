@@ -80,7 +80,7 @@ int main(int argc, char** argv){
 				continue;
 
 			skip_blank(sec->name, sec_off);
-			fprintf(header, "/* %s */\n", sec->name + sec_off);
+			fprintf(header, "/**\n *\t%s\n */\n", sec->name + sec_off);
 
 			list_for_each(sec->regs, reg){
 				if(reg->nbytes == 0)
