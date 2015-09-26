@@ -21,7 +21,7 @@ int cmd_evaluate_exec(int argc, char** argv){
 	if(gdb->mi_issue_cmd("data-evaluate-expression", (gdb_result_t**)&s, "\"%ss %d\"", argv + 1, argc - 1) != 0)
 		return -1;
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	for(i=1; i<argc; i++)
 		USER("%s ", argv[i]);
@@ -29,7 +29,7 @@ int cmd_evaluate_exec(int argc, char** argv){
 	USER("= %s\n", s->s);
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 
 	delete s;
 
@@ -37,11 +37,11 @@ int cmd_evaluate_exec(int argc, char** argv){
 }
 
 void cmd_evaluate_help(int argc, char** argv){
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	USER("usage: %s [<expression> ]\n", argv[0]);
 	USER("   evaluate expression <expression>, which is allowed to contain spaces\n");
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }

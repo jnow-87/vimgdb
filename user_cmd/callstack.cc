@@ -148,7 +148,7 @@ void cmd_callstack_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
@@ -205,7 +205,7 @@ void cmd_callstack_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }
 
 int cmd_callstack_update(){
@@ -289,7 +289,7 @@ int cmd_callstack_print(){
 	if(win_id < 0)
 		return 0;
 
-	ui->atomic(true);
+	ui->win_atomic(win_id, true);
 	ui->win_clear(win_id);
 
 	line_vars.clear();
@@ -338,7 +338,7 @@ int cmd_callstack_print(){
 			break;
 	}
 
-	ui->atomic(false);
+	ui->win_atomic(win_id, false);
 
 	return 0;
 }

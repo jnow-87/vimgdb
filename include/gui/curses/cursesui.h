@@ -30,7 +30,7 @@ public:
 	char* readline();
 
 	/* window functions */
-	int atomic(bool en);
+	int win_atomic(int win, bool en);
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
 	int win_getid(const char* name);
 	int win_destroy(int win_id);
@@ -38,7 +38,8 @@ public:
 	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
 	int win_anno_delete(int win, int line, const char* sign);
 
-	int win_cursor_set(int win, int line);
+	int win_cursor_set(int win, int line, int col);
+	int win_cursor_preserve(int win, bool pc);
 	int win_readonly(int win, bool ro);
 
 	void win_print(int win_id, const char* fmt, ...);

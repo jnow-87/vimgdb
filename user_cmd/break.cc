@@ -193,7 +193,7 @@ void cmd_break_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage %s <sub-command> <arg>\n", argv[0]);
@@ -272,20 +272,20 @@ void cmd_break_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }
 
 
 /* local functions */
 void breakpt_print(char* filename){
-	int win_id_break;
+	int win_id;
 	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
 	gdb_breakpoint_t* bkpt;
 
 
 	if(filename){
-		win_id_break = 0;
+		win_id = 0;
 		fp = fopen(filename, "w");
 
 		if(fp == 0)
@@ -293,13 +293,13 @@ void breakpt_print(char* filename){
 	}
 	else{
 		fp = 0;
-		win_id_break = ui->win_getid(BREAKPOINTS_NAME);
+		win_id = ui->win_getid(BREAKPOINTS_NAME);
 
-		if(win_id_break < 0)
+		if(win_id < 0)
 			return;
 
-		ui->atomic(true);
-		ui->win_clear(win_id_break);
+		ui->win_atomic(win_id, true);
+		ui->win_clear(win_id);
 	}
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
@@ -310,10 +310,10 @@ void breakpt_print(char* filename){
 				else					fprintf(fp, "%s\\n", bkpt->at);
 		}
 		else{
-			if(bkpt->filename != 0)	ui->win_print(win_id_break, "%s:%d", bkpt->filename, bkpt->line);
-			else					ui->win_print(win_id_break, "%s", bkpt->at);
+			if(bkpt->filename != 0)	ui->win_print(win_id, "%s:%d", bkpt->filename, bkpt->line);
+			else					ui->win_print(win_id, "%s", bkpt->at);
 
-			ui->win_print(win_id_break, "%s%s%s%s%s\n",
+			ui->win_print(win_id, "%s%s%s%s%s\n",
 				(bkpt->enabled ? "" : " [disabled]"),
 				(bkpt->ignore_cnt ? " after " : ""), (bkpt->ignore_cnt ? bkpt->ignore_cnt : ""),
 				(bkpt->condition ? " if " : ""), (bkpt->condition ? bkpt->condition : "")
@@ -324,5 +324,5 @@ void breakpt_print(char* filename){
 	if(filename)
 		fclose(fp);
 	else
-		ui->atomic(false);
+		ui->win_atomic(win_id, false);
 }

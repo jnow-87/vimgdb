@@ -36,7 +36,7 @@ int cmd_register_init(){
 	if(gdb->mi_issue_cmd("data-list-register-names", (gdb_result_t**)&names, "") != 0)
 		return -1;
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	/* create variables */
 	list_for_each(names, name){
@@ -54,13 +54,13 @@ int cmd_register_init(){
 
 	cmd_register_print();
 
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 	delete names;
 
 	return 0;
 
 err:
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 	delete names;
 
 	return -1;
@@ -168,7 +168,7 @@ void cmd_register_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
@@ -225,7 +225,7 @@ void cmd_register_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }
 
 int cmd_register_print(){
@@ -242,14 +242,14 @@ int cmd_register_print(){
 	line = 1;
 	line_map.clear();
 
-	ui->atomic(true);
+	ui->win_atomic(win_id, true);
 	ui->win_clear(win_id);
 
 	for(it=gdb_register_var.begin(); it!=gdb_register_var.end(); it++){
 		it->second->print(win_id, &line, &line_map, true);
 	}
 
-	ui->atomic(false);
+	ui->win_atomic(win_id, false);
 
 	return 0;
 }

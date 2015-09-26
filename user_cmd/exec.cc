@@ -110,7 +110,7 @@ void cmd_exec_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
@@ -157,5 +157,5 @@ void cmd_exec_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }

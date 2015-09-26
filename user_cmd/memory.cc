@@ -147,7 +147,7 @@ void cmd_memory_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
@@ -213,7 +213,7 @@ void cmd_memory_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }
 
 int cmd_memory_update(){
@@ -235,7 +235,7 @@ int cmd_memory_update(){
 	line_map.clear();
 	line = 1;
 
-	ui->atomic(true);
+	ui->win_atomic(win_id, true);
 	ui->win_clear(win_id);
 
 	list_for_each(mem_lst, mem){
@@ -243,7 +243,7 @@ int cmd_memory_update(){
 
 		/* get memory content */
 		if(mem->update() != 0){
-			ui->atomic(false);
+			ui->win_atomic(win_id, false);
 			return -1;
 		}
 
@@ -311,7 +311,7 @@ int cmd_memory_update(){
 		}
 	}
 
-	ui->atomic(false);
+	ui->win_atomic(win_id, false);
 
 	return 0;
 }

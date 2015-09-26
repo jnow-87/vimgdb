@@ -140,7 +140,7 @@ char* cursesui::readline(){
 	}
 }
 
-int cursesui::atomic(bool en){
+int cursesui::win_atomic(int win, bool en){
 	return 0;
 }
 
@@ -229,7 +229,11 @@ int cursesui::win_anno_delete(int win, int line, const char* sign){
 	return -1;
 }
 
-int cursesui::win_cursor_set(int win, int line){
+int cursesui::win_cursor_set(int win, int line, int col){
+	return -1;
+}
+
+int cursesui::win_cursor_preserve(int win, bool pc){
 	return -1;
 }
 

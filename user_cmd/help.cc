@@ -13,7 +13,7 @@ int cmd_help_exec(int argc, char** argv){
 
 
 	if(argc == 1){
-		ui->atomic(true);
+		ui->win_atomic(0, true);
 
 		USER("user commands:\n");
 
@@ -25,7 +25,7 @@ int cmd_help_exec(int argc, char** argv){
 		USER("\n");
 		ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
 
-		ui->atomic(false);
+		ui->win_atomic(0, false);
 	}
 	else{
 		if(strlen(argv[1]) == 0)

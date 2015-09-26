@@ -6,6 +6,7 @@
 #include <gui/gui.h>
 #include <gui/vim/event.h>
 #include <gui/vim/reply.h>
+#include <gui/vim/cursor.h>
 #include <stdarg.h>
 #include <pthread.h>
 #include <string>
@@ -28,7 +29,7 @@ public:
 	char* readline();
 
 	/* window functions */
-	int atomic(bool state);
+	int win_atomic(int win, bool en);
 	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
 	int win_getid(const char* name);
 	int win_destroy(int win);
@@ -36,7 +37,8 @@ public:
 	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
 	int win_anno_delete(int win, int line, const char* sign);
 
-	int win_cursor_set(int win, int line);
+	int win_cursor_set(int win, int line, int col);
+	int win_cursor_preserve(int win, bool pc);
 	int win_readonly(int win, bool ro);
 
 	void win_print(int win, const char* fmt, ...);
@@ -58,14 +60,17 @@ private:
 		int id;
 		char* name;
 		unsigned int len;
-		bool readonly;
+		bool readonly,
+			 preserve;
+
+		vim_cursor_t* cursor;
 
 		map<string, int> annos;
 		map<string, int> anno_types;
 	} buffer_t;
 
 	/* prototypes */
-	int atomic(bool en, bool apply);
+	int atomic(int win, bool en, bool apply);
 	int action(action_t type, const char* action, int buf_id, vim_reply_t** reply, const char* fmt, ...);
 	static void* readline_thread(void* arg);
 

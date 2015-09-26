@@ -45,7 +45,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_userlog_width,
 		\ "height":g:vimgdb_userlog_height,
 		\ "vertical":g:vimgdb_userlog_vertical,
-		\ "readonly":0
+		\ "readonly":0,
+		\ "preserve":0,
 	\ }
 
 	let s:win_lst[g:vimgdb_gdblog_name] = {
@@ -53,7 +54,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_gdblog_width,
 		\ "height":g:vimgdb_gdblog_height,
 		\ "vertical":g:vimgdb_gdblog_vertical,
-		\ "readonly":0
+		\ "readonly":0,
+		\ "preserve":0,
 	\ }
 
 	let s:win_lst[g:vimgdb_break_name] = {
@@ -61,7 +63,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_break_width,
 		\ "height":g:vimgdb_break_height,
 		\ "vertical":g:vimgdb_break_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":0,
 	\ }
 
 	let s:win_lst[g:vimgdb_inferior_name] = {
@@ -69,7 +72,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_inferior_width,
 		\ "height":g:vimgdb_inferior_height,
 		\ "vertical":g:vimgdb_inferior_vertical,
-		\ "readonly":0
+		\ "readonly":0,
+		\ "preserve":0,
 	\ }
 
 	let s:win_lst[g:vimgdb_variables_name] = {
@@ -77,7 +81,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_variables_width,
 		\ "height":g:vimgdb_variables_height,
 		\ "vertical":g:vimgdb_variables_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":1,
 	\ }
 
 	let s:win_lst[g:vimgdb_callstack_name] = {
@@ -85,7 +90,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_callstack_width,
 		\ "height":g:vimgdb_callstack_height,
 		\ "vertical":g:vimgdb_callstack_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":1,
 	\ }
 
 	let s:win_lst[g:vimgdb_register_name] = {
@@ -93,7 +99,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_register_width,
 		\ "height":g:vimgdb_register_height,
 		\ "vertical":g:vimgdb_register_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":1,
 	\ }
 
 	let s:win_lst[g:vimgdb_memory_name] = {
@@ -101,7 +108,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_memory_width,
 		\ "height":g:vimgdb_memory_height,
 		\ "vertical":g:vimgdb_memory_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":1,
 	\ }
 
 	let s:win_lst[g:vimgdb_per_name] = {
@@ -109,7 +117,8 @@ function! vimgdb#window#init()
 		\ "width":g:vimgdb_per_width,
 		\ "height":g:vimgdb_per_height,
 		\ "vertical":g:vimgdb_per_vertical,
-		\ "readonly":1
+		\ "readonly":1,
+		\ "preserve":1,
 	\ }
 
 
@@ -309,6 +318,11 @@ function! vimgdb#window#view(name)
 	" set window readonly state
 	if l:win.readonly
 		call vimgdb#util#cmd('ui ' . a:name . ' ro 1')
+	endif
+
+	" set window preserve cursor state
+	if l:win.preserve
+		call vimgdb#util#cmd('ui ' . a:name . ' pc 1')
 	endif
 endfunction
 

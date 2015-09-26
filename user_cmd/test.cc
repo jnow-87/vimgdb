@@ -21,12 +21,12 @@ int cmd_test_exec(int argc, char** argv){
 }
 
 void cmd_test_help(int argc, char** argv){
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	USER("usage: %s [<arg>...]\n", argv[0]);
 	USER("   test prints all arguments to demonstrate the user_cmd interface functionality\n");
 	USER("\n");
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }

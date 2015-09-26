@@ -16,6 +16,11 @@ int cmd_ui_exec(int argc, char** argv){
 
 	if(strcmp(argv[2], "ro") == 0){
 		ui->win_readonly(ui->win_getid(argv[1]), atoi(argv[3]));
+		USER("set readonly flag for buffer \"%s\" to %s\n", argv[1], argv[3]);
+	}
+	else if(strcmp(argv[2], "pc") == 0){
+		ui->win_cursor_preserve(ui->win_getid(argv[1]), atoi(argv[3]));
+		USER("set preserve-cursor flag for buffer \"%s\" to %s\n", argv[1], argv[3]);
 	}
 	else
 		USER("invalid parameter \"%s\"\n", argv[2]);
@@ -24,14 +29,15 @@ int cmd_ui_exec(int argc, char** argv){
 }
 
 void cmd_ui_help(int argc, char** argv){
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	USER("usage: %s <buffer> <param> <value>\n", argv[0]);
 	USER("   set buffer parameter <param> to the specified <value>\n\n");
 	USER("   <param>\n");
 	USER("      ro = [0 | 1]    set the buffer's readonly state\n");
+	USER("      pc = [0 | 1]    preserve the buffer cursor when atomically updating the window\n");
 	USER("\n");
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }

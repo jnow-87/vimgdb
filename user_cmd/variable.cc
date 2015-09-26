@@ -166,7 +166,7 @@ void cmd_var_help(int argc, char** argv){
 	const struct user_subcmd_t* scmd;
 
 
-	ui->atomic(true);
+	ui->win_atomic(0, true);
 
 	if(argc == 1){
 		USER("usage: %s [sub-command] <args>...\n", argv[0]);
@@ -245,7 +245,7 @@ void cmd_var_help(int argc, char** argv){
 	}
 
 	ui->win_cursor_set(ui->win_getid(USERLOG_NAME), -1);
-	ui->atomic(false);
+	ui->win_atomic(0, false);
 }
 
 int cmd_var_print(){
@@ -259,7 +259,7 @@ int cmd_var_print(){
 	if(win_id < 0)
 		return 0;
 
-	ui->atomic(true);
+	ui->win_atomic(win_id, true);
 	ui->win_clear(win_id);
 	line_map.clear();
 
@@ -270,7 +270,7 @@ int cmd_var_print(){
 			it->second->print(win_id, &line, &line_map, true);
 	}
 
-	ui->atomic(false);
+	ui->win_atomic(win_id, false);
 
 	return 0;
 }

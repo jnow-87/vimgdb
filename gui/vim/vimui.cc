@@ -217,8 +217,8 @@ end:
 	return line;
 }
 
-int vimui::atomic(bool en){
-	return atomic(en, true);
+int vimui::win_atomic(int win, bool en){
+	return atomic(win, en, true);
 }
 
 int vimui::win_create(const char* name, bool oneline, unsigned int height){
@@ -264,6 +264,8 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	b->id = id;
 	b->len = 0;
 	b->readonly = false;
+	b->preserve = false;
+	b->cursor = 0;
 
 	if(name[0] == '/'){
 		b->name = new char[strlen(name) + 1];
@@ -379,7 +381,7 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 
 	annotype = MAP_LOOKUP(buf->anno_types, key);
 
-	atomic(true, false);
+	atomic(win, true, false);
 
 	/* create annotation type if it doesn't exist */
 	if(annotype == 0){
@@ -399,14 +401,14 @@ int vimui::win_anno_add(int win, int line, const char* sign, const char* color_f
 		buf->annos[key] = id;
 		id++;
 
-		atomic(false, false);
+		atomic(win, false, false);
 
 		pthread_mutex_unlock(&ui_mtx);
 		return 0;
 	}
 
 err:
-	atomic(false, false);
+	atomic(win, false, false);
 	pthread_mutex_unlock(&ui_mtx);
 	return -1;
 }
@@ -443,7 +445,7 @@ err:
 	return -1;
 }
 
-int vimui::win_cursor_set(int win, int line){
+int vimui::win_cursor_set(int win, int line, int col){
 	int r;
 	buffer_t* buf;
 
@@ -457,11 +459,29 @@ int vimui::win_cursor_set(int win, int line){
 		else			r = -1;
 	}
 	else
-		r = action(CMD, "setDot", win, 0, "%d/0", line);
+		r = action(CMD, "setDot", win, 0, "%d/%d", line, col);
 
 	pthread_mutex_unlock(&ui_mtx);
 
 	return r;
+}
+
+int vimui::win_cursor_preserve(int win, bool pc){
+	buffer_t* buf;
+
+
+	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
+
+	if(buf == 0)
+		return -1;
+
+	pthread_mutex_lock(&ui_mtx);
+
+	buf->preserve = pc;
+
+	pthread_mutex_unlock(&ui_mtx);
+
+	return 0;
 }
 
 int vimui::win_readonly(int win, bool ro){
@@ -509,7 +529,7 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 		return;
 
 	pthread_mutex_lock(&ui_mtx);
-	atomic(true, false);
+	atomic(win, true, false);
 
 	/* create string */
 	while(1){
@@ -540,7 +560,7 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 	if(cursor_update)
 		action(CMD, "setDot", win, 0, "%d", buf->len - 1);
 
-	atomic(false, false);
+	atomic(win, false, false);
 	pthread_mutex_unlock(&ui_mtx);
 }
 
@@ -555,7 +575,7 @@ void vimui::win_clear(int win){
 
 	pthread_mutex_lock(&ui_mtx);
 
-	atomic(true, false);
+	atomic(win, true, false);
 
 	/* clear buffer */
 	if(buf->readonly)
@@ -567,7 +587,7 @@ void vimui::win_clear(int win){
 	if(buf->readonly)
 		action(CMD, "setReadOnly", win, 0, "T");
 
-	atomic(false, false);
+	atomic(win, false, false);
 
 	pthread_mutex_unlock(&ui_mtx);
 }
@@ -616,9 +636,10 @@ int vimui::proc_event(int buf_id, vim_event_t* e){
 	return 0;
 }
 
-int vimui::atomic(bool en, bool apply){
+int vimui::atomic(int win, bool en, bool apply){
 	static bool volatile in_atomic = false;
 	static volatile vim_cursor_t* volatile cursor = 0;
+	buffer_t* buf;
 
 
 	/* only apply changes if not already in atomic or apply is set */
@@ -643,8 +664,31 @@ int vimui::atomic(bool en, bool apply){
 			cursor_update = false;	// avoid cursor updates within atomic
 									// since this breaks netbeans atomicity
 		}
+
+		buf = MAP_LOOKUP(bufid_map, win);
+
+		/* get cursor position for win */
+		if(buf && buf->preserve){
+			delete buf->cursor;
+			buf->cursor = 0;
+
+			// focus the given window
+			if(action(CMD, "initDone", win, 0, "") != 0)
+				goto err;
+
+			if(action(FCT, "getCursor", 0, (vim_reply_t**)&buf->cursor, "") != 0)
+				goto err;
+		}
 	}
 	else{
+		/* restore cursor position for vim */
+		buf = MAP_LOOKUP(bufid_map, win);
+
+		if(buf && buf->preserve){
+			if(win_cursor_set(win, buf->cursor->line, buf->cursor->column) != 0)
+				goto err;
+		}
+
 		/* reset cursor to previous buffer if its different from target buffer */
 		if(cursor && cursor->bufid > 0){
 			if(action(CMD, "setDot", cursor->bufid, 0, "%d/%d", cursor->line, cursor->column) != 0)
