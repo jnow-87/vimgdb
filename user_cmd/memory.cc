@@ -3,6 +3,7 @@
 #include <common/map.h>
 #include <common/log.h>
 #include <common/string.h>
+#include <common/dynarray.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -24,6 +25,7 @@ using namespace std;
 /* static variables */
 static gdb_memory_t* mem_lst = 0;
 static map<unsigned int, gdb_memory_t*> line_map;
+static dynarray obuf;
 
 
 /* global functions */
@@ -233,41 +235,37 @@ int cmd_memory_update(){
 		return 0;
 
 	line_map.clear();
+	obuf.clear();
 	line = 1;
-
-	ui->win_atomic(win_id, true);
-	ui->win_clear(win_id);
 
 	list_for_each(mem_lst, mem){
 		addr = strtoll(mem->begin, 0, 16);
 
 		/* get memory content */
-		if(mem->update() != 0){
-			ui->win_atomic(win_id, false);
+		if(mem->update() != 0)
 			return -1;
-		}
 
 		/* print header */
-		ui->win_print(win_id, "[%c] ´h0memory dump: %#0*x`h0 (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
+		obuf.add("[%c] ´h0memory dump: %#0*x`h0 (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
 		line_map[line++] = mem;
 
 		if(!mem->expanded){
-			ui->win_print(win_id, "\n");
+			obuf.add("\n");
 			line++;
 			continue;
 		}
 
-		ui->win_print(win_id, " %*s      ´h10  1  2  3  4  5  6  7`h1\n", sizeof(void*) * 2 + 2, "");
+		obuf.add(" %*s      ´h10  1  2  3  4  5  6  7`h1\n", sizeof(void*) * 2 + 2, "");
 		line_map[line++] = mem;
 
 		/* print preceding bytes, that are not part of content, to align the output to 8 bytes per line */
 		j = 0;
 		displ = ALIGN(addr, 8);
 
-		ui->win_print(win_id, " ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, displ);
+		obuf.add(" ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, displ);
 
 		for(; displ<addr; displ++){
-			ui->win_print(win_id, " ??");
+			obuf.add(" ??");
 			ascii[j++] = ' ';
 		}
 
@@ -275,7 +273,7 @@ int cmd_memory_update(){
 		for(i=0; i<mem->length; i++, addr++){
 			modified = memcmp(mem->content + i * 2, mem->content_old + i * 2, 2);
 
-			ui->win_print(win_id, " %s%2.2s%s", (modified ? "´c" : ""), mem->content + i * 2, (modified ? "`c" : ""));
+			obuf.add(" %s%2.2s%s", (modified ? "´c" : ""), mem->content + i * 2, (modified ? "`c" : ""));
 
 			// update ascii string
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));
@@ -285,31 +283,37 @@ int cmd_memory_update(){
 			if(addr + 1 == ALIGN(addr + 8, 8)){
 				ascii[j] = 0;
 				j = 0;
-				ui->win_print(win_id, "    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
+				obuf.add("    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
 				line_map[line++] = mem;
 
 				if(i + 1 < mem->length)
-					ui->win_print(win_id, " ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, addr + 1);
+					obuf.add(" ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, addr + 1);
 			}
 		}
 
 		/* print trailing bytes, that are not part of content, to fill line */
 		if(ALIGN(addr, 8) != addr){
 			for(displ=ALIGN(addr + 8, 8); addr<displ; addr++){
-				ui->win_print(win_id, " ??");
+				obuf.add(" ??");
 				ascii[j++] = ' ';
 			}
 		}
 
 		ascii[j] = 0;
-		ui->win_print(win_id, "    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
+		obuf.add("    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
 		line_map[line++] = mem;
 
 		if(j != 0){
-			ui->win_print(win_id, "\n");
+			obuf.add("\n");
 			line++;
 		}
 	}
+
+	/* update ui */
+	ui->win_atomic(win_id, true);
+
+	ui->win_clear(win_id);
+	ui->win_print(win_id, obuf.data());
 
 	ui->win_atomic(win_id, false);
 

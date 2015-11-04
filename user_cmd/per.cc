@@ -3,6 +3,7 @@
 #include <common/map.h>
 #include <common/log.h>
 #include <common/string.h>
+#include <common/dynarray.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -27,8 +28,7 @@ using namespace std;
 
 /* static variables */
 static char* per_file = 0;
-static char* obuf = 0;
-static unsigned int obuf_len = 0;
+static dynarray obuf;
 static per_range_t* range_lst = 0;
 static map<unsigned int, per_section_t*> line_map;
 static map<string, per_register_t*> reg_map;
@@ -81,12 +81,6 @@ int cmd_per_exec(int argc, char** argv){
 		if(r != 0){
 			USER("error parsing peripheral file \"%s\"\n", argv[1]);
 			return -1;
-		}
-
-		/* malloc */
-		if(obuf_len == 0){
-			obuf_len = 1024;
-			obuf = (char*)malloc(obuf_len);
 		}
 
 		/* initialise memory segments */
@@ -237,9 +231,6 @@ void cmd_per_cleanup(){
 	delete [] per_file;
 	per_file = 0;
 
-	free(obuf);
-	obuf_len = 0;
-
 	reg_map.clear();
 	line_map.clear();
 
@@ -319,7 +310,7 @@ void cmd_per_help(int argc, char** argv){
 int cmd_per_update(){
 	char c;
 	int win_id;
-	unsigned int line, i, obuf_idx;
+	unsigned int line, i;
 	unsigned long int reg_val, bit_val;
 	bool modified;
 	gdb_memory_t *mem;
@@ -328,23 +319,6 @@ int cmd_per_update(){
 	per_register_t* reg;
 	per_bits_t* bits;
 
-	#define obuf_add(fmt, ...){ \
-		unsigned int tmp; \
-		\
-		\
-		while(1){ \
-			tmp = snprintf(obuf + obuf_idx, obuf_len - obuf_idx, fmt, ##__VA_ARGS__); \
-			\
-			if(tmp < obuf_len - obuf_idx){ \
-				obuf_idx += tmp; \
-				break; \
-			} \
-			\
-			obuf_len *= 2; \
-			obuf = (char*)realloc(obuf, obuf_len); \
-		} \
-	}
-
 
 	win_id = ui->win_getid(PER_NAME);
 
@@ -352,8 +326,8 @@ int cmd_per_update(){
 		return 0;
 
 	line_map.clear();
+	obuf.clear();
 	line = 1;
-	obuf_idx = 0;
 
 	/* generate output buffer */
 	list_for_each(range_lst, range){
@@ -365,11 +339,11 @@ int cmd_per_update(){
 
 		list_for_each(range->sections, sec){
 			// print header
-			obuf_add("[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
+			obuf.add("[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
 			line_map[line++] = sec;
 
 			if(!sec->expanded){
-				obuf_add("\n");
+				obuf.add("\n");
 				line++;
 				continue;
 			}
@@ -377,7 +351,7 @@ int cmd_per_update(){
 			// print register values
 			list_for_each(sec->regs, reg){
 				if(reg->nbytes == 0){
-					obuf_add(" ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));
+					obuf.add(" ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));
 					line_map[line++] = sec;
 
 					continue;
@@ -385,7 +359,7 @@ int cmd_per_update(){
 
 				modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-				obuf_add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+				obuf.add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
 				line_map[line++] = sec;
 
 				// print bits
@@ -399,7 +373,7 @@ int cmd_per_update(){
 					i = 0;
 					list_for_each(reg->bits, bits){
 						if(i && i % 4 == 0){
-							obuf_add("\n");
+							obuf.add("\n");
 							line_map[line++] = sec;
 						}
 
@@ -408,17 +382,17 @@ int cmd_per_update(){
 						modified = (bit_val == bits->value) ? false : true;
 						bits->value = bit_val;
 
-						obuf_add("   ´h3%s`h3 %s%.*lx%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
+						obuf.add("   ´h3%s`h3 %s%.*lx%s", bits->name, (modified ? "´c" : ""), (bits->nbits + 3) / 4, bit_val, (modified ? "`c" : ""));
 						i++;
 					}
 
-					obuf_add("\n\n");
+					obuf.add("\n\n");
 					line_map[line++] = sec;
 					line_map[line++] = sec;
 				}
 			}
 
-			obuf_add("\n");
+			obuf.add("\n");
 			line_map[line++] = sec;
 		}
 	}
@@ -427,7 +401,7 @@ int cmd_per_update(){
 	ui->win_atomic(win_id, true);
 
 	ui->win_clear(win_id);
-	ui->win_print(win_id, obuf);
+	ui->win_print(win_id, obuf.data());
 
 	ui->win_atomic(win_id, false);
 
