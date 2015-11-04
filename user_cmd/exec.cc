@@ -56,8 +56,16 @@ int cmd_exec_exec(int argc, char** argv){
 			r = gdb->mi_issue_cmd("exec-next", 0, "");
 			break;
 
+		case NEXTI:
+			r = gdb->mi_issue_cmd("exec-next-instruction", 0, "");
+			break;
+
 		case STEP:
 			r = gdb->mi_issue_cmd("exec-step", 0, "");
+			break;
+
+		case STEPI:
+			r = gdb->mi_issue_cmd("exec-step-instruction", 0, "");
 			break;
 
 		case RETURN:

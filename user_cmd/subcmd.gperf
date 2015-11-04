@@ -37,7 +37,9 @@ disable,	DISABLE
 run,		RUN
 continue,	CONTINUE
 next,		NEXT
+nexti,		NEXTI
 step,		STEP
+stepi,		STEPI
 return,		RETURN
 break,		BREAK
 setpc,		SETPC
