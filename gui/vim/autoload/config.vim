@@ -144,14 +144,15 @@ function vimgdb#config#init()
 	call s:map_key("e", "n", ":exec 'Break enable ' . bufname('%') . ':' . line('.')<cr>")
 	call s:map_key("E", "n", ":exec 'Break disable ' . bufname('%') . ':' . line('.')<cr>")
 	call s:map_key("j", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
+	call s:map_key("s", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("c", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
-	call s:map_key("<F2>", "n", ":silent Step<cr>")
-	call s:map_key("<F3>", "n",  ":silent Nnext<cr>")
-	call s:map_key("<F5>", "n",  ":silent Return<cr>")
-	call s:map_key("<F6>", "n",  ":silent Run<cr>")
-	call s:map_key("<F7>", "n",  ":silent Continue<cr>")
-	call s:map_key("<F8>", "n",  ":silent Int<cr>")
+	call s:map_key("<F2>", "n", ":silent call g:filetype_exec('[sS]', 'Stepi', 'Step')<cr>")
+	call s:map_key("<F3>", "n", ":silent call g:filetype_exec('[sS]', 'Nnexti', 'Nnext')<cr>")
+	call s:map_key("<F5>", "n", ":silent Return<cr>")
+	call s:map_key("<F6>", "n", ":silent Run<cr>")
+	call s:map_key("<F7>", "n", ":silent Continue<cr>")
+	call s:map_key("<F8>", "n", ":silent Int<cr>")
 endfunction
 
 " \brief	cleanup config
@@ -174,6 +175,19 @@ function! vimgdb#config#cleanup()
 			let s:keymap[l:key]['restore'] = {}
 		endif
 	endfor
+endfunction
+
+" \brief	exec commands depending on filetype
+"
+" \param	ftype_pattern	filetypes to execute command for
+" \param	true			command to execute on match
+" \param	false			command to execute on missmatch
+function! g:filetype_exec(ftype_pattern, true, false)
+	if match(fnamemodify(bufname('%'), ':e'), a:ftype_pattern) == -1
+		exec a:false
+	else
+		exec a:true
+	endif
 endfunction
 
 
