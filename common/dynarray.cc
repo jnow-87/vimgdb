@@ -45,6 +45,7 @@ int dynarray::add(const char* fmt, ...){
 
 void dynarray::clear(){
 	idx = 0;
+	s[0] = 0;
 }
 
 const char* dynarray::data(){
