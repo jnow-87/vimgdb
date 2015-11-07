@@ -162,6 +162,9 @@ int cmd_per_exec(int argc, char** argv){
 				return 0;
 			}
 
+			if(reg->opt & REG_SWAP)
+				strswap2(argv[3], strlen(argv[3]));
+
 			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3], reg->nbytes) != 0)
 				return -1;
 
@@ -359,7 +362,14 @@ int cmd_per_update(){
 
 				modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
+				if(reg->opt & REG_SWAP)
+					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
+
 				obuf.add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
+
+				if(reg->opt & REG_SWAP)
+					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
+
 				line_map[line++] = sec;
 
 				// print bits

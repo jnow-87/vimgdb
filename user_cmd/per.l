@@ -40,6 +40,7 @@
 "bits"					{ return BITS; }
 "emptyline"				{ return EMPTYLINE; }
 "heading"				{ return HEADLINE; }
+"swap"					{ return SWAP; }
 
 	/* general patterns */
 [\ \t]					{ /* ignore whitespaces */}

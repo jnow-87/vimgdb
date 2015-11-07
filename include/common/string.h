@@ -14,7 +14,7 @@ char* itoa(int v, char** s, unsigned int* max, unsigned int base);
 char* itoa(long int v, char** s, unsigned int* max, unsigned int base);
 char* itoa(unsigned long int v, char** s, unsigned int* max, unsigned int base, bool neg = false);
 char* stralloc(char* s, unsigned int len);
-
+void strswap2(char* s, unsigned int len);
 
 
 #endif // STRING_H

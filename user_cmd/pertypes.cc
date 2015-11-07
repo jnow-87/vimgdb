@@ -20,11 +20,12 @@ per_bits_t::~per_bits_t(){
 	delete [] name;
 }
 
-per_register_t::per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_bits_t* bits){
+per_register_t::per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t* bits){
 	this->name = name;
 	this->desc = desc;
 	this->offset = offset;
 	this->nbytes = nbytes;
+	this->opt = opt;
 	this->bits = bits;
 	this->parent = 0;
 }

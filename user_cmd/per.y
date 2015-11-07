@@ -28,6 +28,7 @@ long long int i;
 per_section_t* sec;
 per_range_t* range;
 per_register_t* reg;
+per_reg_opt_t ropt;
 per_bits_t* bits;
 }
 
@@ -53,6 +54,7 @@ per_bits_t* bits;
 %token BITS
 %token EMPTYLINE
 %token HEADLINE
+%token SWAP
 %token END
 %token <sptr> STRING
 %token <i> INT
@@ -61,6 +63,7 @@ per_bits_t* bits;
 %type <sec> section
 %type <range> range
 %type <reg> register
+%type <ropt> register-opt
 %type <bits> bits
 
 
@@ -68,25 +71,29 @@ per_bits_t* bits;
 
 
 /* start */
-start :		range END												{ *rlst = $1; return 0; }
+start :		range END															{ *rlst = $1; return 0; }
 	  ;
 
-range :		%empty													{ $$ = 0; }
-	  |		range RANGE INT INT '{' section '}'						{ $$ = $1; list_add_tail(&$$, new per_range_t((void*)$3, $4, $6)); }
+range :		%empty																{ $$ = 0; }
+	  |		range RANGE INT INT '{' section '}'									{ $$ = $1; list_add_tail(&$$, new per_range_t((void*)$3, $4, $6)); }
 	  ;
 
-section :	%empty													{ $$ = 0; }
-		|	section SECTION STRING '{' register '}'					{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $5)); }
+section :	%empty																{ $$ = 0; }
+		|	section SECTION STRING '{' register '}'								{ $$ = $1; list_add_tail(&$$, new per_section_t($3, $5)); }
 		;
 
-register :	%empty													{ $$ = 0; }
-		 |	register REGISTER STRING STRING INT INT '{' bits '}'	{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $8)); }
-		 |	register EMPTYLINE										{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, 0)); }
-		 |	register HEADLINE STRING								{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, 0)); }
+register :	%empty																{ $$ = 0; }
+		 |	register REGISTER STRING STRING INT INT register-opt '{' bits '}'	{ $$ = $1; list_add_tail(&$$, new per_register_t($3, $4, $5, $6, $7, $9)); }
+		 |	register EMPTYLINE													{ $$ = $1; list_add_tail(&$$, new per_register_t(0, 0, 0, 0, REG_NONE, 0)); }
+		 |	register HEADLINE STRING											{ $$ = $1; list_add_tail(&$$, new per_register_t($3, 0, 0, 0, REG_NONE, 0)); }
 		 ;
 
-bits :		%empty													{ $$ = 0; }
-	 |		bits BITS STRING INT INT								{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
+register-opt :		%empty														{ $$ = REG_NONE; }
+	 		 |		register-opt SWAP											{ $$ = (per_reg_opt_t)($1 | REG_SWAP); }
+	 		 ;
+
+bits :		%empty																{ $$ = 0; }
+	 |		bits BITS STRING INT INT											{ $$ = $1; list_add_tail(&$$, new per_bits_t($3, $4, $5)); }
 	 ;
 
 %%

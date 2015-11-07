@@ -397,3 +397,16 @@ char* stralloc(char* _s, unsigned int len){
 
 	return s;
 }
+
+void strswap2(char* s, unsigned int len){
+	char t[len];
+	unsigned int i;
+
+
+	for(i=0; i<len; i+=2){
+		t[i] = s[len - i - 2];
+		t[i + 1] = s[len - i - 1];
+	}
+
+	memcpy(s, t, len);
+}

@@ -5,6 +5,12 @@
 #include <gdb/memory.h>
 
 
+typedef enum{
+	REG_NONE = 0x0,
+	REG_SWAP = 0x1,
+} per_reg_opt_t;
+
+
 class per_bits_t{
 public:
 	per_bits_t(char* name, unsigned int idx, unsigned int nbits);
@@ -23,7 +29,7 @@ public:
 
 class per_register_t{
 public:
-	per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_bits_t* bits);
+	per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t* bits);
 	~per_register_t();
 
 	char *name,
@@ -32,6 +38,7 @@ public:
 	unsigned int offset,
 				 nbytes;
 
+	per_reg_opt_t opt;
 	per_bits_t* bits;
 
 	class per_range_t* parent;
