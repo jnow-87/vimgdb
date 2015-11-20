@@ -20,7 +20,8 @@ public:
 		 *content,
 		 *content_old;
 
-	unsigned int length;
+	unsigned int length,
+				 alignment;
 	bool expanded;
 
 	gdb_memory_t *next,

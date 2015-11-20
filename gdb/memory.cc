@@ -26,6 +26,7 @@ gdb_memory_t::gdb_memory_t(){
 	content_old = 0;
 	length = 0;
 	expanded = true;
+	alignment = 8;
 	next = 0;
 	prev = 0;
 }

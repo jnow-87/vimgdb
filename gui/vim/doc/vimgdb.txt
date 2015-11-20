@@ -290,9 +290,10 @@ The following argument types are used regularly:
 	{args} can be any of the following, {line} arguments refer to the
 	respective line in the memory buffer:
 
-	<add> {addr} {nbytes}
+	<add> {addr} {nbytes} [{alignment}]
 		Add memory segment of size {nbytes} starting at address
-		{addr}.
+		{addr}. The optional {alignment} argument can be used to
+		adjust the number of bytes printed per line.
 
 	<delete> {line}
 		Delete memory segment at line {line}.

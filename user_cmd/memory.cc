@@ -12,6 +12,7 @@
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
 #include <map>
+#include <math.h>
 
 
 using namespace std;
@@ -20,6 +21,16 @@ using namespace std;
 /* macros */
 #define CTOI(c) (unsigned int)((c) - ((c) >= 'a' ? 87 : 48))
 #define ALIGN(val, base) ((val) & (~(base - 1)))
+#define PWR2(val) ({ \
+	int li; \
+	float lf; \
+	\
+	\
+	lf = log2(val); \
+	li = lf; \
+	\
+	(lf - li != 0.0 ? false : true); \
+})
 
 
 /* static variables */
@@ -57,9 +68,19 @@ int cmd_memory_exec(int argc, char** argv){
 
 	switch(scmd->id){
 	case ADD:
-		mem = gdb_memory_t::acquire(argv[2], (unsigned int)atoi(argv[3]));
+		mem = gdb_memory_t::acquire(argv[2], (unsigned int)strtol(argv[3], 0, 0));
 		if(mem == 0)
 			return -1;
+
+		if(argc >= 5){
+			mem->alignment = strtol(argv[4], 0, 0);
+
+			// check if alignment is power of 2
+			if(!PWR2(mem->alignment)){
+				USER("alignment for memory segment is no power of 2, falling back to default alignment 8\n");
+				mem->alignment = 8;
+			}
+		}
 
 		list_add_tail(&mem_lst, mem);
 
@@ -241,6 +262,13 @@ int cmd_memory_update(){
 	list_for_each(mem_lst, mem){
 		addr = strtoll(mem->begin, 0, 16);
 
+		if(len < mem->alignment * 2 + 1){
+			len = mem->alignment * 2 + 1;
+
+			delete [] ascii;
+			ascii = new char[len];
+		}
+
 		/* get memory content */
 		if(mem->update() != 0)
 			return -1;
@@ -255,17 +283,23 @@ int cmd_memory_update(){
 			continue;
 		}
 
-		obuf.add(" %*s      ´h10  1  2  3  4  5  6  7`h1\n", sizeof(void*) * 2 + 2, "");
+		obuf.add(" %*s      ´h1", sizeof(void*) * 2, "");
+
+		for(i=0; i<mem->alignment; i++)
+			obuf.add("%2x", i);
+		
+		obuf.add("`h1\n");
+
 		line_map[line++] = mem;
 
-		/* print preceding bytes, that are not part of content, to align the output to 8 bytes per line */
+		/* print preceding bytes, that are not part of content, to align the output to mem->alignment bytes per line */
 		j = 0;
-		displ = ALIGN(addr, 8);
+		displ = ALIGN(addr, mem->alignment);
 
 		obuf.add(" ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, displ);
 
 		for(; displ<addr; displ++){
-			obuf.add(" ??");
+			obuf.add("??");
 			ascii[j++] = ' ';
 		}
 
@@ -273,14 +307,14 @@ int cmd_memory_update(){
 		for(i=0; i<mem->length; i++, addr++){
 			modified = memcmp(mem->content + i * 2, mem->content_old + i * 2, 2);
 
-			obuf.add(" %s%2.2s%s", (modified ? "´c" : ""), mem->content + i * 2, (modified ? "`c" : ""));
+			obuf.add("%s%2.2s%s", (modified ? "´c" : ""), mem->content + i * 2, (modified ? "`c" : ""));
 
 			// update ascii string
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));
 			ascii[j++] = c == '\0' ? ' ' : c;
 
-			// print ascii string and next address once reaching 8 bytes boundary
-			if(addr + 1 == ALIGN(addr + 8, 8)){
+			// print ascii string and next address once reaching the alignent boundary
+			if(addr + 1 == ALIGN(addr + mem->alignment, mem->alignment)){
 				ascii[j] = 0;
 				j = 0;
 				obuf.add("    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
@@ -292,9 +326,9 @@ int cmd_memory_update(){
 		}
 
 		/* print trailing bytes, that are not part of content, to fill line */
-		if(ALIGN(addr, 8) != addr){
-			for(displ=ALIGN(addr + 8, 8); addr<displ; addr++){
-				obuf.add(" ??");
+		if(ALIGN(addr, mem->alignment) != addr){
+			for(displ=ALIGN(addr + mem->alignment, mem->alignment); addr<displ; addr++){
+				obuf.add("??");
 				ascii[j++] = ' ';
 			}
 		}
