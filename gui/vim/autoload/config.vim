@@ -153,6 +153,7 @@ function vimgdb#config#init()
 	call s:map_key("<F6>", "n", ":silent Run<cr>")
 	call s:map_key("<F7>", "n", ":silent Continue<cr>")
 	call s:map_key("<F8>", "n", ":silent Int<cr>")
+	call s:map_key("<F12>", "n", ":silent Vimgdb stop<cr>")
 endfunction
 
 " \brief	cleanup config

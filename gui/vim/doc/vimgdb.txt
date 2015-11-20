@@ -457,6 +457,7 @@ are restored.
 	e	enable breakpoint at the current line
 	E	disable breakpoint at the current line
 	j	set PC to current line
+	s	set PC to current line
 	g	continue execution until current line
 	c	continue execution until current line
 	<F2>	step
@@ -465,6 +466,7 @@ are restored.
 	<F6>	run
 	<F7>	continue
 	<F8>	interrupt
+	<F12>	stop |vimgdb|
 
 							*vimgdb-mappings-local*
 5.2 Buffer-local Mappings~
