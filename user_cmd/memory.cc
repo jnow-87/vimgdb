@@ -37,6 +37,8 @@ using namespace std;
 static gdb_memory_t* mem_lst = 0;
 static map<unsigned int, gdb_memory_t*> line_map;
 static dynarray obuf;
+static char* asciib = 0;
+static unsigned int asciib_len = 0;
 
 
 /* global functions */
@@ -79,6 +81,14 @@ int cmd_memory_exec(int argc, char** argv){
 			if(!PWR2(mem->alignment)){
 				USER("alignment for memory segment is no power of 2, falling back to default alignment 8\n");
 				mem->alignment = 8;
+			}
+
+			// check if ascii buffer needs to be enlarged
+			if(asciib_len < mem->alignment * 2 + 1){
+				asciib_len = mem->alignment * 2 + 1;
+
+				delete [] asciib;
+				asciib = new char[asciib_len];
 			}
 		}
 
@@ -163,6 +173,8 @@ void cmd_memory_cleanup(){
 		list_rm(&mem_lst, mem);
 		delete mem;
 	}
+
+	delete [] asciib;
 }
 
 void cmd_memory_help(int argc, char** argv){
@@ -240,8 +252,6 @@ void cmd_memory_help(int argc, char** argv){
 }
 
 int cmd_memory_update(){
-	static unsigned int len = 17;	// 8 byte + 0-byte + 8 byte for potential escape chars
-	static char* ascii = new char[len];
 	bool modified;
 	int win_id;
 	char c;
@@ -261,13 +271,6 @@ int cmd_memory_update(){
 
 	list_for_each(mem_lst, mem){
 		addr = strtoll(mem->begin, 0, 16);
-
-		if(len < mem->alignment * 2 + 1){
-			len = mem->alignment * 2 + 1;
-
-			delete [] ascii;
-			ascii = new char[len];
-		}
 
 		/* get memory content */
 		if(mem->update() != 0)
@@ -300,7 +303,7 @@ int cmd_memory_update(){
 
 		for(; displ<addr; displ++){
 			obuf.add("??");
-			ascii[j++] = ' ';
+			asciib[j++] = ' ';
 		}
 
 		/* print actual memory content */
@@ -311,13 +314,13 @@ int cmd_memory_update(){
 
 			// update ascii string
 			c = (char)(CTOI(mem->content[i * 2]) * 16 + CTOI(mem->content[i * 2 + 1]));
-			ascii[j++] = c == '\0' ? ' ' : c;
+			asciib[j++] = c == '\0' ? ' ' : c;
 
 			// print ascii string and next address once reaching the alignent boundary
 			if(addr + 1 == ALIGN(addr + mem->alignment, mem->alignment)){
-				ascii[j] = 0;
+				asciib[j] = 0;
 				j = 0;
-				obuf.add("    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
+				obuf.add("    ´h2%s`h2\n", strescape(asciib, &asciib, &asciib_len));
 				line_map[line++] = mem;
 
 				if(i + 1 < mem->length)
@@ -329,12 +332,12 @@ int cmd_memory_update(){
 		if(ALIGN(addr, mem->alignment) != addr){
 			for(displ=ALIGN(addr + mem->alignment, mem->alignment); addr<displ; addr++){
 				obuf.add("??");
-				ascii[j++] = ' ';
+				asciib[j++] = ' ';
 			}
 		}
 
-		ascii[j] = 0;
-		obuf.add("    ´h2%s`h2\n", strescape(ascii, &ascii, &len));
+		asciib[j] = 0;
+		obuf.add("    ´h2%s`h2\n", strescape(asciib, &asciib, &asciib_len));
 		line_map[line++] = mem;
 
 		if(j != 0){
