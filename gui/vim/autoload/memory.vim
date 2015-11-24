@@ -6,7 +6,9 @@ let s:cmd_dict = {
 	\ "memory":{
 		\ "add":{
 			\ "<addr>":{
-				\ "<bytes>":{}
+				\ "<bytes>":{
+					\ "<alignment>":{}
+				\ }
 			\ }
 		\ },
 		\ "delete":{"__nested__":"vimgdb#memory#complete_lines"},
