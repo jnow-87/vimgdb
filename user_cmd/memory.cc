@@ -37,8 +37,8 @@ using namespace std;
 static gdb_memory_t* mem_lst = 0;
 static map<unsigned int, gdb_memory_t*> line_map;
 static dynarray obuf;
-static char* asciib = 0;
-static unsigned int asciib_len = 0;
+static unsigned int asciib_len = 17;	// 8 byte + 0-byte + 8 byte for potential escape char
+static char* asciib = new char[asciib_len];
 
 
 /* global functions */
@@ -71,10 +71,14 @@ int cmd_memory_exec(int argc, char** argv){
 	switch(scmd->id){
 	case ADD:
 		mem = gdb_memory_t::acquire(argv[2], (unsigned int)strtol(argv[3], 0, 0));
+
 		if(mem == 0)
 			return -1;
 
+		USER("%d: %s %s %s %s\n", argc, argv[0], argv[1], argv[2], argv[3]);
+
 		if(argc >= 5){
+			USER("has alignment: %s\n", argv[4]);
 			mem->alignment = strtol(argv[4], 0, 0);
 
 			// check if alignment is power of 2
