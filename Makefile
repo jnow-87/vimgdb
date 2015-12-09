@@ -62,7 +62,7 @@ debug: all
 ####
 .PHONY: clean
 clean:
-	$(rm) $(filter-out $(built_tree)/$(scripts_dir),$(wildcard $(built_tree)/*))
+	$(rm) $(filter-out $(build_tree)/$(scripts_dir),$(wildcard $(build_tree)/*))
 
 .PHONY: distclean
 distclean:

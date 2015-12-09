@@ -57,7 +57,7 @@ endef
 # generate target-specific rule for <target>-*flags
 #	- generate: <target>: <flag> += <target>-flag
 #	- generate: $(basename <target>).i: <flag> += <target>-flag
-#		%.i files are only built on explicite request and thus do not depent on <target>
+#		%.i files are only build on explicite request and thus do not depent on <target>
 #
 #	$(call gen_rule_tgt_flags,<target>,<flag>,<dir_prefix>
 define gen_rule_tgt_flags
@@ -70,7 +70,7 @@ endef
 # generate target-specific rule for local flags, 
 #	- generate: <target>: <flag> += <flag>-y subdir-<flag>
 #	- generate: $(basename <target>).i: <flag> += <flag>-y subdir-<flag>
-#		%.i files are only built on explicite request and thus do not depent on <target>
+#		%.i files are only build on explicite request and thus do not depent on <target>
 #
 #	$(call gen_rule_flags,<target>,<flag>,<dir_prefix>
 define gen_rule_loc_flags

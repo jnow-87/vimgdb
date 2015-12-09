@@ -92,5 +92,4 @@ menu "Build system"
 	config BUILT_TREE
 		string "built tree"
 		default "built/"
-
 endmenu

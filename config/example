@@ -51,4 +51,4 @@ CONFIG_HOSTARCHFLAGS=
 #
 # Build information
 #
-CONFIG_BUILT_TREE=built/
+CONFIG_BUILD_TREE=build/
