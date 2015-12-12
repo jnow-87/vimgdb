@@ -3,5 +3,5 @@
 *.elf
 config
 config.old
-built/
+build/
 pyclewn/

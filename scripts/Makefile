@@ -2,9 +2,9 @@
 ###   init   ###
 ################
 
-# init source and built tree
+# init source and build tree
 scripts_dir := scripts
-default_built_tree := built/
+default_build_tree := build/
 src_dirs := main/ gdb/ gui/ user_cmd/ common/ testing/
 
 # init build system variables
@@ -20,7 +20,7 @@ include $(scripts_dir)/Makefile.inc
 # init default flags
 cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall -O2
 cxxflags := $(CXXFLAGS) $(CONFIG_CXXFLAGS) -std=c++11 -Wall -O2
-cppflags := $(CPPFLAGS) $(CONFIG_CPPFLAGS) -I"include/" -I"$(built_tree)/"
+cppflags := $(CPPFLAGS) $(CONFIG_CPPFLAGS) -I"include/" -I"$(build_tree)/"
 ldflags := $(LDFLAGS) $(CONFIG_LDFLAGS)
 ldrflags := $(LDRFLAGS) $(CONFIG_LDRFLAGS)
 asflags := $(ASFLAGS) $(CONFIG_ASFLAGS)
@@ -51,11 +51,11 @@ debug: all
 ####
 .PHONY: clean
 clean:
-	$(rm) $(filter-out $(built_tree)/$(scripts_dir),$(wildcard $(built_tree)/*))
+	$(rm) $(filter-out $(build_tree)/$(scripts_dir),$(wildcard $(build_tree)/*))
 
 .PHONY: distclean
 distclean:
-	$(rm) $(config) $(built_tree)
+	$(rm) $(config) $(build_tree)
 
 ####
 ## install
@@ -63,8 +63,8 @@ distclean:
 .PHONY: install-user
 install-user: all
 	$(mkdir) -p ~/.vim/plugin ~/.vim/syntax ~/.vim/doc ~/.vim/autoload/vimgdb ~/bin
-	$(cp) -au built/main/vimgdb ~/bin/
-	$(cp) -au built/user_cmd/per2h ~/bin/
+	$(cp) -au $(build_tree)/main/vimgdb ~/bin/
+	$(cp) -au $(build_tree)/user_cmd/per2h ~/bin/
 	$(cp) -au gui/vim/plugin/* ~/.vim/plugin
 	$(cp) -au gui/vim/syntax/* ~/.vim/syntax
 	$(cp) -au gui/vim/doc/* ~/.vim/doc
@@ -73,8 +73,8 @@ install-user: all
 .PHONY: install-system
 install-system: all
 	$(mkdir) -p /usr/share/vim/vim74/plugin /usr/share/vim/vim74/syntax /usr/share/vim/vim74/doc /usr/share/vim/vim74/autoload/vimgdb /usr/bin
-	$(cp) -au built/main/vimgdb /usr/bin/
-	$(cp) -au built/user_cmd/per2h /usr/bin/
+	$(cp) -au $(build_tree)/main/vimgdb /usr/bin/
+	$(cp) -au $(build_tree)/user_cmd/per2h /usr/bin/
 	$(cp) -au gui/vim/plugin/* /usr/share/vim/vim74/plugin
 	$(cp) -au gui/vim/syntax/* /usr/share/vim/vim74/syntax
 	$(cp) -au gui/vim/doc/* /usr/share/vim/vim74/doc

@@ -81,11 +81,11 @@ $(foreach type,$(supported_types), \
 # disable removal of temporary files
 .SECONDARY:
 
-# init source and built tree
-$(call set_default,BUILT_TREE, $(default_built_tree))
+# init source and build tree
+$(call set_default,BUILD_TREE, $(default_build_tree))
 $(call set_default,SRC_TREE, .)
 
-built_tree := $(patsubst %/,%,$(BUILT_TREE))
+build_tree := $(patsubst %/,%,$(BUILD_TREE))
 src_tree := $(patsubst %/,%,$(SRC_TREE))
 
 # init variables for directory traversal
@@ -173,14 +173,14 @@ endif
 # config system targets
 ifeq ("$(use_config_sys)","y")
   ifneq ("$(config_ftype)","")
-    config_header := $(built_tree)/config/config.h
+    config_header := $(build_tree)/config/config.h
 
     mconfig_src := $(scripts_dir)/mconf
-    mconfig := $(built_tree)/$(mconfig_src)/mconfig
+    mconfig := $(build_tree)/$(mconfig_src)/mconfig
     confheader_src := $(scripts_dir)/mconf
-    confheader := $(built_tree)/$(confheader_src)/confheader
+    confheader := $(build_tree)/$(confheader_src)/confheader
     fixdep_src := $(scripts_dir)/fixdep
-    fixdep := $(built_tree)/$(fixdep_src)/fixdep
+    fixdep := $(build_tree)/$(fixdep_src)/fixdep
 
     config_tools := $(fixdep) $(mconfig) $(confheader)
 
@@ -218,7 +218,7 @@ $(foreach cfg, $(config_files), \
 endif
 
 # include dependency files
-include $(shell find $(built_tree)/ -name \*.d 2>/dev/null)
+include $(shell find $(build_tree)/ -name \*.d 2>/dev/null)
 
 # help for the build system
 help-buildsys:
@@ -257,7 +257,7 @@ help-buildsys:
 	$(printf) "   \033[1m\033[4muser defineable variables\033[0m\n"
 	$(printf) "\n"
 	$(printf) "         %25s\t%s\n" "V" "change verbosity, default = 0"
-	$(printf) "         %25s\t%s\n" "BUILT_TREE" "define output directory"
+	$(printf) "         %25s\t%s\n" "BUILD_TREE" "define output directory"
 	$(printf) "         %25s\t%s\n" "SRC_TREE" "define source directory"
 	$(printf) "\n"
 	$(printf) "         %25s\t%s\n" "[HOST]CC"

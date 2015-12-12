@@ -3,13 +3,13 @@ bin-y := test-nbprotocol
 
 
 cppflags-y := -DVIM_NB_PORT=$(CONFIG_VIM_NB_PORT)
-cppflags-y += -I"$(loc_built_tree)/"
+cppflags-y += -I"$(loc_build_tree)/"
 
 
-test-nbprotocol-y := test_nbprotocol.o cmd.o fct.o event.o $(built_tree)/gui/gui.o common/
+test-nbprotocol-y := test_nbprotocol.o cmd.o fct.o event.o $(build_tree)/gui/gui.o common/
 test-nbprotocol-ldflags := -lcurses -lpthread
 
 
-$(loc_built_tree)/vimui.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/lexer.lex.h
-$(loc_built_tree)/test_nbprotocol.o: $(loc_built_tree)/cmd.hash.h $(loc_built_tree)/fct.hash.h $(loc_built_tree)/lexer.lex.h $(loc_built_tree)/parser.tab.h
-$(loc_built_tree)/parser.o: $(loc_built_tree)/lexer.lex.h
+$(loc_build_tree)/vimui.o: $(loc_build_tree)/parser.tab.h $(loc_build_tree)/cmd.hash.h $(loc_build_tree)/lexer.lex.h
+$(loc_build_tree)/test_nbprotocol.o: $(loc_build_tree)/cmd.hash.h $(loc_build_tree)/fct.hash.h $(loc_build_tree)/lexer.lex.h $(loc_build_tree)/parser.tab.h
+$(loc_build_tree)/parser.o: $(loc_build_tree)/lexer.lex.h

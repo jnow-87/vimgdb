@@ -8,4 +8,4 @@ vimgdb-y := main.o common/ gdb/ gui/ user_cmd/
 vimgdb-cppflags := -I"$(loc_src_tree)"
 vimgdb-ldflags := -lpthread -lcurses -lm
 
-$(loc_built_tree)/main.o: $(built_tree)/user_cmd/cmd.hash.h
+$(loc_build_tree)/main.o: $(build_tree)/user_cmd/cmd.hash.h

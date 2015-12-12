@@ -11,6 +11,6 @@ test-parser-ldflags := -lpthread -lcurses
 
 
 ## additional dependencies for generated headers
-$(loc_built_tree)/test_parser.o: $(loc_built_tree)/parser.tab.h $(loc_built_tree)/lexer.lex.h
-$(loc_built_tree)/parser.tab.o: $(loc_built_tree)/lexer.lex.h
-$(loc_built_tree)/gdb.o: $(built_tree)/user_cmd/cmd.hash.h $(built_tree)/user_cmd/subcmd.hash.h $(built_tree)/gdb/parser.tab.h $(built_tree)/gdb/lexer.lex.h
+$(loc_build_tree)/test_parser.o: $(loc_build_tree)/parser.tab.h $(loc_build_tree)/lexer.lex.h
+$(loc_build_tree)/parser.tab.o: $(loc_build_tree)/lexer.lex.h
+$(loc_build_tree)/gdb.o: $(build_tree)/user_cmd/cmd.hash.h $(build_tree)/user_cmd/subcmd.hash.h $(build_tree)/gdb/parser.tab.h $(build_tree)/gdb/lexer.lex.h

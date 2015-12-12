@@ -14,10 +14,10 @@ per2h-cppflags := -I"$(loc_src_tree)"
 per2h-ldflags := -lpthread
 
 # additional dependencies
-file.o: $(loc_built_tree)/subcmd.hash.h
-help.o: $(loc_built_tree)/cmd.hash.h
+file.o: $(loc_build_tree)/subcmd.hash.h
+help.o: $(loc_build_tree)/cmd.hash.h
 
-$(loc_built_tree)/test_perparser.o: $(loc_built_tree)/per.tab.h $(loc_built_tree)/per.lex.h
-$(loc_built_tree)/per.lex.o: $(loc_built_tree)/per.tab.h
-$(loc_built_tree)/per.tab.o: $(loc_built_tree)/per.lex.h
-$(loc_built_tree)/per.o: $(loc_built_tree)/per.tab.h $(loc_built_tree)/per.lex.h
+$(loc_build_tree)/test_perparser.o: $(loc_build_tree)/per.tab.h $(loc_build_tree)/per.lex.h
+$(loc_build_tree)/per.lex.o: $(loc_build_tree)/per.tab.h
+$(loc_build_tree)/per.tab.o: $(loc_build_tree)/per.lex.h
+$(loc_build_tree)/per.o: $(loc_build_tree)/per.tab.h $(loc_build_tree)/per.lex.h

@@ -2,7 +2,7 @@ let vimgdb_gdb_cmd = 'gdb -q'
 
 Vimgdb start
 
-Inferior /home/jan/dev/vimgdb/built/testing/main
+Inferior /home/jan/dev/vimgdb/build/testing/main
 Inferior tty internal
 Inferior args "1 2" 3 4
 Break add main
