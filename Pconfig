@@ -89,7 +89,7 @@ menu "Build system"
 		string HOSTARCHFLAGS
 
 	comment "Build information"
-	config BUILT_TREE
-		string "built tree"
-		default "built/"
+	config BUILD_TREE
+		string "build tree"
+		default "build/"
 endmenu

@@ -2,9 +2,9 @@
 ###   init   ###
 ################
 
-# init source and built tree
+# init source and build tree
 scripts_dir := scripts
-default_built_tree := built/
+default_build_tree := build/
 src_dirs := example
 
 # init build system variables
@@ -66,7 +66,7 @@ clean:
 
 .PHONY: distclean
 distclean:
-	$(rm) $(config) $(built_tree)
+	$(rm) $(config) $(build_tree)
 
 ####
 ## install
