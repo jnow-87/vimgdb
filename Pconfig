@@ -88,8 +88,27 @@ menu "Build system"
 	config HOSTARCHFLAGS
 		string HOSTARCHFLAGS
 
+	choice
+		prompt "Build type"
+	
+		config BUILD_RELEASE
+			bool "release"
+	
+		config BUILD_DEBUG
+			bool "debug"
+	endchoice
+
+	menu "Hidden"
+		visible if 0
+	
+		config BUILD_TYPE
+			string "Build type"
+			default "debug" if BUILD_DEBUG
+			default "release" if BUILD_RELEASE
+	endmenu
+
 	comment "Build information"
 	config BUILD_TREE
 		string "build tree"
-		default "build/"
+		default "build/$(CONFIG_BUILD_TYPE)/"
 endmenu

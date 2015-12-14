@@ -2,17 +2,20 @@
 ###   init   ###
 ################
 
-# init source and build tree
-scripts_dir := scripts
-default_build_tree := build/
-src_dirs := example
-
 # init build system variables
 project_type := cxx
 config := ./config
 config_tree := $(scripts_dir)/config
 use_config_sys := y
+scripts_dir := scripts
 config_ftype := Pconfig
+
+# include config
+-include $(config)
+
+# init source and build tree
+default_build_tree := build/$(CONFIG_BUILD_TYPE)/
+src_dirs := example
 
 # include build system Makefile
 include $(scripts_dir)/Makefile.inc
@@ -46,16 +49,16 @@ gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 ## build
 ####
 .PHONY: all
-all: $(lib) $(bin) $(hostlib) $(hostbin)
+ifeq ($(CONFIG_BUILD_DEBUG),y)
+all: cflags += -g
+all: cxxflags += -g
+all: asflags += -g
+all: hostcflags += -g
+all: hostcxxflags += -g
+all: hostasflags += -g
+endif
 
-.PHONY: debug
-debug: cflags += -g
-debug: cxxflags += -g
-debug: asflags += -g
-debug: hostcflags += -g
-debug: hostcxxflags += -g
-debug: hostasflags += -g
-debug: all
+all: $(lib) $(bin) $(hostlib) $(hostbin)
 
 ####
 ## cleanup
