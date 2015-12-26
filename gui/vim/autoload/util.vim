@@ -78,13 +78,3 @@ endfunction
 function! vimgdb#util#execabbrev(abbrev, expansion)
 	exec 'cabbr ' . a:abbrev . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expansion . '" : "' . a:abbrev . '"<CR>'
 endfunction
-
-" \brief	conditional variable assignment
-"
-" \param	var		variable name
-" \param	val		value
-function! vimgdb#util#cond_assign(var, val)
-	if !exists(a:var)
-		exec "let " . a:var . " = \"" . a:val . "\""
-	endif
-endfunction
