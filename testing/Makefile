@@ -1,3 +1,3 @@
 bin-y := main
 
-cflags-y := -g
+cflags-y := -g -O0
