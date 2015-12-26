@@ -32,7 +32,7 @@ function! vimgdb#per#init()
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
-		\ setlocal syntax=vimgdb_per |
+		\ setlocal filetype=vimgdb_per |
 		\ setlocal conceallevel=3 |
 		\ setlocal concealcursor=nivc |
 		\ nnoremap <buffer> <silent> <c-f> :exec 'Per fold ' . line('.')<cr>|

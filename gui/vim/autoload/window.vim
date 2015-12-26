@@ -147,7 +147,7 @@ function! vimgdb#window#init()
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
-		\ setlocal syntax=vimgdb_userlog
+		\ setlocal filetype=vimgdb_userlog
 		\ "
 
 	" autocmd for gdb-log
@@ -156,7 +156,7 @@ function! vimgdb#window#init()
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
-		\ setlocal syntax=vimgdb_gdblog
+		\ setlocal filetype=vimgdb_gdblog
 		\ "
 endfunction
 

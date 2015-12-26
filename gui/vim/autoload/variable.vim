@@ -50,7 +50,7 @@ function! vimgdb#variable#init()
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
 		\ setlocal nowrap |
-		\ setlocal syntax=vimgdb_variable |
+		\ setlocal filetype=vimgdb_variable |
 		\ setlocal conceallevel=3 |
 		\ setlocal concealcursor=nivc |
 		\ nnoremap <buffer> <silent> <c-f> :exec 'Variable fold ' . line('.')<cr>|
