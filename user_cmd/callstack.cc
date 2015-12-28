@@ -2,6 +2,7 @@
 #include <common/list.h>
 #include <common/log.h>
 #include <common/map.h>
+#include <common/dynarray.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -278,6 +279,7 @@ int cmd_callstack_update(){
 }
 
 int cmd_callstack_print(){
+	static dynarray obuf;
 	unsigned int line;
 	int win_id;
 	gdb_frame_t* frame;
@@ -289,8 +291,8 @@ int cmd_callstack_print(){
 	if(win_id < 0)
 		return 0;
 
-	ui->win_atomic(win_id, true);
-	ui->win_clear(win_id);
+
+	obuf.clear();
 
 	line_vars.clear();
 	line_frames.clear();
@@ -301,42 +303,47 @@ int cmd_callstack_print(){
 	for(frame=list_last(callstack); frame!=0; frame=frame->prev){
 		// print function name
 		if(!frame->args.empty())
-			ui->win_print(win_id, "%s ", frame->expanded ? "[-]" : "[+]");
+			obuf.add("%s ", frame->expanded ? "[-]" : "[+]");
 
-		ui->win_print(win_id, "´fl%s`fl:´ln%d`ln ´fu%s`fu(", frame->filename, frame->line, frame->function);
+		obuf.add("´fl%s`fl:´ln%d`ln ´fu%s`fu(", frame->filename, frame->line, frame->function);
 		line_frames[line] = frame;
 
 		if(!frame->args.empty() && frame->expanded){
-			ui->win_print(win_id, "\n");
+			obuf.add("\n");
 			line++;
 		}
 
 		// print arguments
 		for(it=frame->args.begin(); it!=frame->args.end(); it++){
-			(*it)->print(win_id, &line, &line_vars, frame->expanded, 1);
+			(*it)->print(&obuf, &line, &line_vars, frame->expanded, 1);
 
 			if(!frame->expanded && (*it != frame->args.back()))
-				ui->win_print(win_id, ",%s", (*it)->modified ? "" : " ");
+				obuf.add(",%s", (*it)->modified ? "" : " ");
 		}
 
-		ui->win_print(win_id, ")\n");
+		obuf.add(")\n");
 		line++;
 
 		if(frame->expanded){
-			ui->win_print(win_id, "\n");
+			obuf.add("\n");
 			line++;
 		}
 
 		// print locals
 		for(it=frame->locals.begin(); it!=frame->locals.end(); it++)
-			(*it)->print(win_id, &line, &line_vars, true, 1);
+			(*it)->print(&obuf, &line, &line_vars, true, 1);
 
-		ui->win_print(win_id, "\n");
+		obuf.add("\n");
 		line++;
 
 		if(frame == list_first(callstack))
 			break;
 	}
+
+	ui->win_atomic(win_id, true);
+	
+	ui->win_clear(win_id);
+	ui->win_print(win_id, obuf.data());
 
 	ui->win_atomic(win_id, false);
 

@@ -2,6 +2,7 @@
 #include <common/log.h>
 #include <common/list.h>
 #include <common/map.h>
+#include <common/dynarray.h>
 #include <gdb/gdb.h>
 #include <gui/gui.h>
 #include <gdb/breakpoint.h>
@@ -278,6 +279,7 @@ void cmd_break_help(int argc, char** argv){
 
 /* local functions */
 void breakpt_print(char* filename){
+	static dynarray obuf;
 	int win_id;
 	FILE* fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
@@ -298,9 +300,9 @@ void breakpt_print(char* filename){
 		if(win_id < 0)
 			return;
 
-		ui->win_atomic(win_id, true);
-		ui->win_clear(win_id);
+		obuf.clear();
 	}
+
 
 	for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
 		bkpt = it->second;
@@ -310,10 +312,10 @@ void breakpt_print(char* filename){
 				else					fprintf(fp, "%s\\n", bkpt->at);
 		}
 		else{
-			if(bkpt->filename != 0)	ui->win_print(win_id, "%s:%d", bkpt->filename, bkpt->line);
-			else					ui->win_print(win_id, "%s", bkpt->at);
+			if(bkpt->filename != 0)	obuf.add("%s:%d", bkpt->filename, bkpt->line);
+			else					obuf.add("%s", bkpt->at);
 
-			ui->win_print(win_id, "%s%s%s%s%s\n",
+			obuf.add("%s%s%s%s%s\n",
 				(bkpt->enabled ? "" : " [disabled]"),
 				(bkpt->ignore_cnt ? " after " : ""), (bkpt->ignore_cnt ? bkpt->ignore_cnt : ""),
 				(bkpt->condition ? " if " : ""), (bkpt->condition ? bkpt->condition : "")
@@ -321,8 +323,14 @@ void breakpt_print(char* filename){
 		}
 	}
 
-	if(filename)
-		fclose(fp);
-	else
+	if(!filename){
+		ui->win_atomic(win_id, true);
+
+		ui->win_clear(win_id);
+		ui->win_print(win_id, obuf.data());
+
 		ui->win_atomic(win_id, false);
+	}
+	else
+		fclose(fp);
 }

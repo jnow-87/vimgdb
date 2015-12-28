@@ -28,7 +28,6 @@ using namespace std;
 
 /* static variables */
 static char* per_file = 0;
-static dynarray obuf;
 static per_range_t* range_lst = 0;
 static map<unsigned int, per_section_t*> line_map;
 static map<string, per_register_t*> reg_map;
@@ -311,6 +310,7 @@ void cmd_per_help(int argc, char** argv){
 }
 
 int cmd_per_update(){
+	static dynarray obuf;
 	char c;
 	int win_id;
 	unsigned int line, i;

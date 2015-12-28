@@ -2,6 +2,7 @@
 #define GDB_VARIABLE_H
 
 
+#include <common/dynarray.h>
 #include <gdb/result.h>
 #include <map>
 #include <list>
@@ -32,7 +33,7 @@ public:
 	int set(int argc, char** argv);
 	int format(const char* fmt);
 	int update();
-	int print(int win_id, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
+	int print(dynarray* obuf, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
 	int init_childs();
 
 	char *name,
@@ -62,7 +63,7 @@ private:
 	gdb_variable_t();
 	~gdb_variable_t();
 
-	int print(int win_id, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map);
+	int print(dynarray* obuf, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map);
 	void erase_childs();
 };
 

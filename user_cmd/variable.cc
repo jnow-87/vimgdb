@@ -2,6 +2,7 @@
 #include <common/map.h>
 #include <common/log.h>
 #include <common/list.h>
+#include <common/dynarray.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/variable.h>
@@ -249,6 +250,7 @@ void cmd_var_help(int argc, char** argv){
 }
 
 int cmd_var_print(){
+	static dynarray obuf;
 	int win_id;
 	unsigned int line;
 	map<string, gdb_variable_t*>::iterator it;
@@ -259,16 +261,20 @@ int cmd_var_print(){
 	if(win_id < 0)
 		return 0;
 
-	ui->win_atomic(win_id, true);
-	ui->win_clear(win_id);
 	line_map.clear();
+	obuf.clear();
 
 	line = 1;
 
 	for(it=gdb_user_var.begin(); it!=gdb_user_var.end(); it++){
 		if(it->second->parent == 0)
-			it->second->print(win_id, &line, &line_map, true);
+			it->second->print(&obuf, &line, &line_map, true);
 	}
+
+	ui->win_atomic(win_id, true);
+
+	ui->win_clear(win_id);
+	ui->win_print(win_id, obuf.data());
 
 	ui->win_atomic(win_id, false);
 

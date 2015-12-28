@@ -252,18 +252,18 @@ int gdb_variable_t::update(){
 	return 0;
 }
 
-int gdb_variable_t::print(int win_id, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent){
+int gdb_variable_t::print(dynarray* obuf, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent){
 	if(!expand){
 		if(update() != 0)
 			return -1;
 
-		ui->win_print(win_id, "%s%s = %s%s", (modified ? "´c" : ""), exp, value, (modified ? "`c" : ""));
+		obuf->add("%s%s = %s%s", (modified ? "´c" : ""), exp, value, (modified ? "`c" : ""));
 		modified = false;
 
 		return 0;
 	}
 	else
-		return print(win_id, indent, line, line_map);
+		return print(obuf, indent, line, line_map);
 }
 
 int gdb_variable_t::init_childs(){
@@ -300,7 +300,7 @@ void gdb_variable_t::erase_childs(){
 	}
 }
 
-int gdb_variable_t::print(int win_id, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map){
+int gdb_variable_t::print(dynarray* obuf, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map){
 	char rec_s[rec_lvl + 1];
 	list<gdb_variable_t*>::iterator it;
 
@@ -314,7 +314,7 @@ int gdb_variable_t::print(int win_id, int rec_lvl, unsigned int* line, map<unsig
 		return -1;
 
 	/* update UI */
-	ui->win_print(win_id, "%s%s %s%s = %s%s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "´c" : ""), exp, value, (modified ? "`c" : ""));
+	obuf->add("%s%s %s%s = %s%s\n", rec_s, (nchilds == 0 ? "   " : (childs_visible ? "[-]" : "[+]")), (modified ? "´c" : ""), exp, value, (modified ? "`c" : ""));
 
 	/* update variable structs */
 	modified = false;
@@ -323,11 +323,11 @@ int gdb_variable_t::print(int win_id, int rec_lvl, unsigned int* line, map<unsig
 	/* print childs */
 	if(childs_visible){
 		for(it=childs.begin(); it!=childs.end(); it++)
-			(*it)->print(win_id, rec_lvl + 1, line, line_map);
+			(*it)->print(obuf, rec_lvl + 1, line, line_map);
 	}
 
 	if(rec_lvl == 1 && childs_visible){
-		ui->win_print(win_id, "\n");
+		obuf->add("\n");
 		(*line)++;
 	}
 
