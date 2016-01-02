@@ -30,7 +30,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init register command
-function! vimgdb#register#init()
+function vimgdb#register#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -58,7 +58,7 @@ function! vimgdb#register#init()
 endfunction
 
 " \brief	cleanup register command
-function! vimgdb#register#cleanup()
+function vimgdb#register#cleanup()
 	" command
 	unabbrev register
 	delcommand Register
@@ -70,7 +70,7 @@ endfunction
 " \brief	complete vimgdb register buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#register#complete(subcmd)
+function vimgdb#register#complete(subcmd)
 	" get list of gdb register buffer lines
 	return vimgdb#util#cmd_get_data_string("register complete")
 endfunction
@@ -81,7 +81,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	register command implementation
-function! s:register(...)
+function s:register(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_register_name, 1)
 		call vimgdb#util#cmd("register view")

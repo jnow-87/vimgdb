@@ -6,16 +6,16 @@ let s:cmd_dict = {}
 
 
 " \brief	init completion
-function! vimgdb#complete#init(dict)
+function vimgdb#complete#init(dict)
 	let s:cmd_dict = deepcopy(a:dict)
 endfunction
 
 " \brief	clean completion
-function! vimgdb#complete#cleanup(dict)
+function vimgdb#complete#cleanup(dict)
 	let s:cmd_dict = deepcopy(a:dict)
 endfunction
 
-function! vimgdb#complete#expand(main, vg_sub, vg_help)
+function vimgdb#complete#expand(main, vg_sub, vg_help)
 	call extend(s:cmd_dict, a:main)
 	call extend(s:cmd_dict['vimgdb']['help'], a:vg_help)
 endfunction
@@ -25,7 +25,7 @@ endfunction
 " \param	arg		argument at cursor
 " \param	line	command line
 " \param	pos		offset into line
-function! vimgdb#complete#lookup(arg, line, pos)
+function vimgdb#complete#lookup(arg, line, pos)
 	" create argument list based on a:line[0 .. a:pos - 1]
 	let l:argv = split(tolower(strpart(a:line, 0, a:pos)))
 	let l:argc = len(l:argv)
@@ -106,7 +106,7 @@ endfunction
 " \brief	complete file name
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#complete#file(subcmd)
+function vimgdb#complete#file(subcmd)
 	" get list of files
 	exec "let l:files = glob(\"" . a:subcmd . "*\", 0, 1)"
 
@@ -126,13 +126,13 @@ endfunction
 " \brief	complete inferior location, i.e. source files and function names
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#complete#sym_location(subcmd)
+function vimgdb#complete#sym_location(subcmd)
 	return g:vimgdb_inferior_files . g:vimgdb_inferior_functions
 endfunction
 
 " \brief	complete inferior variable symbol names
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#complete#sym_variable(subcmd)
+function vimgdb#complete#sym_variable(subcmd)
 	return g:vimgdb_inferior_vars
 endfunction

@@ -36,7 +36,7 @@ let s:var_lst = ""
 """"""""""""""""""""
 
 " \brief	init variable command
-function! vimgdb#variable#init()
+function vimgdb#variable#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -65,7 +65,7 @@ function! vimgdb#variable#init()
 endfunction
 
 " \brief	cleanup variable command
-function! vimgdb#variable#cleanup()
+function vimgdb#variable#cleanup()
 	" command
 	unabbrev variable
 	delcommand Variable
@@ -77,7 +77,7 @@ endfunction
 " \brief	complete vimgdb variable buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#variable#complete(subcmd)
+function vimgdb#variable#complete(subcmd)
 	return s:var_lst
 endfunction
 
@@ -87,7 +87,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	variable command implementation
-function! s:variable(...)
+function s:variable(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_variables_name, 1)
 		call vimgdb#util#cmd("variable view")

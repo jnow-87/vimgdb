@@ -32,7 +32,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init memory command
-function! vimgdb#memory#init()
+function vimgdb#memory#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -60,7 +60,7 @@ function! vimgdb#memory#init()
 endfunction
 
 " \brief	cleanup memory command
-function! vimgdb#memory#cleanup()
+function vimgdb#memory#cleanup()
 	" command
 	unabbrev memory
 	delcommand Memory
@@ -72,7 +72,7 @@ endfunction
 " \brief	complete vimgdb memory buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#memory#complete_lines(subcmd)
+function vimgdb#memory#complete_lines(subcmd)
 	" get list of gdb memory buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("memory complete"), '<addr>')
 
@@ -86,7 +86,7 @@ endfunction
 " \brief	complete vimgdb memory addresses
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#memory#complete_addr(subcmd)
+function vimgdb#memory#complete_addr(subcmd)
 	" get list of gdb memory buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("memory complete"), '<addr>')
 
@@ -103,7 +103,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	memory command implementation
-function! s:memory(...)
+function s:memory(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_memory_name, 1)
 		call vimgdb#util#cmd("memory view")

@@ -19,7 +19,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init exec command
-function! vimgdb#exec#init()
+function vimgdb#exec#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, {'exec':s:cmd_dict}, {'exec':s:cmd_dict})
 
@@ -48,7 +48,7 @@ function! vimgdb#exec#init()
 endfunction
 
 " \brief	cleanup exec command
-function! vimgdb#exec#cleanup()
+function vimgdb#exec#cleanup()
 	" rm commands
 	unabbrev run
 	unabbrev next
@@ -75,7 +75,7 @@ endfunction
 """""""""""""""""""
 
 " \brief exec command implementation
-function! s:exec(cmd, ...)
+function s:exec(cmd, ...)
 	" focus first window, which is assumed to contain the source code buffers
 	" avoiding messing up the window contents
 	call vimgdb#window#focus(1)

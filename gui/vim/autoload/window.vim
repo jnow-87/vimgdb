@@ -32,7 +32,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init window command
-function! vimgdb#window#init()
+function vimgdb#window#init()
 	" init lists for vertical and horizontal windows
 	let s:win_lst_vert = {}
 	let s:win_lst_hor = {}
@@ -161,7 +161,7 @@ function! vimgdb#window#init()
 endfunction
 
 " \brief	cleanup window command
-function! vimgdb#window#cleanup()
+function vimgdb#window#cleanup()
 	" rm command
 	unabbrev window
 	delcommand Window
@@ -175,14 +175,14 @@ function! vimgdb#window#cleanup()
 endfunction
 
 " \brief	window completion
-function! vimgdb#window#complete(subcmd)
+function vimgdb#window#complete(subcmd)
 	return s:win_names
 endfunction
 
 " \brief	initialise first window
 "
 " \param	name	default name of initial buffer
-function! vimgdb#window#initial(name)
+function vimgdb#window#initial(name)
 	let s:init_bname = bufname(bufnr("%"))
 
 	if s:init_bname == ""
@@ -220,7 +220,7 @@ endfunction
 " \param	name		buffer name
 " \param	force_open	overwrite visibility setting for window, forcing it to
 "						be displayed
-function! vimgdb#window#open(name, force_open)
+function vimgdb#window#open(name, force_open)
 	" get window parameter
 	if has_key(s:win_lst, a:name)
 		let l:win = s:win_lst[a:name]
@@ -292,7 +292,7 @@ endfunction
 " \brief	open buffer in current window if not already displayed elsewhere
 "
 " \param	name	window name
-function! vimgdb#window#view(name)
+function vimgdb#window#view(name)
 	" return if buffer is already displayed
 	if bufwinnr(a:name) != -1
 		return
@@ -327,7 +327,7 @@ function! vimgdb#window#view(name)
 endfunction
 
 " \brief	close a window and remove from window list
-function! vimgdb#window#close(name)
+function vimgdb#window#close(name)
 	let l:bnr = bufnr(a:name)
 	let l:tgt_win = bufwinnr(l:bnr)
 
@@ -355,11 +355,11 @@ endfunction
 " \brief	move cursor to window
 "
 " \param	winnr	window number to focus
-function! vimgdb#window#focus(winnr)
+function vimgdb#window#focus(winnr)
 	exec a:winnr . " wincmd w"
 endfunction
 
-function! vimgdb#window#open_src(line)
+function vimgdb#window#open_src(line)
 	" assumed format: <filename>:<line number>
 	let l:lst = split(a:line, ' ')
 
@@ -393,7 +393,7 @@ endfunction
 "
 " \param	cmd		window command (open, view, close)
 " \param	name	window name
-function! s:window(cmd, name)
+function s:window(cmd, name)
 	if a:cmd == "open"
 		call vimgdb#window#open(a:name, 1)
 

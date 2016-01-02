@@ -33,7 +33,7 @@ let s:breakpt_lst = ""
 """"""""""""""""""""
 
 " \brief	init breakpoint command
-function! vimgdb#break#init()
+function vimgdb#break#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -56,7 +56,7 @@ function! vimgdb#break#init()
 endfunction
 
 " \brief	cleanup breakpoint command
-function! vimgdb#break#cleanup()
+function vimgdb#break#cleanup()
 	" rm command
 	unabbrev break
 	delcommand Break
@@ -68,7 +68,7 @@ endfunction
 " \brief	breakpoint completion
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#break#complete_bkpt(subcmd)
+function vimgdb#break#complete_bkpt(subcmd)
 	return s:breakpt_lst
 endfunction
 
@@ -80,7 +80,7 @@ endfunction
 " \brief	breakpoint command implementation
 "
 " \param	...		argument list as required by vimgdb
-function! s:break(...)
+function s:break(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_break_name, 1)
 		call vimgdb#util#cmd("break view")

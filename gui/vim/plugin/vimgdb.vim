@@ -24,7 +24,7 @@ let s:cmd_dict = {
 " \brief	vimgdb init and cleanup function
 "
 " \param	first		first argument
-function! s:vimgdb(first, ...)
+function s:vimgdb(first, ...)
 	if a:first == "start"
 		call s:init()
 
@@ -64,7 +64,7 @@ function! s:vimgdb(first, ...)
 endfunction
 
 " \brief	initialise vimgdb plugin (windows, commands, vimgdb program)
-function! s:init()
+function s:init()
 	if s:initialised != 0
 		return
 	endif
@@ -122,7 +122,7 @@ function! s:init()
 endfunction
 
 " \brief	cleanup vimgdb plugin
-function! s:cleanup()
+function s:cleanup()
 	if s:initialised == 0
 		return
 	endif
@@ -162,7 +162,7 @@ endfunction
 " \brief	export the current debug session
 "
 " \param	file	output file name
-function! s:export(file)
+function s:export(file)
 	let l:lst = [ 
 		\ "let vimgdb_gdb_cmd = '" . g:vimgdb_gdb_cmd . "'", "",
 	 	\ "Vimgdb start", "",
@@ -193,7 +193,7 @@ endfunction
 " \brief	vimgdb help command
 "
 " \param	line	item for which help is requested
-function! s:help(line)
+function s:help(line)
 	call vimgdb#window#open(g:vimgdb_userlog_name, 1)
 	call vimgdb#util#cmd("help " . a:line)
 endfunction

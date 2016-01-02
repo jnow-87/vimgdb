@@ -18,7 +18,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init evaluate command
-function! vimgdb#evaluate#init()
+function vimgdb#evaluate#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -28,7 +28,7 @@ function! vimgdb#evaluate#init()
 endfunction
 
 " \brief	cleanup memory command
-function! vimgdb#evaluate#cleanup()
+function vimgdb#evaluate#cleanup()
 	" command
 	unabbrev evaluate
 	delcommand Evaluate
@@ -40,7 +40,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	evaluate command implementation
-function! s:evaluate(...)
+function s:evaluate(...)
 	call vimgdb#window#open(g:vimgdb_userlog_name, 1)
 	call vimgdb#util#cmd("evaluate " . join(a:000))
 endfunction

@@ -18,7 +18,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init per command
-function! vimgdb#per#init()
+function vimgdb#per#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -45,7 +45,7 @@ function! vimgdb#per#init()
 endfunction
 
 " \brief	cleanup per command
-function! vimgdb#per#cleanup()
+function vimgdb#per#cleanup()
 	" command
 	unabbrev per
 	delcommand Per
@@ -57,7 +57,7 @@ endfunction
 " \brief	complete vimgdb per buffer lines with ranges
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#per#complete_section(subcmd)
+function vimgdb#per#complete_section(subcmd)
 	" get list of gdb per buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("per complete"), '<regs>')
 
@@ -71,7 +71,7 @@ endfunction
 " \brief	complete vimgdb per register names
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#per#complete_regs(subcmd)
+function vimgdb#per#complete_regs(subcmd)
 	" get list of gdb per buffer lines
 	let l:line_lst = split(vimgdb#util#cmd_get_data_string("per complete"), '<regs>')
 
@@ -89,7 +89,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	per command implementation
-function! s:per(...)
+function s:per(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_per_name, 1)
 		call vimgdb#util#cmd("per view")

@@ -30,7 +30,7 @@ let s:cmd_dict = {
 """"""""""""""""""""
 
 " \brief	init callstack command
-function! vimgdb#callstack#init()
+function vimgdb#callstack#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -58,7 +58,7 @@ function! vimgdb#callstack#init()
 endfunction
 
 " \brief	cleanup callstack command
-function! vimgdb#callstack#cleanup()
+function vimgdb#callstack#cleanup()
 	" command
 	unabbrev callstack
 	delcommand Callstack
@@ -70,7 +70,7 @@ endfunction
 " \brief	complete vimgdb callstack buffer lines
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#callstack#complete(subcmd)
+function vimgdb#callstack#complete(subcmd)
 	" get list of gdb callstack buffer lines
 	return vimgdb#util#cmd_get_data_string("callstack complete")
 endfunction
@@ -81,7 +81,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	callstack command implementation
-function! s:callstack(...)
+function s:callstack(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_callstack_name, 1)
 		call vimgdb#util#cmd("callstack view")

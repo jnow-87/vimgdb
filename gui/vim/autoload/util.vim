@@ -9,7 +9,7 @@ let s:timeout_s = 5
 " \brief	print error message
 "
 " \param	msg		message to print
-function! vimgdb#util#error(msg)
+function vimgdb#util#error(msg)
 	echohl Error
 	echom a:msg
 	echohl None
@@ -21,7 +21,7 @@ endfunction
 " \brief	execute netbeans command
 "
 " \param	cmd		command to execute
-function! vimgdb#util#cmd(cmd)
+function vimgdb#util#cmd(cmd)
 	" delete sync file
 	call delete(s:sync_file)
 
@@ -49,7 +49,7 @@ endfunction
 " \param	cmd		vimgdb-command to execute
 "
 " \return	command response as list
-function! vimgdb#util#cmd_get_data_list(cmd)
+function vimgdb#util#cmd_get_data_list(cmd)
 	" delete data file
 	call delete(s:data_file)
 
@@ -67,7 +67,7 @@ endfunction
 " \param	cmd		vimgdb-command to execute
 "
 " \return	command response as string
-function! vimgdb#util#cmd_get_data_string(cmd)
+function vimgdb#util#cmd_get_data_string(cmd)
 	exec "return \"" . join(vimgdb#util#cmd_get_data_list(a:cmd)) . "\""
 endfunction
 
@@ -75,6 +75,6 @@ endfunction
 "
 " \param	abbrev		LHS
 " \param	expansion	RHS
-function! vimgdb#util#execabbrev(abbrev, expansion)
+function vimgdb#util#execabbrev(abbrev, expansion)
 	exec 'cabbr ' . a:abbrev . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expansion . '" : "' . a:abbrev . '"<CR>'
 endfunction

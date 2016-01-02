@@ -147,8 +147,8 @@ function vimgdb#config#init()
 	call s:map_key("s", "n", ":silent exec 'Setpc ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("g", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
 	call s:map_key("c", "n", ":silent exec 'Goto ' . fnamemodify(bufname('%'), ':t') . ':' . line('.')<cr>")
-	call s:map_key("<F2>", "n", ":silent call g:filetype_exec('[sS]', 'Stepi', 'Step')<cr>")
-	call s:map_key("<F3>", "n", ":silent call g:filetype_exec('[sS]', 'Nnexti', 'Nnext')<cr>")
+	call s:map_key("<F2>", "n", ":silent call <sid>filetype_exec('[sS]', 'Stepi', 'Step')<cr>")
+	call s:map_key("<F3>", "n", ":silent call <sid>filetype_exec('[sS]', 'Nnexti', 'Nnext')<cr>")
 	call s:map_key("<F5>", "n", ":silent Return<cr>")
 	call s:map_key("<F6>", "n", ":silent Run<cr>")
 	call s:map_key("<F7>", "n", ":silent Continue<cr>")
@@ -157,7 +157,7 @@ function vimgdb#config#init()
 endfunction
 
 " \brief	cleanup config
-function! vimgdb#config#cleanup()
+function vimgdb#config#cleanup()
 	" restore key mappings
 	for l:key in keys(s:keymap)
 		let l:val = s:keymap[l:key]
@@ -183,7 +183,7 @@ endfunction
 " \param	ftype_pattern	filetypes to execute command for
 " \param	true			command to execute on match
 " \param	false			command to execute on missmatch
-function! g:filetype_exec(ftype_pattern, true, false)
+function s:filetype_exec(ftype_pattern, true, false)
 	if match(fnamemodify(bufname('%'), ':e'), a:ftype_pattern) == -1
 		exec a:false
 	else
@@ -201,7 +201,7 @@ endfunction
 " \param	lhs		left-hand-side
 " \param	mode	mode to use, e.g. "n", "i", ...
 " \param	rhs		right-hand-side
-function! s:map_key(lhs, mode, rhs)
+function s:map_key(lhs, mode, rhs)
 	" create entry in s:keymap if it doesn't exist
 	if !has_key(s:keymap, a:lhs)
 		let s:keymap[a:lhs] = {}

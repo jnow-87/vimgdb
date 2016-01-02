@@ -26,7 +26,7 @@ let g:vimgdb_symfile = ""
 """"""""""""""""""""
 
 " \brief	init inferior command
-function! vimgdb#inferior#init()
+function vimgdb#inferior#init()
 	" update vimgdb completion
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
@@ -44,7 +44,7 @@ function! vimgdb#inferior#init()
 endfunction
 
 " \brief	cleanup inferior command
-function! vimgdb#inferior#cleanup()
+function vimgdb#inferior#cleanup()
 	" rm command
 	unabbrev inferior
 	delcommand Inferior
@@ -56,7 +56,7 @@ endfunction
 " \brief	complete pseudo terminal under /dev/pts
 "
 " \param	subcmd	current argument supplied in command line
-function! vimgdb#inferior#complete_pts(subcmd)
+function vimgdb#inferior#complete_pts(subcmd)
 	" get list of pseudo terminals
 	if a:subcmd == "" || match(a:subcmd, "/dev/pts/") != -1
 		exec "let l:files = globpath(\"/dev/pts/\", \"" . substitute(a:subcmd, "/dev/pts/", "", "") . "*\")"
@@ -68,7 +68,7 @@ function! vimgdb#inferior#complete_pts(subcmd)
 endfunction
 
 " \brief	update inferior symbols
-function! vimgdb#inferior#update_sym()
+function vimgdb#inferior#update_sym()
 	" read symbols from file
 	let g:vimgdb_inferior_vars = system("nm --demangle " . g:vimgdb_symfile . " |grep -e '[0-9a-f]* [bBCdDgGrRsS] ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
 	let g:vimgdb_inferior_functions = system("nm --demangle " . g:vimgdb_symfile . " |grep -e '[0-9a-f]* T ' | cut -d ' ' -f 3- | grep '.' | sort | uniq")
@@ -81,7 +81,7 @@ endfunction
 """""""""""""""""""
 
 " \brief	inferior command implementation
-function! s:inferior(...)
+function s:inferior(...)
 	if a:1 == "open"
 		call vimgdb#window#open(g:vimgdb_inferior_name, 1)
 		call vimgdb#util#cmd("inferior view")
