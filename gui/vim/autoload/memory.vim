@@ -37,11 +37,11 @@ function vimgdb#memory#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Memory call s:memory(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Memory call s:memory(<f-args>)
 	call vimgdb#util#execabbrev("memory", "Memory")
 
 	" autocmd for memory window
-	exec "autocmd! BufWinEnter " . g:vimgdb_memory_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_memory_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |

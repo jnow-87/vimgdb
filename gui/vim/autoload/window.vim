@@ -138,11 +138,11 @@ function vimgdb#window#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Window call s:window(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Window call s:window(<f-args>)
 	call vimgdb#util#execabbrev("window", "Window")
 
 	" autocmd for user-log
-	exec "autocmd! BufWinEnter " . g:vimgdb_userlog_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_userlog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
@@ -151,7 +151,7 @@ function vimgdb#window#init()
 		\ "
 
 	" autocmd for gdb-log
-	exec "autocmd! BufWinEnter " . g:vimgdb_gdblog_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_gdblog_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
@@ -187,7 +187,7 @@ function vimgdb#window#initial(name)
 
 	if s:init_bname == ""
 		" if current buffer is empty, create new one
-		exec "autocmd! BufWinLeave " . a:name . " silent call vimgdb#window#close(\"" . a:name . "\")"
+		exec "autocmd BufWinLeave " . a:name . " silent call vimgdb#window#close(\"" . a:name . "\")"
 
 		exec "edit " . a:name
 		setlocal bufhidden=delete
@@ -309,7 +309,7 @@ function vimgdb#window#view(name)
 	exec "edit " . a:name
 
 	" set autocmd for window close
-	exec "autocmd! BufWinLeave " . a:name " silent call vimgdb#window#close(\"" . a:name . "\")"
+	exec "autocmd BufWinLeave " . a:name " silent call vimgdb#window#close(\"" . a:name . "\")"
 
 	" wait for vimgdb to assign id to new buffer, otherwise the
 	" subsequent vimgdb#util#cmd() is not able to send the command
@@ -348,7 +348,9 @@ function vimgdb#window#close(name)
 		call vimgdb#window#focus(l:tgt_win)
 		quit
 
-		call vimgdb#window#focus(l:cur_win)
+		if l:cur_win != l:tgt_win
+			call vimgdb#window#focus(l:cur_win)
+		endif
 	endif
 endfunction
 

@@ -23,7 +23,7 @@ function vimgdb#evaluate#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Evaluate call s:evaluate(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Evaluate call s:evaluate(<f-args>)
 	call vimgdb#util#execabbrev("evaluate", "Evaluate")
 endfunction
 

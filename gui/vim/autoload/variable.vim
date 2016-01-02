@@ -41,11 +41,11 @@ function vimgdb#variable#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Variable call s:variable(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Variable call s:variable(<f-args>)
 	call vimgdb#util#execabbrev("variable", "Variable")
 
 	" autocmd for variables window
-	exec "autocmd! BufWinEnter " . g:vimgdb_variables_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_variables_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |

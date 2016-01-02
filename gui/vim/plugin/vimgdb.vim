@@ -209,4 +209,4 @@ call vimgdb#complete#init(s:cmd_dict)
 " command
 call vimgdb#util#execabbrev("vg", "Vimgdb")
 call vimgdb#util#execabbrev("vimgdb", "Vimgdb")
-command! -nargs=* -complete=custom,vimgdb#complete#lookup Vimgdb call s:vimgdb(<f-args>)
+command -nargs=* -complete=custom,vimgdb#complete#lookup Vimgdb call s:vimgdb(<f-args>)

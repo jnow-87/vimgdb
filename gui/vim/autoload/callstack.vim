@@ -35,11 +35,11 @@ function vimgdb#callstack#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Callstack call s:callstack(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Callstack call s:callstack(<f-args>)
 	call vimgdb#util#execabbrev("callstack", "Callstack")
 
 	" autocmd for callstack window
-	exec "autocmd! BufWinEnter " . g:vimgdb_callstack_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_callstack_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |

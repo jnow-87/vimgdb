@@ -23,11 +23,11 @@ function vimgdb#per#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Per call s:per(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Per call s:per(<f-args>)
 	call vimgdb#util#execabbrev("per", "Per")
 
 	" autocmd for per window
-	exec "autocmd! BufWinEnter " . g:vimgdb_per_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_per_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |

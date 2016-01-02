@@ -35,11 +35,11 @@ function vimgdb#register#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Register call s:register(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Register call s:register(<f-args>)
 	call vimgdb#util#execabbrev("register", "Register")
 
 	" autocmd for register window
-	exec "autocmd! BufWinEnter " . g:vimgdb_register_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_register_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |

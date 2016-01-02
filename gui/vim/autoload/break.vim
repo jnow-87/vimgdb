@@ -38,11 +38,11 @@ function vimgdb#break#init()
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
 
 	" command
-	command! -nargs=+ -complete=custom,vimgdb#complete#lookup Break call s:break(<f-args>)
+	command -nargs=+ -complete=custom,vimgdb#complete#lookup Break call s:break(<f-args>)
 	call vimgdb#util#execabbrev("break", "Break")
 
 	" autocmd for breakpoint window
-	exec "autocmd! BufWinEnter " . g:vimgdb_break_name . " silent
+	exec "autocmd BufWinEnter " . g:vimgdb_break_name . " silent
 		\ setlocal noswapfile |
 		\ setlocal noequalalways |
 		\ setlocal bufhidden=delete |
