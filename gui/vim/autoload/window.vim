@@ -26,6 +26,8 @@ let s:cmd_dict = {
 	\ }
 \ }
 
+let s:init_bname = ""
+
 
 """"""""""""""""""""
 " global functions "
