@@ -68,7 +68,8 @@ lib_types := lib hostlib
 bin_types := bin hostbin
 all_types := $(obj_types) $(lib_types) $(bin_types)
 
-all_tools := cc cxx as ld ar hostcc hostcxx hostas hostld hostar lex yacc gperf
+all_build_tools := cc cxx as ld ar hostcc hostcxx hostas hostld hostar lex yacc gperf
+all_user_tools := $(tool_deps)
 
 # init global variables for list of objects, libraries and executables
 $(foreach type,$(supported_types), \
@@ -142,23 +143,35 @@ sym_link := $(QUTIL)ln -s
 
 # fake target as default target
 .PHONY: all
-all: check_tools check_config
+all: check_user_tools check_build_tools check_config
 
-# check if all tools are available
-check_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
+# check if all build tools are available
+check_build_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
 
-tools :=
-$(foreach tool,$(all_tools), \
-	$(eval tools += $(call upper_case,$(tool))=$(subst @,,$($(tool)))) \
+build_tools :=
+$(foreach tool,$(all_build_tools), \
+	$(eval build_tools += $(call upper_case,$(tool))=$(subst @,,$($(tool)))) \
 )
 
-.PHONY: check_tools
-check_tools:
+.PHONY: check_build_tools
+check_build_tools:
 	@r=0; \
-	for tool in $(tools); do \
+	for tool in $(build_tools); do \
 		id=$$(echo $${tool} | cut -d '=' -f 1); \
 		val=$$(echo $${tool} | cut -d '=' -f 2); \
-		test -n "$$(which $${val})" || (echo $(check_tools_error); exit 1); \
+		test -n "$$(which $${val})" || (echo $(check_build_tools_error); exit 1); \
+		test $${?} -eq 1 && r=1; \
+	done; \
+	exit $${r}
+
+# check if all user tools are available
+check_user_tools_error := "$${tool} required for execution, not found, please make sure it is installed"
+
+.PHONY: check_user_tools
+check_user_tools:
+	@r=0; \
+	for tool in $(all_user_tools); do \
+		test -n "$$(which $${tool})" || (echo $(check_user_tools_error); exit 1); \
 		test $${?} -eq 1 && r=1; \
 	done; \
 	exit $${r}
@@ -199,7 +212,7 @@ $(config_header): $(config) $(config_tools)
 	$(confheader) $(config_ftype) $(dir $(config_header)) $(config_header) 
 
 .PHONY: menuconfig
-menuconfig: check_tools configtools
+menuconfig: check_build_tools configtools
 	$(mconfig) $(config_ftype)
 
 all: configtools check_configheader
@@ -287,7 +300,8 @@ help-buildsys:
 	$(printf) "         %25s\t%s\n" "menuconfig" "graphical configuration"
 	$(printf) "         %25s\t%s\n" "defconfig_*" "apply default configuration"
 	$(printf) "\n"
-	$(printf) "         %25s\t%s\n" "check_tools" "test if the variables defined in 'all_tools' define valid binaries"
+	$(printf) "         %25s\t%s\n" "check_build_tools" "test if the variables defined in 'all_tools' define valid binaries"
+	$(printf) "         %25s\t%s\n" "check_user_tools" "test if all externally required tools, define in 'tool_deps', are available"
 	$(printf) "         %25s\t%s\n" "check_config" "test if the config file defined in 'config' is accesable"
 
 

@@ -9,6 +9,7 @@ config_tree := $(scripts_dir)/config
 use_config_sys := y
 scripts_dir := scripts
 config_ftype := Pconfig
+tool_deps :=
 
 # include config
 -include $(config)
