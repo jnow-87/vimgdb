@@ -22,6 +22,10 @@ if !hlexists("vimgdb_mi_cmd")
 	highlight default vimgdb_mi_cmd ctermfg=27
 endif
 
+if !hlexists("vimgdb_mi_event")
+	highlight default vimgdb_mi_event ctermfg=124
+endif
+
 if !hlexists("vimgdb_navigation")
 	highlight default vimgdb_navigation ctermfg=56
 endif
