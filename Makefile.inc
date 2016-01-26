@@ -134,6 +134,7 @@ rm := $(QUTIL)rm -rf
 mkdir := $(QUTIL)mkdir -p
 touch := $(QUTIL)touch
 cp := $(QUTIL)cp
+grep := $(QUTIL)grep
 sym_link := $(QUTIL)ln -s
 
 
@@ -143,7 +144,7 @@ sym_link := $(QUTIL)ln -s
 
 # fake target as default target
 .PHONY: all
-all: check_user_tools check_build_tools check_config
+all: check_user_tools check_build_tools check_config dotclang
 
 # check if all build tools are available
 check_build_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
@@ -229,6 +230,11 @@ $(foreach cfg, $(config_files), \
 	$(call gen_rule_basic,cmd_defconfig,defconfig_$(cfg),$(config_tree)/$(cfg)) \
 )
 endif
+
+# update .clang file
+.PHONY: dotclang
+dotclang:
+	$(echo) $(cppflags) $(hostcppflags) | grep -o -e "-I[ \t]*[a-zA-Z0-9_/\.]*" > .clang
 
 # include dependency files
 include $(shell find $(build_tree)/ -name \*.d 2>/dev/null)
