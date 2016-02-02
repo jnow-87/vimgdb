@@ -4,10 +4,10 @@
 
 # init build system variables
 project_type := cxx
+scripts_dir := scripts
 config := ./config
 config_tree := $(scripts_dir)/config
 use_config_sys := y
-scripts_dir := scripts
 config_ftype := Pconfig
 tool_deps :=
 
