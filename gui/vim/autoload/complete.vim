@@ -64,7 +64,7 @@ function vimgdb#complete#lookup(arg, line, pos)
 				let l:subnest = l:dict["__nested1__"]
 
 				" get completion for current argument
-				exec "let l:str = " . l:dict["__nested__"] . "(\"" . a:arg . "\")"
+				exec "let l:str = " . l:dict["__nested__"] . "(\"" . l:argv[l:i] . "\")"
 
 				" generate intermediate dictionary containing all results for
 				" the current completion level as key and the subsequent nest,
