@@ -12,6 +12,7 @@ let s:cmd_dict = {
 		\ "export":{"__nested__":"vimgdb#complete#file"},
 		\ "help":{},
 		\ "__nested__":"vimgdb#complete#file",
+		\ "__nested1__":{"__nested__":"vimgdb#complete#file"},
 	\ }
 \ }
 
@@ -47,8 +48,14 @@ function s:vimgdb(first, ...)
 
 	else
 		if filereadable(a:first) && match(a:first, ".*\.vim") == 0
+			let g:argc = a:0
+			let g:argv = a:000
+
 			" source vim script
 			exec "source " . a:first
+
+			unlet g:argc
+			unlet g:argv
 		else
 			call s:init()
 

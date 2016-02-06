@@ -1,5 +1,8 @@
 let vimgdb_gdb_cmd = 'gdb -q'
 
+echom "argc: " . argc
+echom "argv: " . string(argv)
+
 Vimgdb start
 
 Inferior /home/jan/dev/vimgdb/build/release/testing/main
