@@ -115,22 +115,23 @@ function s:init()
 		"	   whereat vimgdb will not issue a response when receiving
 		"	   'init-done'
 		exec "nbkey init-done"
-	
-		call vimgdb#window#open(g:vimgdb_userlog_name, 0)
-		call vimgdb#window#open(g:vimgdb_gdblog_name, 0)
-		call vimgdb#window#open(g:vimgdb_callstack_name, 0)
-		call vimgdb#window#open(g:vimgdb_memory_name, 0)
-		call vimgdb#window#open(g:vimgdb_break_name, 0)
-		call vimgdb#window#open(g:vimgdb_variables_name, 0)
-		call vimgdb#window#open(g:vimgdb_inferior_name, 0)
-		call vimgdb#window#open(g:vimgdb_register_name, 0)
-		call vimgdb#window#open(g:vimgdb_per_name, 0)
-	
-		call vimgdb#window#focus(1)
 	catch
 		echom "error initialising vimgdb, performing cleanup"
 		call s:cleanup()
 	endtry
+
+	" initialise windows
+	call vimgdb#window#open(g:vimgdb_userlog_name, 0)
+	call vimgdb#window#open(g:vimgdb_gdblog_name, 0)
+	call vimgdb#window#open(g:vimgdb_callstack_name, 0)
+	call vimgdb#window#open(g:vimgdb_memory_name, 0)
+	call vimgdb#window#open(g:vimgdb_break_name, 0)
+	call vimgdb#window#open(g:vimgdb_variables_name, 0)
+	call vimgdb#window#open(g:vimgdb_inferior_name, 0)
+	call vimgdb#window#open(g:vimgdb_register_name, 0)
+	call vimgdb#window#open(g:vimgdb_per_name, 0)
+
+	call vimgdb#window#focus(1)
 endfunction
 
 " \brief	cleanup vimgdb plugin
