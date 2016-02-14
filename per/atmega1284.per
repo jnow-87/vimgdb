@@ -77,13 +77,8 @@ range 0x20 175{
 			bits "C"	0	1
 		}
 
-		register "SPL"		"Stack Pointer Low"									61	1{
-			bits "VALUEL"	0	8
-		}
-
-		register "SPH"		"Stack Pointer High"								62	1{
-			bits "VALUEH"	0	8
-		}
+		register "SP"		"Stack Pointer"										61	2 swap {}
+		emptyline
 
 		register "SMCR"	"Sleep Mode Control Register"							51	1{
 			bits "SM"		1	3
@@ -126,7 +121,7 @@ range 0x20 175{
 		heading "PORT - Data Register"
 		register "PORTA"	""		2	1{}
 		register "PORTB"	""		5	1{}
-		register "PROTC"	""		8	1{}
+		register "PORTC"	""		8	1{}
 		register "PORTD"	""		11	1{}
 		emptyline
 
@@ -486,29 +481,14 @@ range 0x20 175{
 			bits "CNTH"		0	8
 		}
 
-		register "ICR1L"	"Timer/Counter Input Capture Register Low"		102	1{
-			bits "VALUEL"	0	8
-		}
+		register "ICR1"		"Timer/Counter Input Capture Register"			102	2 swap {}
+		emptyline
 
-		register "ICR1H"	"Timer/Counter Input Capture Register High"		103	1{
-			bits "VALUEH"	0	8
-		}
+		register "OCR1A"	"Output Compare Register A"						104	2 swap {}
+		emptyline
 
-		register "OCR1AL"	"Output Compare Register A Low"					104	1{
-			bits "VALUEL"	0	8
-		}
-
-		register "OCR1AH"	"Output Compare Register A High"				105	1{
-			bits "VALUEH"	0	8
-		}
-
-		register "OCR1BL"	"Output Compare Register B Low"					106	1{
-			bits "VALUEL"	0	8
-		}
-
-		register "OCR1BH"	"Output Compare Register B High"				107	1{
-			bits "VALUEH"	0	8
-		}
+		register "OCR1B"	"Output Compare Register B"						106	2 swap {}
+		emptyline
 
 		register "TIMSK1"	"Timer/Counter Interrupt Mask Register"	79	1{
 			bits "ICIE1"	5	1
@@ -612,29 +592,14 @@ range 0x20 175{
 			bits "CNTH"		0	8
 		}
 
-		register "ICR3L"	"Timer/Counter Input Capture Register Low"		118	1{
-			bits "VALUEL"	0	8
-		}
+		register "ICR3"		"Timer/Counter Input Capture Register"			118	2 swap {}
+		emptyline
 
-		register "ICR3H"	"Timer/Counter Input Capture Register High"		119	1{
-			bits "VALUEH"	0	8
-		}
+		register "OCR3A"	"Output Compare Register A"						120	2 swap {}
+		emptyline
 
-		register "OCR3AL"	"Output Compare Register A Low"					120	1{
-			bits "VALUEL"	0	8
-		}
-
-		register "OCR3AH"	"Output Compare Register A High"				121	1{
-			bits "VALUEH"	0	8
-		}
-
-		register "OCR3BL"	"Output Compare Register B Low"					122	1{
-			bits "VALUEL"	0	8
-		}
-
-		register "OCR3BH"	"Output Compare Register B High"				123	1{
-			bits "VALUEH"	0	8
-		}
+		register "OCR3B"	"Output Compare Register B"						122	2 swap {}
+		emptyline
 
 		register "TIMSK3"	"Timer/Counter Interrupt Mask Register"	81	1{
 			bits "ICIE3"	5	1
