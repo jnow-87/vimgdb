@@ -98,7 +98,7 @@ function s:init()
 		if g:vimgdb_use_xterm
 			exec "silent !xterm -geometry 130x20+0+0 -e '" . g:vimgdb_bin . " -l /dev/null -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . "' &"
 		else
-			exec "silent !" . g:vimgdb_bin . " -d -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . ""
+			exec "silent !" . g:vimgdb_bin . " -d -l /tmp/vimgdb.log -c \"" . g:vimgdb_gdb_cmd . "\" " . getcwd() . ""
 		endif
 	
 		" start netbeans
