@@ -104,12 +104,15 @@ int vimui::init(){
 
 err_3:
 	delete nbclient;
+	nbclient = 0;
 
 err_2:
 	delete nbserver;
+	nbserver = 0;
 
 err_1:
 	delete [] ostr;
+	ostr = 0;
 
 err_0:
 	return -1;
