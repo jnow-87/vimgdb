@@ -20,7 +20,7 @@ using namespace std;
 
 /* macros */
 #define CTOI(c) (unsigned int)((c) - ((c) >= 'a' ? 87 : 48))
-#define ALIGN(val, base) ((val) & (~(base - 1)))
+#define ALIGN(val, base) ((val) & (~((decltype(val))base - 1)))
 #define PWR2(val) ({ \
 	int li; \
 	float lf; \
