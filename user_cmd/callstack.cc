@@ -343,7 +343,7 @@ int cmd_callstack_print(){
 	ui->win_atomic(win_id, true);
 	
 	ui->win_clear(win_id);
-	ui->win_print(win_id, obuf.data());
+	ui->win_print(win_id, "%s", obuf.data());
 
 	ui->win_atomic(win_id, false);
 
