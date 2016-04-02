@@ -224,7 +224,7 @@ int cmd_callstack_update(){
 		return 0;
 
 	/* reset callstack */
-	callstack = 0
+	callstack = 0;
 
 	/* get callstack frames */
 	if(gdb->mi_issue_cmd("stack-list-frames", (gdb_result_t**)&framelst, "") != 0)
