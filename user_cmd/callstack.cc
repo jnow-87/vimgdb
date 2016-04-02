@@ -140,7 +140,7 @@ void cmd_callstack_cleanup(){
 	/* delete existing callstack */
 	list_for_each(callstack, frame){
 		list_rm(&callstack, frame);
-		delete frame;
+		gdb_frame_t::release(frame);
 	}
 }
 
@@ -211,8 +211,10 @@ void cmd_callstack_help(int argc, char** argv){
 
 int cmd_callstack_update(){
 	int win_id;
-	gdb_frame_t *frame;
-	gdb_variable_t *vartmp, *var, *varlst;
+	gdb_frame_t *frame,
+				*tframe,
+				*framelst;
+	gdb_variable_t *tvar, *var, *varlst;
 	string ctx;
 
 
@@ -221,24 +223,21 @@ int cmd_callstack_update(){
 	if(win_id < 0)
 		return 0;
 
-	/* delete existing callstack */
-	list_for_each(callstack, frame){
-		list_rm(&callstack, frame);
-		delete frame;
-	}
+	/* reset callstack */
+	callstack = 0
 
 	/* get callstack frames */
-	if(gdb->mi_issue_cmd("stack-list-frames", (gdb_result_t**)&callstack, "") != 0)
+	if(gdb->mi_issue_cmd("stack-list-frames", (gdb_result_t**)&framelst, "") != 0)
 		return -1;
 
 	/* add arguments and locals to each level of the callstack */
-	list_for_each(callstack, frame){
+	list_for_each(framelst, tframe){
 		// get list of arguments and locals for current frame
-		if(gdb->mi_issue_cmd("stack-list-variables", (gdb_result_t**)&varlst, "--thread %u --frame %u 2", gdb->threadid(), frame->level) != 0)
+		if(gdb->mi_issue_cmd("stack-list-variables", (gdb_result_t**)&varlst, "--thread %u --frame %u 2", gdb->threadid(), tframe->level) != 0)
 			return -1;
 
-		// parse argument and locals names and update context string (context = '<function-name>:{<type><name>,}')
-		ctx += frame->function;
+		// generate context string (context = '<function-name>:{<type><name>,}')
+		ctx += tframe->function;
 		ctx += ":";
 
 		list_for_each(varlst, var){
@@ -248,9 +247,21 @@ int cmd_callstack_update(){
 			}
 		}
 
-		// update frame
-		list_for_each(varlst, vartmp){
-			var = gdb_variable_t::acquire(vartmp->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
+		// get frame and update callstack
+		frame = gdb_frame_t::acquire(tframe->function, (char*)ctx.c_str(), tframe);
+
+		list_add_tail(&callstack, frame);
+
+		if(frame != tframe){
+			list_rm(&framelst, tframe);
+			gdb_frame_t::release(tframe);
+
+			continue;
+		}
+
+		// update frame locals and arguments
+		list_for_each(varlst, tvar){
+			var = gdb_variable_t::acquire(tvar->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
 	
 			if(var == 0)
 				return -1;
@@ -260,14 +271,14 @@ int cmd_callstack_update(){
 			if(var->refcnt == 1)
 				var->refcnt++;
 
-			var->argument = vartmp->argument;
+			var->argument = tvar->argument;
 
 			if(var->argument)	frame->args.push_back(var);
 			else				frame->locals.push_back(var);
 
-			list_rm(&varlst, vartmp);
+			list_rm(&varlst, tvar);
 			
-			if(gdb_variable_t::release(vartmp) != 0)
+			if(gdb_variable_t::release(tvar) != 0)
 				return -1;
 		}
 	}
@@ -323,11 +334,6 @@ int cmd_callstack_print(){
 
 		obuf.add(")\n");
 		line++;
-
-		if(frame->expanded){
-			obuf.add("\n");
-			line++;
-		}
 
 		// print locals
 		for(it=frame->locals.begin(); it!=frame->locals.end(); it++)

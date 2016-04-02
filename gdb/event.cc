@@ -16,6 +16,6 @@ gdb_event_stop_t::gdb_event_stop_t(){
 }
 
 gdb_event_stop_t::~gdb_event_stop_t(){
-	delete frame;
+	gdb_frame_t::release(frame);
 	delete [] signal;
 }

@@ -371,7 +371,7 @@ callstack-body :			%empty															{ $$ = 0; }
 				;
 
 frame :						VAR_FRAME '=' '{' frame-body '}'								{ $$ = $4; };
-frame-body :				%empty															{ $$ = new gdb_frame_t; }
+frame-body :				%empty															{ $$ = gdb_frame_t::acquire(); }
 		   |				frame-body con-com VAR_ADDRESS '=' string-llnum-hex				{ $$ = $1; $$->addr = (void*)$5; }
 		   |				frame-body con-com VAR_LINE '=' string-num						{ $$ = $1; $$->line = $5; }
 		   |				frame-body con-com VAR_LEVEL '=' string-num						{ $$ = $1; $$->level = $5; }
