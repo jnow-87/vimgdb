@@ -77,7 +77,7 @@ private:
 	/* data */
 	// vim
 	char* cwd;
-	bool volatile cursor_update;
+	bool volatile in_atomic;
 	pthread_mutex_t buf_mtx;
 	map<string, buffer_t*> bufname_map;
 	map<int, buffer_t*> bufid_map;

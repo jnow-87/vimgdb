@@ -24,7 +24,7 @@ vimui::vimui(){
 	nbclient = 0;
 	ostr = 0;
 	cwd = opt.vim_cwd;
-	cursor_update = true;
+	in_atomic = false;
 
 	seq_num = 1;
 	reply = 0;
@@ -560,7 +560,7 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 		action(CMD, "setReadOnly", win, 0, "T");
 
 	/* update cursor */
-	if(cursor_update)
+	if(!in_atomic)
 		action(CMD, "setDot", win, 0, "%d", buf->len - 1);
 
 	atomic(win, false, false);
@@ -640,7 +640,6 @@ int vimui::proc_event(int buf_id, vim_event_t* e){
 }
 
 int vimui::atomic(int win, bool en, bool apply){
-	static bool volatile in_atomic = false;
 	static volatile vim_cursor_t* volatile cursor = 0;
 	buffer_t* buf;
 
@@ -662,11 +661,8 @@ int vimui::atomic(int win, bool en, bool apply){
 		if(action(FCT, "getCursor", 0, (vim_reply_t**)&cursor, "") != 0)
 			goto err;
 
-		if(apply){
+		if(apply)
 			in_atomic = true;
-			cursor_update = false;	// avoid cursor updates within atomic
-									// since this breaks netbeans atomicity
-		}
 
 		buf = MAP_LOOKUP(bufid_map, win);
 
@@ -701,10 +697,8 @@ int vimui::atomic(int win, bool en, bool apply){
 		if(action(CMD, "endAtomic", 0, 0, "") != 0)
 			goto err;
 
-		if(apply){
+		if(apply)
 			in_atomic = false;
-			cursor_update = true;
-		}
 
 		/* force response from vim, causing it to complete outstanding commands */
 		action(FCT, "getCursor", 0, (vim_reply_t**)&cursor, "");
