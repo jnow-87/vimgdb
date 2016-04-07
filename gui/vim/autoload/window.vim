@@ -23,6 +23,7 @@ let s:cmd_dict = {
 		\ "view":{"__nested__":"vimgdb#window#complete"},
 		\ "open":{"__nested__":"vimgdb#window#complete"},
 		\ "close":{"__nested__":"vimgdb#window#complete"},
+		\ "focus":{"__nested__":"vimgdb#window#complete"},
 	\ }
 \ }
 
@@ -134,7 +135,8 @@ function vimgdb#window#init()
 		\ . g:vimgdb_callstack_name . "\n"
 		\ . g:vimgdb_register_name . "\n"
 		\ . g:vimgdb_memory_name . "\n"
-		\ . g:vimgdb_per_name
+		\ . g:vimgdb_per_name . "\n"
+		\ . "source"
 		\ . "\""
 
 	call vimgdb#complete#expand(s:cmd_dict, s:cmd_dict, s:cmd_dict)
@@ -406,5 +408,24 @@ function s:window(cmd, name)
 	
 	elseif a:cmd == "close"
 		call vimgdb#window#close(a:name)
+
+	elseif a:cmd == "focus"
+		if a:name == "source"
+			let tab_bufs = tabpagebuflist()
+
+			" look for the first buffer in the current tab that contains a
+			" file suffix (indicated by '.')
+			let i = 1
+			for bnum in tab_bufs
+				if stridx(bufname(bnum), ".") != -1
+					call vimgdb#window#focus(i)
+					break
+				endif
+
+				let i += 1
+			endfor
+		else
+			call vimgdb#window#focus(bufwinnr(a:name))
+		endif
 	endif
 endfunction
