@@ -701,6 +701,9 @@ int vimui::atomic(int win, bool en, bool apply){
 			in_atomic = false;
 
 		/* force response from vim, causing it to complete outstanding commands */
+		delete cursor;
+		cursor = 0;
+
 		action(FCT, "getCursor", 0, (vim_reply_t**)&cursor, "");
 	}
 
