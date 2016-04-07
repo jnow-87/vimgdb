@@ -705,6 +705,9 @@ int vimui::atomic(int win, bool en, bool apply){
 			in_atomic = false;
 			cursor_update = true;
 		}
+
+		/* force response from vim, causing it to complete outstanding commands */
+		action(FCT, "getCursor", 0, (vim_reply_t**)&cursor, "");
 	}
 
 	pthread_mutex_unlock(&ui_mtx);
