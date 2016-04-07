@@ -131,7 +131,7 @@ function s:init()
 	call vimgdb#window#open(g:vimgdb_register_name, 0)
 	call vimgdb#window#open(g:vimgdb_per_name, 0)
 
-	call vimgdb#window#focus(1)
+	Window focus source
 endfunction
 
 " \brief	cleanup vimgdb plugin

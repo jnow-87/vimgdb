@@ -268,7 +268,7 @@ function vimgdb#window#open(name, force_open)
 		else
 			" focus the first window, which is assumed to contain the source
 			" code buffers
-			call vimgdb#window#focus(1)
+			Window focus source
 			let s:win_lst_hor[bufnr("%")] = 1
 			let l:relative = bufnr("%")
 		endif
@@ -374,7 +374,7 @@ function vimgdb#window#open_src(line)
 		let l:line = split(l:lst[0], ':')[1]
 
 		" focus first window, which is assumed to be the source window
-		call vimgdb#window#focus(1)
+		Window focus source
 
 		if bufwinnr(l:file) != 1
 			" open file

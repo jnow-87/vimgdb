@@ -80,7 +80,7 @@ endfunction
 function s:exec(cmd, ...)
 	" focus first window, which is assumed to contain the source code buffers
 	" avoiding messing up the window contents
-	call vimgdb#window#focus(1)
+	Window focus source
 
 	if a:cmd == "run"
 		call vimgdb#inferior#update_sym()
