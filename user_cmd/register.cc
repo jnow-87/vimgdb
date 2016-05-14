@@ -25,7 +25,7 @@ static map<unsigned int, gdb_variable_t*> line_map;
 int cmd_register_init(){
 	static bool initialised = false;
 	gdb_strlist_t *names, *name;
-	gdb_variable_t* var;
+	gdb_variable_t *var;
 
 
 	if(initialised)
@@ -67,10 +67,10 @@ err:
 	return -1;
 }
 
-int cmd_register_exec(int argc, char** argv){
-	gdb_variable_t* var;
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
+int cmd_register_exec(int argc, char **argv){
+	gdb_variable_t *var;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
 	map<unsigned int, gdb_variable_t*>::iterator it;
 
 
@@ -164,9 +164,9 @@ void cmd_register_cleanup(){
 	line_map.clear();
 }
 
-void cmd_register_help(int argc, char** argv){
+void cmd_register_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);

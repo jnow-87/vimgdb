@@ -97,7 +97,7 @@ void cursesui::destroy(){
  * \return	!= 0	pointer to line
  * 			0		error
  */
-char* cursesui::readline(){
+char *cursesui::readline(){
 	char c;
 	unsigned int i;
 
@@ -153,7 +153,7 @@ int cursesui::win_atomic(int win, bool en){
  * \return	>=0			window id
  * 			<0			error
  */
-int cursesui::win_create(const char* name, bool oneline, unsigned int height){
+int cursesui::win_create(const char *name, bool oneline, unsigned int height){
 	int i, id;
 
 
@@ -217,15 +217,15 @@ int cursesui::win_destroy(int win_id){
 	return 0;
 }
 
-int cursesui::win_getid(const char* name){
+int cursesui::win_getid(const char *name){
 	return win_create(name);
 }
 
-int cursesui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
+int cursesui::win_anno_add(int win, int line, const char *sign, const char *color_fg, const char *color_bg){
 	return -1;
 }
 
-int cursesui::win_anno_delete(int win, int line, const char* sign){
+int cursesui::win_anno_delete(int win, int line, const char *sign){
 	return -1;
 }
 
@@ -241,7 +241,7 @@ int cursesui::win_readonly(int win, bool ro){
 	return -1;
 }
 
-void cursesui::win_print(int win_id, const char* fmt, ...){
+void cursesui::win_print(int win_id, const char *fmt, ...){
 	va_list lst;
 
 
@@ -250,7 +250,7 @@ void cursesui::win_print(int win_id, const char* fmt, ...){
 	va_end(lst);
 }
 
-void cursesui::win_vprint(int win_id, const char* fmt, va_list lst){
+void cursesui::win_vprint(int win_id, const char *fmt, va_list lst){
 	pthread_mutex_lock(&mutex);
 
 	vwprintw(windows[win_id]->win, fmt, lst);

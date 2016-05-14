@@ -47,12 +47,12 @@ gdb_frame_t::~gdb_frame_t(){
 	}
 }
 
-gdb_frame_t* gdb_frame_t::acquire(){
+gdb_frame_t *gdb_frame_t::acquire(){
 	return new gdb_frame_t;
 }
 
-gdb_frame_t* gdb_frame_t::acquire(char* name, char* context, gdb_frame_t* src){
-	gdb_frame_t* frame;
+gdb_frame_t *gdb_frame_t::acquire(char *name, char *context, gdb_frame_t *src){
+	gdb_frame_t *frame;
 	string key;
 
 
@@ -73,6 +73,6 @@ gdb_frame_t* gdb_frame_t::acquire(char* name, char* context, gdb_frame_t* src){
 	return src;
 }
 
-void gdb_frame_t::release(gdb_frame_t* f){
+void gdb_frame_t::release(gdb_frame_t *f){
 	delete f;
 }

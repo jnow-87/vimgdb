@@ -52,11 +52,11 @@ ui,			cmd_ui_exec,		0,						cmd_ui_help,		"control user interface parameter"
  * \return	0			sucess
  * 			-1			error
  */
-int cmd_exec(char* line){
+int cmd_exec(char *line){
 	int i;
 	int argc, r;
-	char** argv;
-	FILE* sync;
+	char **argv;
+	FILE *sync;
 
 
 	if(strsplit(strdeescape(line), &argc, &argv) != 0){

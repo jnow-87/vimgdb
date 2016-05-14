@@ -2,7 +2,7 @@
 #include <user_cmd/pertypes.h>
 
 
-per_bits_t::per_bits_t(char* name, unsigned int idx, unsigned int nbits){
+per_bits_t::per_bits_t(char *name, unsigned int idx, unsigned int nbits){
 	unsigned int i;
 
 
@@ -20,7 +20,7 @@ per_bits_t::~per_bits_t(){
 	delete [] name;
 }
 
-per_register_t::per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t* bits){
+per_register_t::per_register_t(char *name, char *desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t *bits){
 	this->name = name;
 	this->desc = desc;
 	this->offset = offset;
@@ -31,7 +31,7 @@ per_register_t::per_register_t(char* name, char* desc, unsigned int offset, unsi
 }
 
 per_register_t::~per_register_t(){
-	per_bits_t* b;
+	per_bits_t *b;
 
 
 	delete [] name;
@@ -43,14 +43,14 @@ per_register_t::~per_register_t(){
 	}
 }
 
-per_section_t::per_section_t(char* name, per_register_t* regs){
+per_section_t::per_section_t(char *name, per_register_t *regs){
 	this->name = name;
 	this->regs = regs;
 	this->expanded = false;
 }
 
 per_section_t::~per_section_t(){
-	per_register_t* reg;
+	per_register_t *reg;
 
 
 	delete [] name;
@@ -61,7 +61,7 @@ per_section_t::~per_section_t(){
 	}
 }
 
-per_range_t::per_range_t(void* base, unsigned int size, per_section_t* sections){
+per_range_t::per_range_t(void *base, unsigned int size, per_section_t *sections){
 	this->base = base;
 	this->size = size;
 	this->sections = sections;
@@ -69,7 +69,7 @@ per_range_t::per_range_t(void* base, unsigned int size, per_section_t* sections)
 }
 
 per_range_t::~per_range_t(){
-	per_section_t* sec;
+	per_section_t *sec;
 
 
 	delete mem;

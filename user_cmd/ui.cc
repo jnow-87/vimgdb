@@ -7,7 +7,7 @@
 #include <string.h>
 
 
-int cmd_ui_exec(int argc, char** argv){
+int cmd_ui_exec(int argc, char **argv){
 	if(argc < 4){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_ui_help(1, argv);
@@ -28,7 +28,7 @@ int cmd_ui_exec(int argc, char** argv){
 	return 0;
 }
 
-void cmd_ui_help(int argc, char** argv){
+void cmd_ui_help(int argc, char **argv){
 	ui->win_atomic(0, true);
 
 	USER("usage: %s <buffer> <param> <value>\n", argv[0]);

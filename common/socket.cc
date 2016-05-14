@@ -33,7 +33,7 @@ socket::socket(){
  * \param	port	port-number
  * \param	addr	targets ip
  */
-socket::socket(int port, const char* addr) : socket(){
+socket::socket(int port, const char *addr) : socket(){
 	fd_sock = -1;
 	timeout = 0;
 
@@ -135,11 +135,11 @@ int socket::init_server(socket_t type){
  *
  * \return		new socket to remote host
  */
-class socket* socket::await_client(){
+class socket *socket::await_client(){
 	int fd_client_sock;
 	socklen_t size;
 	sockaddr_in saddr_in;
-	socket* client;
+	socket *client;
 
 
 	size = sizeof(sockaddr_in);
@@ -162,7 +162,7 @@ class socket* socket::await_client(){
  * \param	size	size of data-buffer
  * \return			number of bytes received, or -1 on error, 0 when peer has performed an orderly shutdown.
  */
-int socket::recv(void* data, int size){
+int socket::recv(void *data, int size){
 	socklen_t saddr_size;
 
 	return recvfrom(fd_sock, data, size, 0, (sockaddr*)saddr, &saddr_size);
@@ -175,7 +175,7 @@ int socket::recv(void* data, int size){
  * \param	size	size of data-buffer
  * 	\return			number of bytes send on succes,  -1 on error
  */
-int socket::send(void* data, int size){
+int socket::send(void *data, int size){
 	if(sbuf_idx + size >= sbuf_len){
 		sbuf_len += size + 256;
 		sbuf = (char*)realloc(sbuf, sbuf_len);
@@ -192,7 +192,7 @@ int socket::send(void* data, int size){
 	return size;
 }
 
-int socket::send(char* s){
+int socket::send(char *s){
 	if(s == 0)
 		return 0;
 
@@ -234,7 +234,7 @@ int socket::set_bcast(int value){
  * \param	ip		ip
  * \return			0 on success, -1 on error
  */
-int socket::set_ip(const char* ip){
+int socket::set_ip(const char *ip){
 	if(ip == 0)
 		return -1;
 
@@ -249,7 +249,7 @@ int socket::set_ip(const char* ip){
  * \return		if zero is given as argument, return a pointer to string containing the ip (statically alloced mem)
  * 				if non zero argument is given, return ip
  */
-char* socket::get_ip(char* ip){
+char *socket::get_ip(char *ip){
 	if(ip != 0){
 		strcpy(ip, inet_ntoa(((sockaddr_in*)saddr)->sin_addr));
 		return ip;

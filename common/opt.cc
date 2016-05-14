@@ -9,9 +9,9 @@
 opt_t opt;
 
 
-int opt_parse(int argc, char** argv){
+int opt_parse(int argc, char **argv){
 	int i, gdb_argc;
-	char** gdb_argv;
+	char **gdb_argv;
 
 
 	if(argc < 2){

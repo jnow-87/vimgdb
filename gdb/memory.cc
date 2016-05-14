@@ -37,12 +37,12 @@ gdb_memory_t::~gdb_memory_t(){
 	delete [] content_old;
 }
 
-gdb_memory_t* gdb_memory_t::acquire(){
+gdb_memory_t *gdb_memory_t::acquire(){
 	return new gdb_memory_t;
 }
 
-gdb_memory_t* gdb_memory_t::acquire(void* addr, unsigned int length){
-	gdb_memory_t* m;
+gdb_memory_t *gdb_memory_t::acquire(void *addr, unsigned int length){
+	gdb_memory_t *m;
 
 
 	if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&m, "0x%lx %u", addr, length) != 0)
@@ -50,8 +50,8 @@ gdb_memory_t* gdb_memory_t::acquire(void* addr, unsigned int length){
 	return m;
 }
 
-gdb_memory_t* gdb_memory_t::acquire(char* addr, unsigned int length){
-	gdb_memory_t* m;
+gdb_memory_t *gdb_memory_t::acquire(char *addr, unsigned int length){
+	gdb_memory_t *m;
 
 
 	if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&m, "%s %u", addr, length) != 0)
@@ -59,8 +59,8 @@ gdb_memory_t* gdb_memory_t::acquire(char* addr, unsigned int length){
 	return m;
 }
 
-int gdb_memory_t::set(void* addr, char* value, unsigned int cnt){
-	char* p;
+int gdb_memory_t::set(void *addr, char *value, unsigned int cnt){
+	char *p;
 	int r;
 	unsigned int len;
 
@@ -106,7 +106,7 @@ int gdb_memory_t::set(void* addr, char* value, unsigned int cnt){
 }
 
 int gdb_memory_t::update(){
-	gdb_memory_t* m;
+	gdb_memory_t *m;
 
 
 	if(gdb->mi_issue_cmd("data-read-memory-bytes", (gdb_result_t**)&m, "%s %u", begin, length) != 0)

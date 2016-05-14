@@ -16,7 +16,7 @@ extern opt_t opt;
 
 
 /* prototypes */
-int opt_parse(int argc, char** argv);
+int opt_parse(int argc, char **argv);
 
 
 #endif // OPT_H

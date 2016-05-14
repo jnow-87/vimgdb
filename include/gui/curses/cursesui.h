@@ -11,7 +11,7 @@
 
 struct window_t{
 	WINDOW *win, *frame;
-	char* title;
+	char *title;
 	bool oneline;
 	unsigned int height;
 };
@@ -27,23 +27,23 @@ public:
 	void destroy();
 
 	/* user input */
-	char* readline();
+	char *readline();
 
 	/* window functions */
 	int win_atomic(int win, bool en);
-	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
-	int win_getid(const char* name);
+	int win_create(const char *name, bool oneline = false, unsigned int height = 0);
+	int win_getid(const char *name);
 	int win_destroy(int win_id);
 
-	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
-	int win_anno_delete(int win, int line, const char* sign);
+	int win_anno_add(int win, int line, const char *sign, const char *color_fg, const char *color_bg);
+	int win_anno_delete(int win, int line, const char *sign);
 
 	int win_cursor_set(int win, int line, int col);
 	int win_cursor_preserve(int win, bool pc);
 	int win_readonly(int win, bool ro);
 
-	void win_print(int win_id, const char* fmt, ...);
-	void win_vprint(int win_id, const char* fmt, va_list lst);
+	void win_print(int win_id, const char *fmt, ...);
+	void win_vprint(int win_id, const char *fmt, va_list lst);
 	void win_clear(int win_id);
 	void win_clrline(int win_id);
 
@@ -54,13 +54,13 @@ private:
 	int max_win,
 		nwin;
 
-	window_t** windows;
+	window_t **windows;
 
 	/* user input */
-	char* line;
+	char *line;
 	unsigned int line_len;
 	int user_win_id;
-	tty* term;
+	tty *term;
 
 	/* threading */
 	pthread_mutex_t mutex;

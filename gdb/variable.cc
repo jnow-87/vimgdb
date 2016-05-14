@@ -71,11 +71,11 @@ gdb_variable_t::~gdb_variable_t(){
 	erase_childs();
 }
 
-gdb_variable_t* gdb_variable_t::acquire(){
+gdb_variable_t *gdb_variable_t::acquire(){
 	return new gdb_variable_t;
 }
 
-gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* context, unsigned int frame){
+gdb_variable_t *gdb_variable_t::acquire(char *expr, gdb_origin_t origin, char *context, unsigned int frame){
 	gdb_variable_t *var, *v;
 	string key;
 
@@ -153,7 +153,7 @@ gdb_variable_t* gdb_variable_t::acquire(char* expr, gdb_origin_t origin, char* c
 	return 0;
 }
 
-int gdb_variable_t::release(gdb_variable_t* v){
+int gdb_variable_t::release(gdb_variable_t *v){
 	if(--v->refcnt == 0){
 		if(v->name && MAP_LOOKUP(gdb_var_lst, v->name) != 0){
 			if(gdb->mi_issue_cmd("var-delete", 0, "\"%s\"", v->name) != 0){
@@ -218,7 +218,7 @@ err:
 	return -1;
 }
 
-int gdb_variable_t::set(int argc, char** argv){
+int gdb_variable_t::set(int argc, char **argv){
 	if(gdb->mi_issue_cmd("var-assign", 0, "\"%s\" \"%ss %d\"", name, argv, argc) != 0)
 		return -1;
 		
@@ -226,7 +226,7 @@ int gdb_variable_t::set(int argc, char** argv){
 	return 0;
 }
 
-int gdb_variable_t::format(const char* fmt){
+int gdb_variable_t::format(const char *fmt){
 	if(gdb->mi_issue_cmd("var-set-format",  0, "\"%s\" %s", name, fmt) != 0)
 		return -1;
 
@@ -235,7 +235,7 @@ int gdb_variable_t::format(const char* fmt){
 }
 
 int gdb_variable_t::update(){
-	gdb_strlist_t* s;
+	gdb_strlist_t *s;
 
 
 	if(modified && inscope == 't'){
@@ -252,7 +252,7 @@ int gdb_variable_t::update(){
 	return 0;
 }
 
-int gdb_variable_t::print(dynarray* obuf, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent){
+int gdb_variable_t::print(dynarray *obuf, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent){
 	if(!expand){
 		if(update() != 0)
 			return -1;
@@ -300,7 +300,7 @@ void gdb_variable_t::erase_childs(){
 	}
 }
 
-int gdb_variable_t::print(dynarray* obuf, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map){
+int gdb_variable_t::print(dynarray *obuf, int rec_lvl, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map){
 	char rec_s[rec_lvl + 1];
 	list<gdb_variable_t*>::iterator it;
 

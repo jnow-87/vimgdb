@@ -12,21 +12,21 @@ enum socket_t{
 /* class */
 class socket{
 public:
-	socket(int port, const char* addr);
+	socket(int port, const char *addr);
 	~socket();
 
 	int init_client(socket_t type);
 	int init_server(socket_t type);
-	socket* await_client();
+	socket *await_client();
 
-	int recv(void* data, int size);
-	int send(void* data, int size);
-	int send(char* s);
+	int recv(void *data, int size);
+	int send(void *data, int size);
+	int send(char *s);
 
 	int set_timeout(int sec);
 	int set_bcast(int value);
-	int set_ip(const char* ip);
-	char* get_ip(char* ip = 0);
+	int set_ip(const char *ip);
+	char *get_ip(char *ip = 0);
 	int get_timeout();
 
 private:
@@ -34,10 +34,10 @@ private:
 	socket();
 
 	int fd_sock, timeout;
-	void* saddr;	// is of type sockaddr_in* but has to be void*
+	void *saddr;	// is of type sockaddr_in *but has to be void*
 					// to avoid inclusion of arpa/inet.h to avoid
 					// name collision with socket()
-	char* sbuf;
+	char *sbuf;
 	unsigned int sbuf_len, sbuf_idx;
 };
 

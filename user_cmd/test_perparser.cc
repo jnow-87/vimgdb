@@ -12,12 +12,12 @@
 
 
 /* global functions */
-int main(int argc, char** argv){
-	FILE* fp;
+int main(int argc, char **argv){
+	FILE *fp;
 	per_section_t *sec;
 	per_range_t *rlst, *range;
-	per_register_t* reg;
-	per_bits_t* bits;
+	per_register_t *reg;
+	per_bits_t *bits;
 
 
 	/* init */

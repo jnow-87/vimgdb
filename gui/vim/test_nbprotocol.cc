@@ -18,23 +18,23 @@ typedef enum{
 } vim_action_t;
 
 /* static prototypes */
-static void* thread_server(void* arg);
-static int vim_action(vim_action_t action, int argc, char** argv);
+static void *thread_server(void *arg);
+static int vim_action(vim_action_t action, int argc, char **argv);
 
 
 /* static variables */
-static socket* client;
+static socket *client;
 
 
-int main(int argc, char** argv){
+int main(int argc, char **argv){
 	char line[256], c;
 	unsigned int i;
 	int cmd_argc;
-	char** cmd_argv;
+	char **cmd_argv;
 	socket *server;
 	pthread_t tid;
-	const vim_cmd_t* cmd;
-	const vim_fct_t* fct;
+	const vim_cmd_t *cmd;
+	const vim_fct_t *fct;
 
 
 	log::init("/dev/stdout", (log_level_t)(ERROR | DEBUG | GDB | VIM | USER | TEST | TODO));
@@ -114,7 +114,7 @@ int main(int argc, char** argv){
 }
 
 
-void* thread_server(void* arg){
+void *thread_server(void *arg){
 	char c, *line;
 	unsigned int i, len;
 	socket *server;
@@ -180,7 +180,7 @@ err:
 	pthread_exit(0);
 }
 
-int vim_action(vim_action_t action, int argc, char** argv){
+int vim_action(vim_action_t action, int argc, char **argv){
 	static unsigned int seq_num = 1;
 	unsigned int i;
 	char seq_str[strlen(seq_num, 10) + 1];

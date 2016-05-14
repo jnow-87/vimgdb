@@ -10,14 +10,14 @@ class pty : public tty{
 public:
 	/* constructor/desctructor */
 	pty();
-	pty(struct termios* termp, struct winsize* win_size);
+	pty(struct termios *termp, struct winsize *win_size);
 	~pty();
 
 	/* fork process */
 	int fork();
 
 	/* getter */
-	char* get_name();
+	char *get_name();
 
 private:
 	int fd_master,		// file descriptor for master side of PTY
@@ -27,7 +27,7 @@ private:
 	char name[256];	// path to pty in filesystem (/dev)
 
 	/* open new pseudo terminal */
-	int openpty(int* fd_maser, int* fd_slave, struct termios* termp, struct winsize* win_size);
+	int openpty(int *fd_maser, int *fd_slave, struct termios *termp, struct winsize *win_size);
 
 	/* make given file descriptor the controlling terminal */
 	int login(int fd);

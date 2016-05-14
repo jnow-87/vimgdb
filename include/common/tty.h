@@ -7,13 +7,13 @@ class tty{
 public:
 	/* constructor/destructor */
 	tty();
-	tty(const char* in_file, const char* out_file);
+	tty(const char *in_file, const char *out_file);
 	~tty();
 
 	/* read/write from/to file descriptor fd_in/fd_out */
-	int read(void* buf, unsigned int nbytes);
-	int write(void* buf, unsigned int nbytes);
-	int write(char* s);
+	int read(void *buf, unsigned int nbytes);
+	int write(void *buf, unsigned int nbytes);
+	int write(char *s);
 
 	/* close file descriptors */
 	void close();

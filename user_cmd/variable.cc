@@ -21,10 +21,10 @@ static map<unsigned int, gdb_variable_t*> line_map;
 
 
 /* global functions */
-int cmd_var_exec(int argc, char** argv){
+int cmd_var_exec(int argc, char **argv){
 	gdb_variable_t *var;
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
 	map<unsigned int, gdb_variable_t*>::iterator lit;
 	map<string, gdb_variable_t*>::iterator sit;
 
@@ -162,9 +162,9 @@ void cmd_var_cleanup(){
 	line_map.clear();
 }
 
-void cmd_var_help(int argc, char** argv){
+void cmd_var_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);

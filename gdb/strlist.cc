@@ -7,7 +7,7 @@ gdb_strlist_t::gdb_strlist_t(){
 	prev = 0;
 }
 
-gdb_strlist_t::gdb_strlist_t(char* s){
+gdb_strlist_t::gdb_strlist_t(char *s){
 	this->s = s;
 	next = 0;
 	prev = 0;

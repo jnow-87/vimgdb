@@ -6,7 +6,7 @@
 #include <user_cmd/cmd.h>
 
 
-int cmd_test_exec(int argc, char** argv){
+int cmd_test_exec(int argc, char **argv){
 	int i;
 
 
@@ -20,7 +20,7 @@ int cmd_test_exec(int argc, char** argv){
 	return 0;
 }
 
-void cmd_test_help(int argc, char** argv){
+void cmd_test_help(int argc, char **argv){
 	ui->win_atomic(0, true);
 
 	USER("usage: %s [<arg>...]\n", argv[0]);

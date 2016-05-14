@@ -26,7 +26,7 @@ tty::tty(){
  * \param	in_file		file to read from
  * \param	out_file	file to write to
  */
-tty::tty(const char* in_file, const char* out_file){
+tty::tty(const char *in_file, const char *out_file){
 	this->fd_in = libc::open(in_file, O_RDONLY);
 	this->fd_out = libc::open(out_file, O_WRONLY);
 }
@@ -47,7 +47,7 @@ tty::~tty(){
  * \return	number of read bytes on success
  * 			-1 on error
  */
-int tty::read(void* buf, unsigned int nbytes){
+int tty::read(void *buf, unsigned int nbytes){
 	return libc::read(fd_in, buf, nbytes);
 }
 
@@ -60,11 +60,11 @@ int tty::read(void* buf, unsigned int nbytes){
  * \return	number of written bytes on success
  * 			-1 on error
  */
-int tty::write(void* buf, unsigned int nbytes){
+int tty::write(void *buf, unsigned int nbytes){
 	return libc::write(fd_out, buf, nbytes);
 }
 
-int tty::write(char* s){
+int tty::write(char *s){
 	return libc::write(fd_out, s, strlen(s));
 }
 

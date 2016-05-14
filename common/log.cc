@@ -12,7 +12,7 @@ map<pthread_t, string> thread_name;
 
 
 /* static variables */
-FILE* log::log_file = 0;
+FILE *log::log_file = 0;
 log_level_t log::log_level = (log_level_t)(ERROR | USER);
 pid_t log::creator = 0;
 
@@ -27,7 +27,7 @@ pid_t log::creator = 0;
  * \return	0			success
  * 			-1			error (check errno)
  */
-int log::init(const char* file_name, log_level_t lvl){
+int log::init(const char *file_name, log_level_t lvl){
 	log_level = lvl;
 
 	creator = getpid();
@@ -95,7 +95,7 @@ void log::cleanup(){
  * \param	msg			actual message (printf-like format string)
  * \param	...			arguments as defined in <msg>
  */
-void log::print(log_level_t lvl, const char* msg, ...){
+void log::print(log_level_t lvl, const char *msg, ...){
 	va_list lst;
 
 
@@ -129,10 +129,10 @@ void log::print(log_level_t lvl, const char* msg, ...){
  * \return	pointer to time/date string - string is allocated statically and
  * 			hence must not be freed
  */
-char* log::stime(){
+char *log::stime(){
 	static char s[80];
 	time_t t;
-	tm* ts;
+	tm *ts;
 
 
 	t = time(0);

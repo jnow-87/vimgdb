@@ -4,7 +4,7 @@
 int glob = 10;
 
 
-int foo(char* s){
+int foo(char *s){
 	s[0] = 'c';
 
 	printf("%s\n", s);
@@ -13,9 +13,9 @@ int foo(char* s){
 }
 
 
-int main(int argc, char** argv){
+int main(int argc, char **argv){
 	char s[5];
-	char* sx;
+	char *sx;
 
 
 	sprintf(s, "halo");

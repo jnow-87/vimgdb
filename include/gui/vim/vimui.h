@@ -26,28 +26,28 @@ public:
 	void destroy();
 
 	/* user input */
-	char* readline();
+	char *readline();
 
 	/* window functions */
 	int win_atomic(int win, bool en);
-	int win_create(const char* name, bool oneline = false, unsigned int height = 0);
-	int win_getid(const char* name);
+	int win_create(const char *name, bool oneline = false, unsigned int height = 0);
+	int win_getid(const char *name);
 	int win_destroy(int win);
 
-	int win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg);
-	int win_anno_delete(int win, int line, const char* sign);
+	int win_anno_add(int win, int line, const char *sign, const char *color_fg, const char *color_bg);
+	int win_anno_delete(int win, int line, const char *sign);
 
 	int win_cursor_set(int win, int line, int col);
 	int win_cursor_preserve(int win, bool pc);
 	int win_readonly(int win, bool ro);
 
-	void win_print(int win, const char* fmt, ...);
-	void win_vprint(int win, const char* fmt, va_list lst);
+	void win_print(int win, const char *fmt, ...);
+	void win_vprint(int win, const char *fmt, va_list lst);
 	void win_clear(int win);
 
 	/* netbeans message handling */
-	int proc_reply(int seq_num, vim_reply_t* r);
-	int proc_event(int buf_id, vim_event_t* e);
+	int proc_reply(int seq_num, vim_reply_t *r);
+	int proc_event(int buf_id, vim_event_t *e);
 
 private:
 	/* types */
@@ -58,12 +58,12 @@ private:
 
 	typedef struct{
 		int id;
-		char* name;
+		char *name;
 		unsigned int len;
 		bool readonly,
 			 preserve;
 
-		vim_cursor_t* cursor;
+		vim_cursor_t *cursor;
 
 		map<string, int> annos;
 		map<string, int> anno_types;
@@ -71,12 +71,12 @@ private:
 
 	/* prototypes */
 	int atomic(int win, bool en, bool apply);
-	int action(action_t type, const char* action, int buf_id, vim_reply_t** reply, const char* fmt, ...);
-	static void* readline_thread(void* arg);
+	int action(action_t type, const char *action, int buf_id, vim_reply_t **reply, const char *fmt, ...);
+	static void *readline_thread(void *arg);
 
 	/* data */
 	// vim
-	char* cwd;
+	char *cwd;
 	bool volatile in_atomic;
 	pthread_mutex_t buf_mtx;
 	map<string, buffer_t*> bufname_map;
@@ -90,10 +90,10 @@ private:
 	pthread_t read_tid;
 	pthread_mutex_t event_mtx;
 	pthread_cond_t event_avail;
-	vim_event_t* volatile event_lst;
+	vim_event_t *volatile event_lst;
 
 	// output
-	char* ostr;
+	char *ostr;
 	unsigned int ostr_len;
 	pthread_mutex_t ui_mtx;
 
@@ -101,7 +101,7 @@ private:
 	pthread_cond_t reply_avail;
 	pthread_mutex_t reply_mtx;
 	int volatile seq_num;
-	vim_reply_t* reply;
+	vim_reply_t *reply;
 };
 
 

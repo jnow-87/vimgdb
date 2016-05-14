@@ -10,16 +10,16 @@ public:
 	dynarray();
 	~dynarray();
 
-	int add(const char* fmt, ...);
+	int add(const char *fmt, ...);
 	void clear();
 
-	const char* data();
+	const char *data();
 
 private:
 	unsigned int len,
 				 idx;
 
-	char* s;
+	char *s;
 };
 
 

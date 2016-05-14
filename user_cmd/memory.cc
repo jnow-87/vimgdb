@@ -34,18 +34,18 @@ using namespace std;
 
 
 /* static variables */
-static gdb_memory_t* mem_lst = 0;
+static gdb_memory_t *mem_lst = 0;
 static map<unsigned int, gdb_memory_t*> line_map;
 static dynarray obuf;
 static unsigned int asciib_len = 17;	// 8 byte + 0-byte + 8 byte for potential escape char
-static char* asciib = new char[asciib_len];
+static char *asciib = new char[asciib_len];
 
 
 /* global functions */
-int cmd_memory_exec(int argc, char** argv){
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
-	gdb_memory_t* mem;
+int cmd_memory_exec(int argc, char **argv){
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
+	gdb_memory_t *mem;
 	map<unsigned int, gdb_memory_t*>::iterator it;
 
 
@@ -168,7 +168,7 @@ int cmd_memory_exec(int argc, char** argv){
 }
 
 void cmd_memory_cleanup(){
-	gdb_memory_t* mem;
+	gdb_memory_t *mem;
 
 
 	line_map.clear();
@@ -181,9 +181,9 @@ void cmd_memory_cleanup(){
 	delete [] asciib;
 }
 
-void cmd_memory_help(int argc, char** argv){
+void cmd_memory_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);

@@ -31,7 +31,7 @@ typedef enum{
 } user_subcmd_id_t;
 
 struct user_subcmd_t{
-	const char* name;
+	const char *name;
 	user_subcmd_id_t id;
 };
 

@@ -92,17 +92,17 @@ extern map<pthread_t, string> thread_name;
 class log{
 public:
 	/* init and cleanup function */
-	static int init(const char* file_name, log_level_t lvl);
+	static int init(const char *file_name, log_level_t lvl);
 	static void cleanup();
 
 	/* add entry to log */
-	static void print(log_level_t lvl, const char* msg, ...);
+	static void print(log_level_t lvl, const char *msg, ...);
 
 	/* get current time/date */
-	static char* stime();
+	static char *stime();
 
 private:
-	static FILE* log_file;			// file pointer to log file
+	static FILE *log_file;			// file pointer to log file
 	static log_level_t log_level;	// current log level
 	static pid_t creator;			// pid of creating process
 };

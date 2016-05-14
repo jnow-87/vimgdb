@@ -31,7 +31,7 @@
 
 
 /* global functions */
-int main(int argc, char** argv){
+int main(int argc, char **argv){
 	int retval = 1;
 	unsigned int sec_off,
 				 reg_off,
@@ -40,8 +40,8 @@ int main(int argc, char** argv){
 		 *header;
 	per_section_t *sec;
 	per_range_t *rlst, *range;
-	per_register_t* reg;
-	per_bits_t* bits;
+	per_register_t *reg;
+	per_bits_t *bits;
 
 
 	/* init */

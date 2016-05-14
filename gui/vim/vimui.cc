@@ -59,7 +59,7 @@ vimui::~vimui(){
 }
 
 int vimui::init(){
-	char* s;
+	char *s;
 
 
 	ostr_len = 256;
@@ -119,7 +119,7 @@ err_0:
 }
 
 void vimui::destroy(){
-	vim_event_t* e;
+	vim_event_t *e;
 
 
 	/* signal shutdown to vim
@@ -152,10 +152,10 @@ void vimui::destroy(){
 	delete [] ostr;
 }
 
-char* vimui::readline(){
-	char* line = 0;
+char *vimui::readline(){
+	char *line = 0;
 	unsigned int len = 0;
-	vim_event_t* e;
+	vim_event_t *e;
 
 
 	while(1){
@@ -224,10 +224,10 @@ int vimui::win_atomic(int win, bool en){
 	return atomic(win, en, true);
 }
 
-int vimui::win_create(const char* name, bool oneline, unsigned int height){
+int vimui::win_create(const char *name, bool oneline, unsigned int height){
 	static int volatile bufid = 1;	// avoid using buf-id 0 for netbeans
 	int id;
-	buffer_t* b;
+	buffer_t *b;
 
 
 	if(name == 0)
@@ -292,8 +292,8 @@ int vimui::win_create(const char* name, bool oneline, unsigned int height){
 	return id;
 }
 
-int vimui::win_getid(const char* name){
-	static char* volatile s = 0;
+int vimui::win_getid(const char *name){
+	static char *volatile s = 0;
 	static unsigned int volatile slen = 0;
 	unsigned int len;
 	map<string, buffer_t*>::iterator it;
@@ -364,9 +364,9 @@ err_0:
 	return -1;
 }
 
-int vimui::win_anno_add(int win, int line, const char* sign, const char* color_fg, const char* color_bg){
+int vimui::win_anno_add(int win, int line, const char *sign, const char *color_fg, const char *color_bg){
 	static unsigned int volatile id = 1;
-	buffer_t* buf;
+	buffer_t *buf;
 	string key;
 	int annotype;
 
@@ -416,8 +416,8 @@ err:
 	return -1;
 }
 
-int vimui::win_anno_delete(int win, int line, const char* sign){
-	buffer_t* buf;
+int vimui::win_anno_delete(int win, int line, const char *sign){
+	buffer_t *buf;
 	string key;
 	map<string, int>::iterator anno;
 
@@ -450,7 +450,7 @@ err:
 
 int vimui::win_cursor_set(int win, int line, int col){
 	int r;
-	buffer_t* buf;
+	buffer_t *buf;
 
 
 	pthread_mutex_lock(&ui_mtx);
@@ -470,7 +470,7 @@ int vimui::win_cursor_set(int win, int line, int col){
 }
 
 int vimui::win_cursor_preserve(int win, bool pc){
-	buffer_t* buf;
+	buffer_t *buf;
 
 
 	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
@@ -489,7 +489,7 @@ int vimui::win_cursor_preserve(int win, bool pc){
 
 int vimui::win_readonly(int win, bool ro){
 	int r;
-	buffer_t* buf;
+	buffer_t *buf;
 
 
 	pthread_mutex_lock(&ui_mtx);
@@ -508,7 +508,7 @@ int vimui::win_readonly(int win, bool ro){
 	return r;
 }
 
-void vimui::win_print(int win, const char* fmt, ...){
+void vimui::win_print(int win, const char *fmt, ...){
 	va_list lst;
 
 
@@ -520,10 +520,10 @@ void vimui::win_print(int win, const char* fmt, ...){
 	va_end(lst);
 }
 
-void vimui::win_vprint(int win, const char* fmt, va_list lst){
+void vimui::win_vprint(int win, const char *fmt, va_list lst){
 	unsigned int len;
 	va_list tlst;
-	buffer_t* buf;
+	buffer_t *buf;
 
 
 	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
@@ -568,7 +568,7 @@ void vimui::win_vprint(int win, const char* fmt, va_list lst){
 }
 
 void vimui::win_clear(int win){
-	buffer_t* buf;
+	buffer_t *buf;
 
 
 	buf = MAP_LOOKUP_SAFE(bufid_map, win, buf_mtx);
@@ -595,7 +595,7 @@ void vimui::win_clear(int win){
 	pthread_mutex_unlock(&ui_mtx);
 }
 
-int vimui::proc_reply(int seq_num, vim_reply_t* r){
+int vimui::proc_reply(int seq_num, vim_reply_t *r){
 	pthread_mutex_lock(&reply_mtx);
 
 	/* check if this is the sequence number waited for, if not drop it
@@ -617,7 +617,7 @@ int vimui::proc_reply(int seq_num, vim_reply_t* r){
 	return 0;
 }
 
-int vimui::proc_event(int buf_id, vim_event_t* e){
+int vimui::proc_event(int buf_id, vim_event_t *e){
 	pthread_mutex_lock(&event_mtx);
 
 	/* check event type */
@@ -640,8 +640,8 @@ int vimui::proc_event(int buf_id, vim_event_t* e){
 }
 
 int vimui::atomic(int win, bool en, bool apply){
-	static volatile vim_cursor_t* volatile cursor = 0;
-	buffer_t* buf;
+	static volatile vim_cursor_t *volatile cursor = 0;
+	buffer_t *buf;
 
 
 	/* only apply changes if not already in atomic or apply is set */
@@ -715,8 +715,8 @@ err:
 	return -1;
 }
 
-int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** reply, const char* fmt, ...){
-	static char* volatile s = 0;
+int vimui::action(action_t type, const char *action, int buf_id, vim_reply_t **reply, const char *fmt, ...){
+	static char *volatile s = 0;
 	static unsigned int volatile s_len = 0;
 	unsigned int i;
 	va_list lst;
@@ -794,11 +794,11 @@ int vimui::action(action_t type, const char* action, int buf_id, vim_reply_t** r
 	return 0;
 }
 
-void* vimui::readline_thread(void* arg){
-	char* line;
+void *vimui::readline_thread(void *arg){
+	char *line;
 	unsigned int line_len, i, r;
-	vim_event_t* e;
-	vimui* vim;
+	vim_event_t *e;
+	vimui *vim;
 
 
 	vim = (vimui*)arg;

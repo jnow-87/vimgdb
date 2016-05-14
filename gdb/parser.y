@@ -16,39 +16,39 @@
 
 
 	/* prototypes */
-	int gdberror(char* line, gdbif* gdb, const char* s);
+	int gdberror(char *line, gdbif *gdb, const char *s);
 %}
 
 %union{
-	char* sptr;
+	char *sptr;
 	bool boolean;
 	unsigned int num;
 	long long int llnum;
-	gdb_result_t* result;
+	gdb_result_t *result;
 	gdb_result_class_t rclass;
-	gdb_event_t* evt;
-	gdb_event_stop_t* evt_stop;
-	gdb_breakpoint_t* bkpt;
-	gdb_variable_t* var;
-	gdb_frame_t* frame;
-	gdb_location_t* loc;
-	gdb_memory_t* mem;
-	gdb_strlist_t* slst;
+	gdb_event_t *evt;
+	gdb_event_stop_t *evt_stop;
+	gdb_breakpoint_t *bkpt;
+	gdb_variable_t *var;
+	gdb_frame_t *frame;
+	gdb_location_t *loc;
+	gdb_memory_t *mem;
+	gdb_strlist_t *slst;
 
 	struct{
-		gdb_result_t* result;
+		gdb_result_t *result;
 		gdb_result_class_t rclass;
 	} record;
 
 	struct{
-		char* s;
+		char *s;
 		unsigned int len;
 	} string;
 }
 
 
-%parse-param { char* line }
-%parse-param { gdbif* gdb }
+%parse-param { char *line }
+%parse-param { gdbif *gdb }
 
 %initial-action{
 	gdb_scan_string(line);
@@ -443,7 +443,7 @@ con-com :					%empty															{ }
 %%
 
 
-int gdberror(char* line, gdbif* gdb, const char* s){
+int gdberror(char *line, gdbif *gdb, const char *s){
 	USER("gdbparse: %s at token \"%s\" columns (%d - %d)\nline: \"%s\"\n\n", s, gdbtext, gdblloc.first_column, gdblloc.last_column, line);
 	return 0;
 }

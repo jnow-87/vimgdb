@@ -28,7 +28,7 @@ pty::pty() : pty(0, 0){
  * \param	termp		terminal parameter applied to the slave side
  * \param	win_size	window parameter applied to the slave side
  */
-pty::pty(struct termios* termp, struct winsize* win_size){
+pty::pty(struct termios *termp, struct winsize *win_size){
 	// open pseudoterminal
 	if(openpty(&fd_master, &fd_slave, termp, win_size) != 0){
 		fd_master = 0;
@@ -97,7 +97,7 @@ int pty::fork(){
 }
 
 
-char* pty::get_name(){
+char *pty::get_name(){
 	return name;
 }
 
@@ -112,7 +112,7 @@ char* pty::get_name(){
  * \return	0			on success
  * 			-1			on error
  */
-int pty::openpty(int* _fd_master, int* _fd_slave, struct termios* termp, struct winsize* win_size){
+int pty::openpty(int *_fd_master, int *_fd_slave, struct termios *termp, struct winsize *win_size){
 	int fd_master, fd_slave;
 
 

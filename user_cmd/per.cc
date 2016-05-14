@@ -27,21 +27,21 @@ using namespace std;
 
 
 /* static variables */
-static char* per_file = 0;
-static per_range_t* range_lst = 0;
+static char *per_file = 0;
+static per_range_t *range_lst = 0;
 static map<unsigned int, per_section_t*> line_map;
 static map<string, per_register_t*> reg_map;
 
 
 /* global functions */
-int cmd_per_exec(int argc, char** argv){
+int cmd_per_exec(int argc, char **argv){
 	int r;
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
-	per_section_t* sec;
-	per_range_t* range;
-	per_register_t* reg;
-	per_bits_t* bits;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
+	per_section_t *sec;
+	per_range_t *range;
+	per_register_t *reg;
+	per_bits_t *bits;
 	map<unsigned int, per_section_t*>::iterator it_sec;
 	map<string, per_register_t*>::iterator it_reg;
 
@@ -227,7 +227,7 @@ int cmd_per_exec(int argc, char** argv){
 }
 
 void cmd_per_cleanup(){
-	per_range_t* range;
+	per_range_t *range;
 
 
 	delete [] per_file;
@@ -242,9 +242,9 @@ void cmd_per_cleanup(){
 	}
 }
 
-void cmd_per_help(int argc, char** argv){
+void cmd_per_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);
@@ -317,10 +317,10 @@ int cmd_per_update(){
 	unsigned long int reg_val, bit_val;
 	bool modified;
 	gdb_memory_t *mem;
-	per_section_t* sec;
-	per_range_t* range;
-	per_register_t* reg;
-	per_bits_t* bits;
+	per_section_t *sec;
+	per_range_t *range;
+	per_register_t *reg;
+	per_bits_t *bits;
 
 
 	win_id = ui->win_getid(PER_NAME);

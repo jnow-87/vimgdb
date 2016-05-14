@@ -24,16 +24,16 @@ typedef enum{
 /* class */
 class gdb_variable_t : public gdb_result_t{
 public:
-	static gdb_variable_t* acquire();
-	static gdb_variable_t* acquire(char* expr, gdb_origin_t origin, char* context = 0, unsigned int frame = 0);
-	static int release(gdb_variable_t* v);
+	static gdb_variable_t *acquire();
+	static gdb_variable_t *acquire(char *expr, gdb_origin_t origin, char *context = 0, unsigned int frame = 0);
+	static int release(gdb_variable_t *v);
 	static int get_changed();
 
 
-	int set(int argc, char** argv);
-	int format(const char* fmt);
+	int set(int argc, char **argv);
+	int format(const char *fmt);
 	int update();
-	int print(dynarray* obuf, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
+	int print(dynarray *obuf, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
 	int init_childs();
 
 	char *name,
@@ -63,7 +63,7 @@ private:
 	gdb_variable_t();
 	~gdb_variable_t();
 
-	int print(dynarray* obuf, int rec_lvl, unsigned int* line, map<unsigned int, gdb_variable_t*>* line_map);
+	int print(dynarray *obuf, int rec_lvl, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map);
 	void erase_childs();
 };
 

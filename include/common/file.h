@@ -6,7 +6,7 @@
 
 
 #define FILE_EXISTS(file)({ \
-	FILE* fp = fopen(file, "r"); \
+	FILE *fp = fopen(file, "r"); \
 	if(fp != 0) \
 		fclose(fp); \
 	(fp == 0 ? false : true); \

@@ -10,7 +10,7 @@ typedef enum{
 } vim_fct_id_t;
 
 struct vim_fct_t{
-	const char* name;
+	const char *name;
 	vim_fct_id_t id;
 };
 

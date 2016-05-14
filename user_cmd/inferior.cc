@@ -25,25 +25,25 @@
 static char *inf_file_bin = 0,
 			*inf_file_sym = 0;
 
-static char** inf_argv = 0;
+static char **inf_argv = 0;
 static int inf_argc = 0;
 
-static pty* inf_term = 0;
+static pty *inf_term = 0;
 static unsigned int inf_pty_pid = 0;
 static pthread_t tid = 0;
 
 
 /* static prototypes */
-static void* thread_inferior_output(void* arg);
+static void *thread_inferior_output(void *arg);
 
 
 /* global functions */
-int cmd_inferior_exec(int argc, char** argv){
+int cmd_inferior_exec(int argc, char **argv){
 	int fd, r;
 	char pts[128];
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
-	gdb_location_t* loc;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
+	gdb_location_t *loc;
 
 
 	if(argc < 2){
@@ -279,9 +279,9 @@ void cmd_inferior_cleanup(){
 	}
 }
 
-void cmd_inferior_help(int argc, char** argv){
+void cmd_inferior_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);
@@ -351,9 +351,9 @@ void cmd_inferior_help(int argc, char** argv){
 }
 
 /* local functions */
-void* thread_inferior_output(void* arg){
+void *thread_inferior_output(void *arg){
 	char c;
-	char* line;
+	char *line;
 	unsigned int i, len = 256;
 
 

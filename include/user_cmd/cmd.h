@@ -18,18 +18,18 @@
 
 /* types */
 struct user_cmd_t{
-	const char* name;
-	int (*exec)(int argc, char** argv);
+	const char *name;
+	int (*exec)(int argc, char **argv);
 	void (*cleanup)();
-	void (*help)(int argc, char** argv);
-	const char* help_msg;
+	void (*help)(int argc, char **argv);
+	const char *help_msg;
 };
 
 typedef user_cmd_t user_cmd_t;
 
 
 /* prototypes */
-int cmd_exec(char* line);
+int cmd_exec(char *line);
 
 
 #endif // CMD_H

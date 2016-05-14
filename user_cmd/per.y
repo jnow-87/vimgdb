@@ -18,23 +18,23 @@
 
 
 	/* prototypes */
-	int pererror(FILE* file, per_range_t** rlst, const char* s);
+	int pererror(FILE *file, per_range_t **rlst, const char *s);
 %}
 
 %union{
-char* sptr;
+char *sptr;
 long long int i;
 
-per_section_t* sec;
-per_range_t* range;
-per_register_t* reg;
+per_section_t *sec;
+per_range_t *range;
+per_register_t *reg;
 per_reg_opt_t ropt;
-per_bits_t* bits;
+per_bits_t *bits;
 }
 
 
-%parse-param { FILE* file }
-%parse-param { per_range_t** rlst }
+%parse-param { FILE *file }
+%parse-param { per_range_t **rlst }
 
 %initial-action{
 	if(!rlst)
@@ -99,7 +99,7 @@ bits :		%empty																{ $$ = 0; }
 %%
 
 
-int pererror(FILE* file, per_range_t** rlst, const char* s){
+int pererror(FILE *file, per_range_t **rlst, const char *s){
 	USER("perparse: %s at token \"%s\" line %d, columns (%d - %d)\n", s, pertext, perlloc.first_line, perlloc.first_column, perlloc.last_column);
 	return 0;
 }

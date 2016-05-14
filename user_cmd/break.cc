@@ -22,16 +22,16 @@ static map<string, gdb_breakpoint_t*> breakpt_lst;
 
 
 /* static prototypes */
-void breakpt_print(char* filename = 0);
+void breakpt_print(char *filename = 0);
 
 
 /* global functions */
-int cmd_break_exec(int argc, char** argv){
+int cmd_break_exec(int argc, char **argv){
 	char key[256];
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
-	gdb_breakpoint_t* bkpt;
+	gdb_breakpoint_t *bkpt;
 
 
 	if(argc < 2){
@@ -189,9 +189,9 @@ void cmd_break_cleanup(){
 	breakpt_lst.clear();
 }
 
-void cmd_break_help(int argc, char** argv){
+void cmd_break_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);
@@ -278,12 +278,12 @@ void cmd_break_help(int argc, char** argv){
 
 
 /* local functions */
-void breakpt_print(char* filename){
+void breakpt_print(char *filename){
 	static dynarray obuf;
 	int win_id;
-	FILE* fp;
+	FILE *fp;
 	map<string, gdb_breakpoint_t*>::iterator it;
-	gdb_breakpoint_t* bkpt;
+	gdb_breakpoint_t *bkpt;
 
 
 	if(filename){

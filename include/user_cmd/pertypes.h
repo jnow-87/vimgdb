@@ -13,10 +13,10 @@ typedef enum{
 
 class per_bits_t{
 public:
-	per_bits_t(char* name, unsigned int idx, unsigned int nbits);
+	per_bits_t(char *name, unsigned int idx, unsigned int nbits);
 	~per_bits_t();
 
-	char* name;
+	char *name;
 	unsigned int idx,
 				 nbits,
 				 mask;
@@ -29,7 +29,7 @@ public:
 
 class per_register_t{
 public:
-	per_register_t(char* name, char* desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t* bits);
+	per_register_t(char *name, char *desc, unsigned int offset, unsigned int nbytes, per_reg_opt_t opt, per_bits_t *bits);
 	~per_register_t();
 
 	char *name,
@@ -39,21 +39,21 @@ public:
 				 nbytes;
 
 	per_reg_opt_t opt;
-	per_bits_t* bits;
+	per_bits_t *bits;
 
-	class per_range_t* parent;
+	class per_range_t *parent;
 	class per_register_t *next,
 						 *prev;
 };
 
 class per_section_t{
 public:
-	per_section_t(char* name, per_register_t* regs);
+	per_section_t(char *name, per_register_t *regs);
 	~per_section_t();
 
-	char* name;
+	char *name;
 	bool expanded;
-	per_register_t* regs;
+	per_register_t *regs;
 
 	class per_section_t *next,
 						*prev;
@@ -61,15 +61,15 @@ public:
 
 class per_range_t{
 public:
-	per_range_t(void* base, unsigned int size, per_section_t* sections);
+	per_range_t(void *base, unsigned int size, per_section_t *sections);
 	~per_range_t();
 
-	void* base;
+	void *base;
 	unsigned int size;
 
-	per_section_t* sections;
+	per_section_t *sections;
 
-	gdb_memory_t* mem;
+	gdb_memory_t *mem;
 
 	class per_range_t *next,
 					  *prev;

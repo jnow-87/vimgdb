@@ -9,10 +9,10 @@
 
 
 /* global functions */
-int cmd_exec_exec(int argc, char** argv){
+int cmd_exec_exec(int argc, char **argv){
 	int r;
-	const struct user_subcmd_t* scmd;
-	gdb_location_t* loc;
+	const struct user_subcmd_t *scmd;
+	gdb_location_t *loc;
 
 
 	if(argc < 2){
@@ -113,9 +113,9 @@ int cmd_exec_exec(int argc, char** argv){
 	return 0;
 }
 
-void cmd_exec_help(int argc, char** argv){
+void cmd_exec_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);

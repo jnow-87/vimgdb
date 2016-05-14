@@ -11,7 +11,7 @@ public:
 	gdb_event_t();
 	virtual ~gdb_event_t();
 
-	char* reason;
+	char *reason;
 	unsigned int thread_id;
 };
 
@@ -20,8 +20,8 @@ public:
 	gdb_event_stop_t();
 	~gdb_event_stop_t();
 
-	gdb_frame_t* frame;
-	char* signal;
+	gdb_frame_t *frame;
+	char *signal;
 };
 
 

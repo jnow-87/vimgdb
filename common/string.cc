@@ -30,10 +30,10 @@ int strlen(long int val, int base){
 	return strlen((unsigned long int)(val < 0 ? val * -1 : val), base) + (val < 0 ? 1 : 0);
 }
 
-int strsplit(char* line, int* _argc, char*** _argv){
+int strsplit(char *line, int *_argc, char ***_argv){
 	unsigned int i, j, len, start, arg_len;
 	int argc;
-	char** argv;
+	char **argv;
 
 
 	if(line == 0)
@@ -221,8 +221,8 @@ int strsplit(char* line, int* _argc, char*** _argv){
 	return 0;
 }
 
-char* strescape(char* s, char** _dst, unsigned int* max){
-	char* dst;
+char *strescape(char *s, char **_dst, unsigned int *max){
+	char *dst;
 	char src[strlen(s) + 1];
 	unsigned int len;
 	unsigned int i, o;
@@ -285,7 +285,7 @@ char* strescape(char* s, char** _dst, unsigned int* max){
 	return dst;
 }
 
-char* strdeescape(char* s){
+char *strdeescape(char *s){
 	unsigned int len;
 	unsigned int i, o;
 	
@@ -334,19 +334,19 @@ char* strdeescape(char* s){
 	return s;
 }
 
-char* itoa(unsigned int v, char** s, unsigned int* max, unsigned int base, bool neg){
+char *itoa(unsigned int v, char **s, unsigned int *max, unsigned int base, bool neg){
 	return itoa((unsigned long int)v, s, max, base, neg);
 }
 
-char* itoa(int v, char** s, unsigned int* max, unsigned int base){
+char *itoa(int v, char **s, unsigned int *max, unsigned int base){
 	return itoa((unsigned long int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
 }
 
-char* itoa(long int v, char** s, unsigned int* max, unsigned int base){
+char *itoa(long int v, char **s, unsigned int *max, unsigned int base){
 	return itoa((unsigned long int)(v < 0 ? v * -1 : v), s, max, base, (v < 0 ? true : false));
 }
 
-char* itoa(unsigned long int v, char** s, unsigned int* max, unsigned int base, bool neg){
+char *itoa(unsigned long int v, char **s, unsigned int *max, unsigned int base, bool neg){
 	unsigned int len = 0;
 	
 
@@ -383,8 +383,8 @@ char* itoa(unsigned long int v, char** s, unsigned int* max, unsigned int base, 
 	return *s;
 }
 
-char* stralloc(char* _s, unsigned int len){
-	char* s;
+char *stralloc(char *_s, unsigned int len){
+	char *s;
 
 	s = new char[len + 1];
 
@@ -398,7 +398,7 @@ char* stralloc(char* _s, unsigned int len){
 	return s;
 }
 
-void strswap2(char* s, unsigned int len){
+void strswap2(char *s, unsigned int len){
 	char t[len];
 	unsigned int i;
 

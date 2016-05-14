@@ -22,8 +22,8 @@ int cleanup();
 void cleanup(int signum);
 
 
-int main(int argc, char** argv){
-	char* line;
+int main(int argc, char **argv){
+	char *line;
 	char log_name[strlen(CONFIG_LOG_FILE) + 10];
 	int n;
 

@@ -2,4 +2,4 @@
 
 
 /* global variables */
-gui* ui = 0;
+gui *ui = 0;

@@ -13,7 +13,7 @@
 
 
 /* global functions */
-int main(int argc, char** argv){
+int main(int argc, char **argv){
 	char c, *line;
 	unsigned int i, len;
 	int fd;

@@ -7,9 +7,9 @@
 #include <user_cmd/cmd.h>
 
 
-int cmd_evaluate_exec(int argc, char** argv){
+int cmd_evaluate_exec(int argc, char **argv){
 	int i;
-	gdb_strlist_t* s;
+	gdb_strlist_t *s;
 
 
 	if(argc < 2){
@@ -36,7 +36,7 @@ int cmd_evaluate_exec(int argc, char** argv){
 	return 0;
 }
 
-void cmd_evaluate_help(int argc, char** argv){
+void cmd_evaluate_help(int argc, char **argv){
 	ui->win_atomic(0, true);
 
 	USER("usage: %s [<expression> ]\n", argv[0]);

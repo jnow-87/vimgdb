@@ -28,14 +28,14 @@ public:
 	int memory_update();
 
 	/* gdb machine interface (MI) */
-	int mi_issue_cmd(const char* cmd, gdb_result_t** result, const char* fmt, ...);
-	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
-	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result);
-	int mi_proc_stream(gdb_stream_class_t sclass, char* stream);
+	int mi_issue_cmd(const char *cmd, gdb_result_t **result, const char *fmt, ...);
+	int mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t *result);
+	int mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t *result);
+	int mi_proc_stream(gdb_stream_class_t sclass, char *stream);
 
 	/* communication with gdb */
-	int read(void* buf, unsigned int nbytes);
-	int write(void* buf, unsigned int nbytes);
+	int read(void *buf, unsigned int nbytes);
+	int write(void *buf, unsigned int nbytes);
 
 	int sigsend(int sig);
 
@@ -48,7 +48,7 @@ private:
 	/* types */
 	typedef struct _response_t{
 		gdb_result_class_t volatile rclass;
-		gdb_result_t* volatile result;
+		gdb_result_t *volatile result;
 
 		struct _response_t * volatile next,
 						   * volatile prev;
@@ -62,19 +62,19 @@ private:
 	} event_hdlr_t;
 
 	/* gdb child data */
-	pty* gdb_term;
+	pty *gdb_term;
 	pid_t gdb_pid;
 	bool volatile is_running;
 	unsigned int cur_thread;
 
 	/* gdb communication */
-	static void* readline_thread(void* arg);
-	static void* event_thread(void* arg);
+	static void *readline_thread(void *arg);
+	static void *event_thread(void *arg);
 
 	unsigned int volatile token;
 
 	response_t resp;
-	response_t* volatile event_lst;
+	response_t *volatile event_lst;
 
 	pthread_t read_tid,
 			  event_tid;
@@ -86,8 +86,8 @@ private:
 					event_mtx;
 
 	/* gdb event handling */
-	int evt_running(gdb_event_t* result);
-	int evt_stopped(gdb_event_stop_t* result);
+	int evt_running(gdb_event_t *result);
+	int evt_stopped(gdb_event_stop_t *result);
 
 	event_hdlr_t *stop_hdlr_lst,
 				 *exit_hdlr_lst;
@@ -95,7 +95,7 @@ private:
 
 
 /* external variables */
-extern gdbif* gdb;
+extern gdbif *gdb;
 
 
 #endif

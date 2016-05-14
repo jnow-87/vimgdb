@@ -15,7 +15,7 @@
 
 
 	/* prototypes */
-	int vimerror(char* line, vimui* vim, const char* s);
+	int vimerror(char *line, vimui *vim, const char *s);
 
 
 	/* static variables */
@@ -29,18 +29,18 @@
 
 	vim_event_id_t event_id;
 
-	vim_event_t* event;
-	vim_reply_t* reply;
-	vim_cursor_t* cursor;
+	vim_event_t *event;
+	vim_reply_t *reply;
+	vim_cursor_t *cursor;
 
 	struct{
-		char* s;
+		char *s;
 		unsigned int len;
 	} string;
 }
 
-%parse-param { char* line }
-%parse-param { vimui* vim }
+%parse-param { char *line }
+%parse-param { vimui *vim }
 
 %initial-action{
 	vim_scan_string(line);
@@ -128,7 +128,7 @@ string :		STRING																	{ $$ = $1; }
 %%
 
 
-int vimerror(char* line, vimui* vim, const char* s){
+int vimerror(char *line, vimui *vim, const char *s){
 	ERROR("%s at token \"%s\" columns (%d - %d)\n", s, vimtext, vimlloc.first_column, vimlloc.last_column);
 
 	vimlloc.first_column = -1;

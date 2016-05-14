@@ -7,8 +7,8 @@
 #define PROMPT	"~$ "
 
 
-int main(int argc, char** argv){
-	char* line;
+int main(int argc, char **argv){
+	char *line;
 	int win_user;
 
 

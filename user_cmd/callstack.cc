@@ -14,17 +14,17 @@
 
 
 /* static variables */
-static gdb_frame_t* callstack = 0;
+static gdb_frame_t *callstack = 0;
 static map<unsigned int, gdb_variable_t*> line_vars;
 static map<unsigned int, gdb_frame_t*> line_frames;
 
 
 /* global functions */
-int cmd_callstack_exec(int argc, char** argv){
-	gdb_variable_t* var;
-	gdb_frame_t* frame;
-	const struct user_subcmd_t* scmd;
-	FILE* fp;
+int cmd_callstack_exec(int argc, char **argv){
+	gdb_variable_t *var;
+	gdb_frame_t *frame;
+	const struct user_subcmd_t *scmd;
+	FILE *fp;
 	map<unsigned int, gdb_frame_t*>::iterator it_frame;
 	map<unsigned int, gdb_variable_t*>::iterator it_var;
 
@@ -144,9 +144,9 @@ void cmd_callstack_cleanup(){
 	}
 }
 
-void cmd_callstack_help(int argc, char** argv){
+void cmd_callstack_help(int argc, char **argv){
 	int i;
-	const struct user_subcmd_t* scmd;
+	const struct user_subcmd_t *scmd;
 
 
 	ui->win_atomic(0, true);
@@ -293,7 +293,7 @@ int cmd_callstack_print(){
 	static dynarray obuf;
 	unsigned int line;
 	int win_id;
-	gdb_frame_t* frame;
+	gdb_frame_t *frame;
 	list<gdb_variable_t*>::iterator it;
 
 

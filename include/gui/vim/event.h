@@ -28,7 +28,7 @@ public:
 	~vim_event_t();
 
 	int buf_id;
-	char* data;
+	char *data;
 	vim_event_id_t evt_id;
 
 	class vim_event_t *next,

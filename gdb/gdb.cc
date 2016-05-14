@@ -21,7 +21,7 @@
 
 
 /* global variables */
-gdbif* gdb = 0;
+gdbif *gdb = 0;
 
 
 /* class definition */
@@ -50,7 +50,7 @@ gdbif::gdbif(){
  * \brief	standard desctructor
  */
 gdbif::~gdbif(){
-	event_hdlr_t* e;
+	event_hdlr_t *e;
 	sigval v;
 
 
@@ -138,7 +138,7 @@ int gdbif::init(){
 }
 
 void gdbif::on_stop(int (*hdlr)(void)){
-	event_hdlr_t* e;
+	event_hdlr_t *e;
 
 
 	e = new event_hdlr_t;
@@ -148,7 +148,7 @@ void gdbif::on_stop(int (*hdlr)(void)){
 }
 
 void gdbif::on_exit(int (*hdlr)(void)){
-	event_hdlr_t* e;
+	event_hdlr_t *e;
 
 
 	e = new event_hdlr_t;
@@ -158,7 +158,7 @@ void gdbif::on_exit(int (*hdlr)(void)){
 }
 
 int gdbif::memory_update(){
-	event_hdlr_t* e;
+	event_hdlr_t *e;
 
 
 	/* update variables */
@@ -194,12 +194,12 @@ int gdbif::memory_update(){
  * \return	>0		token used for the command
  * 			-1		error
  */
-int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...){
-	static char* volatile s = 0;
+int gdbif::mi_issue_cmd(const char *cmd, gdb_result_t **r, const char *fmt, ...){
+	static char *volatile s = 0;
 	static unsigned int volatile s_len = 0;
 	static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 	unsigned int i, j, argc;
-	char** argv;
+	char **argv;
 	bool quoted;
 	va_list lst;
 	response_t resp;
@@ -331,7 +331,7 @@ int gdbif::mi_issue_cmd(const char* cmd, gdb_result_t** r, const char* fmt, ...)
 	return 0;
 }
 
-int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
+int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_result_t *result){
 	pthread_mutex_lock(&resp_mtx);
 
 	if(this->token != token && rclass != RC_EXIT){
@@ -351,8 +351,8 @@ int gdbif::mi_proc_result(gdb_result_class_t rclass, unsigned int token, gdb_res
 	return 0;
 }
 
-int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t* result){
-	response_t* e;
+int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_result_t *result){
+	response_t *e;
 
 
 	pthread_mutex_lock(&event_mtx);
@@ -380,7 +380,7 @@ int gdbif::mi_proc_async(gdb_result_class_t rclass, unsigned int token, gdb_resu
 	return 0;
 }
 
-int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
+int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char *stream){
 	USER("%s", strdeescape(stream));	// use "%s" to avoid issues with '%' within stream
 	delete [] stream;
 
@@ -396,7 +396,7 @@ int gdbif::mi_proc_stream(gdb_stream_class_t sclass, char* stream){
  * \return	number of read bytes on success
  * 			-1 on error
  */
-int gdbif::read(void* buf, unsigned int nbytes){
+int gdbif::read(void *buf, unsigned int nbytes){
 	return gdb_term->read(buf, nbytes);
 }
 
@@ -409,7 +409,7 @@ int gdbif::read(void* buf, unsigned int nbytes){
  * \return	number of written bytes on success
  * 			-1 on error
  */
-int gdbif::write(void* buf, unsigned int nbytes){
+int gdbif::write(void *buf, unsigned int nbytes){
 	return gdb_term->write(buf, nbytes);
 }
 
@@ -431,7 +431,7 @@ unsigned int gdbif::threadid(){
 	return cur_thread;
 }
 
-void* gdbif::readline_thread(void* arg){
+void *gdbif::readline_thread(void *arg){
 	char c, *line;
 	unsigned int i, len;
 
@@ -514,10 +514,10 @@ err_0:
 	pthread_exit(0);
 }
 
-void* gdbif::event_thread(void* arg){
+void *gdbif::event_thread(void *arg){
 	int r;
-	response_t* e;
-	event_hdlr_t* ehdlr;
+	response_t *e;
+	event_hdlr_t *ehdlr;
 
 
 	while(1){
@@ -565,13 +565,13 @@ void* gdbif::event_thread(void* arg){
 	}
 }
 
-int gdbif::evt_running(gdb_event_t* result){
+int gdbif::evt_running(gdb_event_t *result){
 	running(true);
 	return 0;
 }
 
-int gdbif::evt_stopped(gdb_event_stop_t* result){
-	gdb_frame_t* frame;
+int gdbif::evt_stopped(gdb_event_stop_t *result){
+	gdb_frame_t *frame;
 
 
 	running(false);

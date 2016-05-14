@@ -12,12 +12,12 @@ using namespace std;
 
 class gdb_frame_t : public gdb_result_t{
 public:
-	static gdb_frame_t* acquire();
-	static gdb_frame_t* acquire(char* name, char* context, gdb_frame_t* src = 0);
-	static void release(gdb_frame_t* f);
+	static gdb_frame_t *acquire();
+	static gdb_frame_t *acquire(char *name, char *context, gdb_frame_t *src = 0);
+	static void release(gdb_frame_t *f);
 
 
-	void* addr;
+	void *addr;
 	unsigned int line,
 				 level;
 	
@@ -26,7 +26,7 @@ public:
 		 *fullname;
 
 	bool expanded;
-	char* context;
+	char *context;
 
 	list<gdb_variable_t*> args,
 						  locals;

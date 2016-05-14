@@ -17,7 +17,7 @@ dynarray::~dynarray(){
 	free(s);
 }
 
-int dynarray::add(const char* fmt, ...){
+int dynarray::add(const char *fmt, ...){
 	unsigned int i;
 	va_list lst;
 
@@ -48,6 +48,6 @@ void dynarray::clear(){
 	s[0] = 0;
 }
 
-const char* dynarray::data(){
+const char *dynarray::data(){
 	return s;
 }
