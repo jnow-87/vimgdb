@@ -58,8 +58,8 @@ include $(loc_src_tree)/Makefile
 
 # check if *flags have been altered
 $(foreach flag,$(all_flags), \
-	$(if $(strip $(filter-out $($(flag)_save),$($(flag))) $(filter-out $($(flag)),$($(flag)_save))), \
-		$(error $(flag) changed modified in $(loc_src_tree)/Makefile from  "$($(flag)_save)" to "$($(flag))"), \
+	$(if $(strip $(filter-out $($(flag)),$($(flag)_save))), \
+		$(error $(loc_src_tree)/Makefile removed options from $(flag), changing from "$($(flag)_save)" to "$($(flag))", make sure to only add options), \
 	) \
 )
 
