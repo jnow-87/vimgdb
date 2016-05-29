@@ -2,13 +2,17 @@
 ###   init   ###
 ################
 
-# init build system variables
+# init build system
 project_type := cxx
 scripts_dir := scripts
-config := ./config
-config_tree := $(scripts_dir)/config
+
+# init config system
 use_config_sys := y
 config_ftype := Pconfig
+config := ./config
+config_tree := $(scripts_dir)/config
+
+# external dependencies
 tool_deps :=
 
 # include config
