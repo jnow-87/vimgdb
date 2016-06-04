@@ -149,8 +149,8 @@ all: init_githooks check_user_tools check_build_tools check_config dotclang
 .PHONY: init_githooks
 .SILENT: init_githooks
 init_githooks:
-	[ -e .git/hooks/style ] || ln -rs .githooks/style .git/hooks/style
-	[ -e .git/hooks/pre-commit ] || ln -rs .githooks/pre-commit .git/hooks/pre-commit
+	ln -frs .githooks/style .git/hooks/style
+	ln -frs .githooks/pre-commit .git/hooks/pre-commit
 
 # check if all build tools are available
 check_build_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
