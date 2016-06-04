@@ -204,7 +204,6 @@ ifeq ("$(use_config_sys)","y")
 
     config_tools := $(fixdep) $(mconfig) $(confheader)
 
-    confheader := $(QBUILD)$(confheader)
     fixdep := $(QBUILD)$(fixdep)
 
 .PHONY: configtools
@@ -215,7 +214,7 @@ configtools: $(config_tools)
 check_configheader: $(config_header)
 
 $(config_header): $(config) $(config_tools)
-	$(confheader) $(config_ftype) $(dir $(config_header)) $(config_header) 
+	$(QBUILD) KCONFIG_CONFIG=$(config) $(confheader) $(config_ftype) $(dir $(config_header)) $(config_header) 
 
 .PHONY: menuconfig
 menuconfig: check_build_tools configtools
