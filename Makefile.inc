@@ -61,7 +61,7 @@ ifneq ($(project_type),c)
 endif
 
 # init build system variables
-all_flags := cflags cxxflags cppflags asflags ldflags ldrflags archflags hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags yaccflags lexflags gperfflags
+all_flags := cflags cxxflags cppflags asflags ldflags archflags ldlibs hostcflags hostcxxflags hostcppflags hostasflags hostldflags hostarchflags hostldlibs yaccflags lexflags gperfflags
 
 obj_types := obj obj-nobuiltin hostobj hostobj-nobuiltin
 lib_types := lib hostlib
@@ -149,8 +149,8 @@ all: init_githooks check_user_tools check_build_tools check_config dotclang
 .PHONY: init_githooks
 .SILENT: init_githooks
 init_githooks:
-	[ -e .git/hooks/style ] || ln -rs .githooks/style .git/hooks/style
-	[ -e .git/hooks/pre-commit ] || ln -rs .githooks/pre-commit .git/hooks/pre-commit
+	ln -frs .githooks/style .git/hooks/style
+	ln -frs .githooks/pre-commit .git/hooks/pre-commit
 
 # check if all build tools are available
 check_build_tools_error := "please make sure that $${id} or CONFIG_$${id} is initialised correctly, current value is \"$${val}\""
@@ -204,7 +204,6 @@ ifeq ("$(use_config_sys)","y")
 
     config_tools := $(fixdep) $(mconfig) $(confheader)
 
-    confheader := $(QBUILD)$(confheader)
     fixdep := $(QBUILD)$(fixdep)
 
 .PHONY: configtools
@@ -215,7 +214,7 @@ configtools: $(config_tools)
 check_configheader: $(config_header)
 
 $(config_header): $(config) $(config_tools)
-	$(confheader) $(config_ftype) $(dir $(config_header)) $(config_header) 
+	$(QBUILD) KCONFIG_CONFIG=$(config) $(confheader) $(config_ftype) $(dir $(config_header)) $(config_header) 
 
 .PHONY: menuconfig
 menuconfig: check_build_tools configtools
@@ -287,7 +286,7 @@ help-buildsys:
 	$(printf) "         %25s\t%s\n" "cppflags" "c pre-processor flags"
 	$(printf) "         %25s\t%s\n" "asflags" "assembler flags"
 	$(printf) "         %25s\t%s\n" "ldflags" "linker flags"
-	$(printf) "         %25s\t%s\n" "ldrflags" "linker flags for creating relocatable output (ld -r)"
+	$(printf) "         %25s\t%s\n" "ldlibs" "compiler flags when it is supposed to invoke the linker"
 	$(printf) "         %25s\t%s\n" "archflags" "architecture specific flags"
 	$(printf) "         %25s\t%s\n" "yaccflags" "yacc flags"
 	$(printf) "         %25s\t%s\n" "lexflags" "lex flags"
@@ -318,6 +317,7 @@ help-buildsys:
 	$(printf) "         %25s\t%s\n" "[HOST]CXXFLAGS"
 	$(printf) "         %25s\t%s\n" "[HOST]CPPFLAGS"
 	$(printf) "         %25s\t%s\n" "[HOST]LDFLAGS"
+	$(printf) "         %25s\t%s\n" "[HOST]LDLIBS"
 	$(printf) "         %25s\t%s\n" "[HOST]ASFLAGS"
 	$(printf) "         %25s\t%s\n" "[HOST]ARCHFLAGS"
 	$(printf) "         %25s\t%s\n" "LEXFLAGS"
