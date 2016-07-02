@@ -1,10 +1,10 @@
 #!/bin/bash
 
 
-# grep regex patterns to exclude from search
+# sed regex patterns to exclude from search
 style_ignore=(
 	# strings
-	" -e '\"[^\"]*\"'"
+	"-e 's/\"[^\"]*\"/\"\"/g'"
 )
 
 # grep regex patterns, checking for style guide violations
@@ -58,7 +58,7 @@ function check_style_guide(){
 
 	# issue grep
 	eval ${content} "|" \
-		 "grep -v " ${style_ignore[*]} "|" \
+		 "sed " ${style_ignore[*]} "|" \
 		 "GREP_COLOR='2;30;41' grep -nHE --color --label="${file} \
 		 ${style_violations[*]} \
 		 ${log}
