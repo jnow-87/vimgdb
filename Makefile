@@ -9,6 +9,7 @@ config := .config
 config_tree := scripts/config
 use_config_sys := y
 config_ftype := Pconfig
+githooks_tree := .githooks
 tool_deps := gdb
 
 # include config
