@@ -15,6 +15,9 @@ style_violations=(
 	# pointer: type* id
 	" -e '\w\*+\s+'"
 
+	# pointer: type**id
+	" -e '\w\*+\w'"
+
 	# pointer: type ( *fct_p)
 	" -e '\(\s+\*'"
 )
