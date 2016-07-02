@@ -76,7 +76,7 @@ int cmd_per_exec(int argc, char **argv){
 		perlex_destroy();
 
 		fclose(fp);
-		
+
 		if(r != 0){
 			USER("error parsing peripheral file \"%s\"\n", argv[1]);
 			return -1;
@@ -122,7 +122,7 @@ int cmd_per_exec(int argc, char **argv){
 
 							cmd_per_cleanup();
 							cmd_per_update();
-							
+
 							return -1;
 						}
 					}

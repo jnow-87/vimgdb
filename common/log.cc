@@ -34,7 +34,7 @@ int log::init(const char *file_name, log_level_t lvl){
 
 	if(log_level != NONE && log_file == 0){
 		log_file = fopen(file_name, "w");
-		
+
 		if(log_file == 0)
 			return -1;
 	}

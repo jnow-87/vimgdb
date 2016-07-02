@@ -262,7 +262,7 @@ int cmd_callstack_update(){
 		// update frame locals and arguments
 		list_for_each(varlst, tvar){
 			var = gdb_variable_t::acquire(tvar->name, O_CALLSTACK, (char*)ctx.c_str(), frame->level);
-	
+
 			if(var == 0)
 				return -1;
 
@@ -277,7 +277,7 @@ int cmd_callstack_update(){
 			else				frame->locals.push_back(var);
 
 			list_rm(&varlst, tvar);
-			
+
 			if(gdb_variable_t::release(tvar) != 0)
 				return -1;
 		}
@@ -347,7 +347,7 @@ int cmd_callstack_print(){
 	}
 
 	ui->win_atomic(win_id, true);
-	
+
 	ui->win_clear(win_id);
 	ui->win_print(win_id, "%s", obuf.data());
 

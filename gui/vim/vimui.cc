@@ -95,7 +95,7 @@ int vimui::init(){
 
 		if(s == 0)
 			return -1;
-		
+
 		if(strcmp(s, "init-done") == 0)
 			break;
 	}
@@ -188,7 +188,7 @@ char *vimui::readline(){
 
 			strcpy(line, e->data);
 			goto end;
-		
+
 		case E_FILEOPENED:
 			VIM("handle FILEOPENED event\n");
 

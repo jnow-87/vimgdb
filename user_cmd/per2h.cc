@@ -111,7 +111,7 @@ int main(int argc, char **argv){
 				list_for_each(reg->bits, bits)
 					fprintf(header, "#define %s_%s_MASK\t0x%x\n", reg->name + reg_off, bits->name + bit_off, bits->mask);
 
-				
+
 				if(!list_empty(reg->bits))
 					fprintf(header, "\n");
 			}

@@ -63,7 +63,7 @@ int opt_parse(int argc, char **argv){
 				printf("invalid argument to -l, expected log file\n");
 				return -1;
 			}
-		
+
 			opt.log_file = argv[i];
 			break;
 

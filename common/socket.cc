@@ -180,7 +180,7 @@ int socket::send(void *data, int size){
 		sbuf_len += size + 256;
 		sbuf = (char*)realloc(sbuf, sbuf_len);
 	}
-	
+
 	memcpy(sbuf + sbuf_idx, data, size);
 	sbuf_idx += size;
 

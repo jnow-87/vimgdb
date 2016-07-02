@@ -200,7 +200,7 @@ int strsplit(char *line, int *_argc, char ***_argv){
 				case '\\':
 					argv[argc][j++] = '\\';
 					break;
-				
+
 				default:
 					start--;
 					argv[argc][j++] = line[start];
@@ -226,7 +226,7 @@ char *strescape(char *s, char **_dst, unsigned int *max){
 	char src[strlen(s) + 1];
 	unsigned int len;
 	unsigned int i, o;
-	
+
 
 	if(s == 0 || _dst == 0)
 		return 0;
@@ -288,7 +288,7 @@ char *strescape(char *s, char **_dst, unsigned int *max){
 char *strdeescape(char *s){
 	unsigned int len;
 	unsigned int i, o;
-	
+
 
 	if(s == 0)
 		return 0;
@@ -348,7 +348,7 @@ char *itoa(long int v, char **s, unsigned int *max, unsigned int base){
 
 char *itoa(unsigned long int v, char **s, unsigned int *max, unsigned int base, bool neg){
 	unsigned int len = 0;
-	
+
 
 	if(s == 0)
 		return 0;

@@ -75,14 +75,14 @@ int cmd_exec_exec(int argc, char **argv){
 		case GOTO:
 			if(gdb->mi_issue_cmd("break-insert", 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;
-				
+
 			r = gdb->mi_issue_cmd("exec-continue", 0, "");
 			break;
 
 		case SETPC:
 			if(gdb->mi_issue_cmd("break-insert", 0, "-t %ss %d", argv + 2, argc - 2) != 0)
 				return -1;
-				
+
 			r = gdb->mi_issue_cmd("exec-jump", 0, "%ss %d", argv + 2, argc - 2);
 			break;
 

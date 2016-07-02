@@ -154,7 +154,7 @@ void cleanup(int signum){
 	/* close log */
 	DEBUG("closing log and exit normally\n");
 	log::cleanup();
-	
+
 	pthread_mutex_unlock(&m);
 
 	exit(signum);

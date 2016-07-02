@@ -77,7 +77,7 @@ int cmd_break_exec(int argc, char **argv){
 		}
 
 		break;
-	
+
 	case DELETE:
 	case ENABLE:
 	case DISABLE:

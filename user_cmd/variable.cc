@@ -82,7 +82,7 @@ int cmd_var_exec(int argc, char **argv){
 			var->refcnt = 1;
 
 		break;
-	
+
 	case DELETE:
 		while(var->parent != 0)
 			var = var->parent;

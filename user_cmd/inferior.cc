@@ -137,7 +137,7 @@ int cmd_inferior_exec(int argc, char **argv){
 				// return if inferior tty is already set to internal
 				if(inf_term != 0)
 					return 0;
-				
+
 				// initialise pty
 				inf_term = new pty;
 				if(inf_term == 0){

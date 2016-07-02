@@ -221,7 +221,7 @@ err:
 int gdb_variable_t::set(int argc, char **argv){
 	if(gdb->mi_issue_cmd("var-assign", 0, "\"%s\" \"%ss %d\"", name, argv, argc) != 0)
 		return -1;
-		
+
 	modified = true;
 	return 0;
 }

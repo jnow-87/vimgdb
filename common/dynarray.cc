@@ -31,7 +31,7 @@ int dynarray::add(const char *fmt, ...){
 
 		if(i < len - idx){
 			idx += i;
-			
+
 			return i;
 		}
 

@@ -101,7 +101,7 @@ int cmd_memory_exec(int argc, char **argv){
 		USER("add memory dump at \"%s\" of size %u\n", mem->begin, mem->length);
 		cmd_memory_update();
 		break;
-	
+
 	case DELETE:
 		mem = MAP_LOOKUP(line_map, atoi(argv[2]));
 
@@ -294,7 +294,7 @@ int cmd_memory_update(){
 
 		for(i=0; i<mem->alignment; i++)
 			obuf.add("%2x", i);
-		
+
 		obuf.add("`h1\n");
 
 		line_map[line++] = mem;

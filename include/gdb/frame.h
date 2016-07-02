@@ -20,7 +20,7 @@ public:
 	void *addr;
 	unsigned int line,
 				 level;
-	
+
 	char *function,
 		 *filename,
 		 *fullname;

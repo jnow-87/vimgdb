@@ -19,7 +19,7 @@ int main(int argc, char **argv){
 
 
 	sprintf(s, "halo");
-	
+
 	sx = new char[10];
 	sprintf(sx, "testor");
 
