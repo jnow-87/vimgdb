@@ -7,7 +7,7 @@ cppflags-y += -I"$(loc_build_tree)/"
 
 
 test-nbprotocol-y := test_nbprotocol.o cmd.o fct.o event.o $(build_tree)/gui/gui.o common/
-test-nbprotocol-ldflags := -lcurses -lpthread
+test-nbprotocol-ldlibs := -lcurses -lpthread
 
 
 $(loc_build_tree)/vimui.o: $(loc_build_tree)/parser.tab.h $(loc_build_tree)/cmd.hash.h $(loc_build_tree)/lexer.lex.h

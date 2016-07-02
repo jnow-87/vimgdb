@@ -6,12 +6,12 @@ bin-y := test-perparser per2h
 test-perparser-y := test_perparser.o per.tab.o per.lex.o pertypes.o common/ gui/
 
 test-perparser-cppflags := -I"$(loc_src_tree)"
-test-perparser-ldflags := -lpthread
+test-perparser-ldlibs := -lpthread
 
 # per2h
 per2h-y := per2h.o per.tab.o per.lex.o pertypes.o common/ gui/
 per2h-cppflags := -I"$(loc_src_tree)"
-per2h-ldflags := -lpthread
+per2h-ldlibs := -lpthread
 
 # additional dependencies
 file.o: $(loc_build_tree)/subcmd.hash.h

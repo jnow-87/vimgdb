@@ -7,7 +7,7 @@ test-parser-y := test_parser.o gdb/ common/ gui/
 
 # flags
 test-parser-cppflags := -I"$(loc_src_tree)"
-test-parser-ldflags := -lpthread -lcurses
+test-parser-ldlibs := -lpthread -lcurses
 
 
 ## additional dependencies for generated headers
