@@ -56,7 +56,7 @@ all: $(lib) $(bin)
 ####
 .PHONY: clean
 clean:
-	$(rm) $(filter-out $(build_tree)/$(scripts_dir),$(wildcard $(build_tree)/*))
+	$(rm) $(filter-out $(patsubst %/,%,$(dir $(build_tree)/$(scripts_dir))),$(wildcard $(build_tree)/*))
 
 .PHONY: distclean
 distclean:
