@@ -1,6 +1,7 @@
 #include <common/defaults.h>
 #include <common/string.h>
 #include <common/opt.h>
+#include <version.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -20,7 +21,8 @@ int opt_parse(int argc, char **argv){
 			"options:\n"
 			"    -d        start as daemon\n"
 			"    -c <cmd>  gdb command line\n"
-			"    -l <file> log file\n"
+			"    -l <file> log file\n\n"
+			"version info:\n" VERSION "\n"
 			, argv[0]
 		);
 
