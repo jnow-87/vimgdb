@@ -281,7 +281,7 @@ int cmd_memory_update(){
 			return -1;
 
 		/* print header */
-		obuf.add("[%c] ´h0memory dump: %#0*x`h0 (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
+		obuf.add("[%c] ´h0memory dump: %#0*lx`h0 (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
 		line_map[line++] = mem;
 
 		if(!mem->expanded){
@@ -303,7 +303,7 @@ int cmd_memory_update(){
 		j = 0;
 		displ = ALIGN(addr, mem->alignment);
 
-		obuf.add(" ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, displ);
+		obuf.add(" ´h1%#0*lx`h1    ", sizeof(void*) * 2 + 2, displ);
 
 		for(; displ<addr; displ++){
 			obuf.add("??");
@@ -328,7 +328,7 @@ int cmd_memory_update(){
 				line_map[line++] = mem;
 
 				if(i + 1 < mem->length)
-					obuf.add(" ´h1%#0*x`h1    ", sizeof(void*) * 2 + 2, addr + 1);
+					obuf.add(" ´h1%#0*lx`h1    ", sizeof(void*) * 2 + 2, addr + 1);
 			}
 		}
 
