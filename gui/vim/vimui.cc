@@ -391,9 +391,9 @@ int vimui::win_anno_add(int win, int line, const char *sign, const char *color_f
 		if(action(CMD, "defineAnnoType", win, 0, "0 \"%s\" \"\" \"%s\" %s %s", key.c_str(), sign, color_fg, color_bg) != 0)
 			goto err;
 
-		buf->anno_types[key] = buf->anno_types.size();	// first element has value 1, since anno_types size
-														// is incremented by using the []-operator
-		annotype = MAP_LOOKUP(buf->anno_types, key);
+		annotype = buf->anno_types.size() + 1;			// acquiring the annotation id through the size of the map is an
+		buf->anno_types[key] = annotype;				// indirect relation (vim starts numbering annotations by 1 and
+														// simply increments)
 	}
 
 	/* add annotation */
