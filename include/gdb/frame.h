@@ -23,7 +23,8 @@ public:
 
 	char *function,
 		 *filename,
-		 *fullname;
+		 *fullname,
+		 *from;
 
 	bool expanded;
 	char *context;

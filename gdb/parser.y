@@ -103,6 +103,9 @@
 %token VAR_TGT_NAME
 %token VAR_HOST_NAME
 %token VAR_SYM_LOADED
+%token VAR_RANGES
+%token VAR_FROM
+%token VAR_TO
 %token VAR_REASON
 %token VAR_FRAME
 %token VAR_ARG
@@ -284,6 +287,7 @@ event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
 				|			event-stop-body con-com VAR_SIG_MEANING '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_GDBRES_VAR '=' string-dummy			{ }
 				|			event-stop-body con-com VAR_RETVAL '=' string-dummy				{ }
+				|			event-stop-body con-com VAR_EXITCODE '=' string-dummy			{ }
 				;
 
 event-dummy :				%empty															{ }
@@ -297,6 +301,7 @@ event-dummy :				%empty															{ }
 			|				event-dummy con-com VAR_TGT_NAME '=' string-dummy				{ }
 			|				event-dummy con-com VAR_HOST_NAME '=' string-dummy				{ }
 			|				event-dummy con-com VAR_SYM_LOADED '=' string-dummy				{ }
+			|				event-dummy con-com VAR_RANGES '=' range-dummy					{ }
 			|				event-dummy con-com VAR_EXITCODE '=' string-dummy				{ }
 			|				event-dummy con-com breakpoint									{ delete $3; }
 			;
@@ -378,6 +383,7 @@ frame-body :				%empty															{ $$ = gdb_frame_t::acquire(); }
 		   |				frame-body con-com VAR_FUNCTION '=' string						{ $$ = $1; $$->function = $5; }
 		   |				frame-body con-com VAR_FILE '=' string							{ $$ = $1; $$->filename = $5; }
 		   |				frame-body con-com VAR_FULLNAME '=' string						{ $$ = $1; $$->fullname = $5; }
+		   |				frame-body con-com VAR_FROM '=' string							{ $$ = $1; $$->from = $5; }
 		   |				frame-body con-com VAR_ARGS '=' '[' arg-list ']'				{ }
 		   ;
 
@@ -394,6 +400,12 @@ memory-body :				%empty															{ $$ = gdb_memory_t::acquire(); }
 			|				memory-body con-com VAR_CONTENTS '=' string						{ $$ = $1; $$->content = $5; }
 			|				memory-body con-com VAR_OFFSET '=' string-dummy					{ }
 			;
+
+range-dummy :				'[' '{' range-body-dummy '}' ']'								{ }
+range-body-dummy :			%empty															{ }
+				 |			range-body-dummy con-com VAR_FROM '=' string-dummy				{ }
+				 |			range-body-dummy con-com VAR_TO '=' string-dummy				{ }
+				 ;
 
 reg-names :					VAR_REG_NAMES '=' list											{ $$ = $3; };
 

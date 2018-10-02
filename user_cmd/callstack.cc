@@ -316,7 +316,7 @@ int cmd_callstack_print(){
 		if(!frame->args.empty())
 			obuf.add("%s ", frame->expanded ? "[-]" : "[+]");
 
-		obuf.add("´fl%s`fl:´ln%d`ln ´fu%s`fu(", frame->filename, frame->line, frame->function);
+		obuf.add("´fl%s`fl:´ln%d`ln ´fu%s`fu(", (frame->filename != 0 ? frame->filename : frame->from), frame->line, frame->function);
 		line_frames[line] = frame;
 
 		if(!frame->args.empty() && frame->expanded){

@@ -98,6 +98,9 @@
 "target-name"							{ return VAR_TGT_NAME; }
 "host-name"								{ return VAR_HOST_NAME; }
 "symbols-loaded"						{ return VAR_SYM_LOADED; }
+"ranges"								{ return VAR_RANGES; }
+"from"									{ return VAR_FROM; }
+"to"									{ return VAR_TO; }
 "reason"								{ return VAR_REASON; }
 "frame"									{ return VAR_FRAME; }
 "arg"									{ return VAR_ARG; }

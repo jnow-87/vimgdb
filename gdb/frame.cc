@@ -14,8 +14,14 @@ gdb_frame_t::gdb_frame_t(){
 	function = 0;
 	filename = 0;
 	fullname = 0;
+	from = 0;
 	context = 0;
 	expanded = false;
+
+	line = 0;
+	level = 0;
+	addr = 0x0;
+
 	next = 0;
 	prev = 0;
 }
@@ -30,6 +36,7 @@ gdb_frame_t::~gdb_frame_t(){
 	delete [] function;
 	delete [] filename;
 	delete [] fullname;
+	delete [] from;
 	delete [] context;
 
 	for(it=args.begin(); it!=args.end(); ){
