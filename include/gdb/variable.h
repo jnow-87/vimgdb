@@ -3,6 +3,7 @@
 
 
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gdb/result.h>
 #include <map>
 #include <list>
@@ -33,7 +34,7 @@ public:
 	int set(int argc, char **argv);
 	int format(const char *fmt);
 	int update();
-	int print(dynarray *obuf, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent = 0);
+	int print(dynarray *obuf, unsigned int *line, line_map *line_map, bool expand, unsigned int indent = 0);
 	int init_childs();
 
 	char *name,
@@ -63,7 +64,7 @@ private:
 	gdb_variable_t();
 	~gdb_variable_t();
 
-	int print(dynarray *obuf, int rec_lvl, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map);
+	int print(dynarray *obuf, int rec_lvl, unsigned int *line, line_map *line_map);
 	void erase_childs();
 };
 

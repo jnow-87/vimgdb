@@ -39,8 +39,8 @@ function vimgdb#per#init()
 		\ nnoremap <buffer> <silent> + :exec 'Per fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> - :exec 'Per fold ' . line('.')<cr>|
 		\ nnoremap <buffer> <silent> u :exec 'Per view'<cr>|
-		\ nnoremap <buffer> i :Per set <c-r>=substitute(split(getline('.'))[0], '[´`]h[0-9]', '', 'g')<cr> |
-		\ nnoremap <buffer> s :Per set <c-r>=substitute(split(getline('.'))[0], '[´`]h[0-9]', '', 'g')<cr>
+		\ nnoremap <buffer> i :Per set <c-r>=line('.')<cr> |
+		\ nnoremap <buffer> s :Per set <c-r>=line('.')<cr>
 		\ "
 endfunction
 
