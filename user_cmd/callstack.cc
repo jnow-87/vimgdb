@@ -3,6 +3,7 @@
 #include <common/log.h>
 #include <common/map.h>
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -15,8 +16,8 @@
 
 /* static variables */
 static gdb_frame_t *callstack = 0;
-static map<unsigned int, gdb_variable_t*> line_vars;
-static map<unsigned int, gdb_frame_t*> line_frames;
+static line_map line_vars;
+static line_map line_frames;
 
 
 /* global functions */
@@ -25,8 +26,7 @@ int cmd_callstack_exec(int argc, char **argv){
 	gdb_frame_t *frame;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
-	map<unsigned int, gdb_frame_t*>::iterator it_frame;
-	map<unsigned int, gdb_variable_t*>::iterator it_var;
+	vector<line_map_t>::iterator line;
 
 
 	if(argc < 2){
@@ -51,7 +51,7 @@ int cmd_callstack_exec(int argc, char **argv){
 	switch(scmd->id){
 	case SET:
 	case FORMAT:
-		var = MAP_LOOKUP(line_vars, atoi(argv[2]));
+		var = (gdb_variable_t*)line_vars.find(atoi(argv[2]));
 
 		if(var == 0){
 			USER("no variable at line \"%s\"\n", argv[2]);
@@ -66,10 +66,10 @@ int cmd_callstack_exec(int argc, char **argv){
 
 	switch(scmd->id){
 	case FOLD:
-		var = MAP_LOOKUP(line_vars, atoi(argv[2]));
+		var = (gdb_variable_t*)line_vars.find(atoi(argv[2]));
 
 		if(var == 0){
-			frame = MAP_LOOKUP(line_frames, atoi(argv[2]));
+			frame = (gdb_frame_t*)line_frames.find(atoi(argv[2]));
 
 			if(frame == 0){
 				USER("no variable or frame at line \"%s\"\n", argv[2]);
@@ -110,11 +110,11 @@ int cmd_callstack_exec(int argc, char **argv){
 		if(fp == 0)
 			return -1;
 
-		for(it_frame=line_frames.begin(); it_frame!=line_frames.end(); it_frame++)
-			fprintf(fp, "%d\\n", it_frame->first);
+		for(line=line_frames.lines()->begin(); line!=line_frames.lines()->end(); line++)
+			fprintf(fp, "%u\\n", line->line);
 
-		for(it_var=line_vars.begin(); it_var!=line_vars.end(); it_var++)
-			fprintf(fp, "%d\\n", it_var->first);
+		for(line=line_vars.lines()->begin(); line!=line_vars.lines()->end(); line++)
+			fprintf(fp, "%u\\n", line->line);
 
 		fclose(fp);
 		break;
@@ -317,7 +317,7 @@ int cmd_callstack_print(){
 			obuf.add("%s ", frame->expanded ? "[-]" : "[+]");
 
 		obuf.add("´fl%s`fl:´ln%d`ln ´fu%s`fu(", (frame->filename != 0 ? frame->filename : frame->from), frame->line, frame->function);
-		line_frames[line] = frame;
+		line_frames.add(line, frame);
 
 		if(!frame->args.empty() && frame->expanded){
 			obuf.add("\n");

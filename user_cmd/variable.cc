@@ -3,6 +3,7 @@
 #include <common/log.h>
 #include <common/list.h>
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/variable.h>
@@ -17,7 +18,7 @@ using namespace std;
 
 
 /* static variables */
-static map<unsigned int, gdb_variable_t*> line_map;
+static line_map line_vars;
 
 
 /* global functions */
@@ -25,7 +26,7 @@ int cmd_var_exec(int argc, char **argv){
 	gdb_variable_t *var;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
-	map<unsigned int, gdb_variable_t*>::iterator lit;
+	vector<line_map_t>::iterator lit;
 	map<string, gdb_variable_t*>::iterator sit;
 
 
@@ -53,7 +54,7 @@ int cmd_var_exec(int argc, char **argv){
 	case FOLD:
 	case SET:
 	case FORMAT:
-		var = MAP_LOOKUP(line_map, atoi(argv[2]));
+		var = (gdb_variable_t*)line_vars.find(atoi(argv[2]));
 
 		if(var == 0){
 			USER("no variable at line %s\n", argv[2]);
@@ -124,8 +125,8 @@ int cmd_var_exec(int argc, char **argv){
 		if(fp == 0)
 			return -1;
 
-		for(lit=line_map.begin(); lit!=line_map.end(); lit++)
-			fprintf(fp, "%d\\n", lit->first);
+		for(lit=line_vars.lines()->begin(); lit!=line_vars.lines()->end(); lit++)
+			fprintf(fp, "%d\\n", lit->line);
 
 		fclose(fp);
 		break;
@@ -159,7 +160,7 @@ int cmd_var_exec(int argc, char **argv){
 }
 
 void cmd_var_cleanup(){
-	line_map.clear();
+	line_vars.clear();
 }
 
 void cmd_var_help(int argc, char **argv){
@@ -261,14 +262,14 @@ int cmd_var_print(){
 	if(win_id < 0)
 		return 0;
 
-	line_map.clear();
+	line_vars.clear();
 	obuf.clear();
 
 	line = 1;
 
 	for(it=gdb_user_var.begin(); it!=gdb_user_var.end(); it++){
 		if(it->second->parent == 0)
-			it->second->print(&obuf, &line, &line_map, true);
+			it->second->print(&obuf, &line, &line_vars, true);
 	}
 
 	ui->win_atomic(win_id, true);

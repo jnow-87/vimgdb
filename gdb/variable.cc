@@ -252,7 +252,7 @@ int gdb_variable_t::update(){
 	return 0;
 }
 
-int gdb_variable_t::print(dynarray *obuf, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map, bool expand, unsigned int indent){
+int gdb_variable_t::print(dynarray *obuf, unsigned int *line, line_map *line_map, bool expand, unsigned int indent){
 	if(!expand){
 		if(update() != 0)
 			return -1;
@@ -300,7 +300,7 @@ void gdb_variable_t::erase_childs(){
 	}
 }
 
-int gdb_variable_t::print(dynarray *obuf, int rec_lvl, unsigned int *line, map<unsigned int, gdb_variable_t*>* line_map){
+int gdb_variable_t::print(dynarray *obuf, int rec_lvl, unsigned int *line, line_map *line_map){
 	char rec_s[rec_lvl + 1];
 	list<gdb_variable_t*>::iterator it;
 
@@ -318,7 +318,8 @@ int gdb_variable_t::print(dynarray *obuf, int rec_lvl, unsigned int *line, map<u
 
 	/* update variable structs */
 	modified = false;
-	(*line_map)[(*line)++] = this;
+	line_map->add(*line, this);
+	(*line)++;
 
 	/* print childs */
 	if(childs_visible){

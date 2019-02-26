@@ -4,6 +4,7 @@
 #include <common/log.h>
 #include <common/string.h>
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -14,8 +15,6 @@
 #include <user_cmd/pertypes.h>
 #include <user_cmd/per.tab.h>
 #include <user_cmd/per.lex.h>
-#include <map>
-#include <vector>
 #include <string>
 
 
@@ -25,31 +24,13 @@ using namespace std;
 /* macros */
 #define CTOI(c) (unsigned int)((c) - ((c) >= 'a' ? 87 : 48))
 #define ALIGN(val, base) ((val) & (~(base - 1)))
-#define LOOKUP_LINE(_vec, _line)({ \
-	auto it = (_vec).rbegin(); \
-	\
-	\
-	for(; it!=(_vec).rend(); it++){ \
-		if(it->line <= (_line)) \
-			break; \
-	} \
-	\
-	it != (_vec).rend() ? it->data : 0x0; \
-})
-
-
-/* types */
-typedef struct{
-	unsigned int line;
-	void *data;
-} line_map_t;
 
 
 /* static variables */
 static char *per_file = 0;
 static per_range_t *range_lst = 0;
-static vector<line_map_t> line_sec_map;
-static vector<line_map_t> line_reg_map;
+static line_map line_secs;
+static line_map line_regs;
 
 
 /* global functions */
@@ -161,7 +142,7 @@ int cmd_per_exec(int argc, char **argv){
 	else{
 		switch(scmd->id){
 		case SET:
-			reg = (per_register_t*)LOOKUP_LINE(line_reg_map, (unsigned int)atoi(argv[2]));
+			reg = (per_register_t*)line_regs.find(atoi(argv[2]));
 
 			if(reg == 0){
 				USER("no register at line %s\n", argv[2]);
@@ -178,7 +159,7 @@ int cmd_per_exec(int argc, char **argv){
 			break;
 
 		case FOLD:
-			sec = (per_section_t*)LOOKUP_LINE(line_sec_map, (unsigned int)atoi(argv[2]));
+			sec = (per_section_t*)line_secs.find(atoi(argv[2]));
 
 			if(sec == 0){
 				USER("no peripheral section at line %s\n", argv[2]);
@@ -196,12 +177,12 @@ int cmd_per_exec(int argc, char **argv){
 			if(fp == 0)
 				return -1;
 
-			for(line=line_sec_map.begin(); line!=line_sec_map.end(); line++)
+			for(line=line_secs.lines()->begin(); line!=line_secs.lines()->end(); line++)
 				fprintf(fp, "%d\\n", line->line);
 
 			fprintf(fp, "<regs>");
 
-			for(line=line_reg_map.begin(); line!=line_reg_map.end(); line++)
+			for(line=line_regs.lines()->begin(); line!=line_regs.lines()->end(); line++)
 				fprintf(fp, "%d\\n", line->line);
 
 			fclose(fp);
@@ -240,8 +221,8 @@ void cmd_per_cleanup(){
 	delete [] per_file;
 	per_file = 0;
 
-	line_sec_map.clear();
-	line_reg_map.clear();
+	line_secs.clear();
+	line_regs.clear();
 
 	list_for_each(range_lst, range){
 		list_rm(&range_lst, range);
@@ -335,8 +316,8 @@ int cmd_per_update(){
 	if(win_id < 0)
 		return 0;
 
-	line_sec_map.clear();
-	line_reg_map.clear();
+	line_secs.clear();
+	line_regs.clear();
 	obuf.clear();
 	line = 1;
 
@@ -351,7 +332,7 @@ int cmd_per_update(){
 		list_for_each(range->sections, sec){
 			// print header
 			obuf.add("[%c] ´h0%s`h0\n", (sec->expanded ? '-' : '+'), sec->name);
-			line_sec_map.push_back({.line = line, .data = sec});
+			line_secs.add(line, sec);
 			line++;
 
 			if(!sec->expanded){
@@ -362,7 +343,7 @@ int cmd_per_update(){
 
 			// print register values
 			list_for_each(sec->regs, reg){
-				line_reg_map.push_back({.line = line, .data = reg});
+				line_regs.add(line, reg);
 
 				if(reg->nbytes == 0){
 					obuf.add(" ´h1%s%s%s`h1\n", (reg->name ? reg->name : ""), (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""));

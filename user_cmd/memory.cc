@@ -4,6 +4,7 @@
 #include <common/log.h>
 #include <common/string.h>
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -11,7 +12,6 @@
 #include <gdb/variable.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
-#include <map>
 #include <math.h>
 
 
@@ -35,7 +35,7 @@ using namespace std;
 
 /* static variables */
 static gdb_memory_t *mem_lst = 0;
-static map<unsigned int, gdb_memory_t*> line_map;
+static line_map line_mems;
 static dynarray obuf;
 static unsigned int asciib_len = 17;	// 8 byte + 0-byte + 8 byte for potential escape char
 static char *asciib = new char[asciib_len];
@@ -46,7 +46,7 @@ int cmd_memory_exec(int argc, char **argv){
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
 	gdb_memory_t *mem;
-	map<unsigned int, gdb_memory_t*>::iterator it;
+	vector<line_map_t>::iterator line;
 
 
 	if(argc < 2){
@@ -103,7 +103,7 @@ int cmd_memory_exec(int argc, char **argv){
 		break;
 
 	case DELETE:
-		mem = MAP_LOOKUP(line_map, atoi(argv[2]));
+		mem = (gdb_memory_t*)line_mems.find(atoi(argv[2]));
 
 		if(mem == 0){
 			USER("no memory segment at line %s\n", argv[2]);
@@ -126,7 +126,7 @@ int cmd_memory_exec(int argc, char **argv){
 		break;
 
 	case FOLD:
-		mem = MAP_LOOKUP(line_map, atoi(argv[2]));
+		mem = (gdb_memory_t*)line_mems.find(atoi(argv[2]));
 
 		if(mem == 0){
 			USER("no memory segment at line %s\n", argv[2]);
@@ -144,8 +144,8 @@ int cmd_memory_exec(int argc, char **argv){
 		if(fp == 0)
 			return -1;
 
-		for(it=line_map.begin(); it!=line_map.end(); it++)
-			fprintf(fp, "%d\\n", it->first);
+		for(line=line_mems.lines()->begin(); line!=line_mems.lines()->end(); line++)
+			fprintf(fp, "%d\\n", line->line);
 
 		fprintf(fp, "<addr>");
 
@@ -171,7 +171,7 @@ void cmd_memory_cleanup(){
 	gdb_memory_t *mem;
 
 
-	line_map.clear();
+	line_mems.clear();
 
 	list_for_each(mem_lst, mem){
 		list_rm(&mem_lst, mem);
@@ -269,7 +269,7 @@ int cmd_memory_update(){
 	if(win_id < 0)
 		return 0;
 
-	line_map.clear();
+	line_mems.clear();
 	obuf.clear();
 	line = 1;
 
@@ -282,7 +282,8 @@ int cmd_memory_update(){
 
 		/* print header */
 		obuf.add("[%c] ´h0memory dump: %#0*lx`h0 (%u bytes)\n", (mem->expanded ? '-' : '+'), sizeof(void*) * 2 + 2, addr, mem->length);
-		line_map[line++] = mem;
+		line_mems.add(line, mem);
+		line++;
 
 		if(!mem->expanded){
 			obuf.add("\n");
@@ -296,8 +297,7 @@ int cmd_memory_update(){
 			obuf.add("%2x", i);
 
 		obuf.add("`h1\n");
-
-		line_map[line++] = mem;
+		line++;
 
 		/* print preceding bytes, that are not part of content, to align the output to mem->alignment bytes per line */
 		j = 0;
@@ -325,7 +325,7 @@ int cmd_memory_update(){
 				asciib[j] = 0;
 				j = 0;
 				obuf.add("    ´h2%s`h2\n", strescape(asciib, &asciib, &asciib_len));
-				line_map[line++] = mem;
+				line++;
 
 				if(i + 1 < mem->length)
 					obuf.add(" ´h1%#0*lx`h1    ", sizeof(void*) * 2 + 2, addr + 1);
@@ -342,7 +342,7 @@ int cmd_memory_update(){
 
 		asciib[j] = 0;
 		obuf.add("    ´h2%s`h2\n", strescape(asciib, &asciib, &asciib_len));
-		line_map[line++] = mem;
+		line++;
 
 		if(j != 0){
 			obuf.add("\n");

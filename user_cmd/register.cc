@@ -3,6 +3,7 @@
 #include <common/map.h>
 #include <common/list.h>
 #include <common/dynarray.h>
+#include <common/linemap.h>
 #include <gui/gui.h>
 #include <gdb/gdb.h>
 #include <gdb/result.h>
@@ -10,7 +11,6 @@
 #include <gdb/strlist.h>
 #include <user_cmd/cmd.h>
 #include <user_cmd/subcmd.hash.h>
-#include <map>
 #include <string>
 
 
@@ -18,7 +18,7 @@ using namespace std;
 
 
 /* static variables */
-static map<unsigned int, gdb_variable_t*> line_map;
+static line_map line_vars;
 
 
 /* global functions */
@@ -71,7 +71,7 @@ int cmd_register_exec(int argc, char **argv){
 	gdb_variable_t *var;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
-	map<unsigned int, gdb_variable_t*>::iterator it;
+	vector<line_map_t>::iterator line;
 
 
 	if(argc < 2){
@@ -97,7 +97,7 @@ int cmd_register_exec(int argc, char **argv){
 	case SET:
 	case FOLD:
 	case FORMAT:
-		var = MAP_LOOKUP(line_map, atoi(argv[2]));
+		var = (gdb_variable_t*)line_vars.find(atoi(argv[2]));
 
 		if(var == 0){
 			USER("no register at line \"%s\"\n", argv[2]);
@@ -143,8 +143,8 @@ int cmd_register_exec(int argc, char **argv){
 		if(fp == 0)
 			return -1;
 
-		for(it=line_map.begin(); it!=line_map.end(); it++)
-			fprintf(fp, "%d\\n", it->first);
+		for(line=line_vars.lines()->begin(); line!=line_vars.lines()->end(); line++)
+			fprintf(fp, "%d\\n", line->line);
 
 		fclose(fp);
 		break;
@@ -161,7 +161,7 @@ int cmd_register_exec(int argc, char **argv){
 }
 
 void cmd_register_cleanup(){
-	line_map.clear();
+	line_vars.clear();
 }
 
 void cmd_register_help(int argc, char **argv){
@@ -242,12 +242,12 @@ int cmd_register_print(){
 		return 0;
 
 	line = 1;
-	line_map.clear();
+	line_vars.clear();
 
 	obuf.clear();
 
 	for(it=gdb_register_var.begin(); it!=gdb_register_var.end(); it++){
-		it->second->print(&obuf, &line, &line_map, true);
+		it->second->print(&obuf, &line, &line_vars, true);
 	}
 
 	ui->win_atomic(win_id, true);
