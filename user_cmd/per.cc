@@ -361,10 +361,6 @@ int cmd_per_update(){
 					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
 
 				obuf.add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
-
-				if(BYTE_SWAP_COND(reg->opt, props.endian))
-					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
-
 				line++;
 
 				// print bits
@@ -394,6 +390,9 @@ int cmd_per_update(){
 					obuf.add("\n\n");
 					line += 2;
 				}
+
+				if(BYTE_SWAP_COND(reg->opt, props.endian))
+					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
 			}
 
 			obuf.add("\n");
