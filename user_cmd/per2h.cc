@@ -38,6 +38,7 @@ int main(int argc, char **argv){
 				 bit_off;
 	FILE *per,
 		 *header;
+	per_prop_t props;
 	per_section_t *sec;
 	per_range_t *rlst, *range;
 	per_register_t *reg;
@@ -68,7 +69,7 @@ int main(int argc, char **argv){
 	}
 
 	/* parse peripheral file */
-	if(perparse(per, &rlst) != 0){
+	if(perparse(per, &rlst, &props) != 0){
 		USER("error: parsing peripheral file failed\n");
 		goto e3;
 	}

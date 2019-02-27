@@ -34,13 +34,15 @@
 %%
 
 	/* per identifier */
+"property"				{ return PROPERTY; }
 "section"				{ return SECTION; }
 "range"					{ return RANGE; }
 "register"				{ return REGISTER; }
 "bits"					{ return BITS; }
 "emptyline"				{ return EMPTYLINE; }
 "heading"				{ return HEADLINE; }
-"swap"					{ return SWAP; }
+"little-endian"			{ return ENDIAN_LITTLE; }
+"big-endian"			{ return ENDIAN_BIG; }
 
 	/* general patterns */
 [\ \t]					{ /* ignore whitespaces */}
@@ -62,5 +64,4 @@
 "//".*\r?\n				{ per_line++; }	/* single-line comment at end of line (do not read the newline */
 
 	/* default */
-<<EOF>>					{ return END; }
 .						{ return pertext[0]; }

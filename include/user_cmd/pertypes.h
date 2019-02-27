@@ -7,8 +7,18 @@
 
 typedef enum{
 	REG_NONE = 0x0,
-	REG_SWAP = 0x1,
+	REG_END_BIG = 0x1,
+	REG_END_LITTLE = 0x2,
 } per_reg_opt_t;
+
+typedef enum{
+	END_BIG = 0,
+	END_LITTLE,
+} per_endian_t;
+
+typedef struct{
+	per_endian_t endian;
+} per_prop_t;
 
 
 class per_bits_t{
