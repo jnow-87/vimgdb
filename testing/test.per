@@ -1,4 +1,6 @@
 /* testing all */
+property little-endian
+
 range 0x612c20 10{
 	section "first"{
 		//			<name>	<offset>	<nbytes>
@@ -19,6 +21,6 @@ range 0x612c20 10{
 	}
 
 	section "second"{
-		register "r3" "Register 3" 5 2{}
+		register "r3" "Register 3" 5 2 big-endian{}
 	}
 }

@@ -14,6 +14,7 @@
 /* global functions */
 int main(int argc, char **argv){
 	FILE *fp;
+	per_prop_t props;
 	per_section_t *sec;
 	per_range_t *rlst, *range;
 	per_register_t *reg;
@@ -36,10 +37,13 @@ int main(int argc, char **argv){
 	if(log::init("/proc/self/fd/1", LOG_LEVEL) != 0)
 		return 1;
 
-	USER("parser return value: %d\n\n", perparse(fp, &rlst));
+	USER("parser return value: %d\n\n", perparse(fp, &rlst, &props));
 	perlex_destroy();
 
 	fclose(fp);
+
+	USER("property endian: %s\n", props.endian == END_LITTLE ? "little" : "big");
+	USER("\n");
 
 	list_for_each(rlst, range){
 		USER("range: 0x%lx %u\n", (unsigned long)range->base, range->size);
@@ -55,7 +59,7 @@ int main(int argc, char **argv){
 					continue;
 				}
 
-				USER("    reg: %s %u %u\n", reg->name, reg->offset, reg->nbytes);
+				USER("    reg: %s %u %u %x\n", reg->name, reg->offset, reg->nbytes, reg->opt);
 
 				list_for_each(reg->bits, bits){
 					USER("        bits: %s %u %#x\n", bits->name, bits->idx, bits->mask);

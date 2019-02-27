@@ -24,11 +24,14 @@ using namespace std;
 /* macros */
 #define CTOI(c) (unsigned int)((c) - ((c) >= 'a' ? 87 : 48))
 #define ALIGN(val, base) ((val) & (~(base - 1)))
+#define BYTE_SWAP_COND(reg_opt, glob_prop) \
+	(((reg_opt) & REG_END_LITTLE) || ((glob_prop) == END_LITTLE && !((reg_opt) & REG_END_BIG)))
 
 
 /* static variables */
 static char *per_file = 0;
 static per_range_t *range_lst = 0;
+static per_prop_t props;
 static line_map line_secs;
 static line_map line_regs;
 
@@ -71,7 +74,7 @@ int cmd_per_exec(int argc, char **argv){
 			return -1;
 		}
 
-		r = perparse(fp, &range_lst);
+		r = perparse(fp, &range_lst, &props);
 		perlex_destroy();
 
 		fclose(fp);
@@ -149,7 +152,7 @@ int cmd_per_exec(int argc, char **argv){
 				return 0;
 			}
 
-			if(reg->opt & REG_SWAP)
+			if(BYTE_SWAP_COND(reg->opt, props.endian))
 				strswap2(argv[3], strlen(argv[3]));
 
 			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3], reg->nbytes) != 0)
@@ -354,14 +357,10 @@ int cmd_per_update(){
 
 				modified = memcmp(mem->content + reg->offset * 2, mem->content_old + reg->offset * 2, reg->nbytes * 2);
 
-				if(reg->opt & REG_SWAP)
+				if(BYTE_SWAP_COND(reg->opt, props.endian))
 					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
 
 				obuf.add("  ´h2%s%s%s`h2 = %s%.*s%s\n", reg->name, (reg->desc && reg->desc[0] ? " - " : ""), (reg->desc ? reg->desc : ""), (modified ? "´c" : ""), reg->nbytes * 2, mem->content + reg->offset * 2, (modified ? "`c" : ""));
-
-				if(reg->opt & REG_SWAP)
-					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
-
 				line++;
 
 				// print bits
@@ -391,6 +390,9 @@ int cmd_per_update(){
 					obuf.add("\n\n");
 					line += 2;
 				}
+
+				if(BYTE_SWAP_COND(reg->opt, props.endian))
+					strswap2(mem->content + reg->offset * 2, reg->nbytes * 2);
 			}
 
 			obuf.add("\n");

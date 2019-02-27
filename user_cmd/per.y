@@ -18,23 +18,24 @@
 
 
 	/* prototypes */
-	int pererror(FILE *file, per_range_t **rlst, const char *s);
+	int pererror(FILE *file, per_range_t **rlst, per_prop_t *props, const char *s);
 %}
 
 %union{
-char *sptr;
-long long int i;
+	char *sptr;
+	long long int i;
 
-per_section_t *sec;
-per_range_t *range;
-per_register_t *reg;
-per_reg_opt_t ropt;
-per_bits_t *bits;
+	per_section_t *sec;
+	per_range_t *range;
+	per_register_t *reg;
+	per_reg_opt_t ropt;
+	per_bits_t *bits;
 }
 
 
 %parse-param { FILE *file }
 %parse-param { per_range_t **rlst }
+%parse-param { per_prop_t *props }
 
 %initial-action{
 	if(!rlst)
@@ -44,18 +45,21 @@ per_bits_t *bits;
 	per_line = 1;
 	*rlst = 0;
 
+	memset(props, 0x0, sizeof(per_prop_t));
+
 	perrestart(file);
 }
 
 /* terminals */
+%token PROPERTY
 %token SECTION
 %token RANGE
 %token REGISTER
 %token BITS
 %token EMPTYLINE
 %token HEADLINE
-%token SWAP
-%token END
+%token ENDIAN_LITTLE
+%token ENDIAN_BIG
 %token <sptr> STRING
 %token <i> INT
 
@@ -71,11 +75,18 @@ per_bits_t *bits;
 
 
 /* start */
-start :		range END															{ *rlst = $1; return 0; }
+start :		%empty																{ }
+	  |		start property														{ }
+	  |		start range															{ list_add_tail(rlst, $2); }
 	  ;
 
-range :		%empty																{ $$ = 0; }
-	  |		range RANGE INT INT '{' section '}'									{ $$ = $1; list_add_tail(&$$, new per_range_t((void*)$3, $4, $6)); }
+/* property */
+property :	PROPERTY ENDIAN_LITTLE												{ props->endian = END_LITTLE; }
+		 |	PROPERTY ENDIAN_BIG													{ props->endian = END_BIG; }
+		 ;
+
+/* range */
+range :		RANGE INT INT '{' section '}'										{ $$ = new per_range_t((void*)$2, $3, $5); }
 	  ;
 
 section :	%empty																{ $$ = 0; }
@@ -89,7 +100,8 @@ register :	%empty																{ $$ = 0; }
 		 ;
 
 register-opt :		%empty														{ $$ = REG_NONE; }
-	 		 |		register-opt SWAP											{ $$ = (per_reg_opt_t)($1 | REG_SWAP); }
+	 		 |		register-opt ENDIAN_LITTLE									{ $$ = (per_reg_opt_t)($1 | REG_END_LITTLE); }
+	 		 |		register-opt ENDIAN_BIG										{ $$ = (per_reg_opt_t)($1 | REG_END_BIG); }
 	 		 ;
 
 bits :		%empty																{ $$ = 0; }
@@ -99,7 +111,7 @@ bits :		%empty																{ $$ = 0; }
 %%
 
 
-int pererror(FILE *file, per_range_t **rlst, const char *s){
+int pererror(FILE *file, per_range_t **rlst, per_prop_t *props, const char *s){
 	USER("perparse: %s at token \"%s\" line %d, columns (%d - %d)\n", s, pertext, perlloc.first_line, perlloc.first_column, perlloc.last_column);
 	return 0;
 }
