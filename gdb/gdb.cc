@@ -597,15 +597,15 @@ int gdbif::evt_stopped(gdb_event_stop_t *result){
 		USER("program received signal \"%s\"\n", result->signal);
 
 		// generate gdb exit event on SEGFAULT
-		if(strcmp(result->signal, "SIGSEGV") == 0)
+		if(strcmp(result->signal, "SIGSEGV") == 0){
 			gdb->mi_proc_async(RC_EXIT, 0, 0);
-
-		return 0;
+			return 0;
+		}
 	}
-	else if(frame != 0){
-		if(memory_update() != 0)
-			return -1;
 
+	inf_update();
+
+	if(frame != 0){
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);
