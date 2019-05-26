@@ -6,7 +6,7 @@
 #include <user_cmd/cmd.h>
 
 
-int cmd_test_exec(int argc, char **argv){
+bool cmd_test_exec(int argc, char **argv){
 	int i;
 
 
@@ -17,7 +17,7 @@ int cmd_test_exec(int argc, char **argv){
 		USER(" (%d, \"%s\")", i, argv[i]);
 	USER("\n");
 
-	return 0;
+	return false;
 }
 
 void cmd_test_help(int argc, char **argv){

@@ -37,7 +37,7 @@ static line_map line_regs;
 
 
 /* global functions */
-int cmd_per_exec(int argc, char **argv){
+bool cmd_per_exec(int argc, char **argv){
 	int r;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
@@ -51,7 +51,7 @@ int cmd_per_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_per_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
@@ -59,7 +59,7 @@ int cmd_per_exec(int argc, char **argv){
 	if((scmd == 0 && argc < 2) || (scmd != 0 && (((scmd->id == FOLD || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3) || (scmd->id == SET && argc < 4)))){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_per_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	if(scmd == 0){
@@ -71,7 +71,7 @@ int cmd_per_exec(int argc, char **argv){
 
 		if(fp == 0){
 			USER("cannot open file \"%s\"\n", argv[1]);
-			return -1;
+			return false;
 		}
 
 		r = perparse(fp, &range_lst, &props);
@@ -81,7 +81,7 @@ int cmd_per_exec(int argc, char **argv){
 
 		if(r != 0){
 			USER("error parsing peripheral file \"%s\"\n", argv[1]);
-			return -1;
+			return false;
 		}
 
 		/* initialise memory segments */
@@ -95,7 +95,7 @@ int cmd_per_exec(int argc, char **argv){
 				cmd_per_cleanup();
 				cmd_per_update();
 
-				return -1;
+				return false;
 			}
 
 			list_for_each(range->sections, sec){
@@ -114,7 +114,7 @@ int cmd_per_exec(int argc, char **argv){
 						cmd_per_cleanup();
 						cmd_per_update();
 
-						return -1;
+						return false;
 					}
 
 					// check integrity of bits to register
@@ -125,7 +125,7 @@ int cmd_per_exec(int argc, char **argv){
 							cmd_per_cleanup();
 							cmd_per_update();
 
-							return -1;
+							return false;
 						}
 					}
 
@@ -149,16 +149,16 @@ int cmd_per_exec(int argc, char **argv){
 
 			if(reg == 0){
 				USER("no register at line %s\n", argv[2]);
-				return 0;
+				return false;
 			}
 
 			if(BYTE_SWAP_COND(reg->opt, props.endian))
 				strswap2(argv[3], strlen(argv[3]));
 
 			if(gdb_memory_t::set((void*)((unsigned long long)reg->parent->base + reg->offset), argv[3], reg->nbytes) != 0)
-				return -1;
+				return false;
 
-			gdb->memory_update();
+			gdb->inf_update();
 			break;
 
 		case FOLD:
@@ -166,7 +166,7 @@ int cmd_per_exec(int argc, char **argv){
 
 			if(sec == 0){
 				USER("no peripheral section at line %s\n", argv[2]);
-				return 0;
+				return false;
 			}
 
 			sec->expanded = sec->expanded ? false : true;
@@ -178,7 +178,7 @@ int cmd_per_exec(int argc, char **argv){
 			fp = fopen(argv[2], "w");
 
 			if(fp == 0)
-				return -1;
+				return false;
 
 			for(line=line_secs.lines()->begin(); line!=line_secs.lines()->end(); line++)
 				fprintf(fp, "%d\\n", line->line);
@@ -195,7 +195,7 @@ int cmd_per_exec(int argc, char **argv){
 			fp = fopen(argv[2], "w");
 
 			if(fp == 0)
-				return 0;
+				return false;
 
 			if(per_file)		fprintf(fp, "Per %s\n\n", per_file);
 
@@ -214,7 +214,7 @@ int cmd_per_exec(int argc, char **argv){
 		};
 	}
 
-	return 0;
+	return false;
 }
 
 void cmd_per_cleanup(){

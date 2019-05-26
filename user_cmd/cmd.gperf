@@ -52,16 +52,16 @@ ui,			cmd_ui_exec,		0,						cmd_ui_help,		"control user interface parameter"
  * \return	0			sucess
  * 			-1			error
  */
-int cmd_exec(char *line){
+void cmd_exec(char *line){
 	int i;
-	int argc, r;
+	int argc;
 	char **argv;
 	FILE *sync;
 
 
 	if(strsplit(strdeescape(line), &argc, &argv) != 0){
 		ERROR("error pre-processing command string \"%s\"\n", line);
-		return -1;
+		return;
 	}
 
 	/* execute command */
@@ -71,11 +71,10 @@ int cmd_exec(char *line){
 		/* send unknown command to gdb */
 		gdb->write(line, strlen(line));
 		gdb->write((void*)"\n", 1);
-
-		r = -1;
 	}
 	else{
-		r = user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc - 1, argv);
+		if(user_cmd::lookup(argv[0], strlen(argv[0]))->exec(argc - 1, argv))
+			gdb->inf_await_update();
 
 		sync = fopen(argv[argc - 1], "w");
 
@@ -90,6 +89,4 @@ int cmd_exec(char *line){
 	for(i=0; i<argc; i++)
 		delete [] argv[i];
 	delete [] argv;
-
-	return r;
 }

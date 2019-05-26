@@ -3,7 +3,7 @@
 
 
 /* prototypes */
-int cmd_ui_exec(int argc, char **argv);
+bool cmd_ui_exec(int argc, char **argv);
 void cmd_ui_help(int argc, char **argv);
 
 

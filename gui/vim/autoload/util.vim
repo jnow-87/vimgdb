@@ -3,7 +3,7 @@
 """"""""""""""""""""
 let s:sync_file = "/tmp/vimgdb_sync"
 let s:data_file = "/tmp/vimgdb_data"
-let s:timeout_s = 5
+let s:timeout_s = 3
 
 
 " \brief	print error message

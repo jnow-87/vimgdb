@@ -7,11 +7,11 @@
 #include <string.h>
 
 
-int cmd_ui_exec(int argc, char **argv){
+bool cmd_ui_exec(int argc, char **argv){
 	if(argc < 4){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_ui_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	if(strcmp(argv[2], "ro") == 0){
@@ -25,7 +25,7 @@ int cmd_ui_exec(int argc, char **argv){
 	else
 		USER("invalid parameter \"%s\"\n", argv[2]);
 
-	return 0;
+	return false;
 }
 
 void cmd_ui_help(int argc, char **argv){

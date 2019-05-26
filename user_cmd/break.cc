@@ -26,7 +26,7 @@ void breakpt_print(char *filename = 0);
 
 
 /* global functions */
-int cmd_break_exec(int argc, char **argv){
+bool cmd_break_exec(int argc, char **argv){
 	char key[256];
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
@@ -37,26 +37,26 @@ int cmd_break_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_break_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
 	if((scmd->id == ADD || scmd->id == DELETE || scmd->id == ENABLE || scmd->id == DISABLE || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	switch(scmd->id){
 	case ADD:
 		if(gdb->mi_issue_cmd("break-insert", (gdb_result_t**)&bkpt, "%ssq %d", argv + 2, argc - 2) != 0)
-			return -1;
+			return false;
 
 		if(bkpt->filename != 0)	snprintf(key, 256, "%s:%d", bkpt->filename, bkpt->line);
 		else					snprintf(key, 256, "%s", bkpt->at);
@@ -71,7 +71,7 @@ int cmd_break_exec(int argc, char **argv){
 		}
 		else{
 			if(gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num) != 0)
-				return -1;
+				return false;
 
 			delete bkpt;
 		}
@@ -85,7 +85,7 @@ int cmd_break_exec(int argc, char **argv){
 
 		if(it == breakpt_lst.end()){
 			USER("error breakpoint \"%s\" not found\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		bkpt = it->second;
@@ -93,7 +93,7 @@ int cmd_break_exec(int argc, char **argv){
 		switch(scmd->id){
 		case DELETE:
 			if(gdb->mi_issue_cmd("break-delete", 0, "%d", bkpt->num) != 0)
-				return -1;
+				return false;
 
 			USER("delete break-point \"%s\"\n", it->first.c_str());
 			ui->win_anno_delete(ui->win_create(bkpt->fullname), bkpt->line, "b");
@@ -105,7 +105,7 @@ int cmd_break_exec(int argc, char **argv){
 
 		case ENABLE:
 			if(gdb->mi_issue_cmd("break-enable", 0, "%d", bkpt->num) != 0)
-				return -1;
+				return false;
 
 			USER("enable break-point \"%s\"\n", it->first.c_str());
 
@@ -118,7 +118,7 @@ int cmd_break_exec(int argc, char **argv){
 
 		case DISABLE:
 			if(gdb->mi_issue_cmd("break-disable", 0, "%d", bkpt->num) != 0)
-				return -1;
+				return false;
 
 			USER("disable break-point \"%s\"\n", it->first.c_str());
 
@@ -144,7 +144,7 @@ int cmd_break_exec(int argc, char **argv){
 
 		if(fp == 0){
 			DEBUG("unable to open file \"%s\"\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		for(it=breakpt_lst.begin(); it!=breakpt_lst.end(); it++){
@@ -176,7 +176,7 @@ int cmd_break_exec(int argc, char **argv){
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
-	return 0;
+	return false;
 }
 
 void cmd_break_cleanup(){

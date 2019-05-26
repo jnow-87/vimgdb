@@ -190,7 +190,7 @@ char *vimui::readline(){
 			goto end;
 
 		case E_FILEOPENED:
-			VIM("handle FILEOPENED event\n");
+			VIM("handle FILEOPENED event \"%s\"\n", e->data);
 
 			win_create(e->data);
 			break;

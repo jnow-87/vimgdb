@@ -21,7 +21,7 @@ static line_map line_frames;
 
 
 /* global functions */
-int cmd_callstack_exec(int argc, char **argv){
+bool cmd_callstack_exec(int argc, char **argv){
 	gdb_variable_t *var;
 	gdb_frame_t *frame;
 	const struct user_subcmd_t *scmd;
@@ -32,20 +32,20 @@ int cmd_callstack_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_callstack_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
 	if(((scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_callstack_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	switch(scmd->id){
@@ -55,7 +55,7 @@ int cmd_callstack_exec(int argc, char **argv){
 
 		if(var == 0){
 			USER("no variable at line \"%s\"\n", argv[2]);
-			return 0;
+			return false;
 		}
 		break;
 
@@ -73,7 +73,7 @@ int cmd_callstack_exec(int argc, char **argv){
 
 			if(frame == 0){
 				USER("no variable or frame at line \"%s\"\n", argv[2]);
-				return 0;
+				return false;
 			}
 			else{
 				frame->expanded = frame->expanded ? false : true;
@@ -96,7 +96,7 @@ int cmd_callstack_exec(int argc, char **argv){
 	case SET:
 		var->set(argc - 3, argv + 3);
 
-		gdb->memory_update();
+		gdb->inf_update();
 		break;
 
 	case FORMAT:
@@ -108,7 +108,7 @@ int cmd_callstack_exec(int argc, char **argv){
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
-			return -1;
+			return false;
 
 		for(line=line_frames.lines()->begin(); line!=line_frames.lines()->end(); line++)
 			fprintf(fp, "%u\\n", line->line);
@@ -127,7 +127,7 @@ int cmd_callstack_exec(int argc, char **argv){
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
-	return 0;
+	return false;
 }
 
 void cmd_callstack_cleanup(){
@@ -233,7 +233,7 @@ int cmd_callstack_update(){
 	/* add arguments and locals to each level of the callstack */
 	list_for_each(framelst, tframe){
 		// get list of arguments and locals for current frame
-		if(gdb->mi_issue_cmd("stack-list-variables", (gdb_result_t**)&varlst, "--thread %u --frame %u 2", gdb->threadid(), tframe->level) != 0)
+		if(gdb->mi_issue_cmd("stack-list-variables", (gdb_result_t**)&varlst, "--thread %u --frame %u 2", gdb->inf_threadid(), tframe->level) != 0)
 			return -1;
 
 		// generate context string (context = '<function-name>:{<type><name>,}')

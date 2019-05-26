@@ -2,7 +2,7 @@
 #define USER_CALLSTACK_H
 
 
-int cmd_callstack_exec(int argc, char **argv);
+bool cmd_callstack_exec(int argc, char **argv);
 void cmd_callstack_cleanup();
 void cmd_callstack_help(int argc, char **argv);
 int cmd_callstack_update();

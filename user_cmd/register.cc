@@ -67,7 +67,7 @@ err:
 	return -1;
 }
 
-int cmd_register_exec(int argc, char **argv){
+bool cmd_register_exec(int argc, char **argv){
 	gdb_variable_t *var;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
@@ -77,20 +77,20 @@ int cmd_register_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_register_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
 	if(((scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_register_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	switch(scmd->id){
@@ -101,7 +101,7 @@ int cmd_register_exec(int argc, char **argv){
 
 		if(var == 0){
 			USER("no register at line \"%s\"\n", argv[2]);
-			return 0;
+			return false;
 		}
 		break;
 
@@ -141,7 +141,7 @@ int cmd_register_exec(int argc, char **argv){
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
-			return -1;
+			return false;
 
 		for(line=line_vars.lines()->begin(); line!=line_vars.lines()->end(); line++)
 			fprintf(fp, "%d\\n", line->line);
@@ -157,7 +157,7 @@ int cmd_register_exec(int argc, char **argv){
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
-	return 0;
+	return false;
 }
 
 void cmd_register_cleanup(){

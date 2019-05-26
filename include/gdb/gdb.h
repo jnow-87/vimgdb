@@ -25,7 +25,6 @@ public:
 	int init();
 	void on_stop(int (*hdlr)(void));
 	void on_exit(int (*hdlr)(void));
-	int memory_update();
 
 	/* gdb machine interface (MI) */
 	int mi_issue_cmd(const char *cmd, gdb_result_t **result, const char *fmt, ...);
@@ -40,9 +39,12 @@ public:
 	int sigsend(int sig);
 
 	/* inferior state */
-	bool running();
-	bool running(bool state);
-	unsigned int threadid();
+	void inf_update();
+	void inf_await_update();
+
+	/* inferior state */
+	bool inf_running();
+	unsigned int inf_threadid();
 
 private:
 	/* types */
@@ -80,10 +82,12 @@ private:
 			  event_tid;
 
 	pthread_cond_t resp_avail,
-				   event_avail;
+				   event_avail,
+				   update_avail;
 
 	pthread_mutex_t resp_mtx,
-					event_mtx;
+					event_mtx,
+					update_mtx;
 
 	/* gdb event handling */
 	int evt_running(gdb_event_t *result);
