@@ -9,8 +9,7 @@
 
 
 /* global functions */
-int cmd_exec_exec(int argc, char **argv){
-	int r;
+bool cmd_exec_exec(int argc, char **argv){
 	const struct user_subcmd_t *scmd;
 	gdb_location_t *loc;
 
@@ -18,7 +17,7 @@ int cmd_exec_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_exec_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	loc = 0;
@@ -26,21 +25,21 @@ int cmd_exec_exec(int argc, char **argv){
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
-	if(gdb->running()){
+	if(gdb->inf_running()){
 		if(scmd->id == BREAK){
 			gdb->sigsend(SIGINT);
 		}
 		else{
 			USER("error executing \"%s\" - inferior is running\n", argv[1]);
-			return 0;
+			return false;
 		}
 	}
 	else{
 		if(gdb->mi_issue_cmd("file-list-exec-source-file", (gdb_result_t**)&loc, "") != 0)
-			return -1;
+			return false;
 
 		if(FILE_EXISTS(loc->fullname))	ui->win_anno_delete(ui->win_create(loc->fullname), loc->line, "ip");
 		else							USER("file \"%s\" does not exist\n", loc->fullname);
@@ -49,68 +48,55 @@ int cmd_exec_exec(int argc, char **argv){
 
 		switch(scmd->id){
 		case RUN:
-			r = gdb->mi_issue_cmd("exec-run", 0, "");
-			break;
+			(void)gdb->mi_issue_cmd("exec-run", 0, "");
+			return false;
 
 		case NEXT:
-			r = gdb->mi_issue_cmd("exec-next", 0, "");
-			break;
+			return (gdb->mi_issue_cmd("exec-next", 0, "") ? false : true);
 
 		case NEXTI:
-			r = gdb->mi_issue_cmd("exec-next-instruction", 0, "");
-			break;
+			return (gdb->mi_issue_cmd("exec-next-instruction", 0, "") ? false : true);
 
 		case STEP:
-			r = gdb->mi_issue_cmd("exec-step", 0, "");
-			break;
+			return (gdb->mi_issue_cmd("exec-step", 0, "") ? false : true);
 
 		case STEPI:
-			r = gdb->mi_issue_cmd("exec-step-instruction", 0, "");
-			break;
+			return (gdb->mi_issue_cmd("exec-step-instruction", 0, "") ? false : true);
 
 		case RETURN:
-			r = gdb->mi_issue_cmd("exec-finish", 0, "--thread %u --frame 0", gdb->threadid());
-			break;
+			return (gdb->mi_issue_cmd("exec-finish", 0, "--thread %u --frame 0", gdb->inf_threadid()) ? false : true);
 
 		case GOTO:
 			if(gdb->mi_issue_cmd("break-insert", 0, "-t %ss %d", argv + 2, argc - 2) != 0)
-				return -1;
+				return false;
 
-			r = gdb->mi_issue_cmd("exec-continue", 0, "");
-			break;
+			return (gdb->mi_issue_cmd("exec-continue", 0, "") ? false : true);
 
 		case SETPC:
 			if(gdb->mi_issue_cmd("break-insert", 0, "-t %ss %d", argv + 2, argc - 2) != 0)
-				return -1;
+				return false;
 
-			r = gdb->mi_issue_cmd("exec-jump", 0, "%ss %d", argv + 2, argc - 2);
-			break;
+			return (gdb->mi_issue_cmd("exec-jump", 0, "%ss %d", argv + 2, argc - 2) ? false : true);
 
 		case CONTINUE:
-			r = gdb->mi_issue_cmd("exec-continue", 0, "");
-
-			if(r != 0){
+			if(gdb->mi_issue_cmd("exec-continue", 0, "") != 0){
 				USER("error executing \"%s\", trying to start inferior first\n", argv[1]);
-				r = gdb->mi_issue_cmd("exec-run", 0, "");
+				(void)gdb->mi_issue_cmd("exec-run", 0, "");
 			}
 
-			break;
+			return false;
 
 		case BREAK:
 			USER("error executing \"%s\" - inferior is not running\n", argv[1]);
-			return 0;
+			return false;
 
 		default:
-			r = 0;
 			USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
-			break;
+			return false;
 		};
-
-		if(r != 0)
-			return -1;
 	}
 
-	return 0;
+	return false;
 }
 
 void cmd_exec_help(int argc, char **argv){

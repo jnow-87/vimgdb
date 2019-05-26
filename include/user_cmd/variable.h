@@ -3,7 +3,7 @@
 
 
 /* prototypes */
-int cmd_var_exec(int argc, char **argv);
+bool cmd_var_exec(int argc, char **argv);
 void cmd_var_cleanup();
 void cmd_var_help(int argc, char **argv);
 int cmd_var_print();

@@ -7,7 +7,7 @@
 #include <user_cmd/cmd.h>
 
 
-int cmd_evaluate_exec(int argc, char **argv){
+bool cmd_evaluate_exec(int argc, char **argv){
 	int i;
 	gdb_strlist_t *s;
 
@@ -15,11 +15,11 @@ int cmd_evaluate_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_evaluate_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	if(gdb->mi_issue_cmd("data-evaluate-expression", (gdb_result_t**)&s, "\"%ss %d\"", argv + 1, argc - 1) != 0)
-		return -1;
+		return false;
 
 	ui->win_atomic(0, true);
 
@@ -33,7 +33,7 @@ int cmd_evaluate_exec(int argc, char **argv){
 
 	delete s;
 
-	return 0;
+	return false;
 }
 
 void cmd_evaluate_help(int argc, char **argv){

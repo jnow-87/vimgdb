@@ -42,7 +42,7 @@ static char *asciib = new char[asciib_len];
 
 
 /* global functions */
-int cmd_memory_exec(int argc, char **argv){
+bool cmd_memory_exec(int argc, char **argv){
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
 	gdb_memory_t *mem;
@@ -52,20 +52,20 @@ int cmd_memory_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_memory_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
 	if(((scmd->id == DELETE || scmd->id == FOLD || scmd->id == COMPLETE) && argc < 3) || ((scmd->id == ADD || scmd->id == SET) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_memory_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	switch(scmd->id){
@@ -73,7 +73,7 @@ int cmd_memory_exec(int argc, char **argv){
 		mem = gdb_memory_t::acquire(argv[2], (unsigned int)strtol(argv[3], 0, 0));
 
 		if(mem == 0)
-			return -1;
+			return false;
 
 		USER("%d: %s %s %s %s\n", argc, argv[0], argv[1], argv[2], argv[3]);
 
@@ -107,7 +107,7 @@ int cmd_memory_exec(int argc, char **argv){
 
 		if(mem == 0){
 			USER("no memory segment at line %s\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		list_rm(&mem_lst, mem);
@@ -120,9 +120,9 @@ int cmd_memory_exec(int argc, char **argv){
 
 	case SET:
 		if(gdb_memory_t::set((void*)strtoll(argv[2], 0, 0), argv[3], (argc > 4 ? atoi(argv[4]) : 0)) != 0)
-			return -1;
+			return false;
 
-		gdb->memory_update();
+		gdb->inf_update();
 		break;
 
 	case FOLD:
@@ -130,7 +130,7 @@ int cmd_memory_exec(int argc, char **argv){
 
 		if(mem == 0){
 			USER("no memory segment at line %s\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		mem->expanded = mem->expanded ? false : true;
@@ -142,7 +142,7 @@ int cmd_memory_exec(int argc, char **argv){
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
-			return -1;
+			return false;
 
 		for(line=line_mems.lines()->begin(); line!=line_mems.lines()->end(); line++)
 			fprintf(fp, "%d\\n", line->line);
@@ -163,7 +163,7 @@ int cmd_memory_exec(int argc, char **argv){
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
-	return 0;
+	return false;
 
 }
 

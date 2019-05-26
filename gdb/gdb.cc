@@ -42,8 +42,10 @@ gdbif::gdbif(){
 
 	pthread_mutex_init(&resp_mtx, 0);
 	pthread_mutex_init(&event_mtx, 0);
+	pthread_mutex_init(&update_mtx, 0);
 	pthread_cond_init(&resp_avail, 0);
 	pthread_cond_init(&event_avail, 0);
+	pthread_cond_init(&update_avail, 0);
 }
 
 /**
@@ -95,8 +97,10 @@ gdbif::~gdbif(){
 	/* clear pthread structures */
 	pthread_cond_destroy(&resp_avail);
 	pthread_cond_destroy(&event_avail);
+	pthread_cond_destroy(&update_avail);
 	pthread_mutex_destroy(&resp_mtx);
 	pthread_mutex_destroy(&event_mtx);
+	pthread_mutex_destroy(&update_mtx);
 }
 
 /**
@@ -155,25 +159,6 @@ void gdbif::on_exit(int (*hdlr)(void)){
 	e->hdlr = hdlr;
 
 	list_add_tail(&exit_hdlr_lst, e);
-}
-
-int gdbif::memory_update(){
-	event_hdlr_t *e;
-
-
-	/* update variables */
-	if(gdb_variable_t::get_changed() != 0)
-		return -1;
-
-	/* execute callbacks */
-	list_for_each(stop_hdlr_lst, e){
-		if(e->hdlr() != 0){
-			USER("error executing on-stop handler\n");
-			return -1;
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -419,15 +404,36 @@ int gdbif::sigsend(int sig){
 	return sigqueue(gdb_pid, sig, v);
 }
 
-bool gdbif::running(){
+void gdbif::inf_update(){
+	event_hdlr_t *e;
+
+
+	/* update variables */
+	(void)gdb_variable_t::get_changed();
+
+	/* execute callbacks */
+	list_for_each(stop_hdlr_lst, e){
+		if(e->hdlr() != 0)
+			USER("error executing on-stop handler\n");
+	}
+
+	/* signal update to waiting threads */
+	pthread_mutex_lock(&update_mtx);
+	pthread_cond_signal(&update_avail);
+	pthread_mutex_unlock(&update_mtx);
+}
+
+void gdbif::inf_await_update(){
+	pthread_mutex_lock(&update_mtx);
+	pthread_cond_wait(&update_avail, &update_mtx);
+	pthread_mutex_unlock(&update_mtx);
+}
+
+bool gdbif::inf_running(){
 	return is_running;
 }
 
-bool gdbif::running(bool state){
-	return (is_running = state);
-}
-
-unsigned int gdbif::threadid(){
+unsigned int gdbif::inf_threadid(){
 	return cur_thread;
 }
 
@@ -566,7 +572,7 @@ void *gdbif::event_thread(void *arg){
 }
 
 int gdbif::evt_running(gdb_event_t *result){
-	running(true);
+	is_running = true;
 	return 0;
 }
 
@@ -574,7 +580,7 @@ int gdbif::evt_stopped(gdb_event_stop_t *result){
 	gdb_frame_t *frame;
 
 
-	running(false);
+	is_running = false;
 
 	if(result->reason == 0)
 		return -1;
@@ -591,15 +597,15 @@ int gdbif::evt_stopped(gdb_event_stop_t *result){
 		USER("program received signal \"%s\"\n", result->signal);
 
 		// generate gdb exit event on SEGFAULT
-		if(strcmp(result->signal, "SIGSEGV") == 0)
+		if(strcmp(result->signal, "SIGSEGV") == 0){
 			gdb->mi_proc_async(RC_EXIT, 0, 0);
-
-		return 0;
+			return 0;
+		}
 	}
-	else if(frame != 0){
-		if(memory_update() != 0)
-			return -1;
 
+	inf_update();
+
+	if(frame != 0){
 		if(FILE_EXISTS(frame->fullname)){
 			ui->win_anno_add(ui->win_create(frame->fullname), frame->line, "ip", "White", "Black");
 			ui->win_cursor_set(ui->win_create(frame->fullname), frame->line);

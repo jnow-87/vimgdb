@@ -3,7 +3,7 @@
 
 
 /* prototypes */
-int cmd_evaluate_exec(int argc, char **argv);
+bool cmd_evaluate_exec(int argc, char **argv);
 void cmd_evaluate_help(int argc, char **argv);
 
 

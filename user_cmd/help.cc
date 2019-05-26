@@ -7,7 +7,7 @@
 #include <user_cmd/cmd.hash.h>
 
 
-int cmd_help_exec(int argc, char **argv){
+bool cmd_help_exec(int argc, char **argv){
 	unsigned int i;
 	const struct user_cmd_t *c;
 
@@ -29,18 +29,18 @@ int cmd_help_exec(int argc, char **argv){
 	}
 	else{
 		if(strlen(argv[1]) == 0)
-			return 0;
+			return false;
 
 		c = user_cmd::lookup(argv[1], strlen(argv[1]));
 
 		if(c == 0){
 			USER("invalid command \"%s\"\n", argv[1]);
-			return 0;
+			return false;
 		}
 
 		if(c->help != 0)	c->help(argc - 1, argv + 1);
 		else				USER("no further help available for command \"%s\"\n", argv[1]);
 	}
 
-	return 0;
+	return false;
 }

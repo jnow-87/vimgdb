@@ -38,7 +38,7 @@ static void *thread_inferior_output(void *arg);
 
 
 /* global functions */
-int cmd_inferior_exec(int argc, char **argv){
+bool cmd_inferior_exec(int argc, char **argv){
 	int fd, r;
 	char pts[128];
 	const struct user_subcmd_t *scmd;
@@ -49,7 +49,7 @@ int cmd_inferior_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_inferior_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
@@ -57,13 +57,13 @@ int cmd_inferior_exec(int argc, char **argv){
 	if((scmd == 0 && argc < 2) || (scmd && (((scmd->id == SYM || scmd->id == BIN || scmd->id == TTY || scmd->id == ARGS || scmd->id == EXPORT) && argc < 3)))){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_inferior_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	if(scmd == 0 || scmd->id == SYM){
 		if(scmd == 0){
 			if(gdb->mi_issue_cmd("file-exec-and-symbols", 0, "%ss %d", argv + 1, argc - 1) != 0)
-				return -1;
+				return false;
 
 			USER("load file \"%s\"\n", argv[1]);
 
@@ -75,7 +75,7 @@ int cmd_inferior_exec(int argc, char **argv){
 		}
 		else{
 			if(gdb->mi_issue_cmd("file-symbol-file", 0, "%ss %d", argv + 2, argc - 2) != 0)
-				return -1;
+				return false;
 
 			USER("load file \"%s\"\n", argv[2]);
 
@@ -85,7 +85,7 @@ int cmd_inferior_exec(int argc, char **argv){
 		}
 
 		if(gdb->mi_issue_cmd("file-list-exec-source-file", (gdb_result_t**)&loc, "") != 0)
-			return -1;
+			return false;
 
 		ui->win_create(loc->fullname);
 		delete loc;
@@ -94,7 +94,7 @@ int cmd_inferior_exec(int argc, char **argv){
 		switch(scmd->id){
 		case BIN:
 			if(gdb->mi_issue_cmd("file-exec-file", 0, "%ss %d", argv + 2, argc - 2) != 0)
-				return -1;
+				return false;
 
 			USER("load binary file \"%s\"\n", argv[2]);
 
@@ -105,7 +105,7 @@ int cmd_inferior_exec(int argc, char **argv){
 
 		case ARGS:
 			if(gdb->mi_issue_cmd("exec-arguments", 0, "%ssq %d", argv + 2, argc - 2) != 0)
-				return -1;
+				return false;
 
 			for(r=0; r<inf_argc; r++)
 				delete [] inf_argv[r];
@@ -136,13 +136,13 @@ int cmd_inferior_exec(int argc, char **argv){
 				/* setup pty for output redirection */
 				// return if inferior tty is already set to internal
 				if(inf_term != 0)
-					return 0;
+					return false;
 
 				// initialise pty
 				inf_term = new pty;
 				if(inf_term == 0){
 					USER("error allocating pseudo terminal for debugee\n");
-					return -1;
+					return false;
 				}
 
 				// start thread to read from the pty
@@ -152,13 +152,13 @@ int cmd_inferior_exec(int argc, char **argv){
 					delete inf_term;
 					inf_term = 0;
 
-					return -1;
+					return false;
 				}
 
 				thread_name[tid] = "inferior";
 
 				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", inf_term->get_name()) != 0)
-					return -1;
+					return false;
 
 				USER("set inferior tty to internal\n");
 			}
@@ -182,7 +182,7 @@ int cmd_inferior_exec(int argc, char **argv){
 					while((fp = fopen(TTY_EXT_FILE, "r")) == 0){
 						if(++r > 50){
 							USER("error, waiting for pts of external tty\n");
-							return -1;
+							return false;
 						}
 
 						usleep(100000);
@@ -199,13 +199,13 @@ int cmd_inferior_exec(int argc, char **argv){
 				fd = open(pts, O_RDONLY);
 				if(fd == -1){
 					USER("error opening pts \"%s\"\n", pts);
-					return -1;
+					return false;
 				}
 
 				close(fd);
 
 				if(gdb->mi_issue_cmd("inferior-tty-set", 0, "%s", pts) != 0)
-					return -1;
+					return false;
 
 				USER("set inferior tty to \"%s\"\n", pts);
 			}
@@ -216,7 +216,7 @@ int cmd_inferior_exec(int argc, char **argv){
 			fp = fopen(argv[2], "w");
 
 			if(fp == 0)
-				return 0;
+				return false;
 
 			if(inf_file_bin)	fprintf(fp, "Inferior bin %s\n", inf_file_bin);
 			if(inf_file_sym)	fprintf(fp, "Inferior sym %s\n", inf_file_sym);
@@ -238,7 +238,7 @@ int cmd_inferior_exec(int argc, char **argv){
 
 		default:
 			USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-			return 0;
+			return false;
 		}
 	}
 
@@ -247,7 +247,7 @@ int cmd_inferior_exec(int argc, char **argv){
 		else							USER("error initialising registers\n");
 	}
 
-	return 0;
+	return false;
 }
 
 void cmd_inferior_cleanup(){

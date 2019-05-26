@@ -4,7 +4,7 @@
 
 /* prototypes */
 int cmd_register_init();
-int cmd_register_exec(int argc, char **argv);
+bool cmd_register_exec(int argc, char **argv);
 void cmd_register_cleanup();
 void cmd_register_help(int argc, char **argv);
 int cmd_register_print();

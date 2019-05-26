@@ -2,7 +2,7 @@
 #define USER_EXEC_H
 
 
-int cmd_exec_exec(int argc, char **argv);
+bool cmd_exec_exec(int argc, char **argv);
 void cmd_exec_help(int argc, char **argv);
 
 

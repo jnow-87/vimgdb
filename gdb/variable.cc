@@ -111,14 +111,14 @@ gdb_variable_t *gdb_variable_t::acquire(char *expr, gdb_origin_t origin, char *c
 	}
 
 	/* create variable */
-	if(gdb->threadid() == 0){
+	if(gdb->inf_threadid() == 0){
 		// create variable without inferior being started (no threadid available)
 		if(gdb->mi_issue_cmd("var-create", (gdb_result_t**)&var, "\"%s\" %s %s%s", key.c_str(), (origin == O_USER  ? "@" : "*"), (origin == O_REGISTER ? "$" : ""), expr) != 0)
 			return 0;
 	}
 	else{
 		// create variable in the context of the current thread and frame
-		if(gdb->mi_issue_cmd("var-create", (gdb_result_t**)&var, "--thread %u --frame %u \"%s\" %s %s%s", gdb->threadid(), frame, key.c_str(), (origin == O_USER  ? "@" : "*"), (origin == O_REGISTER ? "$" : ""), expr) != 0)
+		if(gdb->mi_issue_cmd("var-create", (gdb_result_t**)&var, "--thread %u --frame %u \"%s\" %s %s%s", gdb->inf_threadid(), frame, key.c_str(), (origin == O_USER  ? "@" : "*"), (origin == O_REGISTER ? "$" : ""), expr) != 0)
 			return 0;
 	}
 

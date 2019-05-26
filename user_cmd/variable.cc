@@ -22,7 +22,7 @@ static line_map line_vars;
 
 
 /* global functions */
-int cmd_var_exec(int argc, char **argv){
+bool cmd_var_exec(int argc, char **argv){
 	gdb_variable_t *var;
 	const struct user_subcmd_t *scmd;
 	FILE *fp;
@@ -33,20 +33,20 @@ int cmd_var_exec(int argc, char **argv){
 	if(argc < 2){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(1, argv);
-		return 0;
+		return false;
 	}
 
 	scmd = user_subcmd::lookup(argv[1], strlen(argv[1]));
 
 	if(scmd == 0){
 		USER("invalid sub-command \"%s\" to command \"%s\"\n", argv[1], argv[0]);
-		return 0;
+		return false;
 	}
 
 	if(((scmd->id == ADD || scmd->id == DELETE || scmd->id == FOLD || scmd->id == COMPLETE || scmd->id == EXPORT) && argc < 3) || ((scmd->id == SET || scmd->id == FORMAT) && argc < 4)){
 		USER("invalid number of arguments to command \"%s\"\n", argv[0]);
 		cmd_var_help(2, argv);
-		return 0;
+		return false;
 	}
 
 	switch(scmd->id){
@@ -58,7 +58,7 @@ int cmd_var_exec(int argc, char **argv){
 
 		if(var == 0){
 			USER("no variable at line %s\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		break;
@@ -72,7 +72,7 @@ int cmd_var_exec(int argc, char **argv){
 		var = gdb_variable_t::acquire(argv[2], O_USER);
 
 		if(var == 0)
-			return -1;
+			return false;
 
 		if(var->refcnt == 1){
 			USER("add variable \"%s\" for expression \"%s\"\n", var->name, var->exp);
@@ -91,7 +91,7 @@ int cmd_var_exec(int argc, char **argv){
 		USER("delete variable \"%s\"\n", var->name);
 
 		if(gdb_variable_t::release(var) != 0)
-			return -1;
+			return false;
 
 		cmd_var_print();
 		break;
@@ -111,7 +111,7 @@ int cmd_var_exec(int argc, char **argv){
 
 	case SET:
 		var->set(argc - 3, argv + 3);
-		gdb->memory_update();
+		gdb->inf_update();
 		break;
 
 	case FORMAT:
@@ -123,7 +123,7 @@ int cmd_var_exec(int argc, char **argv){
 		fp = fopen(argv[2], "w");
 
 		if(fp == 0)
-			return -1;
+			return false;
 
 		for(lit=line_vars.lines()->begin(); lit!=line_vars.lines()->end(); lit++)
 			fprintf(fp, "%d\\n", lit->line);
@@ -136,7 +136,7 @@ int cmd_var_exec(int argc, char **argv){
 
 		if(fp == 0){
 			DEBUG("unable to open file \"%s\"\n", argv[2]);
-			return 0;
+			return false;
 		}
 
 		for(sit=gdb_user_var.begin(); sit!=gdb_user_var.end(); sit++)
@@ -156,7 +156,7 @@ int cmd_var_exec(int argc, char **argv){
 		USER("unhandled sub command \"%s\" to \"%s\"\n", argv[1], argv[0]);
 	};
 
-	return 0;
+	return false;
 }
 
 void cmd_var_cleanup(){
