@@ -65,7 +65,7 @@ void cmd_exec(char *line){
 	}
 
 	/* execute command */
-	if(user_cmd::lookup(argv[0], strlen(argv[0])) <= 0){
+	if(user_cmd::lookup(argv[0], strlen(argv[0])) == 0){
 		GDB("invalid user command \"%s\", trying direct execution by gdb\n", argv[0]);
 
 		/* send unknown command to gdb */
