@@ -134,6 +134,7 @@
 "end"									{ return VAR_END; }
 "offset"								{ return VAR_OFFSET; }
 "contents"								{ return VAR_CONTENTS; }
+"arch"									{ return VAR_ARCH; }
 
 	/* gdb EOL string */
 "(gdb)"\ ?								{ return GDBTK; }

@@ -138,6 +138,7 @@
 %token VAR_CONTENTS
 %token VAR_NEW_TYPE
 %token VAR_NEW_NUM_CHILD
+%token VAR_ARCH
 
 // result classes
 %token <rclass> RC_TK_DONE
@@ -385,6 +386,7 @@ frame-body :				%empty															{ $$ = gdb_frame_t::acquire(); }
 		   |				frame-body con-com VAR_FULLNAME '=' string						{ $$ = $1; $$->fullname = $5; }
 		   |				frame-body con-com VAR_FROM '=' string							{ $$ = $1; $$->from = $5; }
 		   |				frame-body con-com VAR_ARGS '=' '[' arg-list ']'				{ }
+		   |				frame-body con-com VAR_ARCH '=' string							{ }
 		   ;
 
 arg-list :					%empty															{ }
