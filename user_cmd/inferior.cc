@@ -189,11 +189,11 @@ bool cmd_inferior_exec(int argc, char **argv){
 					}
 
 					// read pts
-					fscanf(fp, "%128s\n%u", pts, &inf_pty_pid);
+					fscanf(fp, "%127s\n%u", pts, &inf_pty_pid);
 					fclose(fp);
 				}
 				else
-					strncpy(pts, argv[2], 128);
+					strncpy(pts, argv[2], 127);
 
 				/* use specified pty for output */
 				fd = open(pts, O_RDONLY);
