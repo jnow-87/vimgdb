@@ -33,7 +33,7 @@ int log::init(const char *file_name, log_level_t lvl){
 	creator = getpid();
 
 	if(log_level != NONE && log_file == 0){
-		log_file = fopen(file_name, "w");
+		log_file = fopen(file_name, "a");
 
 		if(log_file == 0)
 			return -1;
