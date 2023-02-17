@@ -474,9 +474,10 @@ void *gdbif::readline_thread(void *arg){
 			// check for end of gdb line, a simple newline as separator
 			// doesn't work, since the parse would try to parse the line,
 			// detecting a syntax error
-			if((i >= 6 && strncmp(line + i - 6, "(gdb)\n", 6) == 0) ||
-			   (i >= 7 && strncmp(line + i - 7, "(gdb) \n", 7) == 0)
-			  ){
+			if((i >= 6 && strncmp(line + i - 6, "(gdb)\n", 6) == 0)
+			|| (i >= 7 && strncmp(line + i - 7, "(gdb) \n", 7) == 0)
+			|| (i >= 9 && strncmp(line + i - 9, "(y or n) ", 9) == 0)
+			){
 				line[i] = 0;
 
 				GDB("parse gdb string \"%s\"\n", line);
