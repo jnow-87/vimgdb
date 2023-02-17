@@ -1,17 +1,17 @@
 #include <common/log.h>
 #include <common/pty.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <stdlib.h>
-#include <signal.h>
+
 
 namespace libc{
 	// cover in separate namespace to avoid name collision
+	#include <sys/wait.h>
 	#include <unistd.h>
+	#include <signal.h>
 }
 
 
@@ -46,8 +46,8 @@ pty::pty(struct termios *termp, struct winsize *win_size){
 pty::~pty(){
 	// killing gdb child process
 	if(forkee_pid != -1){
-		kill(forkee_pid, SIGTERM);
-		waitpid(forkee_pid, 0, 0);
+		libc::kill(forkee_pid, SIGTERM);
+		libc::waitpid(forkee_pid, 0, 0);
 		forkee_pid = -1;
 	}
 
