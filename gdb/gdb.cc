@@ -479,7 +479,7 @@ void *gdbif::readline_thread(void *arg){
 			  ){
 				line[i] = 0;
 
-				GDB("parse gdb string \"%.20s\"\n", line);
+				GDB("parse gdb string \"%s\"\n", line);
 				ui->win_print(ui->win_getid(GDBLOG_NAME), "%s", line);		// use "%s" to avoid issues with '%' within line
 
 				i = gdbparse(line, gdb);
