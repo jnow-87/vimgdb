@@ -20,7 +20,7 @@ default_build_tree := build/$(CONFIG_BUILD_TYPE)/
 src_dirs := main/ gdb/ gui/ user_cmd/ common/ testing/
 
 # include build system Makefile
-include $(scripts_dir)/Makefile.inc
+include $(scripts_dir)/main.make
 
 # init default flags
 cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall -O2
