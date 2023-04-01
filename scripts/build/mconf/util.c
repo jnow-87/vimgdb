@@ -3,6 +3,9 @@
  * Copyright (C) 2002-2005 Sam Ravnborg <sam@ravnborg.org>
  *
  * Released under the terms of the GNU GPL v2.0.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
  */
 
 #include <stdarg.h>
@@ -11,10 +14,10 @@
 #include "lkc.h"
 
 /* file already present in list? If not add it */
-struct file *file_lookup(const char *name)
+struct file *file_lookup(char const *name)
 {
 	struct file *file;
-	const char *file_name = sym_expand_string_value(name);
+	char const *file_name = sym_expand_string_value(name);
 
 	for (file = file_list; file; file = file->next) {
 		if (!strcmp(name, file->name)) {
@@ -43,7 +46,7 @@ struct gstr str_new(void)
 }
 
 /* Allocate and assign growable string */
-struct gstr str_assign(const char *s)
+struct gstr str_assign(char const *s)
 {
 	struct gstr gs;
 	gs.s = strdup(s);
@@ -62,7 +65,7 @@ void str_free(struct gstr *gs)
 }
 
 /* Append to growable string */
-void str_append(struct gstr *gs, const char *s)
+void str_append(struct gstr *gs, char const *s)
 {
 	size_t l;
 	if (s) {
@@ -76,7 +79,7 @@ void str_append(struct gstr *gs, const char *s)
 }
 
 /* Append printf formatted string to growable string */
-void str_printf(struct gstr *gs, const char *fmt, ...)
+void str_printf(struct gstr *gs, char const *fmt, ...)
 {
 	va_list ap;
 	char s[10000]; /* big enough... */
@@ -87,7 +90,7 @@ void str_printf(struct gstr *gs, const char *fmt, ...)
 }
 
 /* Retrieve value of growable string */
-const char *str_get(struct gstr *gs)
+char const *str_get(struct gstr *gs)
 {
 	return gs->s;
 }

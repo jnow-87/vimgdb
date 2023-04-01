@@ -19,6 +19,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
  */
 
 #include "dialog.h"
@@ -103,8 +106,8 @@ static void print_buttons(WINDOW * dialog, int height, int width, int selected)
 	int x = width / 2 - 11;
 	int y = height - 2;
 
-	print_button(dialog, gettext("Select"), y, x, selected == 0);
-	print_button(dialog, gettext(" Help "), y, x + 14, selected == 1);
+	print_button(dialog, "Select", y, x, selected == 0);
+	print_button(dialog, " Help ", y, x + 14, selected == 1);
 
 	wmove(dialog, y, x + 1 + 14 * selected);
 	wrefresh(dialog);
@@ -114,7 +117,7 @@ static void print_buttons(WINDOW * dialog, int height, int width, int selected)
  * Display a dialog box with a list of options that can be turned on or off
  * in the style of radiolist (only one option turned on at a time).
  */
-int dialog_checklist(const char *title, const char *prompt, int height,
+int dialog_checklist(char const *title, char const *prompt, int height,
 		     int width, int list_height)
 {
 	int i, x, y, box_x, box_y;

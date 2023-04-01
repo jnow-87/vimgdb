@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
  */
 
 #ifndef EXPR_H
@@ -14,13 +17,13 @@ extern "C" {
 #include <stdio.h>
 #include "list.h"
 #ifndef __cplusplus
-#include <stdbool.h>
+# include <stdbool.h>
 #endif
 
 struct file {
 	struct file *next;
 	struct file *parent;
-	const char *name;
+	char const *name;
 	int lineno;
 };
 
@@ -138,7 +141,7 @@ struct property {
 	struct property *next;     /* next property - null if last */
 	struct symbol *sym;        /* the symbol for which the property is associated */
 	enum prop_type type;       /* type of property */
-	const char *text;          /* the prompt value - P_PROMPT, P_MENU, P_COMMENT */
+	char const *text;          /* the prompt value - P_PROMPT, P_MENU, P_COMMENT */
 	struct expr_value visible;
 	struct expr *expr;         /* the optional conditional part of the property */
 	struct menu *menu;         /* the menu the property are associated with
@@ -186,7 +189,7 @@ struct jump_key {
 
 extern struct file *file_list;
 extern struct file *current_file;
-struct file *lookup_file(const char *name);
+struct file *lookup_file(char const *name);
 
 extern struct symbol symbol_yes, symbol_no, symbol_mod;
 extern struct symbol *modules_sym;

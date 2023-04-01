@@ -1,3 +1,15 @@
+/**
+ * Copyright (C) 2015 Jan Nowotsch
+ * Author Jan Nowotsch	<jan.nowotsch@gmail.com>
+ *
+ * Most of source code is taken from the linux kernel's build helper fixdep.c
+ * but has been restructured for the purpose of this project.
+ *
+ * Released under the terms of the GNU GPL v2.0
+ */
+
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -11,7 +23,7 @@
 #include "util.h"
 
 
-int file_map(const char *filename, int *_fd, void **_map, unsigned int *_size){
+int file_map(char const *filename, int *_fd, void **_map, unsigned int *_size){
 	int fd;
 	void *map;
 	struct stat st;
@@ -23,12 +35,12 @@ int file_map(const char *filename, int *_fd, void **_map, unsigned int *_size){
 	fd = open(filename, O_RDWR);
 
 	if(fd < 0){
-		fprintf(stderr, "fixdep: error opening file \"%s\": %s\n", filename, strerror(errno));
+		fprintf(stderr, "fixdep: open file \"%s\" failed %s\n", filename, strerror(errno));
 		return -1;
 	}
 
 	if(fstat(fd, &st) < 0){
-		fprintf(stderr, "fixdep: error fstat'ing file: %s\n", strerror(errno));
+		fprintf(stderr, "fixdep: error fstat'ing file \"%s\"\n", strerror(errno));
 		goto err;
 	}
 
@@ -69,6 +81,7 @@ int strrcmp(char *s, unsigned int slen, char *sub, unsigned int sublen){
 void traps(void){
 	static char test[] __attribute__((aligned(sizeof(int)))) = "CONF";
 	int *p =(int *)test;
+
 
 	if(*p != INT_CONF){
 		fprintf(stderr, "fixdep: sizeof(int) != 4 or wrong endianness? %#x\n",

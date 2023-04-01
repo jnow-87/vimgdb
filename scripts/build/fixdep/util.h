@@ -1,3 +1,15 @@
+/**
+ * Copyright (C) 2015 Jan Nowotsch
+ * Author Jan Nowotsch	<jan.nowotsch@gmail.com>
+ *
+ * Most of source code is taken from the linux kernel's build helper fixdep.c
+ * but has been restructured for the purpose of this project.
+ *
+ * Released under the terms of the GNU GPL v2.0
+ */
+
+
+
 #ifndef UTIL_H
 #define UTIL_H
 
@@ -13,7 +25,7 @@
 
 
 /* prototypes */
-int file_map(const char *filename, int *fd, void **map, unsigned int *size);
+int file_map(char const *filename, int *fd, void **map, unsigned int *size);
 void file_unmap(int fd, void *map, unsigned int size);
 
 int strrcmp(char *s, unsigned int slen, char *sub, unsigned int sublen);

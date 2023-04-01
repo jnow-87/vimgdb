@@ -1,6 +1,15 @@
-################
-###   init   ###
-################
+#
+# Copyright (C) 2014 Jan Nowotsch
+# Author Jan Nowotsch	<jan.nowotsch@gmail.com>
+#
+# Released under the terms of the GNU GPL v2.0
+#
+
+
+
+####
+## init
+####
 
 # remove trailing '/'
 loc_dir := $(patsubst %/,%,$(loc_dir))
@@ -45,9 +54,9 @@ $(foreach flag,$(all_flags), \
 )
 
 
-############################
-###   include Makefile   ###
-############################
+####
+## include Makefile
+####
 
 # backup *flags
 $(foreach flag,$(all_flags), \
@@ -64,15 +73,14 @@ $(foreach flag,$(all_flags), \
 )
 
 
-########################
-###   filter input   ###
-########################
+####
+## filter input
+####
 
 $(call pdebug1,filter input)
 
-####
+
 ## filter loc_single_*, loc_comp_*, loc_dir_*
-####
 
 # split $(type)_y into
 #	loc_single_$(type): non-compound targets
@@ -101,9 +109,8 @@ $(foreach type,$(all_types), \
 	$(call pdebug1,) \
 )
 
-####
+
 ## process directories in targets
-####
 
 $(call pdebug1)
 $(call pdebug1,handle directories)
@@ -172,9 +179,8 @@ $(call pdebug1)
 $(call pdebug1,    subdir: $(subdir-y))
 $(call pdebug1,    external-dir: $(ext_dir))
 
-####
+
 ## collect list of all targets and dependencies
-####
 
 $(call pdebug1)
 $(call pdebug1,collect list of all targets)
@@ -206,9 +212,8 @@ loc_all_tgt := $(sort $(loc_all_tgt))
 
 $(call pdebug1,    loc_all_tgt: $(loc_all_tgt))
 
-####
+
 ## update global list for $(all_types), e.g. bin
-####
 
 # add single and comp targets to the global lists (e.g. obj and lib), prefixing with $(loc_build_tree)
 $(foreach type,$(all_types), \
@@ -216,18 +221,17 @@ $(foreach type,$(all_types), \
 )
 
 
-###########################
-###   rule generation   ###
-###########################
+####
+## rule generation
+####
 
 $(call pdebug1)
 $(call pdebug1,generate flag rules)
 
-####
-## flag rules
-####
 
-# target specific flag rules, i.e. <target>-*flags
+## flag rules
+
+# target specific flag rules, i.e. <target>-*flags and <target>-*flags-y
 # 	this applies to all files (direct targets and dependencies)
 $(foreach tgt,$(loc_all_tgt), \
 	$(foreach flag,$(all_flags), \
@@ -251,9 +255,8 @@ $(foreach type,$(obj_types), \
 	) \
 )
 
-####
+
 ## build rules
-####
 
 $(call pdebug1)
 $(call pdebug1,generate compound target rules)
@@ -304,11 +307,11 @@ $(call gen_rule_basic,    compile_o_cxx,        $(loc_build_tree)/%.o,          
 # yacc
 ifeq ($(project_type),cxx)
 $(call gen_rule_basic,    compile_c_y,          $(loc_build_tree)/%.tab.cc,        $(loc_src_tree)/%.y,                    )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.tab.h,         $(loc_build_tree)/%.tab.cc,             )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.tab.h,         $(loc_build_tree)/%.tab.cc,             )
 endif
 
 $(call gen_rule_basic,    compile_c_y,          $(loc_build_tree)/%.tab.c,         $(loc_src_tree)/%.y,                    )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.tab.h,         $(loc_build_tree)/%.tab.c,              )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.tab.h,         $(loc_build_tree)/%.tab.c,              )
 
 $(call gen_rule_basic,    compile_o_cxx,        $(loc_build_tree)/%.tab.host.o,    $(loc_build_tree)/%.tab.cc,     host    )
 $(call gen_rule_basic,    compile_o_c,          $(loc_build_tree)/%.tab.host.o,    $(loc_build_tree)/%.tab.c,      host    )
@@ -322,11 +325,11 @@ $(call gen_rule_basic,    compile_o_c,          $(loc_build_tree)/%.o,          
 # lex
 ifeq ($(project_type),cxx)
 $(call gen_rule_basic,    compile_c_l,          $(loc_build_tree)/%.lex.cc,        $(loc_src_tree)/%.l,                    )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.lex.h,         $(loc_build_tree)/%.lex.cc,             )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.lex.h,         $(loc_build_tree)/%.lex.cc,             )
 endif
 
 $(call gen_rule_basic,    compile_c_l,          $(loc_build_tree)/%.lex.c,         $(loc_src_tree)/%.l,                    )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.lex.h,         $(loc_build_tree)/%.lex.c,              )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.lex.h,         $(loc_build_tree)/%.lex.c,              )
 
 $(call gen_rule_basic,    compile_o_cxx,        $(loc_build_tree)/%.lex.host.o,    $(loc_build_tree)/%.lex.cc,     host    )
 $(call gen_rule_basic,    compile_o_c,          $(loc_build_tree)/%.lex.host.o,    $(loc_build_tree)/%.lex.c,      host    )
@@ -340,11 +343,11 @@ $(call gen_rule_basic,    compile_o_c,          $(loc_build_tree)/%.o,          
 # gperf
 ifeq ($(project_type),cxx)
 $(call gen_rule_basic,    compile_cxx_gperf,    $(loc_build_tree)/%.hash.cc,       $(loc_src_tree)/%.gperf,                )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.hash.h,        $(loc_build_tree)/%.hash.cc,            )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.hash.h,        $(loc_build_tree)/%.hash.cc,            )
 endif
 
 $(call gen_rule_basic,    compile_c_gperf,      $(loc_build_tree)/%.hash.c,        $(loc_src_tree)/%.gperf,                )
-$(call gen_rule_basic,    ,                     $(loc_build_tree)/%.hash.h,        $(loc_build_tree)/%.hash.c,             )
+$(call gen_rule_basic,    nop,                  $(loc_build_tree)/%.hash.h,        $(loc_build_tree)/%.hash.c,             )
 
 $(call gen_rule_basic,    compile_o_cxx,        $(loc_build_tree)/%.hash.host.o,   $(loc_build_tree)/%.hash.cc,    host    )
 $(call gen_rule_basic,    compile_o_c,          $(loc_build_tree)/%.hash.host.o,   $(loc_build_tree)/%.hash.c,     host    )
@@ -360,20 +363,22 @@ $(call pdebug1,generate obj.o rules)
 
 # obj.o
 # 	in case no target objects are specified, generate a dummy obj.o
-# 	the dummy is required to avoid invoking Makefiles to report and
-# 	due to missing obj.o
+# 	the dummy is required since other wise a missing obj.o would be
+# 	reported
 $(if $(loc_single_obj)$(loc_comp_obj)$(loc_dir_obj), \
-	$(call gen_rule_basic, compile_o_o,     $(loc_build_tree)/obj.o, $(loc_dir_obj) $(addprefix $(loc_build_tree)/,$(loc_single_obj) $(loc_comp_obj))), \
-	$(call gen_rule_basic, compile_o_empty, $(loc_build_tree)/obj.o,) \
+	$(call gen_rule_basic, compile_o_o, $(loc_build_tree)/obj.o, $(loc_dir_obj) $(addprefix $(loc_build_tree)/,$(loc_single_obj) $(loc_comp_obj))) \
+	, \
+	$(shell [ ! -e $(loc_build_tree)/obj.empty.c ] && { mkdir -p $(loc_build_tree); touch $(loc_build_tree)/obj.empty.c; }) \
+	$(call gen_rule_basic, compile_o_c, $(loc_build_tree)/obj.o, $(loc_build_tree)/obj.empty.c,) \
 )
 
 # obj.host.o
-# 	in case no target objects are specified, generate a dummy obj.host.o
-# 	the dummy is required to avoid invoking Makefiles to report and	due
-# 	to missing obj.host.o
+# 	same dummy object as above but for the host
 $(if $(loc_single_hostobj)$(loc_comp_hostobj)$(loc_dir_hostobj), \
-	$(call gen_rule_basic, compile_o_o,     $(loc_build_tree)/obj.host.o, $(loc_dir_hostobj) $(addprefix $(loc_build_tree)/,$(loc_single_hostobj) $(loc_comp_hostobj)), host), \
-	$(call gen_rule_basic, compile_o_empty, $(loc_build_tree)/obj.host.o, , host) \
+	$(call gen_rule_basic, compile_o_o, $(loc_build_tree)/obj.host.o, $(loc_dir_hostobj) $(addprefix $(loc_build_tree)/,$(loc_single_hostobj) $(loc_comp_hostobj)), host) \
+	, \
+	$(shell [ ! -e $(loc_build_tree)/obj.empty.c ] && { mkdir -p $(loc_build_tree); touch $(loc_build_tree)/obj.empty.c; }) \
+	$(call gen_rule_basic, compile_o_c, $(loc_build_tree)/obj.host.o, $(loc_build_tree)/obj.empty.c, host) \
 )
 
 # .o -> bin (corresponding pattern rules (<dir>/%: %.o) do not work, since '%:' matches everything)
@@ -388,14 +393,15 @@ $(call pdebug1)
 $(call pdebug1,generate bin rules)
 
 
-###################
-###   cleanup   ###
-###################
+####
+## cleanup
+####
 
-# clear target flag variables (<target>-<flag>) to name collisions with targets with the same stem but in a different directory
+# clear target flag variables (<target>-<flag>, <target>-<flag>-y) to name collisions with targets with the same stem but in a different directory
 $(foreach tgt,$(loc_all_tgt), \
 	$(foreach flag,$(all_flags), \
 		$(eval $(call hostbasename,$(tgt))-$(flag) :=) \
+		$(eval $(call hostbasename,$(tgt))-$(flag)-y :=) \
 	) \
 )
 
@@ -407,15 +413,15 @@ $(foreach type,$(all_types), \
 )
 
 	
-##################################
-###   subdirectory traversal   ###
-##################################
+####
+## subdirectory traversal
+####
 
-# handle subdir-*flags
-# 	assign <subdir>-*flags to subdir-<subdir>-*flags to avoid overwriting them by name collisions
+# handle subdir-*flags and subdir-*flags-y
+# 	assign <subdir>-*flags and subdir-*flags-y to subdir-<subdir>-*flags to avoid overwriting them by name collisions
 $(foreach dir,$(patsubst %/,%,$(subdir-y)), \
 	$(foreach flag,$(all_flags), \
-		$(eval subdir-$(loc_dir)/$(dir)-$(flag) := $($(dir)-$(flag)) $(subdir-$(flag))) \
+		$(eval subdir-$(loc_dir)/$(dir)-$(flag) := $($(dir)-$(flag)) $($(dir)-$(flag)-y) $(subdir-$(flag)) $(subdir-$(flag)-y)) \
 		$(eval $(dir)-$(flag) :=) \
 	) \
 )

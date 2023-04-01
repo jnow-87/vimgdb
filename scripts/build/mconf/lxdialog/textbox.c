@@ -17,6 +17,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
  */
 
 #include "dialog.h"
@@ -53,7 +56,7 @@ static void refresh_text_box(WINDOW *dialog, WINDOW *box, int boxh, int boxw,
  * keys is a null-terminated array
  * update_text() may not add or remove any '\n' or '\0' in tbuf
  */
-int dialog_textbox(const char *title, char *tbuf, int initial_height,
+int dialog_textbox(char const *title, char *tbuf, int initial_height,
 		   int initial_width, int *keys, int *_vscroll, int *_hscroll,
 		   update_text_fn update_text, void *data)
 {
@@ -129,7 +132,7 @@ do_resize:
 
 	print_title(dialog, title, width);
 
-	print_button(dialog, gettext(" Exit "), height - 2, width / 2 - 4, TRUE);
+	print_button(dialog, " Exit ", height - 2, width / 2 - 4, TRUE);
 	wnoutrefresh(dialog);
 	getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
@@ -258,7 +261,7 @@ do_resize:
 	delwin(box);
 	delwin(dialog);
 	if (_vscroll) {
-		const char *s;
+		char const *s;
 
 		s = buf;
 		*_vscroll = 0;

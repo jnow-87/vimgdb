@@ -101,6 +101,10 @@
  * UML_CONFIG_BOOM, to avoid conflicts with /usr/include/linux/autoconf.h,
  * through arch/um/include/uml-config.h; this fixdep "bug" makes sure that
  * those files will have correct dependencies.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
+ *
  */
 
 #include <string.h>
@@ -114,8 +118,8 @@
 
 /* static prototypes */
 static void parse_dep_file(void *map, size_t len);
-static void parse_prereq(const char *map, size_t len);
-static void update_prereq(const char *m, int slen);
+static void parse_prereq(char const *map, size_t len);
+static void update_prereq(char const *m, int slen);
 
 
 /* global variables */
@@ -174,7 +178,7 @@ static void parse_dep_file(void *dmap, size_t len){
 	hashtbl_clear();
 
 	/* find target */
-	while(m < end && (*m == ' ' || *m == '\\' || *m == '\n')) m++;
+	while(m < end && (*m == ' ' || *m == '\\' || *m == '\n' || *m == '\r')) m++;
 
 	tgt = m;
 
@@ -191,11 +195,11 @@ static void parse_dep_file(void *dmap, size_t len){
 	/* handle prerequisites */
 	while(m < end){
 		// find next prerequisites
-		while(m < end && (*m == ' ' || *m == '\\' || *m == '\n')) m++;
+		while(m < end && (*m == ' ' || *m == '\\' || *m == '\n' || *m == '\r')) m++;
 
 		prereq = m;
 
-		while(m < end && *m != ' ' && *m != '\n' && *m != '\\') m++;
+		while(m < end && *m != ' ' && *m != '\\' && *m != '\n' && *m != '\r') m++;
 
 		// break if prerequisite is actually a target
 		if(m > 0 && m[-1] == ':'){
@@ -216,11 +220,10 @@ static void parse_dep_file(void *dmap, size_t len){
 		if(strrcmp(prereq, m - prereq, conf_header, confh_len)){
 			printf(" \\\n  %s", prereq);
 
-			if(file_map(prereq, &fd, (void*)&fmap, &size) != 0)
-				return;
-
-			parse_prereq(fmap, size);
-			file_unmap(fd, fmap, size);
+			if(file_map(prereq, &fd, (void*)&fmap, &size) == 0){
+				parse_prereq(fmap, size);
+				file_unmap(fd, fmap, size);
+			}
 		}
 
 		m++;
@@ -232,10 +235,10 @@ static void parse_dep_file(void *dmap, size_t len){
 }
 
 /* parse prerequisite file for 'CONFIG_' occurences */
-static void parse_prereq(const char *map, size_t len){
+static void parse_prereq(char const *map, size_t len){
 	const int *end = (const int *)(map + len);
 	const int *m   = (const int *)map + 1; 	// start at +1, so that p can never be < map
-	const char *p, *q;
+	char const *p, *q;
 
 
 	for(; m < end; m++){
@@ -262,16 +265,14 @@ static void parse_prereq(const char *map, size_t len){
 }
 
 /* print CONFIG_ prerequisite */
-static void update_prereq(const char *m, int slen){
-	int i;
-
+static void update_prereq(char const *m, int slen){
 	// return if already hashed
 	if(hashtbl_add(m, slen))
 		return;
 
 	printf(" \\\n    $(wildcard %s", conf_dir);
 
-	for(i=0; i<slen; i++){
+	for(int i=0; i<slen; i++){
 		if(m[i] == '_')	putchar('/');
 		else			putchar(tolower(m[i]));
 	}
