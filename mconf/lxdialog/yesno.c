@@ -17,6 +17,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Note by Jan Nowotsch:
+ * 	This code has been borrowed from the linux kernel build system.
  */
 
 #include "dialog.h"
@@ -29,8 +32,8 @@ static void print_buttons(WINDOW * dialog, int height, int width, int selected)
 	int x = width / 2 - 10;
 	int y = height - 2;
 
-	print_button(dialog, gettext(" Yes "), y, x, selected == 0);
-	print_button(dialog, gettext("  No  "), y, x + 13, selected == 1);
+	print_button(dialog, " Yes ", y, x, selected == 0);
+	print_button(dialog, "  No  ", y, x + 13, selected == 1);
 
 	wmove(dialog, y, x + 1 + 13 * selected);
 	wrefresh(dialog);
@@ -39,7 +42,7 @@ static void print_buttons(WINDOW * dialog, int height, int width, int selected)
 /*
  * Display a dialog box with two buttons - Yes and No
  */
-int dialog_yesno(const char *title, const char *prompt, int height, int width)
+int dialog_yesno(char const *title, char const *prompt, int height, int width)
 {
 	int i, x, y, key = 0, button = 0;
 	WINDOW *dialog;
