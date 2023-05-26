@@ -35,6 +35,7 @@ yaccflags := $(YACCFLAGS) $(CONFIG_YACCFLAGS)
 lexflags := $(LEXFLAGS) $(CONFIG_LEXFLAGS)
 gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 
+
 ###################
 ###   targets   ###
 ###################
@@ -42,6 +43,7 @@ gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 ####
 ## build
 ####
+
 .PHONY: all
 ifeq ($(CONFIG_BUILD_DEBUG),y)
 all: cflags += -g
@@ -54,6 +56,7 @@ all: $(lib) $(bin)
 ####
 ## cleanup
 ####
+
 .PHONY: clean
 clean:
 	$(rm) $(filter-out $(patsubst %/,%,$(dir $(build_tree)/$(scripts_dir))),$(wildcard $(build_tree)/*))
@@ -65,40 +68,26 @@ distclean:
 ####
 ## install
 ####
-.PHONY: install-user
-install-user: all
-	$(mkdir) -p ~/.vim/plugin ~/.vim/syntax ~/.vim/doc ~/.vim/autoload/vimgdb ~/bin
-	$(cp) -au $(build_tree)/main/vimgdb ~/bin/
-	$(cp) -au $(build_tree)/user_cmd/per2h ~/bin/
-	$(cp) -au gui/vim/plugin/* ~/.vim/plugin
-	$(cp) -au gui/vim/syntax/* ~/.vim/syntax
-	$(cp) -au gui/vim/doc/* ~/.vim/doc
-	$(cp) -au gui/vim/autoload/* ~/.vim/autoload/vimgdb/
 
-.PHONY: install-system
-install-system: all
-	$(mkdir) -p /usr/share/vim/vim74/plugin /usr/share/vim/vim74/syntax /usr/share/vim/vim74/doc /usr/share/vim/vim74/autoload/vimgdb /usr/bin
-	$(cp) -au $(build_tree)/main/vimgdb /usr/bin/
-	$(cp) -au $(build_tree)/user_cmd/per2h /usr/bin/
-	$(cp) -au gui/vim/plugin/* /usr/share/vim/vim74/plugin
-	$(cp) -au gui/vim/syntax/* /usr/share/vim/vim74/syntax
-	$(cp) -au gui/vim/doc/* /usr/share/vim/vim74/doc
-	$(cp) -au gui/vim/autoload/* /usr/share/vim/vim74/autoload/vimgdb/
+include $(scripts_dir)/install.make
+
+VIM := ~/.vim
+
+.PHONY: install
+install: all
+	$(call install,$(build_tree)/main/vimgdb)
+	$(call install,$(build_tree)/user_cmd/per2h)
+	$(call install,gui/vim/doc/vimgdb.txt,$(VIM)/doc)
+	$(call install,gui/vim/plugin/vimgdb.vim,$(VIM)/plugin/)
+	$(call install,gui/vim/autoload/vimgdb,$(VIM)/autoload/)
+	$(call install,gui/vim/syntax/*,$(VIM)/syntax/)
 
 .PHONY: uninstall
 uninstall:
-	$(rm) -f /usr/bin/vimgdb
-	$(rm) -f /usr/share/vim/vim74/plugin/vimgdb.vim
-	$(rm) -f /usr/share/vim/vim74/syntax/vimgdb*.vim
-	$(rm) -rf /usr/share/vim/vim74/autoload/vimgdb
-	$(rm) -f ~/bin/vimgdb
-	$(rm) -f ~/.vim/plugin/vimgdb.vim
-	$(rm) -f ~/.vim/syntax/vimgdb*.vim
-	$(rm) -rf ~/.vim/autoload/vimgdb
-
-####
-## help
-####
-
-.PHONY: help
-help:
+	$(call uninstall,$(PREFIX)/vimgdb)
+	$(call uninstall,$(PREFIX)/per2h)
+	$(call uninstall,$(VIM)/doc/vimgdb.txt)
+	$(call uninstall,$(VIM)/plugin/vimgdb.vim)
+	$(call uninstall,$(VIM)/syntax/vimgdb_*.vim)
+	$(call uninstall,$(VIM)/syntax/per.vim)
+	$(call uninstall,$(VIM)/autoload/vimgdb)
