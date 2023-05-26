@@ -5,6 +5,7 @@
 #include <config/config.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <pthread.h>
 #include <map>
 #include <string>
 
