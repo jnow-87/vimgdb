@@ -61,6 +61,7 @@
 "name"									{ return VAR_NAME; }
 "bkpt"									{ return VAR_BREAKPT; }
 "bkptno"								{ return VAR_BREAKPT_NUM; }
+"locno"									{ return VAR_LOCATION_NUM; }
 "number"								{ return VAR_NUMBER; }
 "type"									{ return VAR_TYPE; }
 "catch-type"							{ return VAR_CATCH_TYPE; }
@@ -84,6 +85,7 @@
 "mask"									{ return VAR_MASK; }
 "pass"									{ return VAR_PASS; }
 "original-location"						{ return VAR_ORIG_LOCATION; }
+"locations"								{ return VAR_LOCATIONS; }
 "times"									{ return VAR_TIMES; }
 "installed"								{ return VAR_INSTALLED; }
 "what"									{ return VAR_WHAT; }

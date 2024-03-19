@@ -65,6 +65,7 @@
 %token VAR_NAME
 %token VAR_BREAKPT
 %token VAR_BREAKPT_NUM
+%token VAR_LOCATION_NUM
 %token VAR_NUMBER
 %token VAR_TYPE
 %token VAR_CATCH_TYPE
@@ -88,6 +89,7 @@
 %token VAR_MASK
 %token VAR_PASS
 %token VAR_ORIG_LOCATION
+%token VAR_LOCATIONS
 %token VAR_TIMES
 %token VAR_INSTALLED
 %token VAR_WHAT
@@ -186,6 +188,8 @@
 %type <slst> strlist-dummy
 %type <bkpt> breakpoint
 %type <bkpt> breakpoint-body
+%type <bkpt> locations
+%type <bkpt> locations-body
 %type <loc> location
 %type <loc> location-body
 %type <var> variable
@@ -284,6 +288,7 @@ event-stop-body :			%empty															{ $$ = new gdb_event_stop_t; }
 				|			event-stop-body con-com VAR_CORE '=' string-dummy				{ }
 				|			event-stop-body con-com VAR_DISPOSITION '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_BREAKPT_NUM '=' string-dummy		{ }
+				|			event-stop-body con-com VAR_LOCATION_NUM '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_SIG_NAME '=' string					{ $$ = $1; $$->signal = $5; }
 				|			event-stop-body con-com VAR_SIG_MEANING '=' string-dummy		{ }
 				|			event-stop-body con-com VAR_GDBRES_VAR '=' string-dummy			{ }
@@ -323,6 +328,7 @@ breakpoint-body :			%empty															{ $$ = new gdb_breakpoint_t; }
 				|			breakpoint-body con-com VAR_ADDRESS '=' string-dummy			{ }
 				|			breakpoint-body con-com VAR_FUNCTION '=' string-dummy			{ }
 				|			breakpoint-body con-com VAR_ORIG_LOCATION '=' string-dummy		{ }
+				|			breakpoint-body con-com VAR_LOCATIONS '=' '[' locations ']'		{ $$->filename = $6->filename; $$->line = $6->line; }
 				|			breakpoint-body con-com VAR_TIMES '=' string-dummy				{ }
 				|			breakpoint-body con-com VAR_THREAD_GROUPS '=' list-dummy		{ }
 				;
@@ -412,6 +418,21 @@ range-body-dummy :			%empty															{ }
 reg-names :					VAR_REG_NAMES '=' list											{ $$ = $3; };
 
 value :						VAR_VALUE '=' strlist											{ $$ = $3; strdeescape($3->s); };
+
+locations :					%empty															{ $$ = new gdb_breakpoint_t; }
+		  |					locations con-com '{' locations-body '}'						{ $$ = $4; delete $1; }
+		  ;
+
+locations-body :			%empty															{ $$ = new gdb_breakpoint_t; }
+			   |			locations-body con-com VAR_NUMBER '=' string-dummy				{ }
+			   |			locations-body con-com VAR_ENABLED '=' string-dummy				{ }
+			   |			locations-body con-com VAR_ADDRESS '=' string-dummy				{ }
+			   |			locations-body con-com VAR_FUNCTION '=' string-dummy			{ }
+			   |			locations-body con-com VAR_FILE '=' string						{ $$ = $1; $$->filename = $5; }
+			   |			locations-body con-com VAR_FULLNAME '=' string-dummy			{ }
+			   |			locations-body con-com VAR_LINE '=' string-num					{ $$ = $1; $$->line = $5; }
+			   |			locations-body con-com VAR_THREAD_GROUPS '=' list-dummy			{ }
+			   ;
 
 /* common */
 list :						'[' strlist ']'													{ $$ = $2; };
