@@ -9,7 +9,16 @@ let s:cmd_dict = {
 		\ "start":{},
 		\ "stop":{},
 		\ "direct":{"<mi-command>":{}},
-		\ "export":{"__nested__":"vimgdb#complete#file"},
+		\ "export":{
+			\ "__nested__":"vimgdb#complete#file",
+			\ "__nested1__":{
+				\ "gdbcmd":{},
+				\ "inferior": {},
+				\ "breakpoints":{},
+				\ "variables":{},
+				\ "peripherals":{},
+			\ },
+		\ },
 		\ "help":{},
 		\ "__nested__":"vimgdb#complete#file",
 		\ "__nested1__":{"__nested__":"vimgdb#complete#file"},
@@ -39,12 +48,12 @@ function s:vimgdb(first, ...)
 		call vimgdb#util#cmd(join(a:000))
 
 	elseif a:first == "export"
-		if a:0 != 1
-			echoerr "invalid argument, filename expected"
+		if a:0 < 1
+			echoerr "invalid number of arguments, expected at least a filename"
 			return
 		endif
 
-		call s:export(a:1)
+		call s:export(a:000[0], a:000[1:])
 
 	else
 		if filereadable(a:first) && match(a:first, ".*\.vim") == 0
@@ -175,23 +184,35 @@ endfunction
 " \brief	export the current debug session
 "
 " \param	file	output file name
-function s:export(file)
-	let l:lst = [ 
-		\ "let vimgdb_gdb_cmd = '" . g:vimgdb_gdb_cmd . "'", "",
-	 	\ "Vimgdb start", "",
-	\ ]
+" \param	exports list of items to export, if an empty list is given, all
+" 			possible items are exported
+function s:export(file, exports)
+	let l:item_map = {
+		\ "inferior": "inferior",
+		\ "breakpoints": "break",
+		\ "variables": "variable",
+		\ "peripherals": "per",
+	\ }
+	let l:exports = a:exports
+	let l:data = []
 
-	" export inferior data
-	let l:lst += vimgdb#util#cmd_get_data_list("inferior export")
-	
-	" export breakpoints
-	let l:lst += vimgdb#util#cmd_get_data_list("break export")
+	if len(l:exports) == 0
+		let l:exports = ["gdbcmd", "inferior", "breakpoints", "variables", "peripherals"]
+	endif
 
-	" export variables
-	let l:lst += vimgdb#util#cmd_get_data_list("variable export")
+	for l:item in l:exports
+		if l:item == "gdbcmd"
+			let l:data += [ 
+				\ "let vimgdb_gdb_cmd = '" . g:vimgdb_gdb_cmd . "'", "",
+				\ "Vimgdb start", "",
+			\ ]
+		elseif has_key(l:item_map, l:item)
+			let l:data += vimgdb#util#cmd_get_data_list(l:item_map[l:item] . " export")
 
-	" export peripheral data
-	let l:lst += vimgdb#util#cmd_get_data_list("per export")
+		else
+			echoerr "invalid export item: " . l:item
+		endif
+	endfor
 
 	" write ouptut file
 	let l:fullname = a:file
@@ -200,7 +221,7 @@ function s:export(file)
 		let l:fullname = getcwd() . "/" . a:file
 	endif
 
-	call writefile(l:lst, l:fullname)
+	call writefile(l:data, l:fullname)
 endfunction
 
 " \brief	vimgdb help command
