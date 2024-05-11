@@ -1,4 +1,6 @@
 %define api.prefix {vim}
+%define parse.error verbose
+%define parse.lac full
 %locations
 
 %{
@@ -7,11 +9,6 @@
 	#include <gui/vim/vimui.h>
 	#include <gui/vim/cursor.h>
 	#include <lexer.lex.h>
-
-
-	/* macros */
-	// extended error messages
-	#define YYERROR_VERBOSE
 
 
 	/* prototypes */

@@ -1,4 +1,6 @@
 %define api.prefix {gdb}
+%define parse.error verbose
+%define parse.lac full
 %locations
 
 %{
@@ -8,11 +10,6 @@
 	#include <gdb/gdb.h>
 	#include <gdb/types.h>
 	#include <gdb/lexer.lex.h>
-
-
-	/* macros */
-	// extended error messages
-	#define YYERROR_VERBOSE
 
 
 	/* prototypes */
